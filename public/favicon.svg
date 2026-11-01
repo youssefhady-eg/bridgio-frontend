@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!--
+    Interim internal placeholder only (token sheet §4 / LIVE_RULES §2 small-mark
+    interim rule: "Bridgio" set in Sora as text, or a Mohsen pose in a red card —
+    NOT presented as the brand logo). The adopted wordmark and the full lockup
+    are never used as a favicon.
+  -->
+  <rect width="64" height="64" rx="14" fill="#F41920"/>
+  <text x="32" y="46" text-anchor="middle" font-family="Sora, 'Segoe UI', sans-serif" font-weight="700" font-size="36" fill="#F9ECD9">B</text>
+</svg>
