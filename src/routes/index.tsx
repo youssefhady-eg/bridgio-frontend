@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { ar, en } from '~/content/strings'
 import { studentNav, teacherNav } from '~/shell/nav'
-import type { ScreenId } from '~/content/strings'
 
 export const Route = createFileRoute('/')({
   component: ShellHome,
@@ -39,7 +38,7 @@ function ShellHome() {
             {[...teacherNav, ...studentNav].map((item) => (
               <li key={item.id}>
                 <a className="screen-link" href={item.to}>
-                  {ar.nav[item.id as Exclude<ScreenId, 'shell-home'>]}
+                  {ar.nav[item.id]}
                 </a>
                 <span className="screen-meta">
                   {ar.placeholder.builtByScreen[item.id]}

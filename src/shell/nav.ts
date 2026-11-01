@@ -15,8 +15,8 @@ export type AppRole = 'teacher' | 'student'
 
 export const appRoles: readonly AppRole[] = ['teacher', 'student'] as const
 
-export type ScreenId =
-  | 'shell-home'
+/** The seven nav destinations (never the shell home). */
+export type NavScreenId =
   | 'teacher-dashboard'
   | 'teacher-classes'
   | 'teacher-tests'
@@ -26,7 +26,7 @@ export type ScreenId =
   | 'student-progress'
 
 export interface NavRoute {
-  id: ScreenId
+  id: NavScreenId
   /** Placeholder route — no feature screen is built behind it in Stage 1. */
   to: string
 }
