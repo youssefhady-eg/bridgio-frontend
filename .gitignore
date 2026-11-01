@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.output/
+.vercel/
+.netlify/
+.wrangler/
+
+# Environment / secrets — never commit these
+.env
+.env.*
+!.env.example
+
+# Local tooling
+*.local
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+# Test / coverage output
+coverage/
+playwright-report/
+test-results/
+
+# Editor folders
+.idea/
+.vscode/*
+!.vscode/extensions.json
