@@ -1,83 +1,66 @@
-import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { adapterInfoQueryOptions } from '~/api/queries'
 import { ar, en } from '~/content/strings'
+import { studentNav, teacherNav } from '~/shell/nav'
+import type { ScreenId } from '~/content/strings'
 
 export const Route = createFileRoute('/')({
-  loader: ({ context }) =>
-    context.queryClient.ensureQueryData(adapterInfoQueryOptions()),
-  component: StageZeroStatus,
+  component: ShellHome,
 })
 
-const strings = ar.stage0
+const strings = ar.shell.home
 
 /**
- * Stage 0 diagnostic page only.
- * This is NOT a product screen: no dashboard, builder, player, nav or brand shell.
+ * Stage 1 shell overview — what the shell contains, and what is explicitly
+ * NOT built yet. This is not a product screen and must not look like one.
  */
-function StageZeroStatus() {
-  const { data, isPending, isError } = useQuery(adapterInfoQueryOptions())
-
+function ShellHome() {
   return (
-    <main className="stage0">
-      <p className="stage0__badge">{strings.badge}</p>
-      <h1>{strings.title}</h1>
-      <p className="stage0__lead">{strings.lead}</p>
+    <div className="app-shell">
+      <p className="app-shell__badge">{strings.badge}</p>
+      <h1 className="app-shell__hero">{strings.title}</h1>
+      <p className="app-shell__lead">{strings.lead}</p>
 
-      <section className="stage0__card" aria-labelledby="adapter-status-heading">
-        <h2 id="adapter-status-heading">{strings.adapterHeading}</h2>
-        {isPending ? <p>{strings.loading}</p> : null}
-        {isError ? <p role="alert">{strings.error}</p> : null}
-        {data ? (
-          <dl>
-            <div>
-              <dt>{strings.mode}</dt>
-              <dd>
-                {data.mode === 'mock' ? strings.mock : strings.http}
-              </dd>
-            </div>
-            <div>
-              <dt>{strings.contractVersion}</dt>
-              <dd>
-                <code dir="ltr">{data.contractVersion}</code>
-              </dd>
-            </div>
-            <div>
-              <dt>{strings.scenario}</dt>
-              <dd>
-                {data.mockScenario === 'empty'
-                  ? strings.empty
-                  : data.mockScenario === 'seeded'
-                    ? strings.seeded
-                    : '—'}
-              </dd>
-            </div>
-            <div>
-              <dt>{strings.endpointStatus}</dt>
-              <dd>{strings.proposed}</dd>
-            </div>
-          </dl>
-        ) : null}
+      <section className="app-shell__section" aria-labelledby="shell-built-heading">
+        <div className="app-card">
+          <h2 id="shell-built-heading">{strings.builtHeading}</h2>
+          <ul className="app-list">
+            {strings.built.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </div>
       </section>
 
-      <section aria-labelledby="not-built-heading">
-        <h2 id="not-built-heading">{strings.notBuiltHeading}</h2>
-        <ul>
-          {strings.notBuilt.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
+      <section className="app-shell__section" aria-labelledby="shell-notbuilt-heading">
+        <div className="app-card">
+          <h2 id="shell-notbuilt-heading">{strings.notBuiltHeading}</h2>
+          <p className="placeholder__lead">{strings.notBuiltLead}</p>
+          <ul className="app-list app-list--links">
+            {[...teacherNav, ...studentNav].map((item) => (
+              <li key={item.id}>
+                <a className="screen-link" href={item.to}>
+                  {ar.nav[item.id as Exclude<ScreenId, 'shell-home'>]}
+                </a>
+                <span className="screen-meta">
+                  {ar.placeholder.builtByScreen[item.id]}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
       </section>
 
-      <footer className="stage0__footer">
-        <p>{strings.noConnection}</p>
-        <p>
-          <code dir="ltr">{strings.docsHint}</code>
-        </p>
-        <p className="stage0__footer-en" lang="en" dir="ltr">
-          {en.stage0.footer}
-        </p>
-      </footer>
-    </main>
+      <section className="app-shell__section" aria-labelledby="shell-role-note">
+        <div className="app-card">
+          <p>
+            {ar.shell.roleHint}{' '}
+            <code className="app-code">{ar.shell.codeHint}</code>
+          </p>
+          <p className="screen-meta" lang="en" dir="ltr">
+            {en.shell.footerEn}
+          </p>
+        </div>
+      </section>
+    </div>
   )
 }
