@@ -2,8 +2,8 @@
 
 Arabic-first BRIDGIO product frontend on top of Mentingo (headless API / DB /
 auth / courses). This repository is currently at **Stage 1: shell, tokens, RTL,
-header** (on branch `opencode-stage1`). The Stage 0 API adapter contract is in
-place; **no product screens are built yet** — nav destinations open labelled
+header** (code merged to `main`). The Stage 0 API adapter contract is in place;
+**no product screens are built yet** — nav destinations open labelled
 placeholders.
 
 > **Status: PROPOSED only.** Mentingo's local source was deleted by the owner on
@@ -118,9 +118,10 @@ docs/                   contract, delivery notes, source rules, screenshots
 
 Stage 0 (scaffold + adapter contract) is on `main` at `8ebafda`.
 
-Stage 1 (shell, tokens, RTL, header) is built and self-verified on
-`opencode-stage1`. It is **not** verified by Muse yet and **not** merged to
-`main`. Do not start Stage 2 until the Stage 1 gate passes.
+Stage 1 (shell, tokens, RTL, header) code is verified PASS by Muse and merged to
+`main` at `a46252f`. The Stage 1 **docs refresh** failed and is being fixed on
+`opencode-stage1-docs-fix` (docs only, not merged). Do not start Stage 2 until
+Muse confirms that docs fix.
 
 The Stage 1 shell is data-free on purpose: header, nav and placeholders use no
 adapter data (auth remains Mentingo-owned and unconfirmed). Feature screens start
