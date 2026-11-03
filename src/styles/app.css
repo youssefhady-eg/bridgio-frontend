@@ -91,9 +91,17 @@ code {
 }
 
 /* Focus: PROPOSED 2 px maroon outline, 2 px offset, on every interactive
-   element (cream variant on the dark band, per tokens.css). */
+   element (cream variant on the dark band, per tokens.css). Radios/checkboxes
+   are visually hidden inside their label; the label itself shows the ring via
+   `:focus-within` below, so they are excluded here to avoid a stray ring on the
+   1 px hidden input. */
 a:focus-visible,
-button:focus-visible {
+button:focus-visible,
+input:not([type='radio']):not([type='checkbox']):focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible {
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: var(--focus-ring-offset);
 }
@@ -105,6 +113,9 @@ button:focus-visible {
   inset-inline-start: -9999px;
   top: 0;
   z-index: 100;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
   padding: var(--space-2) var(--space-4);
   border-radius: var(--radius-pill);
   background: var(--bridgio-maroon);
@@ -858,6 +869,10 @@ button:focus-visible {
   border-color: var(--bridgio-error);
 }
 
+.empty-note--success {
+  border-color: var(--bridgio-success);
+}
+
 .empty-note__icon {
   flex: none;
   display: grid;
@@ -872,6 +887,11 @@ button:focus-visible {
 .empty-note--error .empty-note__icon {
   border-color: var(--bridgio-error);
   color: var(--bridgio-error);
+}
+
+.empty-note--success .empty-note__icon {
+  border-color: var(--bridgio-success);
+  color: var(--bridgio-success);
 }
 
 .empty-note__text h3 {
@@ -1948,9 +1968,9 @@ button:focus-visible {
   overflow-wrap: anywhere;
 }
 
-.mohsen-qa__refusal {
-  color: var(--bridgio-error);
-  font-weight: 600;
+.mohsen-qa .empty-note {
+  margin-block-start: var(--space-1);
+  padding: var(--space-4);
 }
 
 .mohsen-qa .grounding {

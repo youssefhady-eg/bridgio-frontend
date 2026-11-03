@@ -41,13 +41,13 @@ export type ScreenId =
 /** DRAFT Arabic — not approved final copy. */
 export const ar = {
   head: {
-    title: 'Bridgio — المرحلة ٤: مشغّل اختبار الطالب',
+    title: 'Bridgio — المرحلة ٥: تثبيت محسن والحالات',
     description:
-      'مشغّل اختبار الطالب في Bridgio: عرض السؤال والخيارات، والتنقّل بين الأسئلة، والتسليم مع شريط تقدّم، ولوحة أسئلة محسن على نفس الشاشة. بتخطيط عربي كامل من اليمين إلى اليسار. البيانات تجريبية وتأتي عبر طبقة البيانات، وهذه نسخة داخلية للتحقق وليست نسخة منتج نهائية.',
+      'تثبيت محسن في Bridgio: إجابات موثّقة من المادة أو المنهج فقط مع عرض المصدر مع كل إجابة، ورفض صريح عند عدم وجود إجابة موثّقة، وحالات فراغ وخطأ ونجاح في لوحة المعلم ومنشئ الاختبارات ومشغّل اختبار الطالب، مع فحص الوصولية. بتخطيط عربي كامل من اليمين إلى اليسار. البيانات تجريبية وتأتي عبر طبقة البيانات، وهذه نسخة داخلية للتحقق وليست نسخة منتج نهائية.',
   },
   stageBanner: {
-    stage: 'المرحلة ٤ من ٧',
-    note: 'بناء داخلي للتحقق من مشغّل اختبار الطالب. البيانات تجريبية وتأتي عبر طبقة البيانات، وليست بيانات حقيقية.',
+    stage: 'المرحلة ٥ من ٧',
+    note: 'تثبيت إجابات محسن الموثّقة والحالات في الصفوف الثلاثة. البيانات تجريبية وتأتي عبر طبقة البيانات، وليست بيانات حقيقية.',
   },
   header: {
     navLabel: 'التنقّل الرئيس',
@@ -242,6 +242,9 @@ export const ar = {
         'اضغط زر الصياغة ليقرأ محسن من المصدر المحدد ويقترح أسئلة مسودة قابلة للتعديل والحذف.',
       draftedTitle: 'مسودة الأسئلة',
       draftedNote: 'كل سؤال هنا مسودة قابلة للتعديل والحذف قبل النشر.',
+      draftedSuccessTitle: 'صاغ محسن أسئلة موثّقة',
+      draftedSuccessBody:
+        'أضاف محسن الأسئلة من المصدر المحدد فقط، ومع كل سؤال مصدره. راجعها في الأسفل قبل المتابعة.',
       questionsCount: (count: string) => `${count} سؤالًا في المسودة`,
       noGroundingTitle: 'لا توجد أسئلة جديدة من هذا المصدر',
       noGroundingFallback:
@@ -404,6 +407,8 @@ export const ar = {
       questionLabel: 'سؤالك',
       answeredLabel: 'إجابة محسن',
       refusalLabel: 'محسن مش لاقي إجابة',
+      notGroundedFallback:
+        'مفيش عندي إجابة موثّقة من مادة الاختبار على السؤال ده. مش هخمّن.',
       groundingLabel: 'المصدر',
       errorTitle: 'محسن مش قادر يجاوب دلوقتي.',
       errorBody: 'جرّب تاني بعد شوية.',
@@ -450,6 +455,6 @@ export const ar = {
 export const en = {
   shell: {
     footerEn:
-      'Stage 4 student test player: answer published tests question by question, submit to record the attempt, and ask Mohsen grounded questions on the same screen through the mock adapter. No marking, no price. Not final.',
+      'Stage 5 Mohsen grounding hardening and states: grounded answers only with the source shown, an honest refusal when nothing is grounded, empty/error/success states across dashboard, builder and player, and a focus/touch-target accessibility pass. No marking, no price. Not final.',
   },
 } as const

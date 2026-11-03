@@ -180,13 +180,17 @@ function sentencesOf(text: string): string[] {
     .filter(Boolean)
 }
 
-function findSupportingSentence(text: string, tokens: string[]): string {
-  const sentences = sentencesOf(text)
-  const match = sentences.find((sentence) => {
+/**
+ * The excerpt shown next to an answer must actually contain a query term,
+ * otherwise it is not evidence for the answer. Returns null when no sentence
+ * in the text supports the question — that candidate is then unusable.
+ */
+function supportingExcerpt(text: string, tokens: string[]): string | null {
+  const match = sentencesOf(text).find((sentence) => {
     const normalized = normalizeText(sentence)
     return tokens.some((token) => normalized.includes(token))
   })
-  return match ?? sentences[0] ?? text.trim().slice(0, 220)
+  return match ?? null
 }
 
 interface GroundingCandidate {
@@ -692,52 +696,83 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
     return [...candidates.values()]
   }
 
+  function refusalAnswer(): MohsenAnswer {
+    return {
+      status: 'not_grounded',
+      answer: NOT_GROUNDED_ANSWER,
+      grounding: [],
+    }
+  }
+
+  /**
+   * Grounding integrity guard: an answered result is only allowed to stand when
+   * at least one grounding ref carries a real label and a real excerpt. If the
+   * retrieval pipeline ever produced an ungrounded "answer", it is downgraded to
+   * the honest refusal instead of being shown.
+   */
+  function hasUsableGrounding(grounding: readonly GroundingRef[]): boolean {
+    return (
+      grounding.length > 0 &&
+      grounding.every(
+        (ref) =>
+          ref.label.trim().length > 0 &&
+          (ref.excerpt ?? '').trim().length > 0,
+      )
+    )
+  }
+
   function answerQuestion(
     question: string,
     candidates: GroundingCandidate[],
   ): MohsenAnswer {
     const tokens = tokenize(question)
     if (tokens.length === 0 || candidates.length === 0) {
-      return {
-        status: 'not_grounded',
-        answer: NOT_GROUNDED_ANSWER,
-        grounding: [],
-      }
+      return refusalAnswer()
     }
 
-    const scored = candidates
+    const grounded = candidates
       .map((candidate) => {
         const normalized = normalizeText(candidate.text)
         const score = tokens.reduce(
           (total, token) => (normalized.includes(token) ? total + 1 : total),
           0,
         )
-        return { candidate, score }
+        return {
+          candidate,
+          score,
+          excerpt: supportingExcerpt(candidate.text, tokens),
+        }
       })
-      .filter((entry) => entry.score > 0)
+      // A candidate only counts when it matches the question *and* a sentence
+      // in it can be quoted as evidence.
+      .filter(
+        (entry): entry is {
+          candidate: GroundingCandidate
+          score: number
+          excerpt: string
+        } => entry.score > 0 && entry.excerpt !== null,
+      )
       .sort((left, right) => right.score - left.score)
 
     const threshold = tokens.length >= 3 ? 2 : 1
-    const top = scored[0]
+    const top = grounded[0]
     if (!top || top.score < threshold) {
-      return {
-        status: 'not_grounded',
-        answer: NOT_GROUNDED_ANSWER,
-        grounding: [],
-      }
+      return refusalAnswer()
     }
 
-    const grounding: GroundingRef[] = scored.slice(0, 2).map((entry) => {
-      const excerpt = findSupportingSentence(entry.candidate.text, tokens)
-      return { ...entry.candidate.grounding, excerpt }
-    })
+    const grounding: GroundingRef[] = grounded
+      .slice(0, 2)
+      .map((entry) => ({ ...entry.candidate.grounding, excerpt: entry.excerpt }))
+
+    if (!hasUsableGrounding(grounding)) {
+      return refusalAnswer()
+    }
 
     const source = top.candidate.grounding
-    const excerpt = findSupportingSentence(top.candidate.text, tokens)
     const answer =
       source.kind === 'material'
-        ? `وفقًا للمادة «${source.label}»: ${excerpt}`
-        : `وفقًا لوحدة «${source.label}» في المنهج المقرر: ${excerpt}`
+        ? `وفقًا للمادة «${source.label}»: ${top.excerpt}`
+        : `وفقًا لوحدة «${source.label}» في المنهج المقرر: ${top.excerpt}`
 
     return { status: 'answered', answer, grounding }
   }

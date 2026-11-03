@@ -81,7 +81,9 @@ export function AppHeader() {
               key={candidate}
               href={hrefWithRole(pathname, searchStr, candidate)}
               className={`app-roles__link${candidate === role ? ' is-active' : ''}`}
-              aria-pressed={candidate === role}
+              // `aria-current` is the valid ARIA for a link that marks the
+              // active item in a set; `aria-pressed` is not allowed on links.
+              aria-current={candidate === role ? 'true' : undefined}
             >
               {candidate === 'teacher' ? strings.roleTeacher : strings.roleStudent}
             </a>

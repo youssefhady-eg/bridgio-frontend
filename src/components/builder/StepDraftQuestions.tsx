@@ -125,6 +125,14 @@ export function StepDraftQuestions({
         ) : null}
 
         {result?.status === 'drafted' ? (
+          <EmptyNote
+            tone="success"
+            title={strings.draftedSuccessTitle}
+            body={strings.draftedSuccessBody}
+          />
+        ) : null}
+
+        {result?.status === 'drafted' ? (
           <section
             className="draft-preview"
             aria-labelledby="builder-draft-preview-heading"

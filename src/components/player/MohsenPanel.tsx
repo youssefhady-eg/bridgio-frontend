@@ -5,6 +5,7 @@ import type { GroundingScope, MohsenAnswer, UserId } from '~/api/types'
 import { GroundingList } from '~/components/builder/GroundingList'
 import { EmptyNote } from '~/components/dashboard/EmptyNote'
 import { ar } from '~/content/strings'
+import { answerView } from '~/components/mohsen/answerView'
 
 const strings = ar.player.mohsen
 
@@ -17,12 +18,13 @@ interface QAEntry {
 }
 
 /**
- * Stage 4 — Mohsen Q&A beside the player.
+ * Mohsen Q&A beside the player — hardened in Stage 5.
  *
- * The panel is a thin view over `mohsen.ask`: every answered result is shown with
- * its grounding (the adapter supplies the label and excerpt), and a `not_grounded`
- * result shows the adapter's refusal verbatim. The UI never invents an answer,
- * and the adapter never guesses.
+ * The panel is a thin view over `mohsen.ask`: every result is passed through
+ * `answerView`, so an answered result is only shown when it carries usable
+ * grounding (the adapter supplies the label and excerpt) and anything
+ * ungrounded becomes the honest refusal. The UI never invents an answer, and
+ * the adapter never guesses.
  */
 export function MohsenPanel({
   studentId,
@@ -104,40 +106,42 @@ export function MohsenPanel({
         <EmptyNote icon="spark" title={strings.heading} body={strings.empty} />
       ) : (
         <ol className="mohsen-panel__thread" aria-live="polite">
-          {entries.map((entry) => (
-            <li className="mohsen-qa" key={entry.key}>
-              <p className="mohsen-qa__label">{strings.questionLabel}</p>
-              <p className="mohsen-qa__question">{entry.question}</p>
+          {entries.map((entry) => {
+            const view = entry.answer === null ? null : answerView(entry.answer)
+            return (
+              <li className="mohsen-qa" key={entry.key}>
+                <p className="mohsen-qa__label">{strings.questionLabel}</p>
+                <p className="mohsen-qa__question">{entry.question}</p>
 
-              {entry.failed ? (
-                <EmptyNote
-                  tone="error"
-                  title={strings.errorTitle}
-                  body={strings.errorBody}
-                />
-              ) : entry.answer === null ? (
-                <p className="mohsen-qa__answer" role="status">
-                  {strings.asking}
-                </p>
-              ) : entry.answer.status === 'answered' ? (
-                <>
-                  <p className="mohsen-qa__label">{strings.answeredLabel}</p>
-                  <p className="mohsen-qa__answer">{entry.answer.answer}</p>
-                  <GroundingList
-                    grounding={entry.answer.grounding}
-                    label={strings.groundingLabel}
+                {entry.failed ? (
+                  <EmptyNote
+                    tone="error"
+                    title={strings.errorTitle}
+                    body={strings.errorBody}
                   />
-                </>
-              ) : (
-                <>
-                  <p className="mohsen-qa__label">{strings.refusalLabel}</p>
-                  <p className="mohsen-qa__answer mohsen-qa__refusal">
-                    {entry.answer.answer}
+                ) : view === null ? (
+                  <p className="mohsen-qa__answer" role="status">
+                    {strings.asking}
                   </p>
-                </>
-              )}
-            </li>
-          ))}
+                ) : view.status === 'answered' ? (
+                  <>
+                    <p className="mohsen-qa__label">{strings.answeredLabel}</p>
+                    <p className="mohsen-qa__answer">{view.answer}</p>
+                    <GroundingList
+                      grounding={view.grounding}
+                      label={strings.groundingLabel}
+                    />
+                  </>
+                ) : (
+                  <EmptyNote
+                    icon="book"
+                    title={strings.refusalLabel}
+                    body={view.answer}
+                  />
+                )}
+              </li>
+            )
+          })}
         </ol>
       )}
     </aside>
