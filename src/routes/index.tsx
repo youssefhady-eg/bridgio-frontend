@@ -1,8 +1,20 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 import { ar, en } from '~/content/strings'
 import { studentNav, teacherNav } from '~/shell/nav'
 
 export const Route = createFileRoute('/')({
+  /**
+   * The teacher landing screen is the Stage 2 dashboard. The student preview
+   * keeps the shell overview until student screens exist (Stage 4+).
+   */
+  beforeLoad: ({ search }) => {
+    if (search.as === 'teacher') {
+      throw redirect({
+        to: '/teacher/dashboard',
+        search: { as: 'teacher' },
+      })
+    }
+  },
   component: ShellHome,
 })
 

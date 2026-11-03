@@ -534,3 +534,366 @@ button:focus-visible {
     padding-inline: var(--space-8);
   }
 }
+
+/* ---- Stage 2 teacher dashboard ---------------------------------------------- */
+/*
+ * Sticker cards (solid paper + maroon outline, no shadows), locked status
+ * colours, proposed spacing/radii from tokens.css. Everything is logical so RTL
+ * mirrors without per-component hacks; numbers and dates come from the adapter.
+ */
+
+.dashboard {
+  max-width: 68rem;
+}
+
+.dashboard__hero {
+  margin-block-end: var(--space-8);
+}
+
+.dashboard__lead {
+  max-width: 46rem;
+  margin-block: var(--space-3) 0;
+  color: var(--text-secondary);
+  font-size: var(--font-body-size);
+}
+
+.dashboard__greeting {
+  margin-block: var(--space-3) 0;
+  color: var(--text-muted);
+  font-family: 'Bridgio Label', sans-serif;
+  font-size: var(--font-body-small-size);
+  font-weight: 600;
+}
+
+.dashboard__loading {
+  padding: var(--space-6);
+  background: var(--bridgio-paper);
+  border: var(--outline-hairline) solid var(--border-strong);
+  border-radius: var(--radius-card);
+  color: var(--text-secondary);
+  font-size: var(--font-body-small-size);
+}
+
+.dashboard__section {
+  margin-block-start: var(--space-8);
+}
+
+.dashboard__section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-block-end: var(--space-4);
+}
+
+.dashboard__count {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  min-height: 1.75rem;
+  padding: 0 var(--space-3);
+  border: var(--outline-hairline) solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  color: var(--text-secondary);
+  font-family: 'Bridgio Label', sans-serif;
+  font-size: var(--font-caption-size);
+  font-weight: 600;
+}
+
+.dashboard__section-lead {
+  max-width: 46rem;
+  margin-block: calc(var(--space-2) * -1) var(--space-4);
+  color: var(--text-secondary);
+  font-size: var(--font-body-small-size);
+}
+
+/* Summary totals */
+
+.dashboard__totals {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.total-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--bridgio-paper);
+  border: var(--outline-sticker) solid var(--bridgio-maroon);
+  border-radius: var(--radius-card);
+}
+
+.total-card__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  color: var(--text-primary);
+}
+
+.total-card__value {
+  margin: 0;
+  font-family: 'Bridgio Display', sans-serif;
+  font-size: var(--font-display-size-h1);
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.total-card__label {
+  margin: 2px 0 0;
+  color: var(--text-secondary);
+  font-family: 'Bridgio Label', sans-serif;
+  font-size: var(--font-caption-size);
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+/* Classes */
+
+.class-grid {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.class-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-6);
+  background: var(--bridgio-paper);
+  border: var(--outline-sticker) solid var(--bridgio-maroon);
+  border-radius: var(--radius-card);
+}
+
+.class-card__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+  margin: var(--space-2) 0 0;
+}
+
+.class-card__stats div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.class-card__stats dt {
+  color: var(--text-muted);
+  font-family: 'Bridgio Label', sans-serif;
+  font-size: var(--font-caption-size);
+  font-weight: 600;
+}
+
+.class-card__stats dd {
+  margin: 0;
+  font-family: 'Bridgio Display', sans-serif;
+  font-size: var(--font-display-size-h3);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.class-card__note {
+  margin: var(--space-2) 0 0;
+  padding-block-start: var(--space-2);
+  border-block-start: var(--outline-hairline) solid var(--border);
+  color: var(--text-secondary);
+  font-size: var(--font-body-small-size);
+}
+
+/* Panels (recent tests, progress) */
+
+.panel {
+  background: var(--bridgio-paper);
+  border: var(--outline-sticker) solid var(--bridgio-maroon);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+.test-list,
+.progress-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.test-row {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-6);
+}
+
+.test-row + .test-row,
+.progress-row + .progress-row {
+  border-block-start: var(--outline-hairline) solid var(--border);
+}
+
+.test-row__aside {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.row-meta {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--font-body-small-size);
+  line-height: 1.5;
+}
+
+/* Status chip — icon + word, locked status colours, no new hex */
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px var(--space-3);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  font-family: 'Bridgio Label', sans-serif;
+  font-size: var(--font-caption-size);
+  font-weight: 600;
+  line-height: 1.45;
+  white-space: nowrap;
+}
+
+.status-chip--success {
+  background: var(--bridgio-paper);
+  border-color: var(--bridgio-success);
+  color: var(--bridgio-success);
+}
+
+.status-chip--warning {
+  /* Warning is fill only, with maroon text (token sheet §1). */
+  background: var(--bridgio-warning-fill);
+  border-color: var(--bridgio-maroon);
+  color: var(--text-primary);
+}
+
+.status-chip--neutral {
+  background: var(--bridgio-paper);
+  border-color: var(--border-strong);
+  color: var(--text-secondary);
+}
+
+/* Student progress rows */
+
+.progress-row {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-6);
+}
+
+.progress-row__labels {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-block-end: var(--space-2);
+  color: var(--text-secondary);
+  font-family: 'Bridgio Label', sans-serif;
+  font-size: var(--font-caption-size);
+  font-weight: 600;
+}
+
+.progress-row__labels strong {
+  color: var(--text-primary);
+  font-size: var(--font-body-small-size);
+}
+
+.progress-row__detail .row-meta + .row-meta {
+  margin-block-start: 2px;
+}
+
+.progress {
+  height: 10px;
+  overflow: hidden;
+  background: var(--border);
+  border-radius: var(--radius-pill);
+}
+
+.progress__fill {
+  display: block;
+  height: 100%;
+  background: var(--bridgio-maroon);
+  border-radius: var(--radius-pill);
+}
+
+/* Empty / error note */
+
+.empty-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  background: var(--bridgio-paper);
+  border: var(--outline-hairline) solid var(--border-strong);
+  border-radius: var(--radius-card);
+}
+
+.empty-note--error {
+  border-color: var(--bridgio-error);
+}
+
+.empty-note__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  border: 1.5px solid var(--bridgio-maroon);
+  border-radius: var(--radius-pill);
+  color: var(--text-primary);
+}
+
+.empty-note--error .empty-note__icon {
+  border-color: var(--bridgio-error);
+  color: var(--bridgio-error);
+}
+
+.empty-note__text h3 {
+  margin: 0 0 var(--space-1);
+}
+
+.empty-note__text p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--font-body-small-size);
+}
+
+@media (min-width: 768px) {
+  .dashboard__totals {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .class-grid {
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  }
+
+  .test-row,
+  .progress-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-6);
+  }
+
+  .test-row__aside {
+    justify-content: flex-end;
+  }
+
+  .progress-row {
+    grid-template-columns: minmax(12rem, 18rem) minmax(0, 1fr);
+    align-items: start;
+  }
+}
