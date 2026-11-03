@@ -3,7 +3,7 @@
 Companion delta sheet to the BRIDGIO build files.
 **Authority (owner-approved to save, 2026-11-01 — owner to check this file before it is pasted to OpenCode):** the UI/UX token sheet + this file + the AI build handoff + `BRIDGIO-OpenCode-stages.md` are the SOLE live execution line for OpenCode. Where this file records a post-handoff owner decision, this file wins; on everything else the token sheet wins for UI and the handoff wins for build scope.
 **Maintained by Muse after every ruling.** Paste this file alongside the stages document, the handoff and the token sheet in every fresh OpenCode session.
-**Status at save:** Stage 0 pending, not built, not verified, not merged. Nothing in this file makes the build locked, final, or external-ready.
+**Status:** Stage 0 delivered, not verified, not merged. Package manager locked to npm 2026-11-01 (see §1). Nothing in this file makes the build locked, final, or external-ready.
 
 ## 0. What this file is not
 
@@ -14,6 +14,7 @@ Companion delta sheet to the BRIDGIO build files.
 ## 1. Stack and theme discipline (locked)
 
 - **Stack, locked:** TanStack Start + TanStack Router + TanStack Query, TypeScript, on Vite. Not Next.js, not plain React Router, not a new framework chosen by the builder.
+- **Package manager, locked 2026-11-01 (owner decision: Keep npm for BRIDGIO):** npm, with `package-lock.json`. Commands are `npm test`, `npm run typecheck`, and `npm run build` as reported in Stage 0. Not bun (Analytica's manager) and not pnpm (Mentingo's manager) — managers are per-repo. Worktree startup uses the `npm ci` path for BRIDGIO.
 - **Audience and language, locked:** Egyptian high-school teachers and their students first. Arabic-first, full RTL, light theme only, for every stage. No dark theme is specified — do not invent one.
 - **Future layer, not MVP:** exotic / foreign languages (18–28) and Learn-to-Hire are future layer only. Do not build them as main MVP flows; a badge / ribbon label at most.
 - **No paid anything:** no paid service, library, font, or image in any stage.
@@ -162,7 +163,7 @@ Goal: a shareable demo link, no paid hosting, no local-only demo that only works
 
 The 10 handoff files live in a separate, isolated folder as storage and are NOT all given at once. The isolated folder's path has NOT yet been given by the owner — do not assume it. Attaching the stage's files directly in the OpenCode session is an acceptable alternative for Stage 0.
 
-- Stage 0 uses only: `BRIDGIO-OpenCode-stages.md`, `BRIDGIO-AI-build-handoff.md`, `BRIDGIO-UI-UX-token-sheet.md`.
+- Stage 0 uses only: `BRIDGIO-LIVE_RULES.md`, `BRIDGIO-OpenCode-stages.md`, `BRIDGIO-AI-build-handoff.md`, `BRIDGIO-UI-UX-token-sheet.md`. (LIVE_RULES added after it was saved, per owner approval to provide it; it is pasted in every fresh session thereafter, alongside the stage's files.)
 - Stage 1 adds: `logo-bw.svg`, `logo-colour.svg`, `wordmark-cream.svg`, `wordmark-maroon.svg`, and fonts (Sora, Nunito, Alexandria, Baloo Bhaijaan 2).
 - Stages 2–4 add no new files.
 - Stage 5 adds: the reactions sheet.
@@ -203,7 +204,7 @@ Stage-specific gates are in `BRIDGIO-OpenCode-stages.md` and are not repeated he
 - Mentingo database type, Mentingo auth method, and every Mentingo endpoint: unconfirmed / proposed only. Ask in the delivery note as gaps; do not assume or invent.
 - Isolated folder path for the 10 handoff files: not yet given by the owner.
 - Local branch rename (`master` → `main`): instructed, not yet confirmed done.
-- Stage 0 result: pending, not built, not verified, not merged at save time.
+- Stage 0 result: delivered, not verified, not merged. Branch `opencode-stage0`, commit `8ebafda0906ef6b8946a4bd5da216b1758296a2a`, pushed, main not pushed or changed. Muse verification pending zip upload; no PASS, no merge, no Stage 1 until the gate passes.
 
 ## 10. Rulings log (owner decisions, in date order)
 
@@ -217,3 +218,5 @@ Stage-specific gates are in `BRIDGIO-OpenCode-stages.md` and are not repeated he
 - **2026-11-01 — Stages rewrite:** plan rewritten as Analytica-style stages in `BRIDGIO-OpenCode-stages.md` (Stage 0–7, one stage at a time, stop, Muse verifies gate, then next stage). Handoff updated to point to stages, not the big prompt.
 - **2026-11-01 — GitHub direct:** owner created private repo `bridgio-frontend` on GitHub; local folder linked as origin to `https://github.com/youssefhady-eg/bridgio-frontend`; `git ls-remote origin` returning no error and no refs confirmed the empty repo and access. Stage 0 to run on branch `opencode-stage0`, pushed as a branch only, merged to `main` only after Muse passes the gate.
 - **2026-11-01 — This file:** LIVE_RULES saved per owner approval, as a draft for owner check before it is pasted to OpenCode. It records existing locks only; it does not lock any new value by itself.
+- **2026-11-01 — Package manager LOCKED:** owner decision "Keep npm for BRIDGIO". BRIDGIO uses npm, not bun and not pnpm. This lock was made after the Stage 0 report used npm, and it confirms that choice rather than changing it — no Stage 0 rework was needed for the manager.
+- **2026-11-01 — Stage 0 delivered, not verified:** branch `opencode-stage0`, commit `8ebafda0906ef6b8946a4bd5da216b1758296a2a`, pushed, not merged, main not pushed or changed. Builder claims 23/23 tests, typecheck and build pass, adapter-status page only, 37 PROPOSED adapter methods. Muse verification pending zip upload.

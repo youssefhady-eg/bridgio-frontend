@@ -1,0 +1,92 @@
+/*
+ * BRIDGIO — design tokens (Stage 1 shell).
+ *
+ * Source of truth: docs/BRIDGIO-UI-UX-token-sheet.md (2026-11-01) and
+ * docs/BRIDGIO-LIVE_RULES.md §1–§2.
+ *
+ * Labels are carried over exactly as the token sheet defines them:
+ *  - LOCKED             → already a brand decision; use as-is.
+ *  - PROPOSED FOR UI    → not a brand lock; used as-is for the MVP and
+ *                         labelled proposed in the delivery note.
+ * Nothing here invents a new value.
+ */
+
+:root {
+  color-scheme: light; /* Light theme only — no dark mode may be invented. */
+
+  /* ---- Colours — LOCKED ------------------------------------------------- */
+  --bridgio-red: #d51c1d; /* brand red — NOT status red */
+  --bridgio-red-accent: #f41920; /* logo artwork only, sparingly */
+  --bridgio-cream: #f9ecd9; /* app background */
+  --bridgio-paper: #fff6e8; /* surface */
+  --bridgio-maroon: #2c0706; /* ink / default text on cream */
+  --bridgio-maroon-outline: #471e1b; /* logo outline dark */
+  --bridgio-success: #1f7a57;
+  --bridgio-info: #2a62b0;
+  --bridgio-warning-fill: #f2a93b; /* fill only, never amber text on cream */
+  --bridgio-error: #7e1a2b; /* wine — error is never brand red */
+
+  /* the deck's logo-fill cream, allowed only inside logo artwork (wordmark) */
+  --bridgio-cream-artwork: #f9eedc;
+
+  /* ---- PROPOSED FOR UI — opacity neutrals over locked colours ----------- */
+  --text-primary: #2c0706;
+  --text-secondary: rgba(44, 7, 6, 0.7);
+  --text-muted: rgba(44, 7, 6, 0.55);
+  --border: rgba(44, 7, 6, 0.12);
+  --border-strong: rgba(44, 7, 6, 0.18);
+  --disabled-text: rgba(44, 7, 6, 0.4);
+  --hover-bg: rgba(44, 7, 6, 0.04);
+  --disabled-bg: rgba(255, 246, 232, 0.92);
+
+  /* On the dark (maroon) header band, status-neutral visuals flip: cream is
+     used as the light surface so contrast holds. These are derived mirrors of
+     the proposed neutrals — flagged in the delivery note. */
+  --band-bg: #2c0706;
+  --band-text: var(--bridgio-cream); /* cream on maroon */
+  --band-text-secondary: rgba(249, 236, 217, 0.75);
+  --band-border: rgba(249, 236, 217, 0.24);
+  --band-hover: rgba(249, 236, 217, 0.08);
+
+  /* ---- PROPOSED FOR UI — app type scale (not the deck's 120/72/44 scale) - */
+  --font-display-size-hero: 32px; /* line-height 1.2 */
+  --font-display-size-h1: 28px; /* 1.25 */
+  --font-display-size-h2: 22px; /* 1.3 */
+  --font-display-size-h3: 18px; /* 1.35 */
+  --font-body-size: 16px; /* 1.55 */
+  --font-body-small-size: 14px; /* 1.5 */
+  --font-label-size: 15px; /* 1.4, weight 600 */
+  --font-caption-size: 12px; /* 1.45 */
+
+  /* ---- PROPOSED FOR UI — spacing (base 4 px) ---------------------------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ---- PROPOSED FOR UI — radius ----------------------------------------- */
+  --radius-card: 24px; /* LOCKED card radius from the deck; 24px reused for
+                            modals/sheets as proposed */
+  --radius-input: 12px;
+  --radius-pill: 999px;
+  --outline-sticker: 2px; /* sticker style: solid surface + 1–2 px maroon
+                             outline instead of drop shadows */
+  --outline-hairline: 1.5px;
+
+  /* ---- PROPOSED FOR UI — interaction ------------------------------------ */
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+  --focus-ring-color: var(--bridgio-maroon);
+  /* Dark-surface focus ring variant (cream) — deviation flagged in the
+     delivery note: the proposed maroon ring is invisible on maroon. */
+  --focus-ring-color-on-dark: var(--bridgio-cream);
+  --touch-target: 44px;
+
+  /* ---- Provenance -------------------------------------------------------- */
+  --bridgio-wordmark-min-width: 120px; /* adopted wordmark: ≥120 px slots */
+  --bridgio-lockup-min-width: 200px; /* LOCKED minimum full-lockup width */
+}
