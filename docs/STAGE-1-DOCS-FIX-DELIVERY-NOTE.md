@@ -38,7 +38,10 @@ LIVE_RULES §9.
 ## 1. What changed
 
 Exactly the four live docs were replaced with the current files supplied for
-this fix. No other repo file was touched.
+this fix. The only other files touched are documentation pointers —
+`README.md`, `docs/README.md` and this note — so the repository no longer claims
+Stage 1 is unmerged or that the docs refresh passed. No code, config, script or
+asset file was touched.
 
 | File | Bytes | MD5 | Change in this fix |
 | --- | --- | --- | --- |
@@ -97,9 +100,15 @@ Docs-only change, so the numbers match the Stage 1 gate exactly.
 
 ## 5. Docs-diff check for Muse
 
-`git diff main..opencode-stage1-docs-fix` contains **only** the four live docs
-plus this delivery note. Expected Muse result after checkout: **docs diff = zero**
-for each of the four files against the current supplied copies.
+`git diff origin/main..opencode-stage1-docs-fix` contains **only** documentation:
+the four live docs, this delivery note, and status pointers in `README.md` /
+`docs/README.md`. There are **zero** changes outside `docs/` except the root
+README, and zero changes under `src/`, `public/`, config or scripts.
+
+Expected Muse result after checkout: **docs diff = zero** for each of the four
+files against the current supplied copies. The archive was exported with
+`core.autocrlf=false` so the four `.md` files inside the zip are byte-identical
+(MD5-verified) to the supplied files, not CRLF-expanded.
 
 If Muse diffs against the **repo** copies instead of the supplied files, the
 four files will differ — that is the intended fix, not drift.
@@ -135,5 +144,5 @@ new docs. They remain decision items, not code changes made here:
 | Four repo docs replaced with current supplied files | ✅ MD5-identical, 4 files / 17+ 12− |
 | No code change unless an owner lock requires it | ✅ no code change; no lock required one |
 | `npm test` / `npm run typecheck` / `npm run build` | ✅ 29/29, clean, clean |
-| Zip exported from the fix branch | ✅ `..\bridgio-stage1-fix.zip` |
+| Zip exported from the fix branch | ✅ `..\bridgio-stage1-fix.zip` (size / SHA-256 reported in the handoff message; a zip cannot contain its own hash) |
 | Stage 2 not started | ✅ no Stage 2 work |
