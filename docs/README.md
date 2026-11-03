@@ -51,6 +51,21 @@ Stage 2 artefacts:
 - `screenshots/stage2-empty-desktop.png` (1440 × 1000, empty scenario)
 - `screenshots/stage2-empty-phone.png` (390 × 844, empty scenario)
 
+Stage 3–6 artefacts (delivery notes record each stage as handed over, so their
+"not merged" status lines are historical; current state is under Status below):
+
+- [STAGE-3-DELIVERY-NOTE.md](STAGE-3-DELIVERY-NOTE.md) — teacher test builder:
+  four steps with grounded drafting, edit/delete and a publish gate, using
+  existing adapter methods only.
+- [STAGE-4-DELIVERY-NOTE.md](STAGE-4-DELIVERY-NOTE.md) — student test player:
+  one question at a time, progress and submit (no marking), plus Mohsen Q&A on
+  the same screen.
+- [STAGE-5-DELIVERY-NOTE.md](STAGE-5-DELIVERY-NOTE.md) — Mohsen grounding
+  hardening and grounded Q&A, empty/error/success states, accessibility audit.
+- [STAGE-6-DELIVERY-NOTE.md](STAGE-6-DELIVERY-NOTE.md) — consistency polish
+  across dashboard, builder and player; shared styling and string centralisation,
+  no new features.
+
 ## Copying note
 
 The four rules/spec markdown files above were copied into this repo so a fresh
@@ -69,12 +84,15 @@ Stage 0, Stage 1 code and the Stage 1 docs fix are verified PASS by Muse and are
 on `main` (`bc1a812`). The docs-only fix is merged and all five owner locks are
 locked as built.
 
-Stage 2 (teacher dashboard) is built on branch `opencode-stage2` and **not
-merged**. It adds `/teacher/dashboard` only; other screens stay placeholders and
-Stage 3 has not started. Every Mentingo endpoint remains PROPOSED, and Mentingo
-auth transport is still unconfirmed.
+Stage 2 (teacher dashboard) is verified PASS and merged via PR #6 (`7e9600c`).
+Stage 3 (test builder), Stage 4 (student player) and Stage 5 (Mohsen grounding
+and states) are each verified PASS and merged via PR #7 (`6acc9ea`), PR #8
+(`f454fd6`) and PR #9 (`7006222`).
 
-Stage 6 (consistency polish) is delivered on branch `opencode-stage6` and is
-**not merged and not verified** by Muse. It changes shared styling and string
-plumbing only: no new screen, route, feature, contract field or adapter method.
-Stage 7 has not started.
+Stage 6 (consistency polish) is merged via PR #10; `main` is at `2135fb1`. It
+changes shared styling and string plumbing only: no new screen, route, feature,
+contract field or adapter method. A Muse verification result for Stage 6 is not
+recorded in `BRIDGIO-LIVE_RULES.md`, so this index does not claim one.
+
+Every Mentingo endpoint remains PROPOSED, and Mentingo auth transport is still
+unconfirmed. Stage 7 has not started.

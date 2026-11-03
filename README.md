@@ -1,12 +1,10 @@
 # BRIDGIO — Frontend (internal MVP)
 
 Arabic-first BRIDGIO product frontend on top of Mentingo (headless API / DB /
-auth / courses). This repository is currently at **Stage 6: consistency polish**
-on branch `opencode-stage6` (delivered, **not merged and not verified**). Stage 1
-(shell, tokens, RTL, header) is merged to `main`. The Stage 0 API adapter
-contract is in place; the dashboard, teacher builder and student player are the
-built product screens, and every other nav destination still opens a labelled
-placeholder.
+auth / courses). `main` is at `2135fb1`: Stages 0–5 are merged, and Stage 6
+(consistency polish) is merged via PR #10. The Stage 0 API adapter contract is in
+place; the dashboard, teacher builder and student player are the built product
+screens, and every other nav destination still opens a labelled placeholder.
 
 > **Status: PROPOSED only.** Mentingo's local source was deleted by the owner on
 > 2026-11-01, so there are **no confirmed Mentingo endpoints** in this build.
@@ -77,10 +75,11 @@ src/
 │  ├─ config.ts         adapter/base URL/mock configuration
 │  ├─ queries.ts        TanStack Query options
 │  └─ query-keys.ts     query key factory
-├─ components/          AppHeader, dashboard screen + primitives, NotBuiltScreen
+├─ components/          AppHeader, NotBuiltScreen, dashboard, builder, player, mohsen
 ├─ content/strings.ts   centralised draft strings + working names
 ├─ shell/               nav config, `?as` preview role, nav tests
-├─ routes/              __root + shell overview + dashboard + placeholders only
+├─ routes/              __root + shell overview + dashboard, test builder, student
+│                       test player; other nav destinations are placeholders
 ├─ styles/
 │  ├─ tokens.css        LOCKED colours + PROPOSED FOR UI neutrals/scale/radii
 │  ├─ fonts.css         Sora / Nunito / Alexandria / Baloo Bhaijaan 2 per script
@@ -112,6 +111,10 @@ docs/                   contract, delivery notes, source rules, screenshots
 - [Stage 0 delivery note](docs/STAGE-0-DELIVERY-NOTE.md)
 - [Stage 1 delivery note](docs/STAGE-1-DELIVERY-NOTE.md)
 - [Stage 2 delivery note](docs/STAGE-2-DELIVERY-NOTE.md)
+- [Stage 3 delivery note](docs/STAGE-3-DELIVERY-NOTE.md)
+- [Stage 4 delivery note](docs/STAGE-4-DELIVERY-NOTE.md)
+- [Stage 5 delivery note](docs/STAGE-5-DELIVERY-NOTE.md)
+- [Stage 6 delivery note](docs/STAGE-6-DELIVERY-NOTE.md)
 - [Live rules](docs/BRIDGIO-LIVE_RULES.md)
 - [OpenCode stages](docs/BRIDGIO-OpenCode-stages.md)
 - [AI build handoff](docs/BRIDGIO-AI-build-handoff.md)
@@ -126,17 +129,24 @@ Stage 1 (shell, tokens, RTL, header) code and its **docs fix** are verified PASS
 by Muse and merged to `main` at `bc1a812`; all five owner locks are locked as
 built.
 
-Stage 2 (teacher dashboard) is built on branch `opencode-stage2` and **not
-merged**. It adds `/teacher/dashboard` (classes, recent tests, student progress
-at a glance, time-saved lead copy, empty/loading/error states) with all data
-through `src/api/`. Nothing else moved: My Classes, Tests and Students remain
-placeholders, and Stage 3 has not started.
+Stage 2 (teacher dashboard) is verified PASS by Muse and merged via PR #6
+(`7e9600c`). It adds `/teacher/dashboard` (classes, recent tests, student
+progress at a glance, time-saved lead copy, empty/loading/error states) with all
+data through `src/api/`.
+
+Stage 3 (teacher test builder), Stage 4 (student test player) and Stage 5
+(Mohsen grounding hardening and states) are each verified PASS by Muse and merged
+via PR #7 (`6acc9ea`), PR #8 (`f454fd6`) and PR #9 (`7006222`).
+
+Stage 6 (consistency polish) is merged via PR #10; `main` is at `2135fb1`. It
+changes shared styling and string plumbing only: no new screen, route, feature,
+contract field or adapter method. A Muse verification result for Stage 6 is not
+recorded in `docs/BRIDGIO-LIVE_RULES.md`, so this README does not claim one.
+Stage 7 has not started.
 
 The Stage 1 shell is data-free on purpose: header, nav and placeholders use no
 adapter data (auth remains Mentingo-owned and unconfirmed). Feature screens must
-go through `src/api/` only.
+go through `src/api/` only. Every Mentingo endpoint remains PROPOSED.
 
-Stage 6 (consistency polish) is delivered on branch `opencode-stage6` and is
-**not merged and not verified** by Muse. It changes shared styling and string
-plumbing only: no new screen, route, feature, contract field or adapter method.
-Every Mentingo endpoint remains PROPOSED.
+The per-stage delivery notes under `docs/` describe each stage as it was handed
+over, so their own "not merged" status lines are historical.
