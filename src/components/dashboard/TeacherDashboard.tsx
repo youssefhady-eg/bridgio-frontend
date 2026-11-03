@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 import { sessionQueryOptions, teacherDashboardQueryOptions } from '~/api/queries'
-import { ar } from '~/content/strings'
+import { useLang, useStrings } from '~/shell/useStrings'
 import { EmptyNote } from './EmptyNote'
 import { ProgressBar } from './ProgressBar'
 import { StatusChip } from './StatusChip'
@@ -18,10 +18,10 @@ import { Icon } from './icons'
  * user model, and the preview role (`?as`) remains UI state only.
  */
 
-const strings = ar.dashboard
-
 export function TeacherDashboard() {
   const sessionQuery = useQuery(sessionQueryOptions())
+  const strings = useStrings().dashboard
+  const lang = useLang()
   const teacherId =
     sessionQuery.data?.user.role === 'teacher'
       ? sessionQuery.data.user.id
@@ -151,15 +151,15 @@ export function TeacherDashboard() {
                     <dl className="class-card__stats">
                       <div>
                         <dt>{strings.classes.students}</dt>
-                        <dd>{formatCount(classroom.studentCount)}</dd>
+                        <dd>{formatCount(classroom.studentCount, lang)}</dd>
                       </div>
                       <div>
                         <dt>{strings.classes.units}</dt>
-                        <dd>{formatCount(classroom.unitCount)}</dd>
+                        <dd>{formatCount(classroom.unitCount, lang)}</dd>
                       </div>
                       <div>
                         <dt>{strings.classes.lessons}</dt>
-                        <dd>{formatCount(classroom.lessonCount)}</dd>
+                        <dd>{formatCount(classroom.lessonCount, lang)}</dd>
                       </div>
                     </dl>
                     {classroom.certificateNote ? (
@@ -210,12 +210,12 @@ export function TeacherDashboard() {
                           }
                         />
                         <p className="row-meta">
-                          {formatCount(test.questionCount)}{' '}
+                          {formatCount(test.questionCount, lang)}{' '}
                           {strings.tests.questions}
                         </p>
                         <p className="row-meta">
                           {strings.tests.updated}:{' '}
-                          {formatDate(test.updatedAt, strings.tests.unknownDate)}
+                          {formatDate(test.updatedAt, strings.tests.unknownDate, lang)}
                         </p>
                       </div>
                     </li>
@@ -256,26 +256,23 @@ export function TeacherDashboard() {
                       <div className="progress-row__detail">
                         <div className="progress-row__labels">
                           <span>{strings.progress.percentLabel}</span>
-                          <strong>{formatPercent(row.progressPercent)}</strong>
+                          <strong>{formatPercent(row.progressPercent, lang)}</strong>
                         </div>
                         <ProgressBar
                           percent={row.progressPercent}
                           label={strings.progress.barLabel(
                             row.student.displayName,
                           )}
-                          valueText={formatPercent(row.progressPercent)}
+                          valueText={formatPercent(row.progressPercent, lang)}
                         />
                         <p className="row-meta">
                           {strings.progress.unitsCompleted}:{' '}
-                          {formatCount(row.completedUnits)} /{' '}
-                          {formatCount(row.totalUnits)}
+                          {formatCount(row.completedUnits, lang)} /{' '}
+                          {formatCount(row.totalUnits, lang)}
                         </p>
                         <p className="row-meta">
                           {strings.progress.lastActive}:{' '}
-                          {formatDate(
-                            row.lastActiveAt,
-                            strings.progress.noActivity,
-                          )}
+                          {formatDate(row.lastActiveAt, strings.progress.noActivity, lang)}
                         </p>
                       </div>
                     </li>
@@ -297,6 +294,7 @@ function DashboardFrame({
   greeting?: string
   children: ReactNode
 }) {
+  const strings = useStrings().dashboard
   return (
     <div className="dashboard">
       <header className="dashboard__hero">
@@ -319,10 +317,11 @@ function SectionHead({
   title: string
   count: number
 }) {
+  const lang = useLang()
   return (
     <div className="section-head">
       <h2 id={id}>{title}</h2>
-      <span className="count-chip">{formatCount(count)}</span>
+      <span className="count-chip">{formatCount(count, lang)}</span>
     </div>
   )
 }
@@ -336,13 +335,14 @@ function Total({
   value: number
   label: string
 }) {
+  const lang = useLang()
   return (
     <article className="total-card">
       <span className="total-card__icon" aria-hidden="true">
         <Icon name={icon} size={20} />
       </span>
       <div>
-        <p className="total-card__value">{formatCount(value)}</p>
+        <p className="total-card__value">{formatCount(value, lang)}</p>
         <p className="total-card__label">{label}</p>
       </div>
     </article>

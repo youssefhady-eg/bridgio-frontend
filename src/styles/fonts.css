@@ -15,6 +15,28 @@
  * The wordmark is artwork, never retyped in any font.
  */
 
+/*
+ * Thmanyah Arabic — refinement branch (PENDING OWNER ASSET).
+ *
+ * The refinement moves Arabic to the Thmanyah family. The repo is PUBLIC, so the
+ * Thmanyah font files are deliberately NOT committed here: no files, no download
+ * links, no archives. Instead the UI requests the Thmanyah family names first and
+ * falls back to the current Arabic fonts (Alexandria / Baloo Bhaijaan 2) already
+ * bundled above, so nothing breaks while the files are pending.
+ *
+ * Requested family names (proposed mapping — confirm with the owner):
+ *   thmanyahserifdisplay  display / headings
+ *   thmanyahsans          UI, labels and short body text
+ *   thmanyahseriftext     long reading (body paragraphs)
+ *
+ * Pending owner asset (not in this repo):
+ *   Thmanyah-Serif-Display, Thmanyah-Sans, Thmanyah-Serif-Text (woff2 preferred).
+ * When supplied, add one @font-face per family here (family name exactly as
+ * requested above, Arabic `unicode-range`) and the stacks in app.css light up
+ * automatically. Latin glyphs already fall through to Sora / Nunito via the
+ * per-script unicode-range faces below.
+ */
+
 /* Latin text ranges (Nunito/Sora files cover basic Latin + punctuation). */
 /* Arabic text ranges (files cover Arabic block, presentation forms, ZWJ/ZWNJ). */
 

@@ -10,6 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ParentMessagesRouteImport } from './routes/parent.messages'
+import { Route as ParentProgressRouteImport } from './routes/parent.progress'
+import { Route as ParentResultsRouteImport } from './routes/parent.results'
+import { Route as ParentTestsRouteImport } from './routes/parent.tests'
 import { Route as StudentLessonsRouteImport } from './routes/student.lessons'
 import { Route as StudentProgressRouteImport } from './routes/student.progress'
 import { Route as StudentTestsRouteImport } from './routes/student.tests'
@@ -21,6 +25,26 @@ import { Route as TeacherTestsRouteImport } from './routes/teacher.tests'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParentMessagesRoute = ParentMessagesRouteImport.update({
+  id: '/parent/messages',
+  path: '/parent/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParentProgressRoute = ParentProgressRouteImport.update({
+  id: '/parent/progress',
+  path: '/parent/progress',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParentResultsRoute = ParentResultsRouteImport.update({
+  id: '/parent/results',
+  path: '/parent/results',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParentTestsRoute = ParentTestsRouteImport.update({
+  id: '/parent/tests',
+  path: '/parent/tests',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StudentLessonsRoute = StudentLessonsRouteImport.update({
@@ -61,6 +85,10 @@ const TeacherTestsRoute = TeacherTestsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/parent/messages': typeof ParentMessagesRoute
+  '/parent/progress': typeof ParentProgressRoute
+  '/parent/results': typeof ParentResultsRoute
+  '/parent/tests': typeof ParentTestsRoute
   '/student/lessons': typeof StudentLessonsRoute
   '/student/progress': typeof StudentProgressRoute
   '/student/tests': typeof StudentTestsRoute
@@ -71,6 +99,10 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/parent/messages': typeof ParentMessagesRoute
+  '/parent/progress': typeof ParentProgressRoute
+  '/parent/results': typeof ParentResultsRoute
+  '/parent/tests': typeof ParentTestsRoute
   '/student/lessons': typeof StudentLessonsRoute
   '/student/progress': typeof StudentProgressRoute
   '/student/tests': typeof StudentTestsRoute
@@ -82,6 +114,10 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/parent/messages': typeof ParentMessagesRoute
+  '/parent/progress': typeof ParentProgressRoute
+  '/parent/results': typeof ParentResultsRoute
+  '/parent/tests': typeof ParentTestsRoute
   '/student/lessons': typeof StudentLessonsRoute
   '/student/progress': typeof StudentProgressRoute
   '/student/tests': typeof StudentTestsRoute
@@ -94,6 +130,10 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/parent/messages'
+    | '/parent/progress'
+    | '/parent/results'
+    | '/parent/tests'
     | '/student/lessons'
     | '/student/progress'
     | '/student/tests'
@@ -104,6 +144,10 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/parent/messages'
+    | '/parent/progress'
+    | '/parent/results'
+    | '/parent/tests'
     | '/student/lessons'
     | '/student/progress'
     | '/student/tests'
@@ -114,6 +158,10 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/parent/messages'
+    | '/parent/progress'
+    | '/parent/results'
+    | '/parent/tests'
     | '/student/lessons'
     | '/student/progress'
     | '/student/tests'
@@ -125,6 +173,10 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ParentMessagesRoute: typeof ParentMessagesRoute
+  ParentProgressRoute: typeof ParentProgressRoute
+  ParentResultsRoute: typeof ParentResultsRoute
+  ParentTestsRoute: typeof ParentTestsRoute
   StudentLessonsRoute: typeof StudentLessonsRoute
   StudentProgressRoute: typeof StudentProgressRoute
   StudentTestsRoute: typeof StudentTestsRoute
@@ -141,6 +193,34 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parent/messages': {
+      id: '/parent/messages'
+      path: '/parent/messages'
+      fullPath: '/parent/messages'
+      preLoaderRoute: typeof ParentMessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parent/progress': {
+      id: '/parent/progress'
+      path: '/parent/progress'
+      fullPath: '/parent/progress'
+      preLoaderRoute: typeof ParentProgressRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parent/results': {
+      id: '/parent/results'
+      path: '/parent/results'
+      fullPath: '/parent/results'
+      preLoaderRoute: typeof ParentResultsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parent/tests': {
+      id: '/parent/tests'
+      path: '/parent/tests'
+      fullPath: '/parent/tests'
+      preLoaderRoute: typeof ParentTestsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/student/lessons': {
@@ -197,6 +277,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ParentMessagesRoute: ParentMessagesRoute,
+  ParentProgressRoute: ParentProgressRoute,
+  ParentResultsRoute: ParentResultsRoute,
+  ParentTestsRoute: ParentTestsRoute,
   StudentLessonsRoute: StudentLessonsRoute,
   StudentProgressRoute: StudentProgressRoute,
   StudentTestsRoute: StudentTestsRoute,

@@ -7,10 +7,8 @@ import type {
 } from '~/api/types'
 import { EmptyNote } from '~/components/dashboard/EmptyNote'
 import { formatCount } from '~/components/dashboard/format'
-import { ar } from '~/content/strings'
+import { useLang, useStrings } from '~/shell/useStrings'
 import { sourceDraftIssue } from './builder'
-
-const strings = ar.builder.source
 
 export type SourceKind = TestSourceInput['kind']
 
@@ -74,6 +72,9 @@ export function StepChooseSource({
   createError: boolean
   onCreateDraft: () => void
 }) {
+  const builder = useStrings().builder
+  const strings = builder.source
+  const lang = useLang()
   const issue = sourceDraftIssue({
     classroomId,
     title,
@@ -101,7 +102,7 @@ export function StepChooseSource({
               <dd>{className}</dd>
             </div>
             <div>
-              <dt>{ar.builder.draft.sourceLabel}</dt>
+              <dt>{builder.draft.sourceLabel}</dt>
               <dd>{draft.source.label}</dd>
             </div>
             <div>
@@ -115,7 +116,7 @@ export function StepChooseSource({
         <div className="builder-form">
           {classesLoading ? (
             <p className="loading-note" role="status">
-              {ar.builder.loading}
+              {builder.loading}
             </p>
           ) : null}
 
@@ -123,7 +124,7 @@ export function StepChooseSource({
             <EmptyNote
               tone="error"
               title={strings.classesError}
-              body={ar.builder.loadErrorBody}
+              body={builder.loadErrorBody}
             />
           ) : null}
 
@@ -210,7 +211,7 @@ export function StepChooseSource({
                     <EmptyNote
                       tone="error"
                       title={strings.materialsError}
-                      body={ar.builder.loadErrorBody}
+                      body={builder.loadErrorBody}
                     />
                   ) : null}
                   {!materialsLoading &&
@@ -250,7 +251,7 @@ export function StepChooseSource({
                                 : strings.materialProcessing}
                               {material.wordCount !== null
                                 ? ` · ${strings.materialWords(
-                                    formatCount(material.wordCount),
+                                    formatCount(material.wordCount, lang),
                                   )}`
                                 : ''}
                             </span>
@@ -280,7 +281,7 @@ export function StepChooseSource({
                     <EmptyNote
                       tone="error"
                       title={strings.unitsError}
-                      body={ar.builder.loadErrorBody}
+                      body={builder.loadErrorBody}
                     />
                   ) : null}
                   {!classroomLoading &&
@@ -314,7 +315,7 @@ export function StepChooseSource({
                           <span className="choice-card__meta">
                             {item.unit.subjectName} ·{' '}
                             {strings.unitLessons(
-                              formatCount(item.unit.lessonCount),
+                              formatCount(item.unit.lessonCount, lang),
                             )}
                           </span>
                         </label>

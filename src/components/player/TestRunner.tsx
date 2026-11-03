@@ -11,7 +11,7 @@ import { EmptyNote } from '~/components/dashboard/EmptyNote'
 import { ProgressBar } from '~/components/dashboard/ProgressBar'
 import { formatCount, formatPercent } from '~/components/dashboard/format'
 import { Icon } from '~/components/dashboard/icons'
-import { ar } from '~/content/strings'
+import { useLang, useStrings } from '~/shell/useStrings'
 import {
   answeredPercent,
   clampIndex,
@@ -21,8 +21,6 @@ import {
   selectedOptionFor,
   unansweredCount,
 } from './player'
-
-const strings = ar.player.runner
 
 /**
  * Stage 4 — the test player itself.
@@ -42,6 +40,9 @@ export function TestRunner({
   onExit: () => void
 }) {
   const queryClient = useQueryClient()
+  const player = useStrings().player
+  const strings = player.runner
+  const lang = useLang()
   const attemptQuery = useQuery(attemptQueryOptions(attemptId))
   const testId = attemptQuery.data?.testId ?? ''
   const questionsQuery = useQuery({
@@ -120,8 +121,8 @@ export function TestRunner({
       <RunnerFrame>
         <EmptyNote
           icon="alert"
-          title={ar.player.list.emptyTitle}
-          body={ar.player.list.emptyBody}
+          title={player.list.emptyTitle}
+          body={player.list.emptyBody}
         />
       </RunnerFrame>
     )
@@ -154,15 +155,15 @@ export function TestRunner({
           <span>{strings.progressLabel}</span>
           <strong>
             {strings.questionCount(
-              formatCount(safeIndex + 1),
-              formatCount(questions.length),
+              formatCount(safeIndex + 1, lang),
+              formatCount(questions.length, lang),
             )}
           </strong>
         </div>
         <ProgressBar
           percent={percent}
           label={strings.progressLabel}
-          valueText={formatPercent(percent)}
+          valueText={formatPercent(percent, lang)}
         />
       </div>
 
@@ -237,7 +238,7 @@ export function TestRunner({
           <div className="player-confirm" role="alert">
             <p className="player-confirm__title">{strings.confirmTitle}</p>
             <p className="player-confirm__body">
-              {strings.confirmBody(formatCount(remaining))}
+              {strings.confirmBody(formatCount(remaining, lang))}
             </p>
             <div className="builder-actions">
               <button
@@ -285,6 +286,7 @@ function RunnerFrame({ children }: { children: ReactNode }) {
 }
 
 function Loading() {
+  const strings = useStrings().player.runner
   return (
     <p className="loading-note" role="status">
       {strings.loading}
@@ -299,6 +301,7 @@ function Completion({
   attempt: Attempt
   onExit: () => void
 }) {
+  const strings = useStrings().player.runner
   return (
     <div className="player-done-block">
       <div className="player-done" role="status">

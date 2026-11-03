@@ -6,7 +6,7 @@ import {
   studentProfileQueryOptions,
 } from '~/api/queries'
 import { StudentTestPlayer } from '~/components/player/StudentTestPlayer'
-import { ar } from '~/content/strings'
+import { stringsFor } from '~/shell/useStrings'
 
 /**
  * Stage 4 — student test player. The student "My Tests" nav destination now
@@ -23,8 +23,8 @@ import { ar } from '~/content/strings'
  * instead of the framework's default English error screen.
  */
 export const Route = createFileRoute('/student/tests')({
-  head: () => ({
-    meta: [{ title: ar.player.headTitle }],
+  head: ({ match }) => ({
+    meta: [{ title: stringsFor(match.search.lang).player.headTitle }],
   }),
   loader: async ({ context }) => {
     try {

@@ -2,10 +2,8 @@ import type { AttemptSummary, TestSummary } from '~/api/types'
 import { EmptyNote } from '~/components/dashboard/EmptyNote'
 import { StatusChip } from '~/components/dashboard/StatusChip'
 import { formatCount } from '~/components/dashboard/format'
-import { ar } from '~/content/strings'
+import { useLang, useStrings } from '~/shell/useStrings'
 import { attemptForTest, attemptStateFor } from './player'
-
-const strings = ar.player.list
 
 /**
  * Stage 4 — published tests for the student's classes.
@@ -27,6 +25,8 @@ export function TestList({
   startError: boolean
   onOpen: (testId: string) => void
 }) {
+  const strings = useStrings().player.list
+  const lang = useLang()
   if (tests.length === 0) {
     return (
       <EmptyNote
@@ -75,7 +75,7 @@ export function TestList({
 
               <p className="row-meta">{test.classroomName}</p>
               <p className="row-meta">
-                {strings.questions(formatCount(test.questionCount))}
+                {strings.questions(formatCount(test.questionCount, lang))}
               </p>
 
               <div className="player-test__actions">

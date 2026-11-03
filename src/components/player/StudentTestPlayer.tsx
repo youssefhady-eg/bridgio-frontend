@@ -10,7 +10,8 @@ import {
 } from '~/api/queries'
 import type { UserId } from '~/api/types'
 import { EmptyNote } from '~/components/dashboard/EmptyNote'
-import { ar } from '~/content/strings'
+import { formatCount } from '~/components/dashboard/format'
+import { useLang, useStrings } from '~/shell/useStrings'
 import { MohsenPanel } from './MohsenPanel'
 import { TestList } from './TestList'
 import { TestRunner } from './TestRunner'
@@ -19,8 +20,6 @@ import {
   dedupeTests,
   groundingScopeForTest,
 } from './player'
-
-const strings = ar.player
 
 /**
  * Stage 4 — student test player.
@@ -33,6 +32,7 @@ const strings = ar.player
  */
 export function StudentTestPlayer() {
   const sessionQuery = useQuery(sessionQueryOptions())
+  const strings = useStrings().player
 
   if (sessionQuery.isPending) {
     return (
@@ -82,6 +82,8 @@ export function StudentTestPlayer() {
 
 function PlayerFlow({ studentId }: { studentId: UserId }) {
   const queryClient = useQueryClient()
+  const strings = useStrings().player
+  const lang = useLang()
   const [activeTestId, setActiveTestId] = useState<string | null>(null)
   const [activeAttemptId, setActiveAttemptId] = useState<string | null>(null)
 
@@ -175,7 +177,7 @@ function PlayerFlow({ studentId }: { studentId: UserId }) {
     <section aria-labelledby="player-tests-heading">
       <div className="section-head">
         <h2 id="player-tests-heading">{strings.list.heading}</h2>
-        <span className="count-chip">{tests.length}</span>
+        <span className="count-chip">{formatCount(tests.length, lang)}</span>
       </div>
       <p className="section-lead">{strings.list.lead}</p>
 
@@ -197,6 +199,7 @@ function PlayerFlow({ studentId }: { studentId: UserId }) {
 }
 
 function PlayerFrame({ children }: { children: ReactNode }) {
+  const strings = useStrings().player
   return (
     <div className="player">
       <header className="player__hero">

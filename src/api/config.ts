@@ -14,7 +14,7 @@ export interface ApiConfig {
   requestTimeoutMs: number
   mock: {
     scenario: 'seeded' | 'empty'
-    session: 'teacher' | 'student' | 'none'
+    session: 'teacher' | 'student' | 'assistant' | 'parent' | 'none'
     latencyMs: number
   }
 }
@@ -41,13 +41,22 @@ function readScenario(value: string | undefined): 'seeded' | 'empty' {
   )
 }
 
-function readSession(value: string | undefined): 'teacher' | 'student' | 'none' {
+function readSession(
+  value: string | undefined,
+): 'teacher' | 'student' | 'assistant' | 'parent' | 'none' {
   if (value === undefined || value === '' || value === 'teacher') {
     return 'teacher'
   }
-  if (value === 'student' || value === 'none') return value
+  if (
+    value === 'student' ||
+    value === 'assistant' ||
+    value === 'parent' ||
+    value === 'none'
+  ) {
+    return value
+  }
   throw new Error(
-    `Invalid VITE_MOCK_SESSION "${value}". Expected "teacher", "student" or "none".`,
+    `Invalid VITE_MOCK_SESSION "${value}". Expected "teacher", "student", "assistant", "parent" or "none".`,
   )
 }
 

@@ -4,7 +4,7 @@ import {
   teacherClassroomsQueryOptions,
 } from '~/api/queries'
 import { TestBuilder } from '~/components/builder/TestBuilder'
-import { ar } from '~/content/strings'
+import { stringsFor } from '~/shell/useStrings'
 
 /**
  * Stage 3 — teacher test builder. The teacher "Tests" nav destination now
@@ -20,8 +20,8 @@ import { ar } from '~/content/strings'
  * instead of the framework's default English error screen.
  */
 export const Route = createFileRoute('/teacher/tests')({
-  head: () => ({
-    meta: [{ title: ar.builder.headTitle }],
+  head: ({ match }) => ({
+    meta: [{ title: stringsFor(match.search.lang).builder.headTitle }],
   }),
   loader: async ({ context }) => {
     try {

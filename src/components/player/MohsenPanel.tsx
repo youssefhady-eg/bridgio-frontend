@@ -4,10 +4,8 @@ import { api } from '~/api'
 import type { GroundingScope, MohsenAnswer, UserId } from '~/api/types'
 import { GroundingList } from '~/components/builder/GroundingList'
 import { EmptyNote } from '~/components/dashboard/EmptyNote'
-import { ar } from '~/content/strings'
+import { useStrings } from '~/shell/useStrings'
 import { answerView } from '~/components/mohsen/answerView'
-
-const strings = ar.player.mohsen
 
 interface QAEntry {
   key: string
@@ -33,6 +31,7 @@ export function MohsenPanel({
   studentId: UserId
   scope: GroundingScope
 }) {
+  const strings = useStrings().player.mohsen
   const [entries, setEntries] = useState<QAEntry[]>([])
   const [draft, setDraft] = useState('')
 
@@ -107,7 +106,10 @@ export function MohsenPanel({
       ) : (
         <ol className="mohsen-panel__thread" aria-live="polite">
           {entries.map((entry) => {
-            const view = entry.answer === null ? null : answerView(entry.answer)
+            const view =
+              entry.answer === null
+                ? null
+                : answerView(entry.answer, strings.notGroundedFallback)
             return (
               <li className="mohsen-qa" key={entry.key}>
                 <p className="mohsen-qa__label">{strings.questionLabel}</p>

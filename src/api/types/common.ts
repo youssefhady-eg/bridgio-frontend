@@ -21,8 +21,14 @@ export type AttemptId = string
 /** ISO-8601 timestamp supplied by the backend. */
 export type IsoDateTime = string
 
-/** Mentingo roles used by the MVP. There is no separate BRIDGIO user or role system. */
-export type UserRole = 'teacher' | 'student'
+/**
+ * Mentingo roles used by the MVP. There is no separate BRIDGIO user or role
+ * system: `assistant` is a Teacher Assistant (a human role, not Mohsen) and
+ * `parent` is a student's parent (UI name "Parents", not "Guardian"). Their
+ * permissions are backend/RBAC-owned — the frontend only displays what it is
+ * granted.
+ */
+export type UserRole = 'teacher' | 'student' | 'assistant' | 'parent'
 
 /** Which implementation of the single API layer is active. */
 export type ApiMode = 'mock' | 'http'

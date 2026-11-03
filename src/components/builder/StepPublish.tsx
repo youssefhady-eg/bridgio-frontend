@@ -3,11 +3,9 @@ import { EmptyNote } from '~/components/dashboard/EmptyNote'
 import { StatusChip } from '~/components/dashboard/StatusChip'
 import { formatCount } from '~/components/dashboard/format'
 import { Icon } from '~/components/dashboard/icons'
-import { ar } from '~/content/strings'
+import { useLang, useStrings } from '~/shell/useStrings'
 import { publishGate } from './builder'
 import { GroundingList } from './GroundingList'
-
-const strings = ar.builder.publish
 
 function sourcesOf(questions: readonly Question[]): GroundingRef[] {
   return [
@@ -49,6 +47,9 @@ export function StepPublish({
   onBack: () => void
   onNewTest: () => void
 }) {
+  const builder = useStrings().builder
+  const strings = builder.publish
+  const lang = useLang()
   const activeTest = published ?? test
   const resolvedClassName = className || activeTest.classroomName
   const gate = publishGate({
@@ -124,22 +125,22 @@ export function StepPublish({
 
       <div className="source-banner">
         <span className="source-banner__label">
-          {ar.builder.draft.sourceLabel}
+          {builder.draft.sourceLabel}
         </span>
         <span className="source-banner__value">{activeTest.source.label}</span>
       </div>
 
       {questionsLoading ? (
         <p className="loading-note" role="status">
-          {ar.builder.review.loading}
+          {builder.review.loading}
         </p>
       ) : null}
 
       {questionsError ? (
         <EmptyNote
           tone="error"
-          title={ar.builder.review.loadErrorTitle}
-          body={ar.builder.review.loadErrorBody}
+          title={builder.review.loadErrorTitle}
+          body={builder.review.loadErrorBody}
         />
       ) : null}
 
@@ -161,7 +162,7 @@ export function StepPublish({
             </div>
             <div>
               <dt>{strings.questionsLabel}</dt>
-              <dd>{formatCount(questions.length)}</dd>
+              <dd>{formatCount(questions.length, lang)}</dd>
             </div>
             <div>
               <dt>{strings.statusLabel}</dt>
@@ -210,7 +211,7 @@ export function StepPublish({
               className="button button--secondary"
               onClick={onBack}
             >
-              {ar.builder.nav.back}
+              {builder.nav.back}
             </button>
             <button
               type="button"

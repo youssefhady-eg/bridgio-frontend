@@ -17,11 +17,17 @@ import type {
   DraftQuestionsResult,
   Material,
   MaterialId,
+  Message,
+  MessageThread,
   MohsenAnswer,
+  ParentOverview,
+  ParentProfile,
   Question,
   QuestionId,
   ReorderQuestionsInput,
   SaveAnswerInput,
+  SendMessageInput,
+  SendMessageResult,
   Session,
   SignInInput,
   StartAttemptInput,
@@ -38,6 +44,7 @@ import type {
   UnitId,
   UpdateQuestionInput,
   UpdateTestInput,
+  UserCapabilities,
   UserId,
 } from './types'
 
@@ -86,6 +93,43 @@ export interface BridgioApi {
       studentId: UserId
       classroomId?: ClassroomId
     }): Promise<StudentProgress>
+  }
+
+  /**
+   * Teacher Assistant grants — PROPOSED, backend/RBAC-owned.
+   *
+   * Display-only: the frontend asks which nav capabilities were granted and
+   * hides the rest. There is no granting UI here, and no fixed assistant menu.
+   */
+  rbac: {
+    /** PROPOSED — Mentingo to implement on restore/rebuild. */
+    getCapabilities(input: { userId: UserId }): Promise<UserCapabilities>
+  }
+
+  /**
+   * Parent view — PROPOSED, display only.
+   *
+   * The parent screens show what these methods return and never compute a score,
+   * mark an answer, or invent a result. `scorePercent` is backend-supplied.
+   */
+  parents: {
+    /** PROPOSED — the signed-in parent and their linked children. */
+    getProfile(): Promise<ParentProfile>
+    /** PROPOSED — one child's progress, tests and results, assembled by the backend. */
+    getOverview(input: { childId: UserId }): Promise<ParentOverview>
+  }
+
+  /**
+   * In-app chat — PROPOSED, mock only. Never WhatsApp or an external channel;
+   * no real-time transport and no notifications are claimed.
+   */
+  messages: {
+    /** PROPOSED — the signed-in user's conversation threads. */
+    listThreads(): Promise<MessageThread[]>
+    /** PROPOSED — messages in one thread, oldest first. */
+    listMessages(input: { threadId: string }): Promise<Message[]>
+    /** PROPOSED — sends a message; the mock answers with a deterministic reply. */
+    sendMessage(input: SendMessageInput): Promise<SendMessageResult>
   }
 
   classrooms: {
