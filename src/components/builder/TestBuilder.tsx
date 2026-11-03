@@ -17,7 +17,7 @@ import type {
   UserId,
 } from '~/api/types'
 import { EmptyNote } from '~/components/dashboard/EmptyNote'
-import { ar } from '~/content/strings'
+import { useStrings } from '~/shell/useStrings'
 import type { BuilderStep } from './builder'
 import { StepChooseSource, type SourceKind } from './StepChooseSource'
 import { StepDraftQuestions } from './StepDraftQuestions'
@@ -38,10 +38,9 @@ import { StepReviewQuestions } from './StepReviewQuestions'
  * state only: the current step, the chosen source, and the draft id.
  */
 
-const strings = ar.builder
-
 export function TestBuilder() {
   const sessionQuery = useQuery(sessionQueryOptions())
+  const strings = useStrings().builder
 
   if (sessionQuery.isPending) {
     return (
@@ -91,6 +90,7 @@ export function TestBuilder() {
 
 function BuilderFlow({ teacherId }: { teacherId: UserId }) {
   const queryClient = useQueryClient()
+  const strings = useStrings().builder
 
   const [step, setStep] = useState<BuilderStep>(1)
   const [classroomId, setClassroomId] = useState('')
@@ -334,6 +334,7 @@ function BuilderFlow({ teacherId }: { teacherId: UserId }) {
 }
 
 function BuilderFrame({ children }: { children: ReactNode }) {
+  const strings = useStrings().builder
   return (
     <div className="builder">
       <header className="builder__hero">

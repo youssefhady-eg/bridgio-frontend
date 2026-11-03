@@ -1,5 +1,5 @@
 import { formatCount } from '~/components/dashboard/format'
-import { ar } from '~/content/strings'
+import { useLang, useStrings } from '~/shell/useStrings'
 import {
   BUILDER_STEPS,
   type BuilderStep,
@@ -22,8 +22,10 @@ export function StepIndicator({
   published: boolean
   onSelect: (step: BuilderStep) => void
 }) {
+  const strings = useStrings()
+  const lang = useLang()
   return (
-    <ol className="builder-steps" aria-label={ar.builder.stepsLabel}>
+    <ol className="builder-steps" aria-label={strings.builder.stepsLabel}>
       {BUILDER_STEPS.map((step) => {
         const state =
           step === current ? 'is-active' : step < current ? 'is-done' : ''
@@ -38,10 +40,10 @@ export function StepIndicator({
               onClick={() => onSelect(step)}
             >
               <span className="builder-step__num" aria-hidden="true">
-                {formatCount(step)}
+                {formatCount(step, lang)}
               </span>
               <span className="builder-step__label">
-                {ar.builder.steps[step]}
+                {strings.builder.steps[step]}
               </span>
             </button>
           </li>

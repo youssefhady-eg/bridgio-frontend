@@ -1,41 +1,50 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
-import { ar, en } from '~/content/strings'
-import { studentNav, teacherNav } from '~/shell/nav'
+import { parentNav, studentNav, teacherNav } from '~/shell/nav'
+import { useStrings } from '~/shell/useStrings'
 
 export const Route = createFileRoute('/')({
   /**
-   * The teacher landing screen is the Stage 2 dashboard. The student preview
-   * keeps the shell overview until student screens exist (Stage 4+).
+   * Teacher lands on the Stage 2 dashboard; the parent preview lands on the
+   * read-only child progress screen. The student and assistant previews keep
+   * the shell overview.
    */
   beforeLoad: ({ search }) => {
     if (search.as === 'teacher') {
       throw redirect({
         to: '/teacher/dashboard',
-        search: { as: 'teacher' },
+        search: { as: 'teacher', lang: search.lang },
+      })
+    }
+    if (search.as === 'parent') {
+      throw redirect({
+        to: '/parent/progress',
+        search: { as: 'parent', lang: search.lang },
       })
     }
   },
   component: ShellHome,
 })
 
-const strings = ar.shell.home
-
 /**
  * Stage 1 shell overview — what the shell contains, and what is explicitly
  * NOT built yet. This is not a product screen and must not look like one.
  */
 function ShellHome() {
+  const strings = useStrings()
+  const home = strings.shell.home
+  const navItems = [...teacherNav, ...studentNav, ...parentNav]
+
   return (
     <div className="app-shell">
-      <p className="app-shell__badge">{strings.badge}</p>
-      <h1 className="app-shell__hero">{strings.title}</h1>
-      <p className="app-shell__lead">{strings.lead}</p>
+      <p className="app-shell__badge">{home.badge}</p>
+      <h1 className="app-shell__hero">{home.title}</h1>
+      <p className="app-shell__lead">{home.lead}</p>
 
       <section className="app-shell__section" aria-labelledby="shell-built-heading">
         <div className="app-card">
-          <h2 id="shell-built-heading">{strings.builtHeading}</h2>
+          <h2 id="shell-built-heading">{home.builtHeading}</h2>
           <ul className="app-list">
-            {strings.built.map((item) => (
+            {home.built.map((item) => (
               <li key={item}>{item}</li>
             ))}
           </ul>
@@ -44,16 +53,16 @@ function ShellHome() {
 
       <section className="app-shell__section" aria-labelledby="shell-notbuilt-heading">
         <div className="app-card">
-          <h2 id="shell-notbuilt-heading">{strings.notBuiltHeading}</h2>
-          <p className="placeholder__lead">{strings.notBuiltLead}</p>
+          <h2 id="shell-notbuilt-heading">{home.notBuiltHeading}</h2>
+          <p className="placeholder__lead">{home.notBuiltLead}</p>
           <ul className="app-list app-list--links">
-            {[...teacherNav, ...studentNav].map((item) => (
+            {navItems.map((item) => (
               <li key={item.id}>
                 <a className="screen-link" href={item.to}>
-                  {ar.nav[item.id]}
+                  {strings.nav[item.id]}
                 </a>
                 <span className="screen-meta">
-                  {ar.placeholder.builtByScreen[item.id]}
+                  {strings.placeholder.builtByScreen[item.id]}
                 </span>
               </li>
             ))}
@@ -64,11 +73,11 @@ function ShellHome() {
       <section className="app-shell__section" aria-labelledby="shell-role-note">
         <div className="app-card">
           <p>
-            {ar.shell.roleHint}{' '}
-            <code className="app-code">{ar.shell.codeHint}</code>
+            {strings.shell.roleHint}{' '}
+            <code className="app-code">{strings.shell.codeHint}</code>
           </p>
           <p className="screen-meta" lang="en" dir="ltr">
-            {en.shell.footerEn}
+            {strings.footer.noteEn}
           </p>
         </div>
       </section>

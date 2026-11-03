@@ -24,6 +24,23 @@ export const endpoints = {
     progress: (studentId: string) =>
       `/students/${encode(studentId)}/progress`,
   },
+  rbac: {
+    // PROPOSED — RBAC-owned grants. The frontend only reads them.
+    capabilities: (userId: string) =>
+      `/users/${encode(userId)}/capabilities`,
+  },
+  parents: {
+    // PROPOSED — parent view, display only.
+    profile: '/parents/me',
+    overview: (childId: string) =>
+      `/parents/children/${encode(childId)}/overview`,
+  },
+  messages: {
+    // PROPOSED — in-app chat, mock only; no real-time transport claimed.
+    threads: '/messages/threads',
+    messages: (threadId: string) =>
+      `/messages/threads/${encode(threadId)}/messages`,
+  },
   classrooms: {
     forTeacher: (teacherId: string) =>
       `/teachers/${encode(teacherId)}/classrooms`,

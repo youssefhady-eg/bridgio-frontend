@@ -33,6 +33,21 @@ export const queryKeys = {
     progress: (studentId: UserId, classroomId?: ClassroomId) =>
       ['students', studentId, 'progress', classroomId ?? 'all'] as const,
   },
+  rbac: {
+    all: () => ['rbac'] as const,
+    capabilities: (userId: UserId) =>
+      ['rbac', userId, 'capabilities'] as const,
+  },
+  parents: {
+    all: () => ['parents'] as const,
+    profile: () => ['parents', 'profile'] as const,
+    overview: (childId: UserId) => ['parents', 'children', childId] as const,
+  },
+  messages: {
+    all: () => ['messages'] as const,
+    threads: () => ['messages', 'threads'] as const,
+    thread: (threadId: string) => ['messages', 'threads', threadId] as const,
+  },
   classrooms: {
     all: () => ['classrooms'] as const,
     forTeacher: (teacherId: UserId) =>

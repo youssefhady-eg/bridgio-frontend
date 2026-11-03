@@ -131,3 +131,44 @@ export const attemptQueryOptions = (attemptId: AttemptId) =>
     queryFn: () => api.attempts.get({ attemptId }),
     staleTime: 0,
   })
+
+/**
+ * Teacher Assistant grants — RBAC-owned. The sidebar reads this and renders
+ * only the granted items; the frontend never decides grants.
+ */
+export const capabilitiesQueryOptions = (userId: UserId) =>
+  queryOptions({
+    queryKey: queryKeys.rbac.capabilities(userId),
+    queryFn: () => api.rbac.getCapabilities({ userId }),
+    staleTime: 30_000,
+  })
+
+/** Parent view — display only, assembled by the backend. */
+export const parentProfileQueryOptions = () =>
+  queryOptions({
+    queryKey: queryKeys.parents.profile(),
+    queryFn: () => api.parents.getProfile(),
+    staleTime: 30_000,
+  })
+
+export const parentOverviewQueryOptions = (childId: UserId) =>
+  queryOptions({
+    queryKey: queryKeys.parents.overview(childId),
+    queryFn: () => api.parents.getOverview({ childId }),
+    staleTime: 30_000,
+  })
+
+/** In-app chat — mock only. Screens never call fetch directly. */
+export const messageThreadsQueryOptions = () =>
+  queryOptions({
+    queryKey: queryKeys.messages.threads(),
+    queryFn: () => api.messages.listThreads(),
+    staleTime: 0,
+  })
+
+export const threadMessagesQueryOptions = (threadId: string) =>
+  queryOptions({
+    queryKey: queryKeys.messages.thread(threadId),
+    queryFn: () => api.messages.listMessages({ threadId }),
+    staleTime: 0,
+  })

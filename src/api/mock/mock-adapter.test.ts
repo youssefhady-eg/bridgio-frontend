@@ -57,6 +57,12 @@ const EXPECTED_METHODS = [
   'attempts.submit',
   'mohsen.ask',
   'mohsen.draftQuestions',
+  'rbac.getCapabilities',
+  'parents.getProfile',
+  'parents.getOverview',
+  'messages.listThreads',
+  'messages.listMessages',
+  'messages.sendMessage',
   'system.getInfo',
 ].sort()
 

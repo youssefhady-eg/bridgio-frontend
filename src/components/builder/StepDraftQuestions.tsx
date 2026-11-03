@@ -1,10 +1,8 @@
 import type { DraftQuestionsResult, Test } from '~/api/types'
 import { EmptyNote } from '~/components/dashboard/EmptyNote'
 import { formatCount } from '~/components/dashboard/format'
-import { ar } from '~/content/strings'
+import { useLang, useStrings } from '~/shell/useStrings'
 import { GroundingList } from './GroundingList'
-
-const strings = ar.builder.draft
 
 /**
  * Step 2 — Mohsen drafts grounded questions into the persisted draft test.
@@ -36,6 +34,9 @@ export function StepDraftQuestions({
   onNext: () => void
   onBack: () => void
 }) {
+  const builder = useStrings().builder
+  const strings = builder.draft
+  const lang = useLang()
   const requestLabel =
     result === null
       ? strings.request
@@ -142,7 +143,7 @@ export function StepDraftQuestions({
                 {strings.draftedTitle}
               </h3>
               <span className="count-chip">
-                {strings.questionsCount(formatCount(result.questions.length))}
+                {strings.questionsCount(formatCount(result.questions.length, lang))}
               </span>
             </div>
             <p className="field__hint">{strings.draftedNote}</p>
@@ -150,8 +151,8 @@ export function StepDraftQuestions({
               {result.questions.map((question, index) => (
                 <li className="draft-card" key={question.id}>
                   <p className="draft-card__number">
-                    {ar.builder.review.questionNumber(
-                      formatCount(index + 1),
+                    {builder.review.questionNumber(
+                      formatCount(index + 1, lang),
                     )}
                   </p>
                   <h4>{question.prompt}</h4>
@@ -162,7 +163,7 @@ export function StepDraftQuestions({
                   </ul>
                   <GroundingList
                     grounding={question.grounding}
-                    label={ar.builder.review.groundingLabel}
+                    label={builder.review.groundingLabel}
                   />
                 </li>
               ))}
@@ -176,7 +177,7 @@ export function StepDraftQuestions({
             className="button button--secondary"
             onClick={onBack}
           >
-            {ar.builder.nav.back}
+            {builder.nav.back}
           </button>
           <button
             type="button"

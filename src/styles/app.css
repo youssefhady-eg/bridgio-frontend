@@ -45,7 +45,7 @@ body {
   min-height: 100dvh;
   background: var(--bridgio-cream); /* LOCKED app background */
   color: var(--text-primary); /* maroon on cream, 15.8:1 */
-  font-family: 'Bridgio Body', sans-serif;
+  font-family: 'thmanyahseriftext', 'Bridgio Body', sans-serif;
   line-height: 1.55; /* body 16px scale */
   font-kerning: normal;
   text-rendering: optimizeLegibility;
@@ -56,7 +56,7 @@ body {
 h1,
 h2,
 h3 {
-  font-family: 'Bridgio Display', sans-serif;
+  font-family: 'thmanyahserifdisplay', 'Bridgio Display', sans-serif;
   color: var(--text-primary);
   margin: 0;
   overflow-wrap: break-word;
@@ -86,7 +86,7 @@ p {
 }
 
 code {
-  font-family: 'Bridgio Body', sans-serif;
+  font-family: 'thmanyahseriftext', 'Bridgio Body', sans-serif;
   font-weight: 600;
 }
 
@@ -120,7 +120,7 @@ summary:focus-visible,
   border-radius: var(--radius-pill);
   background: var(--bridgio-maroon);
   color: var(--bridgio-cream);
-  font-family: 'Bridgio Label', sans-serif;
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
   font-size: var(--font-label-size);
   font-weight: 600;
   text-decoration: none;
@@ -139,7 +139,7 @@ summary:focus-visible,
   background: var(--bridgio-paper);
   border-bottom: var(--outline-sticker) solid var(--bridgio-maroon);
   color: var(--text-secondary);
-  font-family: 'Bridgio Label', sans-serif;
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
   font-size: var(--font-caption-size);
   font-weight: 600;
   display: flex;
@@ -153,9 +153,12 @@ summary:focus-visible,
   font-weight: 700;
 }
 
-/* ---- Header — brand + nav + preview-role group ----------------------------- */
+/* ---- Utility header — brand + utility controls ----------------------------- */
 /*
- * Three size states, one DOM, media queries only:
+ * The refinement header is a slim utility bar: it no longer carries the primary
+ * navigation (the sidebar does). It holds the menu button (phone/tablet), the
+ * brand, and the utility controls (language switch, messages trigger, account
+ * placeholder). Three locked brand states remain, one DOM, media queries only:
  *  - < 768 px           : dark band (maroon) — adopted wordmark (cream fill)
  *  - 768 px – 1023.98 px: light small header — adopted wordmark (maroon fill)
  *  - ≥ 1024 px          : large header — full colour lockup
@@ -169,20 +172,38 @@ summary:focus-visible,
 }
 
 .app-header__inner {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-areas:
-    'brand roles'
-    'nav nav';
+  display: flex;
   align-items: center;
-  gap: var(--space-3) var(--space-4);
-  max-width: 76rem;
+  gap: var(--space-3);
+  max-width: 90rem;
   margin: 0 auto;
-  padding: var(--space-3) var(--space-4) var(--space-2);
+  padding: var(--space-2) var(--space-4);
+}
+
+.app-header__menu {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  padding: 0;
+  border: 1.5px solid var(--band-border);
+  border-radius: var(--radius-input);
+  background: transparent;
+  color: var(--band-text);
+  cursor: pointer;
+}
+
+.app-header__menu:hover {
+  background: var(--band-hover);
+}
+
+.app-header__menu:focus-visible {
+  outline-color: var(--focus-ring-color-on-dark);
 }
 
 .app-header__brand {
-  grid-area: brand;
   display: flex;
   align-items: center;
 }
@@ -201,94 +222,55 @@ summary:focus-visible,
   width: 136px; /* ≥ 120 px required for the adopted wordmark */
 }
 
-.app-header__nav {
-  grid-area: nav;
+/* Utility controls, pushed to the inline-end edge of the slim bar. */
+.app-header__utilities {
   display: flex;
-  align-items: stretch;
+  align-items: center;
   gap: var(--space-2);
-  overflow-x: auto;
-  overscroll-behavior-inline: contain;
-  padding-block-end: var(--space-2);
-  scrollbar-width: none;
+  margin-inline-start: auto;
 }
 
-.app-header__nav::-webkit-scrollbar {
-  display: none;
-}
-
-.app-nav__link {
+.app-utility__button {
   display: inline-flex;
   align-items: center;
-  min-height: var(--touch-target); /* 44 px touch target */
-  padding: var(--space-2) var(--space-4);
+  gap: var(--space-2);
+  min-height: var(--touch-target);
+  padding: var(--space-2) var(--space-3);
+  border: 1.5px solid var(--band-border);
   border-radius: var(--radius-pill);
-  border: none;
   background: transparent;
   color: var(--band-text);
-  font-family: 'Bridgio Label', sans-serif;
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
   font-size: var(--font-label-size);
   font-weight: 600;
   line-height: 1.4;
   text-decoration: none;
   white-space: nowrap;
-  flex: none;
+  cursor: pointer;
 }
 
-.app-nav__link:hover {
+.app-utility__button:hover {
   background: var(--band-hover);
 }
 
-.app-nav__link:focus-visible {
-  outline-color: var(--focus-ring-color-on-dark); /* cream ring on maroon */
-}
-
-.app-nav__link.is-active {
-  background: var(--bridgio-cream);
-  color: var(--bridgio-maroon);
-}
-
-/* Preview-role switch — diagnostic UI state, not auth. */
-.app-header__roles {
-  grid-area: roles;
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  color: var(--band-text-secondary);
-  font-size: var(--font-caption-size);
-}
-
-.app-roles__hint {
-  white-space: nowrap;
-}
-
-.app-roles__link {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--touch-target);
-  padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-pill);
-  border: 1.5px solid var(--band-border);
-  background: transparent;
-  color: var(--band-text);
-  font-family: 'Bridgio Label', sans-serif;
-  font-size: var(--font-label-size);
-  font-weight: 600;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.app-roles__link:hover {
-  background: var(--band-hover);
-}
-
-.app-roles__link:focus-visible {
+.app-utility__button:focus-visible {
   outline-color: var(--focus-ring-color-on-dark);
 }
 
-.app-roles__link.is-active {
-  background: var(--bridgio-cream);
-  border-color: var(--bridgio-cream);
-  color: var(--bridgio-maroon);
+.app-utility__button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Phone: icon-only utilities + no account placeholder, so the slim bar fits. */
+@media (max-width: 767.98px) {
+  .app-utility__label {
+    display: none;
+  }
+
+  .app-utility__button--account {
+    display: none;
+  }
 }
 
 /* ---- Light small header (tablet / small desktop) --------------------------- */
@@ -297,12 +279,6 @@ summary:focus-visible,
   .app-header {
     background: var(--bridgio-cream);
     color: var(--text-primary);
-  }
-
-  .app-header__inner {
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    grid-template-areas: 'brand nav roles';
-    padding: var(--space-6);
   }
 
   .app-header__wordmark--cream {
@@ -315,50 +291,30 @@ summary:focus-visible,
     width: 148px; /* ≥ 120 px required for the adopted wordmark */
   }
 
-  .app-header__nav {
-    justify-content: center;
-    overflow-x: visible;
-    padding-block-end: 0;
-  }
-
-  .app-nav__link {
-    color: var(--text-primary);
-  }
-
-  .app-nav__link:hover {
-    background: var(--hover-bg);
-  }
-
-  .app-nav__link:focus-visible {
-    outline-color: var(--focus-ring-color);
-  }
-
-  .app-nav__link.is-active {
-    background: var(--bridgio-maroon);
-    color: var(--bridgio-cream);
-  }
-
-  .app-header__roles {
-    color: var(--text-secondary);
-  }
-
-  .app-roles__link {
+  .app-header__menu {
     border-color: var(--border-strong);
     color: var(--text-primary);
   }
 
-  .app-roles__link:hover {
+  .app-header__menu:hover {
     background: var(--hover-bg);
   }
 
-  .app-roles__link:focus-visible {
+  .app-header__menu:focus-visible {
     outline-color: var(--focus-ring-color);
   }
 
-  .app-roles__link.is-active {
-    background: var(--bridgio-maroon);
-    border-color: var(--bridgio-maroon);
-    color: var(--bridgio-cream);
+  .app-utility__button {
+    border-color: var(--border-strong);
+    color: var(--text-primary);
+  }
+
+  .app-utility__button:hover {
+    background: var(--hover-bg);
+  }
+
+  .app-utility__button:focus-visible {
+    outline-color: var(--focus-ring-color);
   }
 }
 
@@ -376,6 +332,167 @@ summary:focus-visible,
   .app-header__lockup {
     display: block;
     width: var(--bridgio-lockup-min-width); /* LOCKED minimum 200 px */
+  }
+
+  .app-header__menu {
+    display: none;
+  }
+}
+
+/* ---- App body: sidebar + content -------------------------------------------- */
+
+.app-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.app-content {
+  min-width: 0;
+}
+
+.app-sidebar {
+  display: flex;
+  flex-direction: column;
+  background: var(--bridgio-paper);
+  border-inline-end: var(--outline-sticker) solid var(--bridgio-maroon);
+}
+
+.app-sidebar__head {
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--space-3) var(--space-3) 0;
+}
+
+.app-sidebar__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  padding: 0;
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-input);
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.app-sidebar__close:hover {
+  background: var(--hover-bg);
+}
+
+.app-sidebar__nav {
+  padding: var(--space-4);
+}
+
+.app-sidebar__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-1);
+}
+
+.app-sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--touch-target);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-input);
+  color: var(--text-primary);
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
+  font-size: var(--font-label-size);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.app-sidebar__link:hover {
+  background: var(--hover-bg);
+}
+
+.app-sidebar__link.is-active {
+  background: var(--bridgio-maroon);
+  color: var(--bridgio-cream);
+}
+
+.app-sidebar__icon {
+  display: inline-flex;
+  flex: none;
+  color: var(--text-secondary);
+}
+
+.app-sidebar__link.is-active .app-sidebar__icon {
+  color: var(--bridgio-cream);
+}
+
+.app-sidebar__note {
+  margin: var(--space-3) 0 0;
+  color: var(--text-muted);
+  font-size: var(--font-caption-size);
+}
+
+/* Drawer backdrop — phone/tablet only, always hidden on desktop. */
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: none;
+  padding: 0;
+  border: 0;
+  background: rgb(44 7 6 / 45%);
+  cursor: pointer;
+}
+
+.sidebar-backdrop.is-open {
+  display: block;
+}
+
+/* Desktop: the sidebar is a fixed column beside the content. */
+@media (min-width: 1024px) {
+  .app-body {
+    grid-template-columns: 17rem minmax(0, 1fr);
+  }
+
+  .app-sidebar {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100dvh;
+    overflow-y: auto;
+  }
+
+  .app-sidebar__head {
+    display: none;
+  }
+
+  .sidebar-backdrop {
+    display: none;
+  }
+}
+
+/* Phone/tablet: the sidebar is an off-canvas drawer from the inline-start. */
+@media (max-width: 1023.98px) {
+  .app-sidebar {
+    position: fixed;
+    inset-block: 0;
+    inset-inline-start: 0;
+    z-index: 60;
+    width: min(20rem, 85vw);
+    --drawer-hidden: -100%;
+    transform: translateX(var(--drawer-hidden));
+    transition: transform 0.2s ease;
+  }
+
+  /* In RTL the inline-start edge is the right edge, so the drawer hides to the
+     right. Keep this as a variable: setting `transform` here would out-specify
+     `.is-open` and leave the open drawer off-screen. */
+  html[dir='rtl'] .app-sidebar {
+    --drawer-hidden: 100%;
+  }
+
+  .app-sidebar.is-open {
+    transform: translateX(0);
   }
 }
 
@@ -405,7 +522,7 @@ summary:focus-visible,
   border: 1.5px solid var(--bridgio-maroon);
   border-radius: var(--radius-pill);
   color: var(--text-primary);
-  font-family: 'Bridgio Label', sans-serif;
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
   font-size: var(--font-caption-size);
   font-weight: 600;
 }
@@ -507,7 +624,7 @@ summary:focus-visible,
 }
 
 .placeholder__meta dt {
-  font-family: 'Bridgio Label', sans-serif;
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
   font-size: var(--font-caption-size);
   font-weight: 600;
   color: var(--text-muted);
@@ -544,6 +661,52 @@ summary:focus-visible,
 .app-footer__en {
   direction: ltr;
   text-align: start;
+}
+
+/* Preview-role switch — diagnostic UI state, not auth. It lives in the footer
+   so the header stays a slim utility bar. */
+.app-footer__roles {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-block-start: var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--font-caption-size);
+}
+
+.app-roles__hint {
+  white-space: nowrap;
+}
+
+.app-roles__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--border-strong);
+  background: transparent;
+  color: var(--text-primary);
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
+  font-size: var(--font-label-size);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.app-roles__link:hover {
+  background: var(--hover-bg);
+}
+
+.app-roles__link:focus-visible {
+  outline-color: var(--focus-ring-color);
+}
+
+.app-roles__link.is-active {
+  background: var(--bridgio-maroon);
+  border-color: var(--bridgio-maroon);
+  color: var(--bridgio-cream);
 }
 
 /* ---- Phon outline note: wide screens get breathing room ----------------------- */
@@ -585,7 +748,7 @@ summary:focus-visible,
 .dashboard__greeting {
   margin-block: var(--space-3) 0;
   color: var(--text-muted);
-  font-family: 'Bridgio Label', sans-serif;
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
   font-size: var(--font-body-small-size);
   font-weight: 600;
 }
@@ -623,7 +786,7 @@ summary:focus-visible,
   border: var(--outline-hairline) solid var(--border-strong);
   border-radius: var(--radius-pill);
   color: var(--text-secondary);
-  font-family: 'Bridgio Label', sans-serif;
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
   font-size: var(--font-caption-size);
   font-weight: 600;
 }
@@ -666,7 +829,7 @@ summary:focus-visible,
 
 .total-card__value {
   margin: 0;
-  font-family: 'Bridgio Display', sans-serif;
+  font-family: 'thmanyahserifdisplay', 'Bridgio Display', sans-serif;
   font-size: var(--font-display-size-h1);
   font-weight: 700;
   line-height: 1.1;
@@ -675,7 +838,7 @@ summary:focus-visible,
 .total-card__label {
   margin: 2px 0 0;
   color: var(--text-secondary);
-  font-family: 'Bridgio Label', sans-serif;
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
   font-size: var(--font-caption-size);
   font-weight: 600;
   line-height: 1.45;
@@ -716,14 +879,14 @@ summary:focus-visible,
 
 .class-card__stats dt {
   color: var(--text-muted);
-  font-family: 'Bridgio Label', sans-serif;
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
   font-size: var(--font-caption-size);
   font-weight: 600;
 }
 
 .class-card__stats dd {
   margin: 0;
-  font-family: 'Bridgio Display', sans-serif;
+  font-family: 'thmanyahserifdisplay', 'Bridgio Display', sans-serif;
   font-size: var(--font-display-size-h3);
   font-weight: 700;
   line-height: 1.2;
@@ -787,7 +950,7 @@ summary:focus-visible,
   padding: 2px var(--space-3);
   border: 1.5px solid var(--border-strong);
   border-radius: var(--radius-pill);
-  font-family: 'Bridgio Label', sans-serif;
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
   font-size: var(--font-caption-size);
   font-weight: 600;
   line-height: 1.45;
@@ -828,7 +991,7 @@ summary:focus-visible,
   gap: var(--space-3);
   margin-block-end: var(--space-2);
   color: var(--text-secondary);
-  font-family: 'Bridgio Label', sans-serif;
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
   font-size: var(--font-caption-size);
   font-weight: 600;
 }
@@ -982,7 +1145,7 @@ summary:focus-visible,
   border: var(--outline-hairline) solid var(--border-strong);
   border-radius: var(--radius-pill);
   color: var(--text-secondary);
-  font-family: 'Bridgio Label', sans-serif;
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
   font-size: var(--font-caption-size);
   font-weight: 600;
   line-height: 1.45;
@@ -1003,7 +1166,7 @@ summary:focus-visible,
   height: 1.6rem;
   border: 1.5px solid var(--border-strong);
   border-radius: var(--radius-pill);
-  font-family: 'Bridgio Label', sans-serif;
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
   font-size: var(--font-caption-size);
   font-weight: 700;
 }
@@ -1084,7 +1247,7 @@ summary:focus-visible,
 .field legend.field__label {
   padding: 0;
   color: var(--text-primary);
-  font-family: 'Bridgio Label', sans-serif;
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
   font-size: var(--font-label-size);
   font-weight: 600;
   line-height: 1.4;
@@ -1114,7 +1277,7 @@ summary:focus-visible,
   border: 1.5px solid var(--border-strong);
   border-radius: var(--radius-input);
   color: var(--text-primary);
-  font-family: 'Bridgio Body', sans-serif;
+  font-family: 'thmanyahseriftext', 'Bridgio Body', sans-serif;
   font-size: var(--font-body-size);
   line-height: 1.5;
 }
@@ -1218,7 +1381,7 @@ summary:focus-visible,
 
 .source-banner__label {
   color: var(--text-muted);
-  font-family: 'Bridgio Label', sans-serif;
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
   font-size: var(--font-caption-size);
   font-weight: 600;
 }
@@ -1241,7 +1404,7 @@ summary:focus-visible,
   padding: var(--space-2) var(--space-4);
   border: 1.5px solid transparent;
   border-radius: var(--radius-pill);
-  font-family: 'Bridgio Label', sans-serif;
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
   font-size: var(--font-label-size);
   font-weight: 600;
   line-height: 1.4;
@@ -1337,7 +1500,7 @@ summary:focus-visible,
 
 .summary-list dt {
   color: var(--text-muted);
-  font-family: 'Bridgio Label', sans-serif;
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
   font-size: var(--font-caption-size);
   font-weight: 600;
 }
@@ -1387,14 +1550,14 @@ summary:focus-visible,
 .draft-card__number {
   margin: 0;
   color: var(--text-muted);
-  font-family: 'Bridgio Label', sans-serif;
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
   font-size: var(--font-caption-size);
   font-weight: 600;
 }
 
 .draft-card h4 {
   margin: 0;
-  font-family: 'Bridgio Display', sans-serif;
+  font-family: 'thmanyahserifdisplay', 'Bridgio Display', sans-serif;
   font-size: var(--font-body-size);
   font-weight: 600;
   line-height: 1.5;
@@ -1437,7 +1600,7 @@ summary:focus-visible,
 
 .question-card__number {
   margin: 0;
-  font-family: 'Bridgio Label', sans-serif;
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
   font-size: var(--font-caption-size);
   font-weight: 700;
 }
@@ -1463,7 +1626,7 @@ summary:focus-visible,
   border: 1.5px solid var(--border-strong);
   border-radius: var(--radius-pill);
   color: var(--text-primary);
-  font-family: 'Bridgio Label', sans-serif;
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
   font-size: var(--font-caption-size);
   font-weight: 700;
 }
@@ -1554,7 +1717,7 @@ summary:focus-visible,
 .grounding__title {
   margin: 0;
   color: var(--text-muted);
-  font-family: 'Bridgio Label', sans-serif;
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
   font-size: var(--font-caption-size);
   font-weight: 600;
 }
@@ -1581,7 +1744,7 @@ summary:focus-visible,
   border: 1.5px solid var(--border-strong);
   border-radius: var(--radius-pill);
   color: var(--text-secondary);
-  font-family: 'Bridgio Label', sans-serif;
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
   font-size: var(--font-caption-size);
   font-weight: 600;
   line-height: 1.45;
@@ -1780,7 +1943,7 @@ summary:focus-visible,
   display: block;
   width: 100%;
   padding: 0;
-  font-family: 'Bridgio Display', sans-serif;
+  font-family: 'thmanyahserifdisplay', 'Bridgio Display', sans-serif;
   font-size: var(--font-display-size-h3);
   font-weight: 700;
   line-height: 1.5;
@@ -1942,7 +2105,7 @@ summary:focus-visible,
 .mohsen-qa__label {
   margin: 0;
   color: var(--text-muted);
-  font-family: 'Bridgio Label', sans-serif;
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
   font-size: var(--font-caption-size);
   font-weight: 600;
 }
@@ -1978,3 +2141,422 @@ summary:focus-visible,
     padding: var(--space-6);
   }
 }
+
+/* ---- Refinement: in-app chat (mock) ----------------------------------------- */
+/*
+ * Shared surface used by the header messages popup and the parent Messages
+ * screen: a threads column, the conversation, a composer and a mock note. Mock
+ * only — no real-time transport, no notifications. Logical properties keep the
+ * layout mirrored in LTR.
+ */
+
+.chat-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+}
+
+.chat-popup__backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: rgb(44 7 6 / 45%);
+  cursor: pointer;
+}
+
+.chat-popup__panel {
+  position: absolute;
+  inset-block-end: var(--space-4);
+  inset-inline-end: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  width: min(30rem, calc(100vw - 2rem));
+  height: min(36rem, calc(100dvh - 2rem));
+  overflow: hidden;
+  background: var(--bridgio-paper);
+  border: var(--outline-sticker) solid var(--bridgio-maroon);
+  border-radius: var(--radius-card);
+}
+
+.chat-popup__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: var(--outline-sticker) solid var(--bridgio-maroon);
+  background: var(--bridgio-cream);
+}
+
+.chat-popup__title {
+  margin: 0;
+  font-size: var(--font-display-size-h3);
+}
+
+.chat-popup__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  padding: 0;
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-input);
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.chat-popup__close:hover {
+  background: var(--hover-bg);
+}
+
+/* Phone: the popup becomes a full-screen sheet. */
+@media (max-width: 640px) {
+  .chat-popup__panel {
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+  }
+}
+
+.chat-surface {
+  display: grid;
+  grid-template-columns: minmax(0, 10rem) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  flex: 1;
+  min-height: 0;
+  background: var(--bridgio-paper);
+}
+
+.chat-surface__threads {
+  grid-column: 1;
+  grid-row: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  overflow-y: auto;
+  background: var(--bridgio-cream);
+  border-inline-end: var(--outline-sticker) solid var(--bridgio-maroon);
+}
+
+.chat-surface__section-title {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--font-caption-size);
+  font-weight: 600;
+}
+
+.chat-surface__thread-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-1);
+}
+
+.chat-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: var(--space-2);
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-input);
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.chat-thread:hover {
+  background: var(--hover-bg);
+}
+
+.chat-thread.is-active {
+  background: var(--bridgio-maroon);
+  color: var(--bridgio-cream);
+}
+
+.chat-thread__name {
+  font-weight: 600;
+}
+
+.chat-thread__role {
+  color: var(--text-muted);
+  font-size: var(--font-caption-size);
+}
+
+.chat-thread.is-active .chat-thread__role {
+  color: var(--bridgio-cream);
+}
+
+.chat-surface__conversation {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  overflow-y: auto;
+}
+
+.chat-surface__messages {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.chat-message {
+  max-width: 85%;
+  padding: var(--space-2) var(--space-3);
+  background: var(--bridgio-cream);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-card);
+}
+
+.chat-message--me {
+  align-self: flex-end;
+  background: var(--bridgio-maroon);
+  border-color: var(--bridgio-maroon);
+  color: var(--bridgio-cream);
+}
+
+.chat-message__author {
+  display: block;
+  margin-block-end: 2px;
+  color: var(--text-muted);
+  font-size: var(--font-caption-size);
+}
+
+.chat-message--me .chat-message__author {
+  color: var(--bridgio-cream);
+}
+
+.chat-message__body {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.chat-surface__composer {
+  grid-column: 2;
+  grid-row: 2;
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-top: var(--outline-sticker) solid var(--bridgio-maroon);
+  background: var(--bridgio-paper);
+}
+
+.chat-surface__input {
+  flex: 1;
+  min-width: 0;
+  min-height: var(--touch-target);
+  padding: var(--space-2) var(--space-3);
+  background: var(--bridgio-cream);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-input);
+  color: var(--text-primary);
+  font: inherit;
+}
+
+.chat-surface__send {
+  flex: none;
+  min-height: var(--touch-target);
+  padding: var(--space-2) var(--space-4);
+  border: 1.5px solid var(--bridgio-maroon);
+  border-radius: var(--radius-pill);
+  background: var(--bridgio-maroon);
+  color: var(--bridgio-cream);
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
+  font-size: var(--font-label-size);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.chat-surface__send:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.chat-surface__note {
+  grid-column: 2;
+  grid-row: 3;
+  margin: 0;
+  padding: 0 var(--space-4) var(--space-3);
+  color: var(--text-muted);
+  font-size: var(--font-caption-size);
+}
+
+.chat-surface__muted {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--font-body-small-size);
+}
+
+.chat-surface__error {
+  margin: 0;
+  color: var(--bridgio-error);
+  font-size: var(--font-body-small-size);
+  font-weight: 600;
+}
+
+/* Narrow chat: threads become a horizontal strip above the conversation. */
+@media (max-width: 559.98px) {
+  .chat-surface {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+  }
+
+  .chat-surface__threads {
+    grid-column: 1;
+    grid-row: 1;
+    flex-direction: row;
+    align-items: center;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-inline-end: 0;
+    border-block-end: var(--outline-sticker) solid var(--bridgio-maroon);
+  }
+
+  .chat-surface__section-title {
+    flex: none;
+  }
+
+  .chat-surface__thread-list {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-2);
+  }
+
+  .chat-thread {
+    width: auto;
+    min-width: 8rem;
+    flex: none;
+  }
+
+  .chat-surface__conversation {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .chat-surface__composer {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  .chat-surface__note {
+    grid-column: 1;
+    grid-row: 4;
+  }
+}
+
+/* ---- Refinement: parent view (display only) --------------------------------- */
+
+.parent-view {
+  max-width: 68rem;
+}
+
+.parent-readonly {
+  margin-block-end: var(--space-4);
+  padding: var(--space-2) var(--space-3);
+  background: var(--bridgio-paper);
+  border-inline-start: 4px solid var(--bridgio-maroon);
+  color: var(--text-secondary);
+  font-size: var(--font-body-small-size);
+}
+
+.parent-child-picker {
+  display: inline-flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-block-end: var(--space-4);
+}
+
+.parent-child-picker__label {
+  color: var(--text-muted);
+  font-size: var(--font-caption-size);
+  font-weight: 600;
+}
+
+.parent-child-picker select {
+  min-height: var(--touch-target);
+  padding: var(--space-2) var(--space-3);
+  background: var(--bridgio-paper);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-input);
+  color: var(--text-primary);
+  font: inherit;
+}
+
+.parent-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: var(--space-4);
+  margin: var(--space-4) 0;
+}
+
+.parent-stats dt {
+  color: var(--text-muted);
+  font-size: var(--font-caption-size);
+  font-weight: 600;
+}
+
+.parent-stats dd {
+  margin: 0;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.parent-unit-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.parent-unit {
+  padding: var(--space-4);
+  background: var(--bridgio-paper);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-card);
+}
+
+.parent-unit__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-block-end: var(--space-2);
+}
+
+.parent-unit__head h3 {
+  margin: 0;
+}
+
+.parent-score {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.parent-score__label {
+  color: var(--text-muted);
+  font-size: var(--font-caption-size);
+}
+
+/* Parent Messages: an inline chat surface inside a bordered panel. */
+.parent-view .panel .chat-surface {
+  height: min(36rem, 70vh);
+}
+

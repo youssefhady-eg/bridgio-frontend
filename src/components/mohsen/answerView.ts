@@ -26,17 +26,20 @@ export function usableGrounding(
 
 /**
  * Normalise an adapter answer for display. An `answered` result with no usable
- * grounding becomes a `not_grounded` refusal using the centralised fallback
- * copy; everything else passes through unchanged.
+ * grounding becomes a `not_grounded` refusal using the supplied (centralised)
+ * fallback copy; everything else passes through unchanged.
  */
-export function answerView(answer: MohsenAnswer): MohsenAnswer {
+export function answerView(
+  answer: MohsenAnswer,
+  fallback: string = ar.player.mohsen.notGroundedFallback,
+): MohsenAnswer {
   if (answer.status !== 'answered') return answer
 
   const grounding = usableGrounding(answer.grounding)
   if (grounding.length === 0) {
     return {
       status: 'not_grounded',
-      answer: ar.player.mohsen.notGroundedFallback,
+      answer: fallback,
       grounding: [],
     }
   }

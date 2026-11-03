@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { sessionQueryOptions, teacherDashboardQueryOptions } from '~/api/queries'
 import { TeacherDashboard } from '~/components/dashboard/TeacherDashboard'
-import { ar } from '~/content/strings'
+import { stringsFor } from '~/shell/useStrings'
 
 /**
  * Stage 2 — teacher dashboard.
@@ -17,8 +17,8 @@ import { ar } from '~/content/strings'
  * swapping in the framework's default English error screen.
  */
 export const Route = createFileRoute('/teacher/dashboard')({
-  head: () => ({
-    meta: [{ title: ar.dashboard.headTitle }],
+  head: ({ match }) => ({
+    meta: [{ title: stringsFor(match.search.lang).dashboard.headTitle }],
   }),
   loader: async ({ context }) => {
     try {

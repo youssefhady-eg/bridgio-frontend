@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { Question } from '~/api/types'
 import { StatusChip } from '~/components/dashboard/StatusChip'
 import { formatCount } from '~/components/dashboard/format'
-import { ar } from '~/content/strings'
+import { useLang, useStrings } from '~/shell/useStrings'
 import {
   correctIndexFor,
   questionDraftIssue,
@@ -10,8 +10,6 @@ import {
   type QuestionDraftIssue,
 } from './builder'
 import { GroundingList } from './GroundingList'
-
-const strings = ar.builder.review
 
 function draftFrom(question: Question): QuestionDraft {
   return {
@@ -34,6 +32,9 @@ export function QuestionCard({
   onSave: (draft: QuestionDraft) => Promise<boolean>
   onDelete: () => Promise<boolean>
 }) {
+  const builder = useStrings().builder
+  const strings = builder.review
+  const lang = useLang()
   const [editing, setEditing] = useState(false)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
   const [draft, setDraft] = useState<QuestionDraft>(() => draftFrom(question))
@@ -97,7 +98,7 @@ export function QuestionCard({
       <header className="question-card__head">
         <div className="question-card__identity">
           <p className="question-card__number">
-            {strings.questionNumber(formatCount(question.order))}
+            {strings.questionNumber(formatCount(question.order, lang))}
           </p>
           <StatusChip
             tone="neutral"
@@ -188,7 +189,7 @@ export function QuestionCard({
                     className="input"
                     type="text"
                     value={option}
-                    aria-label={strings.optionLabel(formatCount(index + 1))}
+                    aria-label={strings.optionLabel(formatCount(index + 1, lang))}
                     onChange={(event) =>
                       setDraft((current) => ({
                         ...current,
@@ -201,7 +202,7 @@ export function QuestionCard({
                   <button
                     type="button"
                     className="button button--ghost button--icon"
-                    aria-label={strings.removeOption(formatCount(index + 1))}
+                    aria-label={strings.removeOption(formatCount(index + 1, lang))}
                     disabled={draft.options.length <= 2}
                     onClick={() => removeOptionAt(index)}
                   >
@@ -259,7 +260,7 @@ export function QuestionCard({
             {question.options.map((option, index) => (
               <li key={option.id}>
                 <span className="option-letter" aria-hidden="true">
-                  {formatCount(index + 1)}
+                  {formatCount(index + 1, lang)}
                 </span>
                 <span>{option.text}</span>
               </li>

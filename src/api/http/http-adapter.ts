@@ -15,10 +15,16 @@ import type {
   DraftQuestionsInput,
   DraftQuestionsResult,
   Material,
+  Message,
+  MessageThread,
   MohsenAnswer,
+  ParentOverview,
+  ParentProfile,
   Question,
   ReorderQuestionsInput,
   SaveAnswerInput,
+  SendMessageInput,
+  SendMessageResult,
   Session,
   SignInInput,
   StartAttemptInput,
@@ -32,6 +38,7 @@ import type {
   TestSummary,
   UpdateQuestionInput,
   UpdateTestInput,
+  UserCapabilities,
   UserId,
 } from '../types'
 import { CONTRACT_VERSION } from '../version'
@@ -113,6 +120,46 @@ export function createHttpApi(options: HttpApiOptions): BridgioApi {
           method: 'GET',
           path: endpoints.students.progress(input.studentId),
           query: { classroomId: input.classroomId },
+        }),
+    },
+
+    rbac: {
+      getCapabilities: (input) =>
+        client.request<UserCapabilities>({
+          method: 'GET',
+          path: endpoints.rbac.capabilities(input.userId),
+        }),
+    },
+
+    parents: {
+      getProfile: () =>
+        client.request<ParentProfile>({
+          method: 'GET',
+          path: endpoints.parents.profile,
+        }),
+      getOverview: (input) =>
+        client.request<ParentOverview>({
+          method: 'GET',
+          path: endpoints.parents.overview(input.childId),
+        }),
+    },
+
+    messages: {
+      listThreads: () =>
+        client.request<MessageThread[]>({
+          method: 'GET',
+          path: endpoints.messages.threads,
+        }),
+      listMessages: (input) =>
+        client.request<Message[]>({
+          method: 'GET',
+          path: endpoints.messages.messages(input.threadId),
+        }),
+      sendMessage: (input: SendMessageInput) =>
+        client.request<SendMessageResult>({
+          method: 'POST',
+          path: endpoints.messages.messages(input.threadId),
+          body: { body: input.body },
         }),
     },
 

@@ -4,6 +4,9 @@ import type {
   CurriculumSubject,
   CurriculumUnit,
   Material,
+  Message,
+  MessageThread,
+  NavCapability,
   Question,
   QuestionOption,
   TestSource,
@@ -23,6 +26,8 @@ import type {
 
 export const seedIds = {
   teacher: 'usr_teacher_mona',
+  assistant: 'usr_assistant_hala',
+  parent: 'usr_parent_adel',
   studentSara: 'usr_student_sara',
   studentOmar: 'usr_student_omar',
   studentYoussef: 'usr_student_youssef',
@@ -38,6 +43,9 @@ export const seedIds = {
   testDerivatives: 'test_math_deriv_1',
   testIntegrationDraft: 'test_math_integration_draft',
   testPhysics: 'test_physics_motion_1',
+  threadTeacher: 'thread_parent_teacher',
+  threadAssistant: 'thread_parent_assistant',
+  threadTeacherAssistant: 'thread_teacher_assistant',
 } as const
 
 /** Internal storage model. Adapter methods map these to the public contract types. */
@@ -88,6 +96,14 @@ export interface MockDatabase {
   tests: MockTest[]
   questions: Question[]
   attempts: Attempt[]
+  /** RBAC grants by user (assistant permissions are backend-owned). */
+  capabilities: Record<UserId, NavCapability[]>
+  /** Parent → child links. */
+  parentLinks: Record<UserId, UserId[]>
+  threads: MessageThread[]
+  messages: Message[]
+  /** Backend-supplied result scores by attempt id (never computed by the UI). */
+  resultScores: Record<string, number | null>
   sessionUserId: UserId | null
 }
 
@@ -216,6 +232,24 @@ const createdAt = '2026-10-24T09:15:00.000Z'
 const updatedAt = '2026-10-30T12:40:00.000Z'
 const publishedAt = '2026-10-30T12:45:00.000Z'
 
+/** Mock convenience: which seeded user is signed in (never real auth). */
+function sessionUserIdFor(
+  session: 'teacher' | 'student' | 'assistant' | 'parent' | 'none',
+): UserId | null {
+  switch (session) {
+    case 'teacher':
+      return seedIds.teacher
+    case 'student':
+      return seedIds.studentSara
+    case 'assistant':
+      return seedIds.assistant
+    case 'parent':
+      return seedIds.parent
+    default:
+      return null
+  }
+}
+
 function option(questionId: string, index: number, text: string): QuestionOption {
   return { id: `${questionId}_opt_${index + 1}`, text }
 }
@@ -249,7 +283,7 @@ function question(input: {
 
 export function createSeedDatabase(options: {
   scenario: 'seeded' | 'empty'
-  session: 'teacher' | 'student' | 'none'
+  session: 'teacher' | 'student' | 'assistant' | 'parent' | 'none'
 }): MockDatabase {
   const users: User[] = [
     {
@@ -257,6 +291,20 @@ export function createSeedDatabase(options: {
       role: 'teacher',
       displayName: 'أ. منى عبد الرحمن',
       email: 'mona.teacher@bridgio.test',
+      avatarUrl: null,
+    },
+    {
+      id: seedIds.assistant,
+      role: 'assistant',
+      displayName: 'هالة محمود — مساعدة المعلم',
+      email: 'hala.assistant@bridgio.test',
+      avatarUrl: null,
+    },
+    {
+      id: seedIds.parent,
+      role: 'parent',
+      displayName: 'أ. عادل حسن — ولي أمر',
+      email: 'adel.parent@bridgio.test',
       avatarUrl: null,
     },
     {
@@ -281,6 +329,24 @@ export function createSeedDatabase(options: {
       avatarUrl: null,
     },
   ]
+
+  /**
+   * RBAC grants. The assistant is deliberately granted some teacher
+   * capabilities and NOT others, so the sidebar can prove it hides the rest.
+   */
+  const capabilities: Record<UserId, NavCapability[]> = {
+    [seedIds.teacher]: ['dashboard', 'classes', 'tests', 'students'],
+    [seedIds.assistant]: ['dashboard', 'tests'],
+    [seedIds.parent]: [],
+    [seedIds.studentSara]: [],
+    [seedIds.studentOmar]: [],
+    [seedIds.studentYoussef]: [],
+  }
+
+  /** Parent → child links (demo only). */
+  const parentLinks: Record<UserId, UserId[]> = {
+    [seedIds.parent]: [seedIds.studentSara, seedIds.studentOmar],
+  }
 
   const subjects: CurriculumSubject[] = [
     {
@@ -366,12 +432,12 @@ export function createSeedDatabase(options: {
       tests: [],
       questions: [],
       attempts: [],
-      sessionUserId:
-        options.session === 'teacher'
-          ? seedIds.teacher
-          : options.session === 'student'
-            ? seedIds.studentSara
-            : null,
+      capabilities,
+      parentLinks,
+      threads: [],
+      messages: [],
+      resultScores: {},
+      sessionUserId: sessionUserIdFor(options.session),
     }
   }
 
@@ -665,6 +731,93 @@ export function createSeedDatabase(options: {
     },
   ]
 
+  /**
+   * Backend-supplied result scores (demo values only). The frontend never
+   * computes these; `null` means the backend has not produced a score yet.
+   */
+  const resultScores: Record<string, number | null> = {
+    attempt_omar_deriv: 67,
+    attempt_sara_deriv: null,
+    attempt_youssef_physics: null,
+  }
+
+  const teacherParticipant = {
+    role: 'teacher' as const,
+    name: 'أ. منى عبد الرحمن',
+  }
+  const assistantParticipant = {
+    role: 'assistant' as const,
+    name: 'هالة محمود — مساعدة المعلم',
+  }
+  const parentParticipant = {
+    role: 'parent' as const,
+    name: 'أ. عادل حسن — ولي أمر',
+  }
+
+  const threads: MessageThread[] = [
+    {
+      id: seedIds.threadTeacher,
+      title: `${teacherParticipant.name}`,
+      participant: teacherParticipant,
+      lastMessageAt: '2026-10-31T19:05:00.000Z',
+    },
+    {
+      id: seedIds.threadAssistant,
+      title: `${assistantParticipant.name}`,
+      participant: assistantParticipant,
+      lastMessageAt: '2026-10-30T17:40:00.000Z',
+    },
+    {
+      id: seedIds.threadTeacherAssistant,
+      title: `${assistantParticipant.name}`,
+      participant: assistantParticipant,
+      lastMessageAt: '2026-10-30T15:20:00.000Z',
+    },
+  ]
+
+  const messages: Message[] = [
+    {
+      id: 'msg_parent_teacher_1',
+      threadId: seedIds.threadTeacher,
+      author: parentParticipant,
+      fromMe: false,
+      body: 'مساء الخير، عايز أطمّن على مستوى سارة في اختبار الاشتقاق.',
+      sentAt: '2026-10-31T18:50:00.000Z',
+    },
+    {
+      id: 'msg_parent_teacher_2',
+      threadId: seedIds.threadTeacher,
+      author: teacherParticipant,
+      fromMe: false,
+      body: 'أهلًا بيك. سارة بتابع معاها أول بأول، والنتيجة هتظهر عندك في تبويب النتائج بمجرد ما التصحيح يخلص.',
+      sentAt: '2026-10-31T19:05:00.000Z',
+    },
+    {
+      id: 'msg_parent_assistant_1',
+      threadId: seedIds.threadAssistant,
+      author: parentParticipant,
+      fromMe: false,
+      body: 'ممكن أعرف مواعيد المراجعة الجاية؟',
+      sentAt: '2026-10-30T17:30:00.000Z',
+    },
+    {
+      id: 'msg_parent_assistant_2',
+      threadId: seedIds.threadAssistant,
+      author: assistantParticipant,
+      fromMe: false,
+      body: 'المراجعة يوم الأربع القادم. هبلغك لو الموعد اتغيّر.',
+      sentAt: '2026-10-30T17:40:00.000Z',
+    },
+    {
+      id: 'msg_teacher_assistant_1',
+      threadId: seedIds.threadTeacherAssistant,
+      author: assistantParticipant,
+      fromMe: false,
+      body: 'جهّزت مذكرة التفاضل للنشر على الصف.',
+      sentAt: '2026-10-30T15:20:00.000Z',
+    },
+  ]
+
   return {
     users,
     subjects,
@@ -675,11 +828,11 @@ export function createSeedDatabase(options: {
     tests,
     questions,
     attempts,
-    sessionUserId:
-      options.session === 'teacher'
-        ? seedIds.teacher
-        : options.session === 'student'
-          ? seedIds.studentSara
-          : null,
+    capabilities,
+    parentLinks,
+    threads,
+    messages,
+    resultScores,
+    sessionUserId: sessionUserIdFor(options.session),
   }
 }

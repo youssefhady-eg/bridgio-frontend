@@ -16,11 +16,17 @@ import type {
   DraftQuestionsResult,
   GroundingRef,
   Material,
+  Message,
+  MessageThread,
   MohsenAnswer,
+  ParentOverview,
+  ParentProfile,
   Question,
   QuestionOption,
   ReorderQuestionsInput,
   SaveAnswerInput,
+  SendMessageInput,
+  SendMessageResult,
   Session,
   SignInInput,
   StartAttemptInput,
@@ -38,6 +44,7 @@ import type {
   UpdateQuestionInput,
   UpdateTestInput,
   User,
+  UserCapabilities,
   UserId,
   UserRole,
 } from '../types'
@@ -45,6 +52,7 @@ import { CONTRACT_VERSION } from '../version'
 import {
   createSeedDatabase,
   mockQuestionBank,
+  seedIds,
   type MockClassroom,
   type MockDatabase,
   type MockEnrollment,
@@ -67,7 +75,7 @@ import {
 
 export interface MockApiOptions {
   scenario?: 'seeded' | 'empty'
-  session?: 'teacher' | 'student' | 'none'
+  session?: 'teacher' | 'student' | 'assistant' | 'parent' | 'none'
   latencyMs?: number
   now?: () => Date
 }
@@ -796,6 +804,166 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
   }
 
   // ---------------------------------------------------------------------------
+  // Parent, RBAC and in-app chat (display-only / mock)
+  // ---------------------------------------------------------------------------
+
+  function requireParent(): User {
+    const user = currentUser()
+    if (user.role !== 'parent') {
+      fail('FORBIDDEN', 'This action requires the parent role.', 403)
+    }
+    return user
+  }
+
+  function childrenOf(parentId: UserId): User[] {
+    const ids = db.parentLinks[parentId] ?? []
+    return ids
+      .map((id) => userById(id))
+      .filter((user): user is User => user !== undefined)
+  }
+
+  function parentChild(child: User) {
+    const enrollment = db.enrollments.find((item) => item.studentId === child.id)
+    const classroom = enrollment ? requireClassroom(enrollment.classroomId) : null
+    return {
+      student: child,
+      classroomId: classroom?.id ?? null,
+      classroomName: classroom?.name ?? null,
+      gradeLevel: classroom?.gradeLevel ?? '',
+    }
+  }
+
+  function parentOverview(childId: UserId, parent: User): ParentOverview {
+    const linked = (db.parentLinks[parent.id] ?? []).includes(childId)
+    if (!linked) {
+      fail('FORBIDDEN', 'This child is not linked to the signed-in parent.', 403)
+    }
+    const child = requireUser(childId)
+    if (child.role !== 'student') {
+      fail('VALIDATION', 'The requested user is not a student.', 422)
+    }
+    const childInfo = parentChild(child)
+    const enrollment = db.enrollments.find(
+      (item) => item.studentId === child.id && item.classroomId === childInfo.classroomId,
+    )
+    const classroom = childInfo.classroomId
+      ? requireClassroom(childInfo.classroomId)
+      : null
+
+    const units: ParentOverview['progress']['units'] = classroom
+      ? classroom.unitIds.map((unitId) => {
+          const unit = requireUnit(unitId)
+          const progress = enrollment?.progressByUnit[unitId]
+          return {
+            unitId: unit.id,
+            unitTitle: unit.title,
+            progressPercent: progress?.progressPercent ?? 0,
+            lessonsCompleted: progress?.lessonsCompleted ?? 0,
+          }
+        })
+      : []
+    const overallPercent =
+      units.length === 0
+        ? 0
+        : Math.round(
+            units.reduce((total, unit) => total + unit.progressPercent, 0) /
+              units.length,
+          )
+
+    const attempts = db.attempts.filter((item) => item.studentId === child.id)
+    const attemptFor = (testId: string): Attempt | undefined =>
+      attempts.find((item) => item.testId === testId)
+
+    const classTests = classroom
+      ? db.tests
+          .filter(
+            (test) =>
+              test.classroomId === classroom.id && test.status === 'published',
+          )
+          .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))
+      : []
+
+    const tests = classTests.map((test) => {
+      const attempt = attemptFor(test.id)
+      const status = attempt
+        ? attempt.status
+        : ('not_started' as const)
+      return {
+        id: test.id,
+        title: test.title,
+        classroomName: classroom?.name ?? '',
+        status,
+        questionCount: questionsForTest(test.id).length,
+        answeredCount: attempt?.answeredCount ?? 0,
+        submittedAt: attempt?.submittedAt ?? null,
+      }
+    })
+
+    const results: ParentOverview['results'] = attempts
+      .filter((attempt) => attempt.status === 'submitted')
+      .sort((left, right) =>
+        (right.submittedAt ?? '').localeCompare(left.submittedAt ?? ''),
+      )
+      .map((attempt) => {
+        const test = requireTest(attempt.testId)
+        const classRoom = requireClassroom(test.classroomId)
+        return {
+          attemptId: attempt.id,
+          testId: test.id,
+          testTitle: test.title,
+          classroomName: classRoom.name,
+          submittedAt: attempt.submittedAt,
+          answeredCount: attempt.answeredCount,
+          questionCount: attempt.questionCount,
+          // Backend-supplied only. The UI never computes this.
+          scorePercent: db.resultScores[attempt.id] ?? null,
+        }
+      })
+
+    return {
+      child: childInfo,
+      progress: {
+        childId: child.id,
+        overallPercent,
+        completedUnits: units.filter((unit) => unit.progressPercent >= 100).length,
+        totalUnits: units.length,
+        units,
+        lastActiveAt: enrollment?.lastActiveAt ?? null,
+      },
+      tests,
+      results,
+    }
+  }
+
+  function threadsForUser(user: User): MessageThread[] {
+    if (user.role === 'parent') {
+      return db.threads.filter(
+        (thread) =>
+          thread.id === seedIds.threadTeacher ||
+          thread.id === seedIds.threadAssistant,
+      )
+    }
+    if (user.role === 'teacher') {
+      return db.threads.filter(
+        (thread) => thread.id === seedIds.threadTeacherAssistant,
+      )
+    }
+    return []
+  }
+
+  function messagesForThread(threadId: string, viewer: User): Message[] {
+    return db.messages
+      .filter((message) => message.threadId === threadId)
+      .sort((left, right) => left.sentAt.localeCompare(right.sentAt))
+      .map((message) => ({
+        ...message,
+        // `fromMe` is relative to the signed-in user: the same stored message is
+        // "mine" for its author and "theirs" for the other participant.
+        fromMe: message.author.role === viewer.role,
+      }))
+  }
+
+  // ---------------------------------------------------------------------------
   // Public API — every method is PROPOSED (see contract.ts)
   // ---------------------------------------------------------------------------
 
@@ -953,6 +1121,97 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
             units,
             lastActiveAt: enrollment.lastActiveAt,
           }
+        }),
+    },
+
+    rbac: {
+      getCapabilities: (input) =>
+        respond<UserCapabilities>(() => {
+          const user = currentUser()
+          if (user.id !== input.userId) {
+            fail('FORBIDDEN', 'A user may only read their own capabilities.', 403)
+          }
+          return {
+            userId: user.id,
+            items: db.capabilities[user.id] ?? [],
+          }
+        }),
+    },
+
+    parents: {
+      getProfile: () =>
+        respond<ParentProfile>(() => {
+          const parent = requireParent()
+          return { user: parent, children: childrenOf(parent.id).map(parentChild) }
+        }),
+
+      getOverview: (input) =>
+        respond<ParentOverview>(() => {
+          const parent = requireParent()
+          return parentOverview(input.childId, parent)
+        }),
+    },
+
+    messages: {
+      listThreads: () =>
+        respond<MessageThread[]>(() => {
+          const user = currentUser()
+          return threadsForUser(user).sort((left, right) =>
+            right.lastMessageAt.localeCompare(left.lastMessageAt),
+          )
+        }),
+
+      listMessages: (input) =>
+        respond<Message[]>(() => {
+          const user = currentUser()
+          const thread = threadsForUser(user).find(
+            (item) => item.id === input.threadId,
+          )
+          if (!thread) {
+            fail('NOT_FOUND', 'This conversation is not available.', 404)
+          }
+          return messagesForThread(thread.id, user)
+        }),
+
+      sendMessage: (input: SendMessageInput) =>
+        respond<SendMessageResult>(() => {
+          const user = currentUser()
+          const body = input.body.trim()
+          if (body.length === 0) {
+            fail('VALIDATION', 'A message body is required.', 422)
+          }
+          const thread = threadsForUser(user).find(
+            (item) => item.id === input.threadId,
+          )
+          if (!thread) {
+            fail('NOT_FOUND', 'This conversation is not available.', 404)
+          }
+          const timestamp = nowIso()
+          const sent: Message = {
+            id: nextId('msg'),
+            threadId: thread.id,
+            author: {
+              role: user.role === 'parent' ? 'parent' : 'teacher',
+              name: user.displayName,
+            },
+            fromMe: true,
+            body,
+            sentAt: timestamp,
+          }
+          const reply: Message = {
+            id: nextId('msg'),
+            threadId: thread.id,
+            author: thread.participant,
+            fromMe: false,
+            body:
+              thread.participant.role === 'assistant'
+                ? 'وصلت رسالتك، هتابع الموضوع وأرد عليك في أقرب وقت.'
+                : 'شكرًا لتواصلك، هرد عليك بالتفاصيل حالًا.',
+            sentAt: timestamp,
+          }
+          db.messages.push(sent, reply)
+          thread.lastMessageAt = timestamp
+          return { messages: [sent, reply], repliedBy: thread.participant }
         }),
     },
 

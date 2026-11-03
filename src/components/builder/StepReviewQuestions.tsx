@@ -6,12 +6,10 @@ import { testQuestionsQueryOptions } from '~/api/queries'
 import type { Question, Test, UserId } from '~/api/types'
 import { EmptyNote } from '~/components/dashboard/EmptyNote'
 import { formatCount } from '~/components/dashboard/format'
-import { ar } from '~/content/strings'
+import { useLang, useStrings } from '~/shell/useStrings'
 import type { QuestionDraft } from './builder'
 import { removeQuestion, replaceQuestion } from './builder'
 import { QuestionCard } from './QuestionCard'
-
-const strings = ar.builder.review
 
 /**
  * Step 3 — teacher review. Every question is editable and deletable before
@@ -36,6 +34,9 @@ export function StepReviewQuestions({
   onBack: () => void
 }) {
   const queryClient = useQueryClient()
+  const builder = useStrings().builder
+  const strings = builder.review
+  const lang = useLang()
   const [error, setError] = useState<'update' | 'delete' | null>(null)
 
   const updateMutation = useMutation({
@@ -111,7 +112,7 @@ export function StepReviewQuestions({
 
       <div className="source-banner">
         <span className="source-banner__label">
-          {ar.builder.draft.sourceLabel}
+          {builder.draft.sourceLabel}
         </span>
         <span className="source-banner__value">{test.source.label}</span>
       </div>
@@ -154,7 +155,7 @@ export function StepReviewQuestions({
           <div className="draft-preview__head">
             <h3>{strings.listHeading}</h3>
             <span className="count-chip">
-              {ar.builder.draft.questionsCount(formatCount(questions.length))}
+              {builder.draft.questionsCount(formatCount(questions.length, lang))}
             </span>
           </div>
 
@@ -194,7 +195,7 @@ export function StepReviewQuestions({
           className="button button--secondary"
           onClick={onBack}
         >
-          {ar.builder.nav.back}
+          {builder.nav.back}
         </button>
         <button
           type="button"

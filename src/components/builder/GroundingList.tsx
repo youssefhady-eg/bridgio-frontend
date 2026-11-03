@@ -1,5 +1,5 @@
 import type { GroundingRef } from '~/api/types'
-import { ar } from '~/content/strings'
+import { useStrings } from '~/shell/useStrings'
 
 /**
  * Grounding shown with every Mohsen-drafted question (and every reviewed
@@ -8,16 +8,17 @@ import { ar } from '~/content/strings'
  */
 export function GroundingList({
   grounding,
-  label = ar.builder.grounding.label,
+  label,
 }: {
   grounding: readonly GroundingRef[]
   label?: string
 }) {
+  const strings = useStrings()
   if (grounding.length === 0) return null
 
   return (
     <div className="grounding">
-      <p className="grounding__title">{label}</p>
+      <p className="grounding__title">{label ?? strings.builder.grounding.label}</p>
       <ul className="grounding__list">
         {grounding.map((ref, index) => (
           <li
@@ -26,8 +27,8 @@ export function GroundingList({
           >
             <span className="grounding__kind">
               {ref.kind === 'material'
-                ? ar.builder.grounding.material
-                : ar.builder.grounding.unit}
+                ? strings.builder.grounding.material
+                : strings.builder.grounding.unit}
             </span>
             <span className="grounding__label">{ref.label}</span>
             {ref.excerpt ? (
