@@ -27,6 +27,7 @@ import type {
   StudentProfile,
   StudentProgress,
   StudentProgressSnapshot,
+  StudentQuestion,
   StudentUnitProgress,
   SubmitAttemptInput,
   TeacherDashboard,
@@ -311,6 +312,23 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
     return db.questions
       .filter((question) => question.testId === testId)
       .sort((left, right) => left.order - right.order)
+  }
+
+  /**
+   * Explicit allowlist, not a delete/omit: `correctOptionId` (and any field later
+   * added to `Question`) cannot reach a student unless it is listed here.
+   */
+  function toStudentQuestion(question: Question): StudentQuestion {
+    return {
+      id: question.id,
+      testId: question.testId,
+      order: question.order,
+      prompt: question.prompt,
+      options: question.options.map((option) => ({
+        id: option.id,
+        text: option.text,
+      })),
+    }
   }
 
   function enrollmentFor(
@@ -1197,9 +1215,18 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
     questions: {
       listForTest: (input) =>
         respond<Question[]>(() => {
+          // Full questions carry `correctOptionId`, so this is teacher-only.
+          // Student sessions read questions through `listForStudentTest`.
+          const teacher = requireActor('teacher')
+          requireVisibleTest(input.testId, teacher)
+          return questionsForTest(input.testId)
+        }),
+
+      listForStudentTest: (input) =>
+        respond<StudentQuestion[]>(() => {
           const user = currentUser()
           requireVisibleTest(input.testId, user)
-          return questionsForTest(input.testId)
+          return questionsForTest(input.testId).map(toStudentQuestion)
         }),
 
       create: (input: CreateQuestionInput & { teacherId: UserId; testId: string }) =>

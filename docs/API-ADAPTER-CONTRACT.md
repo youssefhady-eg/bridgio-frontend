@@ -203,7 +203,8 @@ Every row below is **PROPOSED — Mentingo to implement on restore/rebuild**.
 
 | Method | Input | Output | Proposed HTTP route | Status |
 | --- | --- | --- | --- | --- |
-| `questions.listForTest` | `{ testId }` | `Question[]` | `GET /tests/{testId}/questions` | **PROPOSED** |
+| `questions.listForTest` | `{ testId }` | `Question[]` (includes `correctOptionId`) | `GET /tests/{testId}/questions` | **PROPOSED** — teacher-only |
+| `questions.listForStudentTest` | `{ testId }` | `StudentQuestion[]` (no `correctOptionId`) | `GET /tests/{testId}/student-questions` | **PROPOSED** — student player; see the answer-key boundary below |
 | `questions.create` | `CreateQuestionInput & { teacherId, testId }` | `Question` | `POST /tests/{testId}/questions` | **PROPOSED** |
 | `questions.update` | `UpdateQuestionInput & { teacherId, testId, questionId }` | `Question` | `PATCH /tests/{testId}/questions/{questionId}` | **PROPOSED** |
 | `questions.delete` | `{ teacherId, testId, questionId }` | `void` | `DELETE /tests/{testId}/questions/{questionId}?teacherId=` | **PROPOSED** |
@@ -256,6 +257,35 @@ one proposal, not a reverse-engineered Mentingo route list.
    delete and test delete happen while `status: 'draft'`.
 7. **No local-only persistent store.** The mock is an adapter; screens never
    read or write mock state directly.
+8. **The answer key never reaches a student.** `correctOptionId` exists only on
+   `Question`, which only the teacher builder loads (`questions.listForTest`).
+   The student player loads `StudentQuestion` (`questions.listForStudentTest`),
+   which has no `correctOptionId` as a value or as a property.
+
+### Answer-key boundary
+
+The player UI never displayed `correctOptionId`, but it used to receive it,
+because the player and the builder shared one question list. The two paths are
+now split:
+
+| | Teacher builder | Student player |
+| --- | --- | --- |
+| Adapter method | `questions.listForTest` | `questions.listForStudentTest` |
+| Type | `Question` (has `correctOptionId`) | `StudentQuestion` (`id`, `testId`, `order`, `prompt`, `options` only) |
+| Query options / key | `testQuestionsQueryOptions` / `tests.questions` | `studentTestQuestionsQueryOptions` / `tests.studentQuestions` |
+| Mock rule | Teacher session only; a student gets `FORBIDDEN` | Teacher or student; the key is stripped for every caller |
+
+- The mock builds `StudentQuestion` from an explicit field allowlist, so a field
+  added to `Question` later stays out of the student path until it is added to
+  `StudentQuestion` on purpose.
+- The two paths use separate Query cache keys, so the player cannot read full
+  questions that the builder cached in the same browser session.
+- **Requirement on the real backend (PROPOSED, not confirmed):** it must never
+  return `correctOptionId` to a student principal, from any questions route. The
+  HTTP adapter does not filter response bodies, so in HTTP mode protection on the
+  wire is the backend's responsibility. The route
+  `GET /tests/{testId}/student-questions` is a PROPOSAL like every other path in
+  this document, not a confirmed endpoint.
 
 ### Correct answer field
 
@@ -318,7 +348,7 @@ endpoint is confirmed.
 | Stage 3 step 2 (Mohsen drafts) | `tests.createDraft`, `mohsen.draftQuestions`, `questions.listForTest` | test, question, assistant answer + grounding | No | Yes |
 | Stage 3 step 3 + question editor | `questions.create`, `update`, `delete`, `reorder`, `tests.update` | question, test | No | Yes |
 | Stage 3 step 4 (publish) | `tests.publish` | test | No | Yes |
-| Stage 4 student player | `tests.listForClass`, `tests.get`, `questions.listForTest`, `attempts.start`, `get`, `saveAnswer`, `submit`, `mohsen.ask` | test, question, attempt, assistant answer | No | Yes |
+| Stage 4 student player | `tests.listForClass`, `tests.get`, `questions.listForStudentTest`, `attempts.start`, `get`, `saveAnswer`, `submit`, `mohsen.ask` | test, question, attempt, assistant answer | No | Yes |
 | Stage 5 Mohsen hardening + states | `mohsen.ask`, `mohsen.draftQuestions`, all error/empty paths | assistant answer + grounding | No | Yes |
 | Stage 7 real backend | All HTTP adapter methods | To be documented by running the Docker demo | **No** | Real adapter skeleton only |
 

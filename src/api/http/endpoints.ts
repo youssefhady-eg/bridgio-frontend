@@ -54,6 +54,9 @@ export const endpoints = {
   },
   questions: {
     list: (testId: string) => `/tests/${encode(testId)}/questions`,
+    // PROPOSED route for the student-safe list (no `correctOptionId`).
+    studentList: (testId: string) =>
+      `/tests/${encode(testId)}/student-questions`,
     detail: (testId: string, questionId: string) =>
       `/tests/${encode(testId)}/questions/${encode(questionId)}`,
     reorder: (testId: string) => `/tests/${encode(testId)}/questions/order`,

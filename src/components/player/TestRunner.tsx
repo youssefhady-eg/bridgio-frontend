@@ -4,7 +4,7 @@ import { api } from '~/api'
 import { queryKeys } from '~/api/query-keys'
 import {
   attemptQueryOptions,
-  testQuestionsQueryOptions,
+  studentTestQuestionsQueryOptions,
 } from '~/api/queries'
 import type { Attempt, UserId } from '~/api/types'
 import { EmptyNote } from '~/components/dashboard/EmptyNote'
@@ -45,7 +45,7 @@ export function TestRunner({
   const attemptQuery = useQuery(attemptQueryOptions(attemptId))
   const testId = attemptQuery.data?.testId ?? ''
   const questionsQuery = useQuery({
-    ...testQuestionsQueryOptions(testId),
+    ...studentTestQuestionsQueryOptions(testId),
     enabled: testId !== '',
   })
 

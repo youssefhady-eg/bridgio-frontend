@@ -65,6 +65,10 @@ export const queryKeys = {
       ['tests', 'classroom', classroomId] as const,
     detail: (testId: TestId) => ['tests', testId] as const,
     questions: (testId: TestId) => ['tests', testId, 'questions'] as const,
+    // Separate key on purpose: the student player must never read cached full
+    // questions (which carry `correctOptionId`) that the teacher builder loaded.
+    studentQuestions: (testId: TestId) =>
+      ['tests', testId, 'student-questions'] as const,
     question: (testId: TestId, questionId: QuestionId) =>
       ['tests', testId, 'questions', questionId] as const,
   },

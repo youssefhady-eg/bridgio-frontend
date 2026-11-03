@@ -27,6 +27,7 @@ import type {
   StartAttemptInput,
   StudentProfile,
   StudentProgress,
+  StudentQuestion,
   SubjectId,
   SubmitAttemptInput,
   TeacherDashboard,
@@ -144,8 +145,20 @@ export interface BridgioApi {
   }
 
   questions: {
-    /** PROPOSED — ordered questions of a test. */
+    /**
+     * PROPOSED — TEACHER-ONLY. Ordered full questions of a test for the builder,
+     * including `correctOptionId`. Student screens must not call this; they use
+     * `listForStudentTest`. The mock rejects a student session with FORBIDDEN,
+     * and a real backend must never return `correctOptionId` to a student.
+     */
     listForTest(input: { testId: TestId }): Promise<Question[]>
+    /**
+     * PROPOSED — student-safe ordered questions of a published test, for the
+     * player. Never carries `correctOptionId`, as a value or as a property. The
+     * owning teacher may also call it (preview); the result is stripped for every
+     * caller.
+     */
+    listForStudentTest(input: { testId: TestId }): Promise<StudentQuestion[]>
     /** PROPOSED — add a teacher-authored question. */
     create(
       input: CreateQuestionInput & { teacherId: UserId; testId: TestId },
