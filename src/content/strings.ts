@@ -27,6 +27,14 @@ export const assistant = {
   nameAr: 'محسن',
 } as const
 
+/**
+ * Swap points for the two working names. Every Arabic string that mentions a
+ * name interpolates these two consts, so a rename is a one-line change here
+ * (brand.name / assistant.nameAr) plus the matching artwork file name.
+ */
+const B = brand.name
+const M = assistant.nameAr
+
 /** Screen route/page identifiers shared with src/shell/nav.ts. */
 export type ScreenId =
   | 'shell-home'
@@ -41,18 +49,18 @@ export type ScreenId =
 /** DRAFT Arabic — not approved final copy. */
 export const ar = {
   head: {
-    title: 'Bridgio — المرحلة ٥: تثبيت محسن والحالات',
+    title: `${B} — المرحلة ٦: تلميع الاتساق`,
     description:
-      'تثبيت محسن في Bridgio: إجابات موثّقة من المادة أو المنهج فقط مع عرض المصدر مع كل إجابة، ورفض صريح عند عدم وجود إجابة موثّقة، وحالات فراغ وخطأ ونجاح في لوحة المعلم ومنشئ الاختبارات ومشغّل اختبار الطالب، مع فحص الوصولية. بتخطيط عربي كامل من اليمين إلى اليسار. البيانات تجريبية وتأتي عبر طبقة البيانات، وهذه نسخة داخلية للتحقق وليست نسخة منتج نهائية.',
+      `لمسة تلميع أخيرة في ${B}: توحيد الأزرار والحقول والوسوم وأنماط التقدّم عبر لوحة المعلم ومنشئ الاختبارات ومشغّل اختبار الطالب، وتركيز كل النصوص في مكان واحد. بتخطيط عربي كامل من اليمين إلى اليسار، وبالبيانات التجريبية عبر طبقة البيانات. هذه نسخة داخلية للتحقق وليست نسخة منتج نهائية.`,
   },
   stageBanner: {
-    stage: 'المرحلة ٥ من ٧',
-    note: 'تثبيت إجابات محسن الموثّقة والحالات في الصفوف الثلاثة. البيانات تجريبية وتأتي عبر طبقة البيانات، وليست بيانات حقيقية.',
+    stage: 'المرحلة ٦ من ٧',
+    note: 'لمسة تلميع أخيرة على الاتساق في الشاشات الثلاث. البيانات تجريبية وتأتي عبر طبقة البيانات، وليست بيانات حقيقية.',
   },
   header: {
     navLabel: 'التنقّل الرئيس',
-    lockupAlt: 'شعار Bridgio الكامل (الشخصية والاسم معًا).',
-    wordmarkAlt: 'اسم Bridgio النصي المعتمد.',
+    lockupAlt: `شعار ${B} الكامل (الشخصية والاسم معًا).`,
+    wordmarkAlt: `اسم ${B} النصي المعتمد.`,
     roleGroupAria: 'معاينة الدور — حالة واجهة فقط، دون تسجيل دخول.',
     roleHint: 'دور المعاينة:',
     roleTeacher: 'المعلم',
@@ -79,8 +87,8 @@ export const ar = {
     string
   >,
   footer: {
-    note: 'Bridgio وMohsen اسمان عملان قابلان للتغيير، وصياغة العربية مسودات بانتظار المراجعة.',
-    noteEn: 'Bridgio — internal build for brand verification. Not final, nothing external-facing.',
+    note: `${B} و${M} اسمان عملان قابلان للتغيير، وصياغة العربية مسودات بانتظار المراجعة.`,
+    noteEn: `${B} — internal build for brand verification. Not final, nothing external-facing.`,
   },
   shell: {
     home: {
@@ -97,7 +105,7 @@ export const ar = {
         'تنقّل المعلم وتنقّل الطالب مع مفتاح معاينة الدور.',
         'لوحة المعلم: الصفوف وآخر الاختبارات وتقدّم الطلاب عبر طبقة البيانات.',
         'منشئ الاختبارات: أربع خطوات من اختيار المصدر إلى النشر، عبر طبقة البيانات.',
-        'مشغّل اختبار الطالب: السؤال والخيارات والتقدّم والتسليم، مع لوحة أسئلة محسن، عبر طبقة البيانات.',
+        `مشغّل اختبار الطالب: السؤال والخيارات والتقدّم والتسليم، مع لوحة أسئلة ${M}، عبر طبقة البيانات.`,
       ],
       notBuiltHeading: 'ما لم يُبنَ بعد',
       notBuiltLead:
@@ -107,7 +115,7 @@ export const ar = {
     codeHint: '…?as=teacher أو …?as=student',
   },
   dashboard: {
-    headTitle: 'لوحة المعلم — Bridgio',
+    headTitle: `لوحة المعلم — ${B}`,
     badge: 'لوحة المعلم',
     title: 'وفّر وقت المتابعة',
     lead:
@@ -162,15 +170,15 @@ export const ar = {
       'لا صفوف ولا اختبارات بعد. تظهر البيانات هنا تلقائيًا عند توفرها عبر طبقة البيانات.',
   },
   builder: {
-    headTitle: 'منشئ الاختبارات — Bridgio',
+    headTitle: `منشئ الاختبارات — ${B}`,
     badge: 'منشئ الاختبارات',
     title: 'أنشئ اختبارًا في أربع خطوات',
     lead:
-      'اختر المادة أو وحدة المنهج، ودع محسن يصوغ الأسئلة من المصدر المحدد، ثم راجعها وعدّلها، وانشرها إلى صفك. كل خطوة تحفظ وقت إعداد الاختبار.',
+      `اختر المادة أو وحدة المنهج، ودع ${M} يصوغ الأسئلة من المصدر المحدد، ثم راجعها وعدّلها، وانشرها إلى صفك. كل خطوة تحفظ وقت إعداد الاختبار.`,
     stepsLabel: 'خطوات إنشاء الاختبار',
     steps: {
       1: 'اختيار المصدر',
-      2: 'صياغة محسن',
+      2: `صياغة ${M}`,
       3: 'المراجعة والتعديل',
       4: 'النشر',
     } as Record<1 | 2 | 3 | 4, string>,
@@ -183,7 +191,7 @@ export const ar = {
     source: {
       heading: 'اختر المادة أو وحدة المنهج',
       lead:
-        'اختر الصف أولًا، ثم حدّد مصدر الأسئلة. يبقى المصدر ظاهرًا مع كل مسودة ومع كل سؤال صاغه محسن.',
+        `اختر الصف أولًا، ثم حدّد مصدر الأسئلة. يبقى المصدر ظاهرًا مع كل مسودة ومع كل سؤال صاغه ${M}.`,
       classLabel: 'الصف',
       classPlaceholder: 'اختر صفًا',
       classesEmptyTitle: 'لا توجد صفوف بعد',
@@ -224,31 +232,31 @@ export const ar = {
         'من جهتنا، لا من جهتك. راجع الحقول وأعد المحاولة.',
     },
     draft: {
-      heading: 'يصوغ محسن الأسئلة',
+      heading: `يصوغ ${M} الأسئلة`,
       lead:
-        'يصوغ محسن الأسئلة من المصدر المحدد فقط: مادتك أو وحدة المنهج. يظهر المصدر مع كل سؤال، ولا يصوغ سؤالًا بلا مصدر.',
-      focusLabel: 'توجيه اختياري لمحسن',
+        `يصوغ ${M} الأسئلة من المصدر المحدد فقط: مادتك أو وحدة المنهج. يظهر المصدر مع كل سؤال، ولا يصوغ سؤالًا بلا مصدر.`,
+      focusLabel: `توجيه اختياري ل${M}`,
       focusPlaceholder: 'مثال: ركّز على قاعدة الضرب',
       countLabel: 'عدد الأسئلة المطلوبة',
       countHint:
-        'من ١ إلى ١٠. قد يعيد محسن عددًا أقل إذا لم يجد ما يكفي في المصدر.',
+        `من ١ إلى ١٠. قد يعيد ${M} عددًا أقل إذا لم يجد ما يكفي في المصدر.`,
       sourceLabel: 'المصدر',
-      request: 'اطلب من محسن الصياغة',
+      request: `اطلب من ${M} الصياغة`,
       requestMore: 'أضف أسئلة أخرى',
       retry: 'أعد المحاولة',
       requesting: 'جارٍ الصياغة من المصدر…',
       idleTitle: 'لم تُطلب الصياغة بعد',
       idleBody:
-        'اضغط زر الصياغة ليقرأ محسن من المصدر المحدد ويقترح أسئلة مسودة قابلة للتعديل والحذف.',
+        `اضغط زر الصياغة ليقرأ ${M} من المصدر المحدد ويقترح أسئلة مسودة قابلة للتعديل والحذف.`,
       draftedTitle: 'مسودة الأسئلة',
       draftedNote: 'كل سؤال هنا مسودة قابلة للتعديل والحذف قبل النشر.',
-      draftedSuccessTitle: 'صاغ محسن أسئلة موثّقة',
+      draftedSuccessTitle: `صاغ ${M} أسئلة موثّقة`,
       draftedSuccessBody:
-        'أضاف محسن الأسئلة من المصدر المحدد فقط، ومع كل سؤال مصدره. راجعها في الأسفل قبل المتابعة.',
+        `أضاف ${M} الأسئلة من المصدر المحدد فقط، ومع كل سؤال مصدره. راجعها في الأسفل قبل المتابعة.`,
       questionsCount: (count: string) => `${count} سؤالًا في المسودة`,
       noGroundingTitle: 'لا توجد أسئلة جديدة من هذا المصدر',
       noGroundingFallback:
-        'لم يجد محسن ما يكفي في المصدر المحدد لصياغة أسئلة. لن يخمّن.',
+        `لم يجد ${M} ما يكفي في المصدر المحدد لصياغة أسئلة. لن يخمّن.`,
       draftErrorTitle: 'تعذّرت صياغة الأسئلة.',
       draftErrorBody: 'من جهتنا، لا من جهتك. أعد المحاولة بعد قليل.',
       nextReview: 'راجع الأسئلة',
@@ -256,17 +264,17 @@ export const ar = {
     review: {
       heading: 'راجع الأسئلة وعدّلها',
       lead:
-        'كل سؤال صاغه محسن قابل للتعديل والحذف قبل النشر. لا تُنشر أي مسودة قبل مراجعتك.',
+        `كل سؤال صاغه ${M} قابل للتعديل والحذف قبل النشر. لا تُنشر أي مسودة قبل مراجعتك.`,
       loading: 'جارٍ تحميل أسئلة المسودة…',
       loadErrorTitle: 'تعذّر تحميل الأسئلة.',
       loadErrorBody: 'من جهتنا، لا من جهتك. أعد المحاولة بعد قليل.',
       emptyTitle: 'لا توجد أسئلة بعد',
       emptyBody:
-        'عد إلى الخطوة الثانية واطلب من محسن صياغة الأسئلة من المصدر المحدد. لا يمكن النشر بلا سؤال واحد.',
+        `عد إلى الخطوة الثانية واطلب من ${M} صياغة الأسئلة من المصدر المحدد. لا يمكن النشر بلا سؤال واحد.`,
       backToDraft: 'العودة إلى صياغة الأسئلة',
       listHeading: 'الأسئلة في المسودة',
       questionNumber: (number: string) => `السؤال ${number}`,
-      originMohsen: 'صاغه محسن',
+      originMohsen: `صاغه ${M}`,
       originTeacher: 'بقلم المعلم',
       groundingLabel: 'مصدر السؤال',
       correctLabel: 'الإجابة المرجعية',
@@ -316,7 +324,7 @@ export const ar = {
         no_class:
           'لا يمكن النشر بلا صف محدد. ارجع إلى الخطوة الأولى واختر صفًا.',
         no_questions:
-          'لا يمكن النشر بلا سؤال واحد. ارجع إلى الخطوة الثالثة وأضف سؤالًا أو اطلب من محسن الصياغة.',
+          `لا يمكن النشر بلا سؤال واحد. ارجع إلى الخطوة الثالثة وأضف سؤالًا أو اطلب من ${M} الصياغة.`,
         already_published: 'هذا الاختبار منشور بالفعل.',
       },
       blockedTitle: 'النشر غير متاح بعد',
@@ -339,11 +347,11 @@ export const ar = {
     },
   },
   player: {
-    headTitle: 'اختباراتي — Bridgio',
+    headTitle: `اختباراتي — ${B}`,
     badge: 'حلّ الاختبارات',
     title: 'ابدأ الاختبار خطوة خطوة',
     lead:
-      'اختار الاختبار، جاوب على الأسئلة، وسلّم. وفي أي وقت تقدر تسأل محسن جنبك على أي حاجة من مادة الاختبار.',
+      `اختار الاختبار، جاوب على الأسئلة، وسلّم. وفي أي وقت تقدر تسأل ${M} جنبك على أي حاجة من مادة الاختبار.`,
     loading: 'بنحمّل اختباراتك...',
     loadErrorTitle: 'مش قادرين نحمّل اختباراتك.',
     loadErrorBody: 'المشكلة من جهتنا مش من جهتك. جرّب تاني بعد شوية.',
@@ -396,21 +404,21 @@ export const ar = {
       backToList: 'ارجع لقائمة الاختبارات',
     },
     mohsen: {
-      heading: 'اسأل محسن',
+      heading: `اسأل ${M}`,
       lead:
-        'محسن بيجاوب من مادة الاختبار بس، ولو مش لاقي إجابة بيقولك إنه مش عارف بدل ما يخمّن.',
+        `${M} بيجاوب من مادة الاختبار بس، ولو مش لاقي إجابة بيقولك إنه مش عارف بدل ما يخمّن.`,
       inputLabel: 'سؤالك',
       placeholder: 'اكتب سؤالك هنا...',
       ask: 'اسأل',
       asking: 'بيسأل...',
-      empty: 'لسه ما سألتش حاجة. اسأل محسن على أي حاجة في الاختبار ده.',
+      empty: `لسه ما سألتش حاجة. اسأل ${M} على أي حاجة في الاختبار ده.`,
       questionLabel: 'سؤالك',
-      answeredLabel: 'إجابة محسن',
-      refusalLabel: 'محسن مش لاقي إجابة',
+      answeredLabel: `إجابة ${M}`,
+      refusalLabel: `${M} مش لاقي إجابة`,
       notGroundedFallback:
         'مفيش عندي إجابة موثّقة من مادة الاختبار على السؤال ده. مش هخمّن.',
       groundingLabel: 'المصدر',
-      errorTitle: 'محسن مش قادر يجاوب دلوقتي.',
+      errorTitle: `${M} مش قادر يجاوب دلوقتي.`,
       errorBody: 'جرّب تاني بعد شوية.',
     },
   },
@@ -455,6 +463,6 @@ export const ar = {
 export const en = {
   shell: {
     footerEn:
-      'Stage 5 Mohsen grounding hardening and states: grounded answers only with the source shown, an honest refusal when nothing is grounded, empty/error/success states across dashboard, builder and player, and a focus/touch-target accessibility pass. No marking, no price. Not final.',
+      'Stage 6 polish: consistent buttons, inputs, tags/chips and progress patterns across the dashboard, builder and player, with all strings centralised and the BRIDGIO / Mohsen working names swappable from one place. No new features, no marking, no price. Not final.',
   },
 } as const

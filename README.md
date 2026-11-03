@@ -1,11 +1,12 @@
 # BRIDGIO — Frontend (internal MVP)
 
 Arabic-first BRIDGIO product frontend on top of Mentingo (headless API / DB /
-auth / courses). This repository is currently at **Stage 2: teacher dashboard**
-on branch `opencode-stage2` (not merged). Stage 1 (shell, tokens, RTL, header) is
-merged to `main`. The Stage 0 API adapter contract is in place; the dashboard is
-the only product screen built, and every other nav destination still opens a
-labelled placeholder.
+auth / courses). This repository is currently at **Stage 6: consistency polish**
+on branch `opencode-stage6` (delivered, **not merged and not verified**). Stage 1
+(shell, tokens, RTL, header) is merged to `main`. The Stage 0 API adapter
+contract is in place; the dashboard, teacher builder and student player are the
+built product screens, and every other nav destination still opens a labelled
+placeholder.
 
 > **Status: PROPOSED only.** Mentingo's local source was deleted by the owner on
 > 2026-11-01, so there are **no confirmed Mentingo endpoints** in this build.
@@ -134,3 +135,8 @@ placeholders, and Stage 3 has not started.
 The Stage 1 shell is data-free on purpose: header, nav and placeholders use no
 adapter data (auth remains Mentingo-owned and unconfirmed). Feature screens must
 go through `src/api/` only.
+
+Stage 6 (consistency polish) is delivered on branch `opencode-stage6` and is
+**not merged and not verified** by Muse. It changes shared styling and string
+plumbing only: no new screen, route, feature, contract field or adapter method.
+Every Mentingo endpoint remains PROPOSED.

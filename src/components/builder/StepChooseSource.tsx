@@ -114,7 +114,7 @@ export function StepChooseSource({
       ) : (
         <div className="builder-form">
           {classesLoading ? (
-            <p className="builder__loading" role="status">
+            <p className="loading-note" role="status">
               {ar.builder.loading}
             </p>
           ) : null}
@@ -202,7 +202,7 @@ export function StepChooseSource({
                     {strings.materialHeading}
                   </h3>
                   {materialsLoading ? (
-                    <p className="builder__loading" role="status">
+                    <p className="loading-note" role="status">
                       {strings.materialsLoading}
                     </p>
                   ) : null}
@@ -272,7 +272,7 @@ export function StepChooseSource({
                 <section className="field" aria-labelledby="builder-unit-heading">
                   <h3 id="builder-unit-heading">{strings.unitHeading}</h3>
                   {classroomLoading ? (
-                    <p className="builder__loading" role="status">
+                    <p className="loading-note" role="status">
                       {strings.unitsLoading}
                     </p>
                   ) : null}

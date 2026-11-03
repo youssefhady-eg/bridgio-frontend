@@ -46,7 +46,7 @@ export function TestBuilder() {
   if (sessionQuery.isPending) {
     return (
       <BuilderFrame>
-        <p className="builder__loading" role="status">
+        <p className="loading-note" role="status">
           {strings.loading}
         </p>
       </BuilderFrame>

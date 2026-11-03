@@ -37,7 +37,7 @@ export function StudentTestPlayer() {
   if (sessionQuery.isPending) {
     return (
       <PlayerFrame>
-        <p className="player__loading" role="status">
+        <p className="loading-note" role="status">
           {strings.loading}
         </p>
       </PlayerFrame>
@@ -107,7 +107,7 @@ function PlayerFlow({ studentId }: { studentId: UserId }) {
 
   if (profileQuery.isPending || attemptsQuery.isPending) {
     return (
-      <p className="player__loading" role="status">
+      <p className="loading-note" role="status">
         {strings.loading}
       </p>
     )
@@ -173,14 +173,14 @@ function PlayerFlow({ studentId }: { studentId: UserId }) {
 
   return (
     <section aria-labelledby="player-tests-heading">
-      <div className="dashboard__section-head">
+      <div className="section-head">
         <h2 id="player-tests-heading">{strings.list.heading}</h2>
-        <span className="dashboard__count">{tests.length}</span>
+        <span className="count-chip">{tests.length}</span>
       </div>
-      <p className="dashboard__section-lead">{strings.list.lead}</p>
+      <p className="section-lead">{strings.list.lead}</p>
 
       {testsLoading && tests.length === 0 ? (
-        <p className="player__loading" role="status">
+        <p className="loading-note" role="status">
           {strings.loading}
         </p>
       ) : (

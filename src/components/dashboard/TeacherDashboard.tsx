@@ -35,7 +35,7 @@ export function TeacherDashboard() {
   if (sessionQuery.isPending) {
     return (
       <DashboardFrame>
-        <p className="dashboard__loading" role="status">
+        <p className="loading-note" role="status">
           {strings.loading}
         </p>
       </DashboardFrame>
@@ -69,7 +69,7 @@ export function TeacherDashboard() {
   if (dashboardQuery.isPending) {
     return (
       <DashboardFrame>
-        <p className="dashboard__loading" role="status">
+        <p className="loading-note" role="status">
           {strings.loading}
         </p>
       </DashboardFrame>
@@ -234,7 +234,7 @@ export function TeacherDashboard() {
               title={strings.progress.heading}
               count={dashboard.studentProgress.length}
             />
-            <p className="dashboard__section-lead">{strings.progress.lead}</p>
+            <p className="section-lead">{strings.progress.lead}</p>
             {dashboard.studentProgress.length === 0 ? (
               <EmptyNote
                 icon="chart"
@@ -320,9 +320,9 @@ function SectionHead({
   count: number
 }) {
   return (
-    <div className="dashboard__section-head">
+    <div className="section-head">
       <h2 id={id}>{title}</h2>
-      <span className="dashboard__count">{formatCount(count)}</span>
+      <span className="count-chip">{formatCount(count)}</span>
     </div>
   )
 }

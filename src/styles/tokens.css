@@ -37,7 +37,9 @@
   --border-strong: rgba(44, 7, 6, 0.18);
   --disabled-text: rgba(44, 7, 6, 0.4);
   --hover-bg: rgba(44, 7, 6, 0.04);
-  --disabled-bg: rgba(255, 246, 232, 0.92);
+  /* Token sheet §1: disabled = paper + maroon at 8% overlay. Layered as an
+     overlay on paper rather than a new hex, so no brand colour is invented. */
+  --disabled-overlay: rgba(44, 7, 6, 0.08);
 
   /* On the dark (maroon) header band, status-neutral visuals flip: cream is
      used as the light surface so contrast holds. These are derived mirrors of
