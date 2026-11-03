@@ -459,7 +459,9 @@ summary:focus-visible,
 }
 
 .app-list--links .screen-link:hover {
-  color: var(--bridgio-error); /* wine — never brand red for interaction error */
+  /* Hover is an affordance, not an error state: use the proposed maroon
+     hover wash, never the wine error colour. */
+  background: var(--hover-bg);
 }
 
 .app-list--links li {
@@ -588,7 +590,8 @@ summary:focus-visible,
   font-weight: 600;
 }
 
-.dashboard__loading {
+/* Shared loading pattern — one visual treatment on dashboard, builder and player. */
+.loading-note {
   padding: var(--space-6);
   background: var(--bridgio-paper);
   border: var(--outline-hairline) solid var(--border-strong);
@@ -601,7 +604,7 @@ summary:focus-visible,
   margin-block-start: var(--space-8);
 }
 
-.dashboard__section-head {
+.section-head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -609,7 +612,7 @@ summary:focus-visible,
   margin-block-end: var(--space-4);
 }
 
-.dashboard__count {
+.count-chip {
   flex: none;
   display: inline-flex;
   align-items: center;
@@ -625,7 +628,7 @@ summary:focus-visible,
   font-weight: 600;
 }
 
-.dashboard__section-lead {
+.section-lead {
   max-width: 46rem;
   margin-block: calc(var(--space-2) * -1) var(--space-4);
   color: var(--text-secondary);
@@ -953,15 +956,6 @@ summary:focus-visible,
   font-size: var(--font-body-size);
 }
 
-.builder__loading {
-  padding: var(--space-6);
-  background: var(--bridgio-paper);
-  border: var(--outline-hairline) solid var(--border-strong);
-  border-radius: var(--radius-card);
-  color: var(--text-secondary);
-  font-size: var(--font-body-small-size);
-}
-
 /* Step indicator — 2 x 2 on phones, four columns from 768 px. */
 
 .builder-steps {
@@ -1035,7 +1029,9 @@ summary:focus-visible,
 }
 
 .builder-step:not(.is-active) .builder-step__button:disabled {
-  background: var(--disabled-bg);
+  background:
+    linear-gradient(var(--disabled-overlay), var(--disabled-overlay)),
+    var(--bridgio-paper);
   border-color: var(--border);
   color: var(--disabled-text);
   cursor: not-allowed;
@@ -1176,7 +1172,9 @@ summary:focus-visible,
 }
 
 .choice-card.is-disabled {
-  background: var(--disabled-bg);
+  background:
+    linear-gradient(var(--disabled-overlay), var(--disabled-overlay)),
+    var(--bridgio-paper);
   color: var(--disabled-text);
   cursor: not-allowed;
 }
@@ -1253,7 +1251,9 @@ summary:focus-visible,
 }
 
 .button:disabled {
-  background: var(--disabled-bg);
+  background:
+    linear-gradient(var(--disabled-overlay), var(--disabled-overlay)),
+    var(--bridgio-paper);
   border-color: var(--border);
   color: var(--disabled-text);
   cursor: not-allowed;
@@ -1297,7 +1297,9 @@ summary:focus-visible,
 
 .button--small {
   padding: var(--space-1) var(--space-3);
-  font-size: var(--font-body-small-size);
+  /* Label / button size from token sheet §2 — the smaller variant changes
+     padding, not the type scale. */
+  font-size: var(--font-label-size);
 }
 
 .button--icon {
@@ -1574,13 +1576,15 @@ summary:focus-visible,
 }
 
 .grounding__kind {
-  padding: 1px var(--space-2);
-  border: 1px solid var(--border-strong);
+  /* Same chip metrics as .status-chip, so tags read as one pattern. */
+  padding: 2px var(--space-3);
+  border: 1.5px solid var(--border-strong);
   border-radius: var(--radius-pill);
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-family: 'Bridgio Label', sans-serif;
   font-size: var(--font-caption-size);
   font-weight: 600;
+  line-height: 1.45;
   white-space: nowrap;
 }
 
@@ -1666,15 +1670,6 @@ summary:focus-visible,
   margin-block: var(--space-3) 0;
   color: var(--text-secondary);
   font-size: var(--font-body-size);
-}
-
-.player__loading {
-  padding: var(--space-6);
-  background: var(--bridgio-paper);
-  border: var(--outline-hairline) solid var(--border-strong);
-  border-radius: var(--radius-card);
-  color: var(--text-secondary);
-  font-size: var(--font-body-small-size);
 }
 
 .player__layout {

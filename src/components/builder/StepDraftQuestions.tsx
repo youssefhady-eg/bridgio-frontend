@@ -141,7 +141,7 @@ export function StepDraftQuestions({
               <h3 id="builder-draft-preview-heading">
                 {strings.draftedTitle}
               </h3>
-              <span className="dashboard__count">
+              <span className="count-chip">
                 {strings.questionsCount(formatCount(result.questions.length))}
               </span>
             </div>

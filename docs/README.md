@@ -73,3 +73,8 @@ Stage 2 (teacher dashboard) is built on branch `opencode-stage2` and **not
 merged**. It adds `/teacher/dashboard` only; other screens stay placeholders and
 Stage 3 has not started. Every Mentingo endpoint remains PROPOSED, and Mentingo
 auth transport is still unconfirmed.
+
+Stage 6 (consistency polish) is delivered on branch `opencode-stage6` and is
+**not merged and not verified** by Muse. It changes shared styling and string
+plumbing only: no new screen, route, feature, contract field or adapter method.
+Stage 7 has not started.

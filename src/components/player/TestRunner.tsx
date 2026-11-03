@@ -286,7 +286,7 @@ function RunnerFrame({ children }: { children: ReactNode }) {
 
 function Loading() {
   return (
-    <p className="player__loading" role="status">
+    <p className="loading-note" role="status">
       {strings.loading}
     </p>
   )

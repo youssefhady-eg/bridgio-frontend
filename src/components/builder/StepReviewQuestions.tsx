@@ -117,7 +117,7 @@ export function StepReviewQuestions({
       </div>
 
       {loading ? (
-        <p className="builder__loading" role="status">
+        <p className="loading-note" role="status">
           {strings.loading}
         </p>
       ) : null}
@@ -153,7 +153,7 @@ export function StepReviewQuestions({
         <>
           <div className="draft-preview__head">
             <h3>{strings.listHeading}</h3>
-            <span className="dashboard__count">
+            <span className="count-chip">
               {ar.builder.draft.questionsCount(formatCount(questions.length))}
             </span>
           </div>

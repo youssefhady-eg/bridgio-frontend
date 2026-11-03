@@ -130,7 +130,7 @@ export function StepPublish({
       </div>
 
       {questionsLoading ? (
-        <p className="builder__loading" role="status">
+        <p className="loading-note" role="status">
           {ar.builder.review.loading}
         </p>
       ) : null}
