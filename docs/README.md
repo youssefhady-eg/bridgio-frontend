@@ -39,6 +39,18 @@ Stage 1 docs-fix artefacts:
   docs-only sync of the four live files, MD5 evidence, owner-lock check and the
   re-run gate commands.
 
+Stage 2 artefacts:
+
+- [STAGE-2-DELIVERY-NOTE.md](STAGE-2-DELIVERY-NOTE.md) — teacher dashboard
+  scope, data path through `src/api/`, token-sheet compliance, states,
+  deviations, verification evidence, gate self-check and open questions.
+- `screenshots/stage2-desktop.png` (1440 × 1000)
+- `screenshots/stage2-desktop-full.png` (1440 × 1818)
+- `screenshots/stage2-tablet.png` (900 × 1000)
+- `screenshots/stage2-phone.png` (390 × 844)
+- `screenshots/stage2-empty-desktop.png` (1440 × 1000, empty scenario)
+- `screenshots/stage2-empty-phone.png` (390 × 844, empty scenario)
+
 ## Copying note
 
 The four rules/spec markdown files above were copied into this repo so a fresh
@@ -53,9 +65,11 @@ DO_NOT_USE file remain **out** of the repo.
 
 ## Status
 
-Stage 0 and the Stage 1 **code** are verified PASS by Muse and are on `main`
-(`a46252f`). The Stage 1 **docs refresh** failed because the repo copies came from
-the owner's handoff folder instead of Muse's current files. The docs-only fix is
-on branch `opencode-stage1-docs-fix`, not merged — Stage 2 is not authorised
-until Muse confirms the docs diff is zero. Every Mentingo endpoint remains
-PROPOSED.
+Stage 0, Stage 1 code and the Stage 1 docs fix are verified PASS by Muse and are
+on `main` (`bc1a812`). The docs-only fix is merged and all five owner locks are
+locked as built.
+
+Stage 2 (teacher dashboard) is built on branch `opencode-stage2` and **not
+merged**. It adds `/teacher/dashboard` only; other screens stay placeholders and
+Stage 3 has not started. Every Mentingo endpoint remains PROPOSED, and Mentingo
+auth transport is still unconfirmed.
