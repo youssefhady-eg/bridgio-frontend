@@ -75,6 +75,8 @@ const NOT_GROUNDED_ANSWER =
   'لا أجد إجابة موثّقة من المادة المرفوعة أو المنهج المقرر. لن أخمّن.'
 const NO_DRAFT_SOURCE =
   'لا توجد أسئلة موثّقة جاهزة لهذا المصدر في المحاكي. المحاكي لا يخترع أسئلة بلا مصدر.'
+const NO_MORE_DRAFT_SOURCE =
+  'استُخدمت كل أسئلة هذا المصدر في المسودة. راجع الأسئلة الحالية أو احذف بعضها ثم أعد المحاولة.'
 
 const ARABIC_DIACRITICS =
   /[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640]/g
@@ -1457,9 +1459,25 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
             }
           }
 
-          const existingCount = questionsForTest(test.id).length
+          const existingQuestions = questionsForTest(test.id)
+          const existingCount = existingQuestions.length
+          const existingPrompts = new Set(
+            existingQuestions.map((question) => question.prompt),
+          )
+          const available = bank.filter(
+            (item) => !existingPrompts.has(item.prompt),
+          )
+          if (available.length === 0) {
+            return {
+              status: 'no_grounding',
+              questions: [],
+              grounding: [],
+              message: NO_MORE_DRAFT_SOURCE,
+            }
+          }
+
           const timestamp = nowIso()
-          const created = bank.slice(0, input.count).map((item, index) => {
+          const created = available.slice(0, input.count).map((item, index) => {
             const id = nextId('q')
             const options = buildOptions(id, item.options)
             const question: Question = {

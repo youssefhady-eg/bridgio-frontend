@@ -297,6 +297,46 @@ describe('mock adapter — Mohsen grounding', () => {
     expect(answer.grounding).toEqual([])
   })
 
+  it('adds only unused grounded questions when asked for more', async () => {
+    const api = created()
+    const draft = await api.tests.createDraft({
+      teacherId: seedIds.teacher,
+      classroomId: seedIds.classMath,
+      title: 'اختبار الأسئلة الإضافية',
+      description: null,
+      source: { kind: 'material', materialId: seedIds.materialDerivatives },
+    })
+
+    const first = await api.mohsen.draftQuestions({
+      teacherId: seedIds.teacher,
+      testId: draft.id,
+      count: 3,
+      focus: null,
+    })
+    const second = await api.mohsen.draftQuestions({
+      teacherId: seedIds.teacher,
+      testId: draft.id,
+      count: 3,
+      focus: null,
+    })
+    expect(first.status).toBe('drafted')
+    expect(second.status).toBe('drafted')
+    if (first.status !== 'drafted' || second.status !== 'drafted') return
+
+    expect(second.questions).toHaveLength(1)
+    const all = await api.questions.listForTest({ testId: draft.id })
+    expect(all).toHaveLength(4)
+    expect(new Set(all.map((question) => question.prompt)).size).toBe(4)
+
+    const third = await api.mohsen.draftQuestions({
+      teacherId: seedIds.teacher,
+      testId: draft.id,
+      count: 3,
+      focus: null,
+    })
+    expect(third.status).toBe('no_grounding')
+  })
+
   it('returns no_grounding draft result for a source the mock cannot draft from', async () => {
     const api = created()
     const material = await api.materials.create({
