@@ -297,6 +297,58 @@ describe('mock adapter — Mohsen grounding', () => {
     expect(answer.grounding).toEqual([])
   })
 
+  it('never returns an answered result without usable grounding', async () => {
+    const api = created()
+    const questions = [
+      'ما مشتقة الدالة x^n؟',
+      'ما الذي تقيسه المشتقة؟',
+      'ما العلاقة بين التكامل والاشتقاق؟',
+      'ما هي عاصمة فرنسا؟',
+    ]
+
+    for (const question of questions) {
+      const answer = await api.mohsen.ask({
+        question,
+        askedBy: seedIds.teacher,
+        scope: {
+          classroomId: seedIds.classMath,
+          testId: null,
+          materialIds: [],
+          unitId: null,
+        },
+      })
+
+      if (answer.status === 'answered') {
+        expect(answer.grounding.length).toBeGreaterThan(0)
+        expect(
+          answer.grounding.every(
+            (ref) =>
+              ref.label.trim().length > 0 &&
+              (ref.excerpt ?? '').trim().length > 0,
+          ),
+        ).toBe(true)
+      } else {
+        expect(answer.grounding).toEqual([])
+      }
+    }
+  })
+
+  it('refuses a question made only of stopwords instead of answering', async () => {
+    const api = created()
+    const answer = await api.mohsen.ask({
+      question: 'ما هو؟',
+      askedBy: seedIds.teacher,
+      scope: {
+        classroomId: seedIds.classMath,
+        testId: null,
+        materialIds: [],
+        unitId: null,
+      },
+    })
+    expect(answer.status).toBe('not_grounded')
+    expect(answer.grounding).toEqual([])
+  })
+
   it('adds only unused grounded questions when asked for more', async () => {
     const api = created()
     const draft = await api.tests.createDraft({
