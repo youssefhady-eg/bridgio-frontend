@@ -366,6 +366,36 @@ describe('mock adapter — Mohsen grounding', () => {
   })
 })
 
+describe('mock adapter — student class tests', () => {
+  it('lists only published tests for a class the student is enrolled in', async () => {
+    const api = created()
+    await api.auth.signIn({
+      email: 'sara.student@bridgio.test',
+      password: 'demo',
+    })
+    const tests = await api.tests.listForClass({
+      classroomId: seedIds.classMath,
+    })
+    expect(tests.length).toBeGreaterThan(0)
+    expect(tests.every((test) => test.status === 'published')).toBe(true)
+    expect(tests.map((test) => test.id)).toContain(seedIds.testDerivatives)
+    expect(tests.map((test) => test.id)).not.toContain(
+      seedIds.testIntegrationDraft,
+    )
+  })
+
+  it('forbids a student from listing a class they are not enrolled in', async () => {
+    const api = created()
+    await api.auth.signIn({
+      email: 'sara.student@bridgio.test',
+      password: 'demo',
+    })
+    await expect(
+      api.tests.listForClass({ classroomId: seedIds.classPhysics }),
+    ).rejects.toMatchObject({ code: 'FORBIDDEN' })
+  })
+})
+
 describe('mock adapter — errors', () => {
   it('throws ApiError for missing records', async () => {
     const api = created()

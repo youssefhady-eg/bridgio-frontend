@@ -1,7 +1,7 @@
 import { queryOptions } from '@tanstack/react-query'
 import { api } from './index'
 import { queryKeys } from './query-keys'
-import type { ClassroomId, TestId, UserId } from './types'
+import type { AttemptId, ClassroomId, TestId, UserId } from './types'
 
 /**
  * Query options for the single API layer. Feature stages add their own options
@@ -77,5 +77,41 @@ export const testQuestionsQueryOptions = (testId: TestId) =>
   queryOptions({
     queryKey: queryKeys.tests.questions(testId),
     queryFn: () => api.questions.listForTest({ testId }),
+    staleTime: 0,
+  })
+
+/**
+ * Stage 4 student test player.
+ *
+ * Every option below wraps an existing Stage 0 adapter method; no contract field
+ * is added and every endpoint stays PROPOSED. A student's classes come from the
+ * profile, their published tests are read per class, and their own attempts are
+ * read from the adapter — the player never invents a test or an attempt.
+ */
+export const studentProfileQueryOptions = (studentId: UserId) =>
+  queryOptions({
+    queryKey: queryKeys.students.profile(studentId),
+    queryFn: () => api.students.getProfile({ studentId }),
+    staleTime: 30_000,
+  })
+
+export const classTestsQueryOptions = (classroomId: ClassroomId) =>
+  queryOptions({
+    queryKey: queryKeys.tests.forClass(classroomId),
+    queryFn: () => api.tests.listForClass({ classroomId }),
+    staleTime: 0,
+  })
+
+export const studentAttemptsQueryOptions = (studentId: UserId) =>
+  queryOptions({
+    queryKey: queryKeys.attempts.forStudent(studentId),
+    queryFn: () => api.attempts.listForStudent({ studentId }),
+    staleTime: 0,
+  })
+
+export const attemptQueryOptions = (attemptId: AttemptId) =>
+  queryOptions({
+    queryKey: queryKeys.attempts.detail(attemptId),
+    queryFn: () => api.attempts.get({ attemptId }),
     staleTime: 0,
   })

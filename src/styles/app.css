@@ -1623,3 +1623,343 @@ button:focus-visible {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
+
+/* ---- Stage 4 student test player ------------------------------------------- */
+/*
+ * Question list + player + Mohsen Q&A. Same sticker language as Stages 2–3:
+ * solid paper/cream surfaces, maroon outlines, locked status colours, no
+ * shadows. Logical properties keep the RTL mirror correct, every row can wrap,
+ * and the two-column player collapses to one column on phones so there is no
+ * horizontal overflow at 390 px.
+ */
+
+.player {
+  max-width: 68rem;
+}
+
+.player__hero {
+  margin-block-end: var(--space-8);
+}
+
+.player__lead {
+  max-width: 46rem;
+  margin-block: var(--space-3) 0;
+  color: var(--text-secondary);
+  font-size: var(--font-body-size);
+}
+
+.player__loading {
+  padding: var(--space-6);
+  background: var(--bridgio-paper);
+  border: var(--outline-hairline) solid var(--border-strong);
+  border-radius: var(--radius-card);
+  color: var(--text-secondary);
+  font-size: var(--font-body-small-size);
+}
+
+.player__layout {
+  display: grid;
+  gap: var(--space-6);
+  align-items: start;
+  min-width: 0;
+}
+
+.player__main {
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .player__layout {
+    grid-template-columns: minmax(0, 1.7fr) minmax(18rem, 1fr);
+  }
+}
+
+/* Test list */
+
+.player-tests {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.player-test {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-6);
+  background: var(--bridgio-paper);
+  border: var(--outline-sticker) solid var(--bridgio-maroon);
+  border-radius: var(--radius-card);
+}
+
+.player-test__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+  min-width: 0;
+}
+
+.player-test h3 {
+  min-width: 0;
+  font-size: var(--font-display-size-h3);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.player-test__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  margin-block-start: var(--space-2);
+}
+
+/* Runner */
+
+.player-run {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: var(--space-4);
+  background: var(--bridgio-paper);
+  border: var(--outline-sticker) solid var(--bridgio-maroon);
+  border-radius: var(--radius-card);
+}
+
+.player-run__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+  min-width: 0;
+}
+
+.player-run__head h2 {
+  min-width: 0;
+  font-size: var(--font-display-size-h2);
+  overflow-wrap: anywhere;
+}
+
+.player-progress {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.player-question {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+  margin: 0;
+  padding: var(--space-4);
+  background: var(--bridgio-cream);
+  border: var(--outline-hairline) solid var(--border-strong);
+  border-radius: var(--radius-input);
+}
+
+.player-question__prompt {
+  display: block;
+  width: 100%;
+  padding: 0;
+  font-family: 'Bridgio Display', sans-serif;
+  font-size: var(--font-display-size-h3);
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.player-options {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.player-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  min-height: var(--touch-target);
+  padding: var(--space-2) var(--space-3);
+  background: var(--bridgio-paper);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-input);
+  cursor: pointer;
+}
+
+.player-option:focus-within {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.player-option.is-selected {
+  background: var(--bridgio-cream);
+  border-color: var(--bridgio-maroon);
+  border-width: 2px;
+}
+
+.player-option input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  accent-color: var(--bridgio-maroon);
+}
+
+.player-option__text {
+  min-width: 0;
+  font-size: var(--font-body-small-size);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.player-submit {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.player-confirm {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: var(--bridgio-cream);
+  border: 1.5px solid var(--bridgio-maroon);
+  border-radius: var(--radius-input);
+}
+
+.player-confirm__title {
+  margin: 0;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.player-confirm__body {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--font-body-small-size);
+}
+
+/* Completion */
+
+.player-done-block {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.player-done {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--bridgio-paper);
+  border: 1.5px solid var(--bridgio-success);
+  border-radius: var(--radius-input);
+}
+
+.player-done__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  border: 1.5px solid var(--bridgio-success);
+  border-radius: var(--radius-pill);
+  color: var(--bridgio-success);
+}
+
+.player-done h2 {
+  font-size: var(--font-display-size-h2);
+}
+
+.player-done p {
+  margin: var(--space-1) 0 0;
+  color: var(--text-secondary);
+  font-size: var(--font-body-small-size);
+}
+
+/* Mohsen Q&A panel (same screen as the player) */
+
+.mohsen-panel {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: var(--space-4);
+  background: var(--bridgio-paper);
+  border: var(--outline-sticker) solid var(--bridgio-maroon);
+  border-radius: var(--radius-card);
+}
+
+.mohsen-panel h2 {
+  margin-block-end: var(--space-2);
+  font-size: var(--font-display-size-h2);
+}
+
+.mohsen-panel__form {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.mohsen-panel__thread {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mohsen-qa {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+  padding: var(--space-3);
+  background: var(--bridgio-cream);
+  border: var(--outline-hairline) solid var(--border-strong);
+  border-radius: var(--radius-input);
+}
+
+.mohsen-qa__label {
+  margin: 0;
+  color: var(--text-muted);
+  font-family: 'Bridgio Label', sans-serif;
+  font-size: var(--font-caption-size);
+  font-weight: 600;
+}
+
+.mohsen-qa__question {
+  margin: 0 0 var(--space-1);
+  color: var(--text-primary);
+  font-size: var(--font-body-small-size);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.mohsen-qa__answer {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--font-body-small-size);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.mohsen-qa__refusal {
+  color: var(--bridgio-error);
+  font-weight: 600;
+}
+
+.mohsen-qa .grounding {
+  margin-block-start: var(--space-1);
+}
+
+@media (min-width: 768px) {
+  .player-run,
+  .mohsen-panel {
+    padding: var(--space-6);
+  }
+}

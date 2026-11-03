@@ -41,13 +41,13 @@ export type ScreenId =
 /** DRAFT Arabic — not approved final copy. */
 export const ar = {
   head: {
-    title: 'Bridgio — المرحلة ٣: منشئ الاختبارات',
+    title: 'Bridgio — المرحلة ٤: مشغّل اختبار الطالب',
     description:
-      'منشئ اختبارات المعلم في Bridgio: اختيار المادة أو وحدة المنهج، وصياغة الأسئلة من المصدر، ثم المراجعة والتعديل والنشر إلى الصف. بتخطيط عربي كامل من اليمين إلى اليسار. البيانات تجريبية وتأتي عبر طبقة البيانات، وهذه نسخة داخلية للتحقق وليست نسخة منتج نهائية.',
+      'مشغّل اختبار الطالب في Bridgio: عرض السؤال والخيارات، والتنقّل بين الأسئلة، والتسليم مع شريط تقدّم، ولوحة أسئلة محسن على نفس الشاشة. بتخطيط عربي كامل من اليمين إلى اليسار. البيانات تجريبية وتأتي عبر طبقة البيانات، وهذه نسخة داخلية للتحقق وليست نسخة منتج نهائية.',
   },
   stageBanner: {
-    stage: 'المرحلة ٣ من ٧',
-    note: 'بناء داخلي للتحقق من منشئ الاختبارات. البيانات تجريبية وتأتي عبر طبقة البيانات، وليست بيانات حقيقية.',
+    stage: 'المرحلة ٤ من ٧',
+    note: 'بناء داخلي للتحقق من مشغّل اختبار الطالب. البيانات تجريبية وتأتي عبر طبقة البيانات، وليست بيانات حقيقية.',
   },
   header: {
     navLabel: 'التنقّل الرئيس',
@@ -87,7 +87,7 @@ export const ar = {
       badge: 'الهيكل والعلامة',
       title: 'هيكل التطبيق: الألوان، الخطوط، التخطيط',
       lead:
-        'هذه شاشة إرشادية للهيكل فقط. لوحة المعلم مبنية في المرحلة ٢، أما شاشات الطالب فتُبنى في مراحل لاحقة.',
+        'هذه شاشة إرشادية للهيكل فقط. لوحة المعلم مبنية في المرحلة ٢، ومشغّل اختبار الطالب في المرحلة ٤، أما بقية شاشات الطالب فتُبنى في مراحل لاحقة.',
       builtHeading: 'ما هو مُبنى حتى الآن',
       built: [
         'طبقة التصميم كاملة: ألوان العلامة وألوان الحالات وألوان الواجهة المقترحة.',
@@ -97,6 +97,7 @@ export const ar = {
         'تنقّل المعلم وتنقّل الطالب مع مفتاح معاينة الدور.',
         'لوحة المعلم: الصفوف وآخر الاختبارات وتقدّم الطلاب عبر طبقة البيانات.',
         'منشئ الاختبارات: أربع خطوات من اختيار المصدر إلى النشر، عبر طبقة البيانات.',
+        'مشغّل اختبار الطالب: السؤال والخيارات والتقدّم والتسليم، مع لوحة أسئلة محسن، عبر طبقة البيانات.',
       ],
       notBuiltHeading: 'ما لم يُبنَ بعد',
       notBuiltLead:
@@ -334,6 +335,80 @@ export const ar = {
       next: 'التالي',
     },
   },
+  player: {
+    headTitle: 'اختباراتي — Bridgio',
+    badge: 'حلّ الاختبارات',
+    title: 'ابدأ الاختبار خطوة خطوة',
+    lead:
+      'اختار الاختبار، جاوب على الأسئلة، وسلّم. وفي أي وقت تقدر تسأل محسن جنبك على أي حاجة من مادة الاختبار.',
+    loading: 'بنحمّل اختباراتك...',
+    loadErrorTitle: 'مش قادرين نحمّل اختباراتك.',
+    loadErrorBody: 'المشكلة من جهتنا مش من جهتك. جرّب تاني بعد شوية.',
+    noSessionTitle: 'مفيش جلسة طالب.',
+    noSessionBody:
+      'تسجيل الدخول والأدوار مسؤولية Mentingo ولسه مش متوصّلة. دي شاشة معاينة داخلية بس.',
+    list: {
+      heading: 'الاختبارات المتاحة',
+      lead: 'دي الاختبارات المنشورة لصفوفك. دوس على الاختبار تبدأ أو تكمّل.',
+      emptyTitle: 'مفيش اختبارات لسه',
+      emptyBody: 'لما المعلم ينشر اختبار لصفك، هيظهر هنا على طول.',
+      questions: (count: string) => `${count} أسئلة`,
+      statusNew: 'جديد',
+      statusInProgress: 'شغّال',
+      statusSubmitted: 'تم التسليم',
+      start: 'ابدأ الاختبار',
+      resume: 'كمّل الاختبار',
+      submittedNote: 'سلّمت الاختبار ده خلاص. التصحيح مش جزء من المرحلة دي.',
+      starting: 'بنبدأ الاختبار...',
+      startErrorTitle: 'مش عارفين نبدأ الاختبار.',
+      startErrorBody: 'جرّب تاني بعد شوية.',
+    },
+    runner: {
+      loading: 'بنحمّل الاختبار...',
+      loadErrorTitle: 'مش قادرين نفتح الاختبار.',
+      loadErrorBody: 'جرّب تاني بعد شوية.',
+      progressLabel: 'تقدّمك',
+      questionCount: (current: string, total: string) =>
+        `سؤال ${current} من ${total}`,
+      optionsLabel: 'اختار إجابة واحدة',
+      previous: 'السابق',
+      next: 'التالي',
+      saveErrorTitle: 'مش عارفين نحفظ إجابتك.',
+      saveErrorBody: 'جرّب تختار تاني.',
+      submit: 'سلّم الاختبار',
+      submitting: 'بنسلّم...',
+      submitErrorTitle: 'مش عارفين نسلّم الاختبار.',
+      submitErrorBody: 'جرّب تاني بعد شوية.',
+      confirmTitle: 'لسه فيه أسئلة من غير إجابة',
+      confirmBody: (remaining: string) =>
+        `فاضل ${remaining} أسئلة من غير إجابة. تحب تسلّم برضه؟`,
+      confirmSubmit: 'أيوه، سلّم',
+      confirmContinue: 'كمّل حل',
+      changeTest: 'اختبار تاني',
+      doneTitle: 'تم تسليم الاختبار',
+      doneBody: (title: string) => `سجّلنا تسليمك لاختبار «${title}».`,
+      doneNoMarking:
+        'المرحلة دي بتسجّل المحاولة بس، من غير تصحيح آلي ولا درجات.',
+      doneNext: 'تقدر تختار اختبار تاني من القائمة.',
+      backToList: 'ارجع لقائمة الاختبارات',
+    },
+    mohsen: {
+      heading: 'اسأل محسن',
+      lead:
+        'محسن بيجاوب من مادة الاختبار بس، ولو مش لاقي إجابة بيقولك إنه مش عارف بدل ما يخمّن.',
+      inputLabel: 'سؤالك',
+      placeholder: 'اكتب سؤالك هنا...',
+      ask: 'اسأل',
+      asking: 'بيسأل...',
+      empty: 'لسه ما سألتش حاجة. اسأل محسن على أي حاجة في الاختبار ده.',
+      questionLabel: 'سؤالك',
+      answeredLabel: 'إجابة محسن',
+      refusalLabel: 'محسن مش لاقي إجابة',
+      groundingLabel: 'المصدر',
+      errorTitle: 'محسن مش قادر يجاوب دلوقتي.',
+      errorBody: 'جرّب تاني بعد شوية.',
+    },
+  },
   placeholder: {
     badge: 'شاشة لم تُبنَ بعد',
     notBuiltYetTeacher:
@@ -375,6 +450,6 @@ export const ar = {
 export const en = {
   shell: {
     footerEn:
-      'Stage 3 teacher test builder: choose a source, Mohsen drafts grounded questions, review/edit/delete, then publish through the mock adapter. No marking, no price. Not final.',
+      'Stage 4 student test player: answer published tests question by question, submit to record the attempt, and ask Mohsen grounded questions on the same screen through the mock adapter. No marking, no price. Not final.',
   },
 } as const
