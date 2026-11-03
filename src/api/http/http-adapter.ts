@@ -24,6 +24,7 @@ import type {
   StartAttemptInput,
   StudentProfile,
   StudentProgress,
+  StudentQuestion,
   SubmitAttemptInput,
   TeacherDashboard,
   TeacherProfile,
@@ -64,11 +65,17 @@ export function createHttpApi(options: HttpApiOptions): BridgioApi {
     mode: 'http',
 
     auth: {
-      getSession: () =>
-        client.request<Session | null>({
+      getSession: async () => {
+        // A signed-out backend may answer 204 or a `null`/empty body, which the
+        // HTTP client returns as `undefined`. The contract says `Session | null`,
+        // and TanStack Query treats `undefined` query data as an error, so this
+        // method (and only this one) normalises `undefined` to `null`.
+        const session = await client.request<Session | null | undefined>({
           method: 'GET',
           path: endpoints.auth.session,
-        }),
+        })
+        return session ?? null
+      },
       signIn: (input: SignInInput) =>
         client.request<Session>({
           method: 'POST',
@@ -221,10 +228,22 @@ export function createHttpApi(options: HttpApiOptions): BridgioApi {
     },
 
     questions: {
+      // TEACHER-ONLY: full questions including `correctOptionId`. PROPOSED — the
+      // real backend must not return `correctOptionId` to a student principal.
       listForTest: (input) =>
         client.request<Question[]>({
           method: 'GET',
           path: endpoints.questions.list(input.testId),
+        }),
+      // Student-safe list for the player. PROPOSED route. The real backend MUST
+      // NOT return `correctOptionId` (or any other answer-key field) in this
+      // response, and must not return it to a student principal from any
+      // questions route. This adapter does not filter the body, so protection on
+      // the wire in HTTP mode is the backend's responsibility.
+      listForStudentTest: (input) =>
+        client.request<StudentQuestion[]>({
+          method: 'GET',
+          path: endpoints.questions.studentList(input.testId),
         }),
       create: (
         input: CreateQuestionInput & { teacherId: UserId; testId: string },

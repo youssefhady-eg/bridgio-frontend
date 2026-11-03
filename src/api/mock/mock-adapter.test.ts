@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { ApiError } from '../errors'
 import type { BridgioApi } from '../contract'
+import type { StudentQuestion } from '../types'
 import { createMockApi } from './mock-adapter'
 import { seedIds } from './seed'
 
@@ -44,6 +45,7 @@ const EXPECTED_METHODS = [
   'tests.publish',
   'tests.delete',
   'questions.listForTest',
+  'questions.listForStudentTest',
   'questions.create',
   'questions.update',
   'questions.delete',
@@ -231,7 +233,7 @@ describe('mock adapter — student player flow (no marking)', () => {
     expect(attempt.status).toBe('in_progress')
     expect(attempt.questionCount).toBe(3)
 
-    const question = await api.questions.listForTest({
+    const question = await api.questions.listForStudentTest({
       testId: seedIds.testDerivatives,
     })
     const secondQuestion = question[1]
@@ -415,6 +417,127 @@ describe('mock adapter — Mohsen grounding', () => {
     })
     expect(result.status).toBe('no_grounding')
     expect(result.questions).toEqual([])
+  })
+})
+
+describe('mock adapter — answer key boundary', () => {
+  const signInAsSara = (api: BridgioApi) =>
+    api.auth.signIn({ email: 'sara.student@bridgio.test', password: 'demo' })
+
+  it('never gives a student correctOptionId, as a value or as a property', async () => {
+    const api = created()
+    await signInAsSara(api)
+
+    const questions = await api.questions.listForStudentTest({
+      testId: seedIds.testDerivatives,
+    })
+    expect(questions).toHaveLength(3)
+
+    for (const question of questions) {
+      expect(
+        Object.prototype.hasOwnProperty.call(question, 'correctOptionId'),
+      ).toBe(false)
+      expect('correctOptionId' in question).toBe(false)
+      expect(question.options.length).toBeGreaterThanOrEqual(2)
+      for (const option of question.options) {
+        expect(Object.keys(option).sort()).toEqual(['id', 'text'])
+      }
+    }
+    // Pins the allowlist: a field added to `Question` must not leak by default.
+    expect(Object.keys(questions[0] ?? {}).sort()).toEqual([
+      'id',
+      'options',
+      'order',
+      'prompt',
+      'testId',
+    ])
+    expect(JSON.stringify(questions)).not.toContain('correctOptionId')
+  })
+
+  it('keeps correctOptionId on the teacher path for the builder', async () => {
+    const api = created()
+
+    const questions = await api.questions.listForTest({
+      testId: seedIds.testDerivatives,
+    })
+    expect(questions).toHaveLength(3)
+    for (const question of questions) {
+      expect('correctOptionId' in question).toBe(true)
+      expect(question.correctOptionId).not.toBeNull()
+      expect(question.options.map((option) => option.id)).toContain(
+        question.correctOptionId,
+      )
+    }
+  })
+
+  it('serves the student list in the same order and content as the teacher list', async () => {
+    const api = created()
+    const full = await api.questions.listForTest({
+      testId: seedIds.testDerivatives,
+    })
+    const safe = await api.questions.listForStudentTest({
+      testId: seedIds.testDerivatives,
+    })
+
+    expect(safe.map((question) => question.id)).toEqual(
+      full.map((question) => question.id),
+    )
+    expect(safe.map((question) => question.prompt)).toEqual(
+      full.map((question) => question.prompt),
+    )
+    expect(safe.map((question) => question.options)).toEqual(
+      full.map((question) => question.options),
+    )
+  })
+
+  it('strips the key for every caller of the student list, including the owning teacher', async () => {
+    const api = created()
+    const questions = await api.questions.listForStudentTest({
+      testId: seedIds.testDerivatives,
+    })
+    expect(questions).toHaveLength(3)
+    for (const question of questions) {
+      expect('correctOptionId' in question).toBe(false)
+    }
+  })
+
+  it('rejects a student calling the teacher-only full question list', async () => {
+    const api = created()
+    await signInAsSara(api)
+    await expect(
+      api.questions.listForTest({ testId: seedIds.testDerivatives }),
+    ).rejects.toMatchObject({ code: 'FORBIDDEN' })
+  })
+
+  it('does not let a student read questions of an unpublished test', async () => {
+    const api = created()
+    await signInAsSara(api)
+    await expect(
+      api.questions.listForStudentTest({
+        testId: seedIds.testIntegrationDraft,
+      }),
+    ).rejects.toMatchObject({ code: 'FORBIDDEN' })
+  })
+
+  it('does not let a student read questions of a class they are not enrolled in', async () => {
+    const api = created()
+    await signInAsSara(api)
+    await expect(
+      api.questions.listForStudentTest({ testId: seedIds.testPhysics }),
+    ).rejects.toMatchObject({ code: 'FORBIDDEN' })
+  })
+
+  it('has no correctOptionId on the StudentQuestion type', () => {
+    const question: StudentQuestion = {
+      id: 'q',
+      testId: 't',
+      order: 1,
+      prompt: 'p',
+      options: [],
+    }
+    // @ts-expect-error StudentQuestion must not expose the answer key.
+    void question.correctOptionId
+    expect('correctOptionId' in question).toBe(false)
   })
 })
 

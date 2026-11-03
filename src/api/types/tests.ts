@@ -99,6 +99,26 @@ export interface Question {
   updatedAt: IsoDateTime
 }
 
+/**
+ * Student-safe question: the only question shape a student's test player may
+ * receive.
+ *
+ * It deliberately has NO `correctOptionId` — not as a value and not as a
+ * property — and no grounding, origin or timestamps. It is built from an explicit
+ * allowlist of fields, so a field added to `Question` later stays out of the
+ * student path until it is added here on purpose. Student screens load questions
+ * only through `questions.listForStudentTest`, never `questions.listForTest`.
+ *
+ * PROPOSED — a real backend must never return `correctOptionId` to a student.
+ */
+export interface StudentQuestion {
+  id: QuestionId
+  testId: TestId
+  order: number
+  prompt: string
+  options: QuestionOption[]
+}
+
 export interface CreateQuestionInput {
   prompt: string
   /** Two to six options, in display order. */

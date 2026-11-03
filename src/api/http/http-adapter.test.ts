@@ -125,6 +125,78 @@ describe('http adapter — request construction', () => {
   })
 })
 
+describe('http adapter — getSession null handling', () => {
+  const adapterFor = (fetchImpl: typeof fetch) =>
+    createHttpApi({ baseUrl: BASE_URL, requestTimeoutMs: 1_000, fetchImpl })
+
+  it('returns null, not undefined, for a 204 response', async () => {
+    const { fetchImpl } = fakeFetch(() => new Response(null, { status: 204 }))
+    const session = await adapterFor(fetchImpl).auth.getSession()
+    expect(session).toBeNull()
+    expect(session).not.toBeUndefined()
+  })
+
+  it('returns null for a 200 response with an empty body', async () => {
+    const { fetchImpl } = fakeFetch(() => new Response('', { status: 200 }))
+    await expect(adapterFor(fetchImpl).auth.getSession()).resolves.toBeNull()
+  })
+
+  it('returns null for a 200 response with a JSON null body', async () => {
+    const { fetchImpl } = fakeFetch(
+      () =>
+        new Response('null', {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        }),
+    )
+    await expect(adapterFor(fetchImpl).auth.getSession()).resolves.toBeNull()
+  })
+
+  it('still returns the session when the backend sends one', async () => {
+    const payload = { user: { id: 't1', role: 'teacher' } }
+    const { fetchImpl } = fakeFetch(
+      () =>
+        new Response(JSON.stringify(payload), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        }),
+    )
+    await expect(adapterFor(fetchImpl).auth.getSession()).resolves.toEqual(
+      payload,
+    )
+  })
+
+  it('leaves void methods such as signOut resolving undefined, not null', async () => {
+    const { fetchImpl } = fakeFetch(() => new Response(null, { status: 204 }))
+    const result = await adapterFor(fetchImpl).auth.signOut()
+    expect(result).toBeUndefined()
+  })
+})
+
+describe('http adapter — student question list', () => {
+  it('uses a PROPOSED student route that is separate from the teacher route', async () => {
+    const { fetchImpl, calls } = fakeFetch(
+      () =>
+        new Response('[]', {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        }),
+    )
+    const http = createHttpApi({
+      baseUrl: BASE_URL,
+      requestTimeoutMs: 1_000,
+      fetchImpl,
+    })
+
+    await http.questions.listForStudentTest({ testId: 't1' })
+    await http.questions.listForTest({ testId: 't1' })
+
+    expect(calls[0]?.init?.method).toBe('GET')
+    expect(calls[0]?.url).toBe(`${BASE_URL}/tests/t1/student-questions`)
+    expect(calls[1]?.url).toBe(`${BASE_URL}/tests/t1/questions`)
+  })
+})
+
 describe('http adapter — errors', () => {
   it('maps backend errors to ApiError with the shared code', async () => {
     const { fetchImpl } = fakeFetch(() =>

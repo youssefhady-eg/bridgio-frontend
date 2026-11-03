@@ -73,6 +73,10 @@ export const testQueryOptions = (testId: TestId) =>
     staleTime: 0,
   })
 
+/**
+ * TEACHER-ONLY: full questions including `correctOptionId`, for the builder's
+ * review/edit steps. Student screens must use `studentTestQuestionsQueryOptions`.
+ */
 export const testQuestionsQueryOptions = (testId: TestId) =>
   queryOptions({
     queryKey: queryKeys.tests.questions(testId),
@@ -99,6 +103,18 @@ export const classTestsQueryOptions = (classroomId: ClassroomId) =>
   queryOptions({
     queryKey: queryKeys.tests.forClass(classroomId),
     queryFn: () => api.tests.listForClass({ classroomId }),
+    staleTime: 0,
+  })
+
+/**
+ * The player's questions: student-safe (no `correctOptionId`) and cached under a
+ * separate key from the builder's full questions, so a teacher-loaded answer key
+ * can never be served to the player from the shared Query cache.
+ */
+export const studentTestQuestionsQueryOptions = (testId: TestId) =>
+  queryOptions({
+    queryKey: queryKeys.tests.studentQuestions(testId),
+    queryFn: () => api.questions.listForStudentTest({ testId }),
     staleTime: 0,
   })
 
