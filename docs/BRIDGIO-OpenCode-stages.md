@@ -7,7 +7,7 @@ This plan replaces the single big prompt. Do NOT do all stages at once. Do one s
 ## Rules for every stage
 
 - Stop the previous OpenCode run before starting Stage 0. The big first prompt that ran 11+ minutes with no files is abandoned — do not resume it.
-- Working directory: `C:\Users\Youssef Hady\Desktop\Youssef\Projects\LMS to Hire\bridgio-frontend` (code only).
+- Working directory (CONFIRMED 2026-11-01, owner): `C:\Users\Youssef Hady\Desktop\Youssef\Projects\bridgio-frontend` (code only). This supersedes the earlier `LMS to Hire\bridgio-frontend` path — do not work in that path.
 - Brand files live in a separate isolated folder (path given by the owner in the first prompt). Read them from there. Do NOT copy them into `bridgio-frontend`.
 - Source of truth, in order: `BRIDGIO-UI-UX-token-sheet.md`, then `BRIDGIO_Brand_Guidelines_v1.4.pptx` (reference only, do NOT attach it as code context after Stage 0), then `BRIDGIO-short-brand-guide.md` v1.5.
 - Stack, locked: TanStack Start + Router + Query, TypeScript, Vite. Not Next.js.

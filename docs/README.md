@@ -33,6 +33,12 @@ Stage 1 artefacts:
 - `screenshots/stage1-phone-teacher.png` (390 × 844)
 - `screenshots/stage1-phone-student.png` (390 × 844)
 
+Stage 1 docs-fix artefacts:
+
+- [STAGE-1-DOCS-FIX-DELIVERY-NOTE.md](STAGE-1-DOCS-FIX-DELIVERY-NOTE.md) —
+  docs-only sync of the four live files, MD5 evidence, owner-lock check and the
+  re-run gate commands.
+
 ## Copying note
 
 The four rules/spec markdown files above were copied into this repo so a fresh
@@ -47,6 +53,9 @@ DO_NOT_USE file remain **out** of the repo.
 
 ## Status
 
-Stage 0 and Stage 1 are built and self-verified. Neither is verified by Muse yet;
-Stage 1 is on branch `opencode-stage1` and is not merged to `main` or final.
-Every Mentingo endpoint remains PROPOSED.
+Stage 0 and the Stage 1 **code** are verified PASS by Muse and are on `main`
+(`a46252f`). The Stage 1 **docs refresh** failed because the repo copies came from
+the owner's handoff folder instead of Muse's current files. The docs-only fix is
+on branch `opencode-stage1-docs-fix`, not merged — Stage 2 is not authorised
+until Muse confirms the docs diff is zero. Every Mentingo endpoint remains
+PROPOSED.

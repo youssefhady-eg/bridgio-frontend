@@ -117,7 +117,7 @@ The deck's 120 / 72 / 44 / 32 / 24 px scale is a presentation scale, NOT an app 
 ## 4. Logo and Mohsen in product UI
 
 ### LOCKED
-- Full lockup only. No wordmark-only file exists. Do not cut the mascot off the wordmark (his hand overlaps the B), do not retype the wordmark, do not stretch, recolour or add effects.
+- Full lockup for large / cover / splash use. Wordmark-only is now adopted (2026-11-01, verified clean vector): `wordmark-cream.svg` (fill #F9EEDC, for red/maroon backgrounds) and `wordmark-maroon.svg` (fill #2C0706, for cream/paper backgrounds). Do not cut the mascot off the lockup (his hand overlaps the B in the lockup), do not retype the wordmark, do not stretch, recolour beyond those two brand fills, or add effects. Do not use the withdrawn derived wordmark or the traced `file.svg` — both are rejected.
 - Colour lockup on light backgrounds; B&W lockup for single-colour / print / certificates.
 - For mascot-only uses: use a pose from the 16-pose reactions sheet, not a cut-out of the lockup.
 - Mohsen: empty states, streaks, quiz feedback, help — not on every screen.
@@ -125,9 +125,10 @@ The deck's 120 / 72 / 44 / 32 / 24 px scale is a presentation scale, NOT an app 
 
 ### Interim rules — so UI does not wait (PROPOSED FOR UI, TBD for final)
 - Large header / sidebar / splash / onboarding: full lockup, as in the guide.
-- Small header slot (16–32 px) / favicon / app icon: **TBD — DO NOT INVENT a final mark.** Interim for internal build only: use "Bridgio" set in Sora as text (not presented as the logo), or a Mohsen pose inside a red rounded card as in the v1.3 teacher example. Do not use the full lockup in a 16–32 px slot, and do not use the withdrawn derived wordmark.
+- Small header slot: use the adopted wordmark (`wordmark-cream.svg` on dark, `wordmark-maroon.svg` on light) at 120 px width or wider, never mirrored, never stretched. Do not use the full lockup in a small header slot.
+- Favicon / app icon (16–32 px): **TBD — DO NOT INVENT a final mark, and do NOT use the wordmark as a favicon.** Interim for internal build only: use "Bridgio" set in Sora as text (not presented as the logo), or a Mohsen pose inside a red rounded card as in the v1.3 teacher example, until the illustrator supplies a clean small mark.
 - Transparent mascot cutouts: **TBD.** The reactions sheet supplied is on a solid red background, for stickers/social, not for dropping onto light screens. Interim: show poses only inside red or cream cards (sticker style), never as a transparent overlay, until the illustrator supplies transparent, individually named cutouts.
-- Clean wordmark: **TBD.** Full lockup only until the illustrator supplies a separate, clean wordmark file.
+- Clean wordmark: **ADOPTED 2026-11-01.** `wordmark-cream.svg` / `wordmark-maroon.svg`, 9 paths, transparent background, tight viewBox, verified on red/maroon/cream/paper at large, 200 px and 120 px. Original fill #FCF2EA normalised to brand fills #F9EEDC / #2C0706.
 - Mohsen loading animation: **TBD.** The dark-swirl pose is to be animated as the progressive/loading Mohsen, but it is still a static image in v1.3. Interim: use the static loading pose with a standard progress indicator, and label the animation as pending.
 
 ---
@@ -136,7 +137,7 @@ The deck's 120 / 72 / 44 / 32 / 24 px scale is a presentation scale, NOT an app 
 
 Build these first. Everything else is Future Layer or later.
 
-- **Header / nav:** full lockup (large) or interim small-slot rule above; teacher nav: Dashboard, My Classes, Tests, Students; student nav: My Tests, Lessons, Progress.
+- **Header / nav:** full lockup (large) or adopted wordmark (small header, 120 px or wider); teacher nav: Dashboard, My Classes, Tests, Students; student nav: My Tests, Lessons, Progress.
 - **Teacher dashboard:** classes, recent tests, student progress at a glance. Lead copy with time saved, not with hiring promises.
 - **Test builder (the v1.3 teacher example, as a real flow):**
   1. Choose material or a curriculum unit.
@@ -184,9 +185,9 @@ Build these first. Everything else is Future Layer or later.
 
 | TBD item | Interim rule for MVP UI | Final decision needed from |
 |---|---|---|
-| Small-size mark / favicon / app icon | Sora text or Mohsen pose in a red card, internal build only | Illustrator (clean small mark) |
+| Small-size mark / favicon / app icon | Sora text or Mohsen pose in a red card, internal build only — wordmark is NOT a favicon | Illustrator (clean small mark) |
 | Transparent mascot cutouts | Poses only inside red/cream cards, never transparent overlay | Illustrator |
-| Clean wordmark | Full lockup only | Illustrator |
+| Clean wordmark | **ADOPTED 2026-11-01:** `wordmark-cream.svg` / `wordmark-maroon.svg`, brand fills only | — |
 | Secondary / neutral colours | Opacity neutrals in §1 (PROPOSED FOR UI) | Owner lock of §1 proposed values |
 | UI type scale / spacing / radius | §2–§3 PROPOSED FOR UI values | Owner lock of §2–§3 proposed values |
 | Arabic final wording | Draft strings, centralised, labelled draft | Owner / Arabic reviewer, one pass |
