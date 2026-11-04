@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { api } from '~/api'
 import { queryKeys } from '~/api/query-keys'
 import {
@@ -105,6 +105,24 @@ function BuilderFlow({ teacherId }: { teacherId: UserId }) {
   const [focus, setFocus] = useState('')
   const [count, setCount] = useState(3)
   const [published, setPublished] = useState<Test | null>(null)
+
+  // Changing step swaps the whole card, so the button that was just pressed
+  // disappears: keyboard focus would fall to <body> and the page would stay
+  // wherever the old step's button was (often far below the new heading).
+  // Move focus to the new step's heading and bring it into view. Comparing with
+  // the previous step (not a "first render" flag) keeps the initial mount, and
+  // a repeated effect run, from stealing focus.
+  const flowRef = useRef<HTMLDivElement>(null)
+  const previousStep = useRef<BuilderStep>(step)
+  useEffect(() => {
+    if (previousStep.current === step) return
+    previousStep.current = step
+    const heading = flowRef.current?.querySelector<HTMLElement>('h2')
+    if (!heading) return
+    heading.tabIndex = -1
+    heading.focus({ preventScroll: true })
+    heading.scrollIntoView({ block: 'start' })
+  }, [step])
 
   const classesQuery = useQuery(teacherClassroomsQueryOptions(teacherId))
   const selectedClass = classesQuery.data?.find(
@@ -231,7 +249,7 @@ function BuilderFlow({ teacherId }: { teacherId: UserId }) {
   }
 
   return (
-    <>
+    <div ref={flowRef}>
       <StepIndicator
         current={step}
         hasDraft={draft !== null}
@@ -329,7 +347,7 @@ function BuilderFlow({ teacherId }: { teacherId: UserId }) {
           body={strings.source.createDraftErrorBody}
         />
       ) : null}
-    </>
+    </div>
   )
 }
 
