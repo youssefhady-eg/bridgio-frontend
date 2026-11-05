@@ -137,7 +137,7 @@ export function StepChooseSource({
           ) : null}
 
           {classes.length > 0 ? (
-            <div className="field">
+            <div className="field field--half">
               <label className="field__label" htmlFor="builder-class">
                 {strings.classLabel}
               </label>
@@ -159,7 +159,7 @@ export function StepChooseSource({
 
           {classroomId ? (
             <>
-              <fieldset className="field">
+              <fieldset className="field field--half">
                 <legend className="field__label">{strings.kindLabel}</legend>
                 <div className="choice-grid choice-grid--two">
                   <label
@@ -321,7 +321,7 @@ export function StepChooseSource({
                 </section>
               )}
 
-              <div className="field">
+              <div className="field field--half">
                 <label className="field__label" htmlFor="builder-title">
                   {strings.titleLabel}
                 </label>
@@ -336,7 +336,7 @@ export function StepChooseSource({
                 <p className="field__hint">{strings.titleHint}</p>
               </div>
 
-              <div className="field">
+              <div className="field field--half">
                 <label className="field__label" htmlFor="builder-description">
                   {strings.descriptionLabel}
                 </label>

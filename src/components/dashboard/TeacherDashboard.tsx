@@ -173,113 +173,115 @@ export function TeacherDashboard() {
             )}
           </section>
 
-          <section
-            className="dashboard__section"
-            aria-labelledby="dashboard-tests-heading"
-          >
-            <SectionHead
-              id="dashboard-tests-heading"
-              title={strings.tests.heading}
-              count={dashboard.recentTests.length}
-            />
-            {dashboard.recentTests.length === 0 ? (
-              <EmptyNote
-                icon="tests"
-                title={strings.tests.emptyTitle}
-                body={strings.tests.emptyBody}
+          <div className="dashboard__columns">
+            <section
+              className="dashboard__section"
+              aria-labelledby="dashboard-tests-heading"
+            >
+              <SectionHead
+                id="dashboard-tests-heading"
+                title={strings.tests.heading}
+                count={dashboard.recentTests.length}
               />
-            ) : (
-              <div className="panel">
-                <ul className="test-list">
-                  {dashboard.recentTests.map((test) => (
-                    <li className="test-row" key={test.id}>
-                      <div className="test-row__main">
-                        <h3>{test.title}</h3>
-                        <p className="row-meta">{test.classroomName}</p>
-                      </div>
-                      <div className="test-row__aside">
-                        <StatusChip
-                          tone={
-                            test.status === 'published' ? 'success' : 'warning'
-                          }
-                          icon={test.status === 'published' ? 'check' : 'pencil'}
-                          label={
-                            test.status === 'published'
-                              ? strings.tests.statusPublished
-                              : strings.tests.statusDraft
-                          }
-                        />
-                        <p className="row-meta">
-                          {strings.tests.questionsCount(test.questionCount)}
-                        </p>
-                        <p className="row-meta">
-                          {strings.tests.updated}:{' '}
-                          {formatDate(test.updatedAt, strings.tests.unknownDate, lang)}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </section>
-
-          <section
-            className="dashboard__section"
-            aria-labelledby="dashboard-progress-heading"
-          >
-            <SectionHead
-              id="dashboard-progress-heading"
-              title={strings.progress.heading}
-              count={dashboard.studentProgress.length}
-            />
-            <p className="section-lead">{strings.progress.lead}</p>
-            {dashboard.studentProgress.length === 0 ? (
-              <EmptyNote
-                icon="chart"
-                title={strings.progress.emptyTitle}
-                body={strings.progress.emptyBody}
-              />
-            ) : (
-              <div className="panel">
-                <ul className="progress-list">
-                  {dashboard.studentProgress.map((row) => (
-                    <li
-                      className="progress-row"
-                      key={`${row.classroomId}:${row.student.id}`}
-                    >
-                      <div className="progress-row__who">
-                        <h3>{row.student.displayName}</h3>
-                        <p className="row-meta">{row.classroomName}</p>
-                      </div>
-                      <div className="progress-row__detail">
-                        <div className="progress-row__labels">
-                          <span>{strings.progress.percentLabel}</span>
-                          <strong>{formatPercent(row.progressPercent, lang)}</strong>
+              {dashboard.recentTests.length === 0 ? (
+                <EmptyNote
+                  icon="tests"
+                  title={strings.tests.emptyTitle}
+                  body={strings.tests.emptyBody}
+                />
+              ) : (
+                <div className="panel">
+                  <ul className="test-list">
+                    {dashboard.recentTests.map((test) => (
+                      <li className="test-row" key={test.id}>
+                        <div className="test-row__main">
+                          <h3>{test.title}</h3>
+                          <p className="row-meta">{test.classroomName}</p>
                         </div>
-                        <ProgressBar
-                          percent={row.progressPercent}
-                          label={strings.progress.barLabel(
-                            row.student.displayName,
-                          )}
-                          valueText={formatPercent(row.progressPercent, lang)}
-                        />
-                        <p className="row-meta">
-                          {strings.progress.unitsCompleted}:{' '}
-                          {formatCount(row.completedUnits, lang)} /{' '}
-                          {formatCount(row.totalUnits, lang)}
-                        </p>
-                        <p className="row-meta">
-                          {strings.progress.lastActive}:{' '}
-                          {formatDate(row.lastActiveAt, strings.progress.noActivity, lang)}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </section>
+                        <div className="test-row__aside">
+                          <StatusChip
+                            tone={
+                              test.status === 'published' ? 'success' : 'warning'
+                            }
+                            icon={test.status === 'published' ? 'check' : 'pencil'}
+                            label={
+                              test.status === 'published'
+                                ? strings.tests.statusPublished
+                                : strings.tests.statusDraft
+                            }
+                          />
+                          <p className="row-meta">
+                            {strings.tests.questionsCount(test.questionCount)}
+                          </p>
+                          <p className="row-meta">
+                            {strings.tests.updated}:{' '}
+                            {formatDate(test.updatedAt, strings.tests.unknownDate, lang)}
+                          </p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </section>
+
+            <section
+              className="dashboard__section"
+              aria-labelledby="dashboard-progress-heading"
+            >
+              <SectionHead
+                id="dashboard-progress-heading"
+                title={strings.progress.heading}
+                count={dashboard.studentProgress.length}
+              />
+              <p className="section-lead">{strings.progress.lead}</p>
+              {dashboard.studentProgress.length === 0 ? (
+                <EmptyNote
+                  icon="chart"
+                  title={strings.progress.emptyTitle}
+                  body={strings.progress.emptyBody}
+                />
+              ) : (
+                <div className="panel">
+                  <ul className="progress-list">
+                    {dashboard.studentProgress.map((row) => (
+                      <li
+                        className="progress-row"
+                        key={`${row.classroomId}:${row.student.id}`}
+                      >
+                        <div className="progress-row__who">
+                          <h3>{row.student.displayName}</h3>
+                          <p className="row-meta">{row.classroomName}</p>
+                        </div>
+                        <div className="progress-row__detail">
+                          <div className="progress-row__labels">
+                            <span>{strings.progress.percentLabel}</span>
+                            <strong>{formatPercent(row.progressPercent, lang)}</strong>
+                          </div>
+                          <ProgressBar
+                            percent={row.progressPercent}
+                            label={strings.progress.barLabel(
+                              row.student.displayName,
+                            )}
+                            valueText={formatPercent(row.progressPercent, lang)}
+                          />
+                          <p className="row-meta">
+                            {strings.progress.unitsCompleted}:{' '}
+                            {formatCount(row.completedUnits, lang)} /{' '}
+                            {formatCount(row.totalUnits, lang)}
+                          </p>
+                          <p className="row-meta">
+                            {strings.progress.lastActive}:{' '}
+                            {formatDate(row.lastActiveAt, strings.progress.noActivity, lang)}
+                          </p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </section>
+          </div>
         </>
       )}
     </DashboardFrame>

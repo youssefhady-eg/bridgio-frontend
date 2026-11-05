@@ -236,6 +236,7 @@ export const ar = {
     lead:
       `اختر المادة أو وحدة المنهج، ودع ${M} يصوغ الأسئلة من المصدر المحدد، ثم راجعها وعدّلها، وانشرها إلى صفك. كل خطوة تحفظ وقت إعداد الاختبار.`,
     stepsLabel: 'خطوات إنشاء الاختبار',
+    stepDone: 'اكتملت',
     steps: {
       1: 'اختيار المصدر',
       2: `صياغة ${M}`,
@@ -794,6 +795,7 @@ export const en: Strings = {
     title: 'Create a test in four steps',
     lead: `Pick a material or a curriculum unit, let ${M} draft questions from the chosen source, review and edit them, then publish to your class. Every step saves you preparation time.`,
     stepsLabel: 'Test creation steps',
+    stepDone: 'Completed',
     steps: {
       1: 'Choose source',
       2: `${M} drafts`,
