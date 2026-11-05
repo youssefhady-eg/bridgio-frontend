@@ -155,7 +155,7 @@ export function StepReviewQuestions({
           <div className="draft-preview__head">
             <h3>{strings.listHeading}</h3>
             <span className="count-chip">
-              {builder.draft.questionsCount(formatCount(questions.length, lang))}
+              {builder.draft.questionsCount(questions.length)}
             </span>
           </div>
 

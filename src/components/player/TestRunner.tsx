@@ -238,7 +238,7 @@ export function TestRunner({
           <div className="player-confirm" role="alert">
             <p className="player-confirm__title">{strings.confirmTitle}</p>
             <p className="player-confirm__body">
-              {strings.confirmBody(formatCount(remaining, lang))}
+              {strings.confirmBody(remaining)}
             </p>
             <div className="builder-actions">
               <button

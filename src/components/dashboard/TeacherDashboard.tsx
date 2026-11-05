@@ -210,8 +210,7 @@ export function TeacherDashboard() {
                           }
                         />
                         <p className="row-meta">
-                          {formatCount(test.questionCount, lang)}{' '}
-                          {strings.tests.questions}
+                          {strings.tests.questionsCount(test.questionCount)}
                         </p>
                         <p className="row-meta">
                           {strings.tests.updated}:{' '}

@@ -27,6 +27,8 @@ export const assistant = {
   nameAr: 'محسن',
 } as const
 
+import { countPhrase, englishCount, type NounForms } from './plural'
+
 /**
  * Swap points for the two working names. Every Arabic string that mentions a
  * name interpolates these two consts, so a rename is a one-line change here
@@ -34,6 +36,15 @@ export const assistant = {
  */
 const B = brand.name
 const M = assistant.nameAr
+
+/**
+ * Counted nouns, per register (see `plural.ts`). Teacher screens use formal
+ * Arabic; the student screens use Egyptian casual Arabic, whose dual is "-ين".
+ */
+const questionsMsa: NounForms = { one: 'سؤال واحد', two: 'سؤالان', few: 'أسئلة', many: 'سؤالًا' }
+const questionsEgy: NounForms = { one: 'سؤال واحد', two: 'سؤالين', few: 'أسئلة', many: 'سؤال' }
+const wordsMsa: NounForms = { one: 'كلمة واحدة', two: 'كلمتان', few: 'كلمات', many: 'كلمة' }
+const lessonsMsa: NounForms = { one: 'درس واحد', two: 'درسان', few: 'دروس', many: 'درسًا' }
 
 /** Screen route/page identifiers shared with src/shell/nav.ts. */
 export type ScreenId =
@@ -190,7 +201,7 @@ export const ar = {
       emptyTitle: 'لا توجد اختبارات بعد',
       emptyBody:
         'لم يُنشأ أي اختبار بعد. تظهر آخر خمسة اختبارات هنا عند توفرها.',
-      questions: 'أسئلة',
+      questionsCount: (count: number) => countPhrase(count, questionsMsa),
       updated: 'آخر تعديل',
       unknownDate: 'تاريخ غير متاح',
       statusPublished: 'منشور',
@@ -252,8 +263,8 @@ export const ar = {
       selectClassHint: 'اختر صفًا أولًا لعرض المواد ووحدات المنهج المتاحة له.',
       materialHeading: 'المواد المتاحة',
       materialReady: 'جاهزة للاستخدام',
-      materialWords: (count: string) => `${count} كلمة`,
-      unitLessons: (count: string) => `${count} دروس`,
+      materialWords: (count: number) => countPhrase(count, wordsMsa),
+      unitLessons: (count: number) => countPhrase(count, lessonsMsa),
       materialsLoading: 'جارٍ تحميل المواد…',
       materialsEmptyTitle: 'لا توجد مواد لهذا الصف',
       materialsEmptyBody:
@@ -301,7 +312,8 @@ export const ar = {
       draftedSuccessTitle: `صاغ ${M} أسئلة موثّقة`,
       draftedSuccessBody:
         `أضاف ${M} الأسئلة من المصدر المحدد فقط، ومع كل سؤال مصدره. راجعها في الأسفل قبل المتابعة.`,
-      questionsCount: (count: string) => `${count} سؤالًا في المسودة`,
+      questionsCount: (count: number) =>
+        `${countPhrase(count, questionsMsa)} في المسودة`,
       noGroundingTitle: 'لا توجد أسئلة جديدة من هذا المصدر',
       noGroundingFallback:
         `لم يجد ${M} ما يكفي في المصدر المحدد لصياغة أسئلة. لن يخمّن.`,
@@ -411,7 +423,7 @@ export const ar = {
       lead: 'دي الاختبارات المنشورة لصفوفك. دوس على الاختبار تبدأ أو تكمّل.',
       emptyTitle: 'مفيش اختبارات لسه',
       emptyBody: 'لما المعلم ينشر اختبار لصفك، هيظهر هنا على طول.',
-      questions: (count: string) => `${count} أسئلة`,
+      questions: (count: number) => countPhrase(count, questionsEgy),
       statusNew: 'جديد',
       statusInProgress: 'شغّال',
       statusSubmitted: 'تم التسليم',
@@ -439,8 +451,8 @@ export const ar = {
       submitErrorTitle: 'مش عارفين نسلّم الاختبار.',
       submitErrorBody: 'جرّب تاني بعد شوية.',
       confirmTitle: 'لسه فيه أسئلة من غير إجابة',
-      confirmBody: (remaining: string) =>
-        `فاضل ${remaining} أسئلة من غير إجابة. تحب تسلّم برضه؟`,
+      confirmBody: (remaining: number) =>
+        `فاضل ${countPhrase(remaining, questionsEgy)} من غير إجابة. تحب تسلّم برضه؟`,
       confirmSubmit: 'أيوه، سلّم',
       confirmContinue: 'كمّل حل',
       changeTest: 'اختبار تاني',
@@ -746,7 +758,7 @@ export const en: Strings = {
       emptyTitle: 'No tests yet',
       emptyBody:
         'No test has been created yet. The last five tests appear here once available.',
-      questions: 'questions',
+      questionsCount: (count: number) => englishCount(count, 'question', 'questions'),
       updated: 'Updated',
       unknownDate: 'Date unavailable',
       statusPublished: 'Published',
@@ -807,8 +819,8 @@ export const en: Strings = {
         'Choose a class first to see its available materials and curriculum units.',
       materialHeading: 'Available materials',
       materialReady: 'Ready to use',
-      materialWords: (count: string) => `${count} words`,
-      unitLessons: (count: string) => `${count} lessons`,
+      materialWords: (count: number) => englishCount(count, 'word', 'words'),
+      unitLessons: (count: number) => englishCount(count, 'lesson', 'lessons'),
       materialsLoading: 'Loading materials...',
       materialsEmptyTitle: 'No materials for this class',
       materialsEmptyBody:
@@ -853,7 +865,8 @@ export const en: Strings = {
         'Every question here is an editable, deletable draft before publishing.',
       draftedSuccessTitle: `${M} drafted sourced questions`,
       draftedSuccessBody: `${M} added questions from the chosen source only, each with its source. Review them below before continuing.`,
-      questionsCount: (count: string) => `${count} questions in the draft`,
+      questionsCount: (count: number) =>
+        `${englishCount(count, 'question', 'questions')} in the draft`,
       noGroundingTitle: 'No new questions from this source',
       noGroundingFallback: `${M} did not find enough in the chosen source to draft questions. They will not guess.`,
       draftErrorTitle: 'We could not draft the questions.',
@@ -959,7 +972,7 @@ export const en: Strings = {
       emptyTitle: 'No tests yet',
       emptyBody:
         'When your teacher publishes a test for your class, it appears here right away.',
-      questions: (count: string) => `${count} questions`,
+      questions: (count: number) => englishCount(count, 'question', 'questions'),
       statusNew: 'New',
       statusInProgress: 'In progress',
       statusSubmitted: 'Submitted',
@@ -988,8 +1001,10 @@ export const en: Strings = {
       submitErrorTitle: 'We could not submit the test.',
       submitErrorBody: 'Try again shortly.',
       confirmTitle: 'Some questions are still unanswered',
-      confirmBody: (remaining: string) =>
-        `${remaining} questions are still unanswered. Do you want to submit anyway?`,
+      confirmBody: (remaining: number) =>
+        remaining === 1
+          ? '1 question is still unanswered. Do you want to submit anyway?'
+          : `${englishCount(remaining, 'question', 'questions')} are still unanswered. Do you want to submit anyway?`,
       confirmSubmit: 'Yes, submit',
       confirmContinue: 'Keep answering',
       changeTest: 'Another test',

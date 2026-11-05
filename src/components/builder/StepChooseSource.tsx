@@ -250,9 +250,7 @@ export function StepChooseSource({
                                 ? strings.materialReady
                                 : strings.materialProcessing}
                               {material.wordCount !== null
-                                ? ` · ${strings.materialWords(
-                                    formatCount(material.wordCount, lang),
-                                  )}`
+                                ? ` · ${strings.materialWords(material.wordCount)}`
                                 : ''}
                             </span>
                           </label>
@@ -314,9 +312,7 @@ export function StepChooseSource({
                           </span>
                           <span className="choice-card__meta">
                             {item.unit.subjectName} ·{' '}
-                            {strings.unitLessons(
-                              formatCount(item.unit.lessonCount, lang),
-                            )}
+                            {strings.unitLessons(item.unit.lessonCount)}
                           </span>
                         </label>
                       ))}
