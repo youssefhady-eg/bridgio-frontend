@@ -102,7 +102,7 @@ export function MohsenPanel({
       </form>
 
       {entries.length === 0 ? (
-        <EmptyNote icon="spark" title={strings.heading} body={strings.empty} />
+        <EmptyNote icon="spark" title={strings.emptyTitle} body={strings.empty} />
       ) : (
         <ol className="mohsen-panel__thread" aria-live="polite">
           {entries.map((entry) => {

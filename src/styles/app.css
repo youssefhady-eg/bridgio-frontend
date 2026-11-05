@@ -770,7 +770,7 @@ summary:focus-visible,
 .section-head {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
+  justify-content: flex-start; /* chip stays beside its heading */
   gap: var(--space-3);
   margin-block-end: var(--space-4);
 }
@@ -1472,6 +1472,7 @@ summary:focus-visible,
 }
 
 .builder-actions {
+  margin-block-start: var(--space-4);
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
@@ -1522,7 +1523,7 @@ summary:focus-visible,
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: var(--space-2);
   margin-block-end: var(--space-2);
 }
@@ -1942,6 +1943,7 @@ summary:focus-visible,
 .player-question__prompt {
   display: block;
   width: 100%;
+  margin: 0;
   padding: 0;
   font-family: 'thmanyahserifdisplay', 'Bridgio Display', sans-serif;
   font-size: var(--font-display-size-h3);
@@ -2560,3 +2562,11 @@ summary:focus-visible,
   height: min(36rem, 70vh);
 }
 
+
+/* Review step: answer options use the width instead of one narrow column. */
+@media (min-width: 768px) {
+  .question-card__options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--space-6);
+  }
+}

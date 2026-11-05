@@ -199,8 +199,17 @@ export function TestRunner({
         />
       </div>
 
-      <fieldset className="player-question">
-        <legend className="player-question__prompt">{question.prompt}</legend>
+      <div
+        className="player-question"
+        role="radiogroup"
+        aria-labelledby={`question-prompt-${question.id}`}
+      >
+        <p
+          className="player-question__prompt"
+          id={`question-prompt-${question.id}`}
+        >
+          {question.prompt}
+        </p>
         <p className="field__hint">{strings.optionsLabel}</p>
         <ul className="player-options">
           {question.options.map((option) => {
@@ -228,7 +237,7 @@ export function TestRunner({
             )
           })}
         </ul>
-      </fieldset>
+      </div>
 
       {saveMutation.isError ? (
         <EmptyNote
