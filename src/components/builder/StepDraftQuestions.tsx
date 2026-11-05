@@ -143,7 +143,7 @@ export function StepDraftQuestions({
                 {strings.draftedTitle}
               </h3>
               <span className="count-chip">
-                {strings.questionsCount(formatCount(result.questions.length, lang))}
+                {strings.questionsCount(result.questions.length)}
               </span>
             </div>
             <p className="field__hint">{strings.draftedNote}</p>

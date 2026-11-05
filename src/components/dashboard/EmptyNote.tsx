@@ -36,7 +36,7 @@ export function EmptyNote({
         <Icon name={icon ?? toneIcons[tone]} size={22} />
       </span>
       <div className="empty-note__text">
-        <h3>{title}</h3>
+        <p className="empty-note__title">{title}</p>
         <p>{body}</p>
       </div>
     </div>

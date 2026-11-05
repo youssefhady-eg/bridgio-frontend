@@ -82,7 +82,11 @@ export function AppHeader({ onOpenSidebar, onOpenChat }: AppHeaderProps) {
             href={hrefWithLang(pathname, searchStr, nextLang)}
             lang={nextLang}
             hrefLang={nextLang}
-            aria-label={strings.header.langLabel}
+            aria-label={`${strings.header.langLabel}: ${
+              nextLang === 'en'
+                ? strings.header.langToEnglish
+                : strings.header.langToArabic
+            }`}
             title={strings.header.langLabel}
           >
             <AppIcon name="globe" size={18} />

@@ -75,7 +75,7 @@ export function TestList({
 
               <p className="row-meta">{test.classroomName}</p>
               <p className="row-meta">
-                {strings.questions(formatCount(test.questionCount, lang))}
+                {strings.questions(test.questionCount)}
               </p>
 
               <div className="player-test__actions">

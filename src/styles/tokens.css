@@ -32,7 +32,7 @@
   /* ---- PROPOSED FOR UI — opacity neutrals over locked colours ----------- */
   --text-primary: #2c0706;
   --text-secondary: rgba(44, 7, 6, 0.7);
-  --text-muted: rgba(44, 7, 6, 0.55);
+  --text-muted: rgba(44, 7, 6, 0.64);
   --border: rgba(44, 7, 6, 0.12);
   --border-strong: rgba(44, 7, 6, 0.18);
   --disabled-text: rgba(44, 7, 6, 0.4);
@@ -58,7 +58,7 @@
   --font-body-size: 16px; /* 1.55 */
   --font-body-small-size: 14px; /* 1.5 */
   --font-label-size: 15px; /* 1.4, weight 600 */
-  --font-caption-size: 12px; /* 1.45 */
+  --font-caption-size: 13px; /* 1.45 */
 
   /* ---- PROPOSED FOR UI — spacing (base 4 px) ---------------------------- */
   --space-1: 4px;

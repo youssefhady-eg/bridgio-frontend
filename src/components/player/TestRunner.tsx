@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { api } from '~/api'
 import { queryKeys } from '~/api/query-keys'
 import {
@@ -52,6 +52,21 @@ export function TestRunner({
 
   const [index, setIndex] = useState(0)
   const [confirming, setConfirming] = useState(false)
+
+  // Opening the confirmation replaces the submit button, which would drop
+  // keyboard focus to <body>. Move focus into the confirmation, and give it back
+  // to the submit button when the student chooses to keep answering.
+  const confirmRef = useRef<HTMLDivElement>(null)
+  const submitButtonRef = useRef<HTMLButtonElement>(null)
+  const wasConfirming = useRef(false)
+  useEffect(() => {
+    if (confirming) {
+      confirmRef.current?.focus()
+    } else if (wasConfirming.current) {
+      submitButtonRef.current?.focus()
+    }
+    wasConfirming.current = confirming
+  }, [confirming])
 
   const saveMutation = useMutation({
     mutationFn: (input: { questionId: string; optionId: string }) =>
@@ -136,6 +151,11 @@ export function TestRunner({
   const percent = answeredPercent(answeredCount, questions.length)
   const remaining = unansweredCount(attempt)
 
+  // One primary action at a time: "Next" leads while there are more questions;
+  // "Submit" leads once the student is on the last question or has answered all.
+  const onLastQuestion = isLastQuestion(safeIndex, questions.length)
+  const readyToSubmit = onLastQuestion || remaining === 0
+
   return (
     <RunnerFrame>
       <header className="player-run__head">
@@ -149,6 +169,23 @@ export function TestRunner({
         </button>
       </header>
       <p className="row-meta">{attempt.classroomName}</p>
+
+      {/* Next/Previous keep focus on the button, so say which question is now
+          showing. Only the position and prompt change between questions, so
+          choosing an answer does not re-announce anything. */}
+      <p
+        className="visually-hidden"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        {strings.questionCount(
+          formatCount(safeIndex + 1, lang),
+          formatCount(questions.length, lang),
+        )}
+        {'. '}
+        {question.prompt}
+      </p>
 
       <div className="player-progress">
         <div className="progress-row__labels">
@@ -167,8 +204,17 @@ export function TestRunner({
         />
       </div>
 
-      <fieldset className="player-question">
-        <legend className="player-question__prompt">{question.prompt}</legend>
+      <div
+        className="player-question"
+        role="radiogroup"
+        aria-labelledby={`question-prompt-${question.id}`}
+      >
+        <p
+          className="player-question__prompt"
+          id={`question-prompt-${question.id}`}
+        >
+          {question.prompt}
+        </p>
         <p className="field__hint">{strings.optionsLabel}</p>
         <ul className="player-options">
           {question.options.map((option) => {
@@ -196,7 +242,7 @@ export function TestRunner({
             )
           })}
         </ul>
-      </fieldset>
+      </div>
 
       {saveMutation.isError ? (
         <EmptyNote
@@ -217,8 +263,8 @@ export function TestRunner({
         </button>
         <button
           type="button"
-          className="button button--secondary"
-          disabled={isLastQuestion(safeIndex, questions.length)}
+          className={`button ${onLastQuestion ? 'button--secondary' : 'button--primary'}`}
+          disabled={onLastQuestion}
           onClick={() => setIndex(nextIndex(safeIndex, questions.length))}
         >
           {strings.next}
@@ -235,10 +281,15 @@ export function TestRunner({
         ) : null}
 
         {confirming ? (
-          <div className="player-confirm" role="alert">
+          <div
+            className="player-confirm"
+            role="alert"
+            ref={confirmRef}
+            tabIndex={-1}
+          >
             <p className="player-confirm__title">{strings.confirmTitle}</p>
             <p className="player-confirm__body">
-              {strings.confirmBody(formatCount(remaining, lang))}
+              {strings.confirmBody(remaining)}
             </p>
             <div className="builder-actions">
               <button
@@ -263,7 +314,8 @@ export function TestRunner({
         ) : (
           <button
             type="button"
-            className="button button--primary"
+            className={`button ${readyToSubmit ? 'button--primary' : 'button--secondary'}`}
+            ref={submitButtonRef}
             disabled={submitMutation.isPending}
             onClick={() => {
               if (remaining > 0) {
@@ -302,6 +354,13 @@ function Completion({
   onExit: () => void
 }) {
   const strings = useStrings().player.runner
+  // The question and submit controls are gone once the attempt is recorded, so
+  // put keyboard focus on the confirmation heading instead of <body>.
+  const headingRef = useRef<HTMLHeadingElement>(null)
+  useEffect(() => {
+    headingRef.current?.focus()
+  }, [])
+
   return (
     <div className="player-done-block">
       <div className="player-done" role="status">
@@ -309,7 +368,9 @@ function Completion({
           <Icon name="check" size={26} />
         </span>
         <div>
-          <h2>{strings.doneTitle}</h2>
+          <h2 ref={headingRef} tabIndex={-1}>
+            {strings.doneTitle}
+          </h2>
           <p>{strings.doneBody(attempt.testTitle)}</p>
         </div>
       </div>

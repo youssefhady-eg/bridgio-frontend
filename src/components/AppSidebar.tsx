@@ -2,7 +2,9 @@ import { useQuery } from '@tanstack/react-query'
 import { Link, useRouterState } from '@tanstack/react-router'
 import { capabilitiesQueryOptions, sessionQueryOptions } from '~/api/queries'
 import { AppIcon, navIconName } from '~/components/AppIcon'
+import { useRef } from 'react'
 import { navFor } from '~/shell/nav'
+import { useFocusScope } from '~/shell/useFocusScope'
 import { usePreviewRole } from '~/shell/usePreviewRole'
 import { useLang, useStrings } from '~/shell/useStrings'
 
@@ -46,8 +48,15 @@ export function AppSidebar({ open, onClose }: AppSidebarProps) {
 
   const showAssistantNote = role === 'assistant' && items.length === 0
 
+  // Below 1024px the sidebar is a drawer: while it is open keep focus inside,
+  // close on Escape, and return focus to the menu button. On desktop it is never
+  // `open`, so this does nothing.
+  const drawerRef = useRef<HTMLElement>(null)
+  useFocusScope(open, drawerRef, onClose)
+
   return (
     <aside
+      ref={drawerRef}
       className={`app-sidebar${open ? ' is-open' : ''}`}
       aria-label={strings.sidebar.navLabel}
     >
