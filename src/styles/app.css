@@ -481,7 +481,12 @@ summary:focus-visible,
     width: min(20rem, 85vw);
     --drawer-hidden: -100%;
     transform: translateX(var(--drawer-hidden));
-    transition: transform 0.2s ease;
+    /* A closed drawer is off-screen; keep it out of the tab order too, so focus
+       is never lost to links nobody can see. */
+    visibility: hidden;
+    transition:
+      transform 0.2s ease,
+      visibility 0s linear 0.2s;
   }
 
   /* In RTL the inline-start edge is the right edge, so the drawer hides to the
@@ -493,6 +498,8 @@ summary:focus-visible,
 
   .app-sidebar.is-open {
     transform: translateX(0);
+    visibility: visible;
+    transition-delay: 0s;
   }
 }
 
@@ -1074,8 +1081,15 @@ h3 + .row-meta {
   color: var(--bridgio-success);
 }
 
-.empty-note__text h3 {
+/* A plain paragraph, not a heading: the note can follow an h1 or an h2, and a
+   fixed h3 would skip a level. Styled to match the old h3. */
+.empty-note__text .empty-note__title {
   margin: 0 0 var(--space-1);
+  color: var(--text-primary);
+  font-family: 'thmanyahserifdisplay', 'Bridgio Display', sans-serif;
+  font-size: var(--font-display-size-h3);
+  font-weight: 600;
+  line-height: 1.35;
 }
 
 .empty-note__text p {

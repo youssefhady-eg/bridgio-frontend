@@ -1,6 +1,7 @@
-import { useEffect } from 'react'
+import { useRef } from 'react'
 import { AppIcon } from '~/components/AppIcon'
 import { ChatSurface } from '~/components/chat/ChatSurface'
+import { useFocusScope } from '~/shell/useFocusScope'
 import { useStrings } from '~/shell/useStrings'
 
 /**
@@ -20,14 +21,10 @@ interface ChatPopupProps {
 export function ChatPopup({ open, onClose }: ChatPopupProps) {
   const strings = useStrings()
 
-  useEffect(() => {
-    if (!open) return
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose()
-    }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [open, onClose])
+  // Focus moves into the dialog, stays inside it, Escape closes it, and focus
+  // returns to the button that opened it.
+  const panelRef = useRef<HTMLDivElement>(null)
+  useFocusScope(open, panelRef, onClose)
 
   if (!open) return null
 
@@ -40,6 +37,7 @@ export function ChatPopup({ open, onClose }: ChatPopupProps) {
         onClick={onClose}
       />
       <div
+        ref={panelRef}
         className="chat-popup__panel"
         role="dialog"
         aria-modal="true"

@@ -195,12 +195,15 @@ function ShellDocument({ children }: Readonly<{ children: ReactNode }>) {
           />
           <div className="app-content">
             {devChrome ? (
-              <p className="stage-banner">
+              <aside
+                className="stage-banner"
+                aria-label={strings.stageBanner.stage}
+              >
                 <strong className="stage-banner__stage">
                   {strings.stageBanner.stage}
                 </strong>
                 <span>{strings.stageBanner.note}</span>
-              </p>
+              </aside>
             ) : null}
             {children}
             <footer className="app-footer">
