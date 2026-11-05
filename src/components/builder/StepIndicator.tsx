@@ -1,4 +1,5 @@
 import { formatCount } from '~/components/dashboard/format'
+import { Icon } from '~/components/dashboard/icons'
 import { useLang, useStrings } from '~/shell/useStrings'
 import {
   BUILDER_STEPS,
@@ -40,11 +41,18 @@ export function StepIndicator({
               onClick={() => onSelect(step)}
             >
               <span className="builder-step__num" aria-hidden="true">
-                {formatCount(step, lang)}
+                {state === 'is-done' ? (
+                  <Icon name="check" size={14} />
+                ) : (
+                  formatCount(step, lang)
+                )}
               </span>
               <span className="builder-step__label">
                 {strings.builder.steps[step]}
               </span>
+              {state === 'is-done' ? (
+                <span className="visually-hidden">{strings.builder.stepDone}</span>
+              ) : null}
             </button>
           </li>
         )

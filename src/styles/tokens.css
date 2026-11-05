@@ -92,3 +92,15 @@
   --bridgio-wordmark-min-width: 120px; /* adopted wordmark: ≥120 px slots */
   --bridgio-lockup-min-width: 200px; /* LOCKED minimum full-lockup width */
 }
+
+/* Larger canvas, larger type: the phone sizes read small on a 1440px screen. */
+@media (min-width: 1024px) {
+  :root {
+    --font-display-size-h1: 34px;
+    --font-display-size-h2: 26px;
+    --font-display-size-h3: 20px;
+    --font-body-size: 17px;
+    --font-body-small-size: 15px;
+    --font-label-size: 16px;
+  }
+}
