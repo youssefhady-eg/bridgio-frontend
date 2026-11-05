@@ -58,6 +58,7 @@ git-ignored. Never commit a secret or token.
 | `VITE_API_URL` | `http://localhost:3001/api/v1` | **PROPOSED** Mentingo base URL (http mode only) |
 | `VITE_MOCK_SCENARIO` | `seeded` | `seeded` or `empty` |
 | `VITE_MOCK_SESSION` | `teacher` | `teacher`, `student`, `none` (mock only) |
+| `VITE_SHOW_DEV_CHROME` | shown | `false` hides the stage banner, build notes and preview-role switcher (user-facing build) |
 | `VITE_API_TIMEOUT_MS` | `15000` | HTTP timeout |
 
 Switching from mock to a real backend is a configuration change, not a screen

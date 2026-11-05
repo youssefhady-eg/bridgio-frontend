@@ -141,6 +141,7 @@ export const ar = {
     string
   >,
   footer: {
+    demoNote: 'البيانات المعروضة هنا تجريبية.',
     note: `${B} و${M} اسمان عملان قابلان للتغيير، وصياغة العربية مسودات بانتظار المراجعة.`,
     noteEn: `${B} — internal build for brand verification. Not final, nothing external-facing.`,
   },
@@ -701,6 +702,7 @@ export const en: Strings = {
     'parent-messages': 'Messages',
   },
   footer: {
+    demoNote: 'The data shown here is demo data.',
     note: `${B} and ${M} are working names that can change, and the Arabic wording is a draft awaiting review.`,
     noteEn: `${B} — internal build for brand verification. Not final, nothing external-facing.`,
   },

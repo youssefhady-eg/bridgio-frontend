@@ -19,6 +19,7 @@ import {
 } from '~/shell/lang'
 import { hrefWithRole, parseAppRole, appRoles, type AppRole } from '~/shell/nav'
 import { useLang, useStrings, stringsFor } from '~/shell/useStrings'
+import { isDemoData, showDevChrome } from '~/shell/dev-chrome'
 import { usePreviewRole } from '~/shell/usePreviewRole'
 import appCss from '~/styles/app.css?url'
 import fontsCss from '~/styles/fonts.css?url'
@@ -135,6 +136,7 @@ function ShellDocument({ children }: Readonly<{ children: ReactNode }>) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [chatOpen, setChatOpen] = useState(false)
   const previewRole = usePreviewRole()
+  const devChrome = showDevChrome()
 
   // Reflect the active language on <html> and remember it for the next visit.
   useEffect(() => {
@@ -192,42 +194,50 @@ function ShellDocument({ children }: Readonly<{ children: ReactNode }>) {
             onClick={() => setSidebarOpen(false)}
           />
           <div className="app-content">
-            <p className="stage-banner">
-              <strong className="stage-banner__stage">
-                {strings.stageBanner.stage}
-              </strong>
-              <span>{strings.stageBanner.note}</span>
-            </p>
+            {devChrome ? (
+              <p className="stage-banner">
+                <strong className="stage-banner__stage">
+                  {strings.stageBanner.stage}
+                </strong>
+                <span>{strings.stageBanner.note}</span>
+              </p>
+            ) : null}
             {children}
             <footer className="app-footer">
               <div className="app-footer__inner">
-                <p>{strings.footer.note}</p>
-                <p className="app-footer__en" lang="en" dir="ltr">
-                  {strings.footer.noteEn}
-                </p>
-                <div
-                  className="app-footer__roles"
-                  role="group"
-                  aria-label={strings.preview.groupAria}
-                >
-                  <span className="app-roles__hint">
-                    {strings.preview.label}
-                  </span>
-                  {appRoles.map((candidate) => (
-                    <a
-                      key={candidate}
-                      href={hrefWithRole(pathname, searchStr, candidate)}
-                      className={`app-roles__link${
-                        candidate === previewRole ? ' is-active' : ''
-                      }`}
-                      aria-current={
-                        candidate === previewRole ? 'true' : undefined
-                      }
+                {devChrome ? (
+                  <>
+                    <p>{strings.footer.note}</p>
+                    <p className="app-footer__en" lang="en" dir="ltr">
+                      {strings.footer.noteEn}
+                    </p>
+                    <div
+                      className="app-footer__roles"
+                      role="group"
+                      aria-label={strings.preview.groupAria}
                     >
-                      {strings.preview.roles[candidate]}
-                    </a>
-                  ))}
-                </div>
+                      <span className="app-roles__hint">
+                        {strings.preview.label}
+                      </span>
+                      {appRoles.map((candidate) => (
+                        <a
+                          key={candidate}
+                          href={hrefWithRole(pathname, searchStr, candidate)}
+                          className={`app-roles__link${
+                            candidate === previewRole ? ' is-active' : ''
+                          }`}
+                          aria-current={
+                            candidate === previewRole ? 'true' : undefined
+                          }
+                        >
+                          {strings.preview.roles[candidate]}
+                        </a>
+                      ))}
+                    </div>
+                  </>
+                ) : isDemoData() ? (
+                  <p>{strings.footer.demoNote}</p>
+                ) : null}
               </div>
             </footer>
           </div>
