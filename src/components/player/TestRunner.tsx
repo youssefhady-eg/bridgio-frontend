@@ -151,6 +151,11 @@ export function TestRunner({
   const percent = answeredPercent(answeredCount, questions.length)
   const remaining = unansweredCount(attempt)
 
+  // One primary action at a time: "Next" leads while there are more questions;
+  // "Submit" leads once the student is on the last question or has answered all.
+  const onLastQuestion = isLastQuestion(safeIndex, questions.length)
+  const readyToSubmit = onLastQuestion || remaining === 0
+
   return (
     <RunnerFrame>
       <header className="player-run__head">
@@ -258,8 +263,8 @@ export function TestRunner({
         </button>
         <button
           type="button"
-          className="button button--secondary"
-          disabled={isLastQuestion(safeIndex, questions.length)}
+          className={`button ${onLastQuestion ? 'button--secondary' : 'button--primary'}`}
+          disabled={onLastQuestion}
           onClick={() => setIndex(nextIndex(safeIndex, questions.length))}
         >
           {strings.next}
@@ -309,7 +314,7 @@ export function TestRunner({
         ) : (
           <button
             type="button"
-            className="button button--primary"
+            className={`button ${readyToSubmit ? 'button--primary' : 'button--secondary'}`}
             ref={submitButtonRef}
             disabled={submitMutation.isPending}
             onClick={() => {
