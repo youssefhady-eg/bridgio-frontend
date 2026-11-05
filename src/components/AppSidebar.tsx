@@ -24,9 +24,17 @@ import { useLang, useStrings } from '~/shell/useStrings'
 interface AppSidebarProps {
   open: boolean
   onClose: () => void
+  /** Desktop only: the sidebar is folded to an icon rail. */
+  collapsed: boolean
+  onToggleCollapsed: () => void
 }
 
-export function AppSidebar({ open, onClose }: AppSidebarProps) {
+export function AppSidebar({
+  open,
+  onClose,
+  collapsed,
+  onToggleCollapsed,
+}: AppSidebarProps) {
   const role = usePreviewRole()
   const lang = useLang()
   const strings = useStrings()
@@ -57,7 +65,8 @@ export function AppSidebar({ open, onClose }: AppSidebarProps) {
   return (
     <aside
       ref={drawerRef}
-      className={`app-sidebar${open ? ' is-open' : ''}`}
+      id="app-sidebar"
+      className={`app-sidebar${open ? ' is-open' : ''}${collapsed ? ' is-collapsed' : ''}`}
       aria-label={strings.sidebar.navLabel}
     >
       <div className="app-sidebar__head">
@@ -81,6 +90,7 @@ export function AppSidebar({ open, onClose }: AppSidebarProps) {
                   to={item.to}
                   search={{ as: role, lang }}
                   className={`app-sidebar__link${active ? ' is-active' : ''}`}
+                  title={collapsed ? strings.nav[item.id] : undefined}
                   aria-current={active ? 'page' : undefined}
                   preload={false}
                   onClick={onClose}
@@ -100,6 +110,28 @@ export function AppSidebar({ open, onClose }: AppSidebarProps) {
           <p className="app-sidebar__note">{strings.sidebar.assistantNote}</p>
         ) : null}
       </nav>
+
+      {/* Desktop only (hidden on the phone drawer): fold to an icon rail. */}
+      <div className="app-sidebar__foot">
+        <button
+          type="button"
+          className="app-sidebar__toggle"
+          onClick={onToggleCollapsed}
+          aria-expanded={!collapsed}
+          aria-controls="app-sidebar"
+          aria-label={
+            collapsed ? strings.sidebar.expandLabel : strings.sidebar.collapseLabel
+          }
+          title={
+            collapsed ? strings.sidebar.expandLabel : strings.sidebar.collapseLabel
+          }
+        >
+          <AppIcon name={collapsed ? 'expand' : 'collapse'} size={20} />
+          <span className="app-sidebar__label">
+            {collapsed ? strings.sidebar.expandLabel : strings.sidebar.collapseLabel}
+          </span>
+        </button>
+      </div>
     </aside>
   )
 }

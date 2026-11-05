@@ -20,6 +20,8 @@ import {
 import { hrefWithRole, parseAppRole, appRoles, type AppRole } from '~/shell/nav'
 import { useLang, useStrings, stringsFor } from '~/shell/useStrings'
 import { isDemoData, showDevChrome } from '~/shell/dev-chrome'
+import { themeInitScript } from '~/shell/theme'
+import { useSidebarCollapsed } from '~/shell/useSidebarCollapsed'
 import { usePreviewRole } from '~/shell/usePreviewRole'
 import appCss from '~/styles/app.css?url'
 import fontsCss from '~/styles/fonts.css?url'
@@ -69,6 +71,8 @@ export const Route = createRootRouteWithContext<{
           content: '#2c0706',
         },
       ],
+      // Apply a stored theme choice before first paint (no light flash).
+      scripts: [{ children: themeInitScript }],
       links: [
         // Interim internal placeholder favicon (Sora "B" on a red card). The
         // adopted wordmark and the full lockup are never used as a favicon.
@@ -134,6 +138,8 @@ function ShellDocument({ children }: Readonly<{ children: ReactNode }>) {
   const searchStr = href.slice(pathname.length).split('#')[0] ?? ''
 
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const { collapsed: sidebarCollapsed, toggle: toggleSidebarCollapsed } =
+    useSidebarCollapsed()
   const [chatOpen, setChatOpen] = useState(false)
   const previewRole = usePreviewRole()
   const devChrome = showDevChrome()
@@ -172,7 +178,7 @@ function ShellDocument({ children }: Readonly<{ children: ReactNode }>) {
   }, [])
 
   return (
-    <html lang={lang} dir={dir}>
+    <html lang={lang} dir={dir} suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
@@ -184,8 +190,15 @@ function ShellDocument({ children }: Readonly<{ children: ReactNode }>) {
           onOpenSidebar={() => setSidebarOpen(true)}
           onOpenChat={() => setChatOpen(true)}
         />
-        <div className="app-body">
-          <AppSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <div
+          className={`app-body${sidebarCollapsed ? ' app-body--collapsed' : ''}`}
+        >
+          <AppSidebar
+            open={sidebarOpen}
+            onClose={() => setSidebarOpen(false)}
+            collapsed={sidebarCollapsed}
+            onToggleCollapsed={toggleSidebarCollapsed}
+          />
           <button
             type="button"
             className={`sidebar-backdrop${sidebarOpen ? ' is-open' : ''}`}
