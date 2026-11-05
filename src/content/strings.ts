@@ -192,7 +192,7 @@ export const ar = {
       heading: 'الصفوف',
       emptyTitle: 'لا توجد صفوف بعد',
       emptyBody:
-        'لا توجد صفوف مرتبطة بحسابك في هذه النسخة. تظهر هنا تلقائيًا عند توفرها عبر طبقة البيانات.',
+        'لا توجد صفوف مرتبطة بحسابك بعد. ستظهر هنا بمجرد إضافتها.',
       students: 'الطلاب',
       units: 'الوحدات',
       lessons: 'الدروس',
@@ -227,7 +227,7 @@ export const ar = {
       'تسجيل الدخول والأدوار مسؤولية Mentingo، ولم تُوصَل بعد. هذه شاشة معاينة داخلية فقط.',
     emptyAllTitle: 'لا يوجد شيء هنا بعد',
     emptyAllBody:
-      'لا صفوف ولا اختبارات بعد. تظهر البيانات هنا تلقائيًا عند توفرها عبر طبقة البيانات.',
+      'لا صفوف ولا اختبارات بعد. ستظهر هنا بمجرد إضافتها.',
   },
   builder: {
     headTitle: `منشئ الاختبارات — ${B}`,
@@ -256,7 +256,7 @@ export const ar = {
       classPlaceholder: 'اختر صفًا',
       classesEmptyTitle: 'لا توجد صفوف بعد',
       classesEmptyBody:
-        'لا توجد صفوف مرتبطة بحسابك في هذه النسخة. تظهر هنا تلقائيًا عند توفرها عبر طبقة البيانات.',
+        'لا توجد صفوف مرتبطة بحسابك بعد. ستظهر هنا بمجرد إضافتها.',
       classesError: 'تعذّر تحميل الصفوف. أعد المحاولة بعد قليل.',
       kindLabel: 'نوع المصدر',
       kindMaterial: 'مادة من موادّي',
@@ -276,7 +276,7 @@ export const ar = {
       unitsLoading: 'جارٍ تحميل وحدات المنهج…',
       unitsEmptyTitle: 'لا توجد وحدات لهذا الصف',
       unitsEmptyBody:
-        'لا توجد وحدات منهج مرتبطة بهذا الصف في هذه النسخة. جرّب صفًا آخر أو اختر مادة من موادّك.',
+        'لا توجد وحدات منهج مرتبطة بهذا الصف. جرّب صفًا آخر أو اختر مادة من موادّك.',
       unitsError: 'تعذّر تحميل وحدات المنهج. أعد المحاولة بعد قليل.',
       titleLabel: 'عنوان الاختبار',
       titlePlaceholder: 'مثال: مراجعة قواعد الاشتقاق',
@@ -284,7 +284,7 @@ export const ar = {
       descriptionLabel: 'وصف مختصر (اختياري)',
       descriptionPlaceholder: 'ما الذي يغطيه الاختبار؟',
       lockedNote:
-        'لا يمكن تغيير الصف أو المصدر بعد بدء المسودة في هذه النسخة. لبدء مصدر مختلف، أنهِ هذه المسودة أو ابدأ اختبارًا جديدًا بعد النشر.',
+        'لا يمكن تغيير الصف أو المصدر بعد بدء المسودة. لبدء مصدر مختلف، أنهِ هذه المسودة أو ابدأ اختبارًا جديدًا بعد النشر.',
       createDraft: 'متابعة إلى صياغة الأسئلة',
       creatingDraft: 'جارٍ إنشاء المسودة…',
       createDraftErrorTitle: 'تعذّر إنشاء المسودة.',
@@ -351,7 +351,7 @@ export const ar = {
       optionsLabel: 'الخيارات',
       optionLabel: (number: string) => `الخيار ${number}`,
       correctHint:
-        'تُحفظ الإجابة المرجعية للمعلم فقط؛ لا يوجد تصحيح آلي في هذه المرحلة.',
+        'تُحفظ الإجابة المرجعية للمعلم فقط؛ لا يوجد تصحيح آلي حاليًا.',
       addOption: 'أضف خيارًا',
       removeOption: (number: string) => `احذف الخيار ${number}`,
       issuePrompt: 'اكتب نص السؤال.',
@@ -393,7 +393,7 @@ export const ar = {
       successBody: (title: string, className: string) =>
         `نُشر «${title}» إلى ${className}.`,
       successNote:
-        'يمكنك إنشاء اختبار جديد الآن. لا يوجد تصحيح آلي أو احتساب درجات في هذه المرحلة.',
+        'يمكنك إنشاء اختبار جديد الآن. لا يوجد تصحيح آلي أو احتساب درجات حاليًا.',
       newTest: 'أنشئ اختبارًا جديدًا',
       noGrounding: 'لا يوجد مصدر معروض.',
     },
@@ -430,7 +430,7 @@ export const ar = {
       statusSubmitted: 'تم التسليم',
       start: 'ابدأ الاختبار',
       resume: 'كمّل الاختبار',
-      submittedNote: 'سلّمت الاختبار ده خلاص. التصحيح مش جزء من المرحلة دي.',
+      submittedNote: 'سلّمت الاختبار ده خلاص. لسه مفيش تصحيح.',
       starting: 'بنبدأ الاختبار...',
       startErrorTitle: 'مش عارفين نبدأ الاختبار.',
       startErrorBody: 'جرّب تاني بعد شوية.',
@@ -455,12 +455,12 @@ export const ar = {
       confirmBody: (remaining: number) =>
         `فاضل ${countPhrase(remaining, questionsEgy)} من غير إجابة. تحب تسلّم برضه؟`,
       confirmSubmit: 'أيوه، سلّم',
-      confirmContinue: 'كمّل حل',
+      confirmContinue: 'كمّل الحل',
       changeTest: 'اختبار تاني',
       doneTitle: 'تم تسليم الاختبار',
       doneBody: (title: string) => `سجّلنا تسليمك لاختبار «${title}».`,
       doneNoMarking:
-        'المرحلة دي بتسجّل المحاولة بس، من غير تصحيح آلي ولا درجات.',
+        'اتسجّلت محاولتك. لسه مفيش تصحيح آلي ولا درجات.',
       doneNext: 'تقدر تختار اختبار تاني من القائمة.',
       backToList: 'ارجع لقائمة الاختبارات',
     },
@@ -499,10 +499,10 @@ export const ar = {
     childLabel: 'الابن',
     childPlaceholder: 'اختر ابنًا',
     readOnlyNote:
-      'هذه الشاشة للعرض فقط: تعرض ما يرسله الخادم ولا تحتسب أي درجة.',
+      'هذه الشاشة للعرض فقط، ولا تحتسب أي درجة.',
     progress: {
       heading: 'تقدّم الابن',
-      lead: 'نظرة سريعة على تقدّم الابن في وحدات المنهج، كما يعرضها الخادم.',
+      lead: 'نظرة سريعة على تقدّم الابن في وحدات المنهج.',
       overall: 'التقدّم العام',
       completedUnits: 'الوحدات المكتملة',
       lastActive: 'آخر نشاط',
@@ -510,12 +510,12 @@ export const ar = {
       unitsHeading: 'الوحدات',
       lessonsCompleted: 'دروس مكتملة',
       emptyTitle: 'لا يوجد تقدّم لعرضه بعد',
-      emptyBody: 'يظهر تقدّم الابن هنا عند توفّره من الخادم.',
+      emptyBody: 'سيظهر تقدّم الابن هنا بمجرد توفّره.',
       barLabel: (name: string) => `تقدّم ${name}`,
     },
     tests: {
       heading: 'اختبارات الابن',
-      lead: 'حالة اختبارات الابن كما يعرضها الخادم.',
+      lead: 'حالة اختبارات الابن.',
       statusNotStarted: 'لم يبدأ',
       statusInProgress: 'قيد الحل',
       statusSubmitted: 'تم التسليم',
@@ -526,7 +526,7 @@ export const ar = {
     },
     results: {
       heading: 'النتائج',
-      lead: 'النتائج كما يحتسبها الخادم. الواجهة لا تحتسب أي درجة.',
+      lead: 'النتائج كما تحتسبها المنصة. هذه الشاشة لا تحتسب أي درجة.',
       scoreLabel: 'الدرجة',
       scoreUnavailable: 'لم تُحتسب بعد',
       submittedAt: 'تاريخ التسليم',
@@ -534,7 +534,7 @@ export const ar = {
       answeredCount: (answered: string, total: string) =>
         `أُجيب ${answered} من ${total}`,
       emptyTitle: 'لا توجد نتائج بعد',
-      emptyBody: 'تظهر نتائج الابن هنا بعد اكتمال التصحيح من الخادم.',
+      emptyBody: 'ستظهر نتائج الابن هنا بعد اكتمال التصحيح.',
     },
     messages: {
       heading: 'الرسائل',
@@ -751,7 +751,7 @@ export const en: Strings = {
       heading: 'Classes',
       emptyTitle: 'No classes yet',
       emptyBody:
-        'No classes are linked to your account in this build. They appear here automatically once the data layer provides them.',
+        'No classes are linked to your account yet. They will appear here as soon as they are added.',
       students: 'Students',
       units: 'Units',
       lessons: 'Lessons',
@@ -786,7 +786,7 @@ export const en: Strings = {
       'Sign-in and roles are owned by Mentingo and are not connected yet. This is an internal preview screen only.',
     emptyAllTitle: 'Nothing here yet',
     emptyAllBody:
-      'No classes and no tests yet. Data appears here automatically once the data layer provides it.',
+      'No classes and no tests yet. They will appear here as soon as they are added.',
   },
   builder: {
     headTitle: `Test builder — ${B}`,
@@ -813,7 +813,7 @@ export const en: Strings = {
       classPlaceholder: 'Choose a class',
       classesEmptyTitle: 'No classes yet',
       classesEmptyBody:
-        'No classes are linked to your account in this build. They appear here automatically once the data layer provides them.',
+        'No classes are linked to your account yet. They will appear here as soon as they are added.',
       classesError: 'We could not load the classes. Try again shortly.',
       kindLabel: 'Source type',
       kindMaterial: 'A material of mine',
@@ -834,7 +834,7 @@ export const en: Strings = {
       unitsLoading: 'Loading curriculum units...',
       unitsEmptyTitle: 'No units for this class',
       unitsEmptyBody:
-        'No curriculum units are linked to this class in this build. Try another class or choose one of your materials.',
+        'No curriculum units are linked to this class. Try another class or choose one of your materials.',
       unitsError: 'We could not load the curriculum units. Try again shortly.',
       titleLabel: 'Test title',
       titlePlaceholder: 'For example: Derivative rules review',
@@ -842,7 +842,7 @@ export const en: Strings = {
       descriptionLabel: 'Short description (optional)',
       descriptionPlaceholder: 'What does the test cover?',
       lockedNote:
-        'The class and source cannot be changed after the draft starts in this build. To start a different source, finish this draft or start a new test after publishing.',
+        'The class and source cannot be changed after the draft starts. To start a different source, finish this draft or start a new test after publishing.',
       createDraft: 'Continue to question drafting',
       creatingDraft: 'Creating the draft...',
       createDraftErrorTitle: 'We could not create the draft.',
@@ -903,7 +903,7 @@ export const en: Strings = {
       optionsLabel: 'Options',
       optionLabel: (number: string) => `Option ${number}`,
       correctHint:
-        'The reference answer is saved for the teacher only; there is no automatic marking at this stage.',
+        'The reference answer is saved for the teacher only; there is no automatic marking yet.',
       addOption: 'Add an option',
       removeOption: (number: string) => `Remove option ${number}`,
       issuePrompt: 'Write the question text.',
@@ -944,7 +944,7 @@ export const en: Strings = {
       successBody: (title: string, className: string) =>
         `“${title}” was published to ${className}.`,
       successNote:
-        'You can create a new test now. There is no automatic marking or scoring at this stage.',
+        'You can create a new test now. There is no automatic marking or scoring yet.',
       newTest: 'Create a new test',
       noGrounding: 'No source is shown.',
     },
@@ -982,7 +982,7 @@ export const en: Strings = {
       start: 'Start the test',
       resume: 'Continue the test',
       submittedNote:
-        'You already submitted this test. Marking is not part of this stage.',
+        'You already submitted this test. Nothing is marked yet.',
       starting: 'Starting the test...',
       startErrorTitle: 'We could not start the test.',
       startErrorBody: 'Try again shortly.',
@@ -1014,7 +1014,7 @@ export const en: Strings = {
       doneTitle: 'Test submitted',
       doneBody: (title: string) => `We recorded your submission for “${title}”.`,
       doneNoMarking:
-        'This stage records the attempt only, with no automatic marking and no scores.',
+        'Your attempt is recorded. There is no automatic marking or scores yet.',
       doneNext: 'You can pick another test from the list.',
       backToList: 'Back to the tests list',
     },
@@ -1048,10 +1048,10 @@ export const en: Strings = {
     childLabel: 'Child',
     childPlaceholder: 'Choose a child',
     readOnlyNote:
-      'This screen is display only: it shows what the backend sends and never computes a score.',
+      'This screen is display only and never computes a score.',
     progress: {
       heading: "Child's progress",
-      lead: 'A quick look at your child progress across curriculum units, as shown by the backend.',
+      lead: 'A quick look at your child\'s progress across curriculum units.',
       overall: 'Overall progress',
       completedUnits: 'Units completed',
       lastActive: 'Last active',
@@ -1060,23 +1060,23 @@ export const en: Strings = {
       lessonsCompleted: 'Lessons completed',
       emptyTitle: 'No progress to show yet',
       emptyBody:
-        'Your child progress appears here once the backend provides it.',
+        'Your child\'s progress will appear here as soon as it is available.',
       barLabel: (name: string) => `${name} progress`,
     },
     tests: {
       heading: "Child's tests",
-      lead: 'The state of your child tests, as shown by the backend.',
+      lead: 'The status of your child\'s tests.',
       statusNotStarted: 'Not started',
       statusInProgress: 'In progress',
       statusSubmitted: 'Submitted',
       answered: (answered: string, total: string) =>
         `Answered ${answered} of ${total}`,
       emptyTitle: 'No tests yet',
-      emptyBody: 'Your child tests appear here once the teacher publishes them.',
+      emptyBody: 'Your child\'s tests will appear here once the teacher publishes them.',
     },
     results: {
       heading: 'Results',
-      lead: 'Results as computed by the backend. The UI never computes a score.',
+      lead: 'Results as calculated by the platform. This screen never computes a score.',
       scoreLabel: 'Score',
       scoreUnavailable: 'Not scored yet',
       submittedAt: 'Submitted at',
@@ -1085,7 +1085,7 @@ export const en: Strings = {
         `Answered ${answered} of ${total}`,
       emptyTitle: 'No results yet',
       emptyBody:
-        'Your child results appear here once the backend finishes marking.',
+        'Your child\'s results will appear here once marking is complete.',
     },
     messages: {
       heading: 'Messages',
