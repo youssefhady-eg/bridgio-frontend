@@ -527,6 +527,10 @@ summary:focus-visible,
   font-weight: 600;
 }
 
+.app-shell__hero {
+  margin-block-end: var(--space-3);
+}
+
 .app-shell__lead {
   max-width: 44rem;
   color: var(--text-secondary);
@@ -610,9 +614,14 @@ summary:focus-visible,
 
 /* ---- Placeholder screens ---------------------------------------------------- */
 
+.placeholder h1 {
+  margin-block-end: var(--space-3);
+}
+
 .placeholder__lead {
   color: var(--text-secondary);
   max-width: 44rem;
+  margin-block-end: var(--space-6);
 }
 
 .placeholder__meta {
@@ -836,7 +845,7 @@ summary:focus-visible,
 }
 
 .total-card__label {
-  margin: 2px 0 0;
+  margin: var(--space-1) 0 0;
   color: var(--text-secondary);
   font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
   font-size: var(--font-caption-size);
@@ -939,6 +948,11 @@ summary:focus-visible,
   color: var(--text-secondary);
   font-size: var(--font-body-small-size);
   line-height: 1.5;
+}
+
+/* A title directly above its meta line needs a little air. */
+h3 + .row-meta {
+  margin-block-start: var(--space-1);
 }
 
 /* Status chip — icon + word, locked status colours, no new hex */
@@ -2569,4 +2583,15 @@ summary:focus-visible,
     grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: var(--space-6);
   }
+}
+
+/* Spacing: a heading or hint directly above a list/summary needs air. */
+.summary-card h3 + .summary-list,
+h3 + .summary-list {
+  margin-block-start: var(--space-3);
+}
+
+.field__hint + .draft-list,
+.field__hint + .question-list {
+  margin-block-start: var(--space-3);
 }
