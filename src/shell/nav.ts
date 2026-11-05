@@ -114,6 +114,22 @@ export function navFor(
   }
 }
 
+/**
+ * Role implied by the route area when no `?as` is given: `/student/*` is the
+ * student area and `/parent/*` the parent area; everything else keeps the
+ * teacher default. This stops a student screen showing the teacher nav just
+ * because the preview param is absent.
+ */
+export function defaultRoleForPath(pathname: string): AppRole {
+  if (pathname === '/student' || pathname.startsWith('/student/')) {
+    return 'student'
+  }
+  if (pathname === '/parent' || pathname.startsWith('/parent/')) {
+    return 'parent'
+  }
+  return 'teacher'
+}
+
 /** Safe parse of the `?as` preview-role search param. */
 export function parseAppRole(value: unknown): AppRole | undefined {
   return value === 'teacher' ||

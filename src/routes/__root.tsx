@@ -19,6 +19,7 @@ import {
 } from '~/shell/lang'
 import { hrefWithRole, parseAppRole, appRoles, type AppRole } from '~/shell/nav'
 import { useLang, useStrings, stringsFor } from '~/shell/useStrings'
+import { usePreviewRole } from '~/shell/usePreviewRole'
 import appCss from '~/styles/app.css?url'
 import fontsCss from '~/styles/fonts.css?url'
 import tokensCss from '~/styles/tokens.css?url'
@@ -28,7 +29,7 @@ import tokensCss from '~/styles/tokens.css?url'
  *   `?as=teacher|student|assistant|parent` — preview role, diagnostic UI only.
  *   `?lang=ar|en` — active language / direction. Neither is auth.
  */
-type RootSearch = { as: AppRole; lang: Lang }
+type RootSearch = { as?: AppRole; lang: Lang }
 
 /** localStorage key for language persistence (see ShellDocument). */
 const LANG_STORAGE_KEY = 'bridgio.lang'
@@ -37,7 +38,9 @@ export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
 }>()({
   validateSearch: (search: Record<string, unknown>): RootSearch => ({
-    as: parseAppRole(search.as) ?? 'teacher',
+    // Optional on purpose: when absent the role follows the route area, so the
+    // router must not write `?as=teacher` into the URL of a student screen.
+    as: parseAppRole(search.as),
     lang: parseLang(search.lang) ?? defaultLang,
   }),
   head: ({ match }) => {
@@ -131,8 +134,7 @@ function ShellDocument({ children }: Readonly<{ children: ReactNode }>) {
 
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [chatOpen, setChatOpen] = useState(false)
-  const previewRole =
-    parseAppRole(new URLSearchParams(searchStr).get('as')) ?? 'teacher'
+  const previewRole = usePreviewRole()
 
   // Reflect the active language on <html> and remember it for the next visit.
   useEffect(() => {

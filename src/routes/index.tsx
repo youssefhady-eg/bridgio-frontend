@@ -9,7 +9,8 @@ export const Route = createFileRoute('/')({
    * the shell overview.
    */
   beforeLoad: ({ search }) => {
-    if (search.as === 'teacher') {
+    // No `?as` means the default teacher role, as before.
+    if (search.as === undefined || search.as === 'teacher') {
       throw redirect({
         to: '/teacher/dashboard',
         search: { as: 'teacher', lang: search.lang },

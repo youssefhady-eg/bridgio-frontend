@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   appRoles,
+  defaultRoleForPath,
   assistantNav,
   hrefWithRole,
   navFor,
@@ -94,5 +95,22 @@ describe('shell nav', () => {
     )
     expect(hrefWithRole('/', '?x=1&as=student', 'teacher')).toBe('/?x=1&as=teacher')
     expect(hrefWithRole('/', '?y=2', 'student')).toBe('/?y=2&as=student')
+  })
+
+  it('defaults the role from the route area when no ?as is given', () => {
+    expect(defaultRoleForPath('/student/tests')).toBe('student')
+    expect(defaultRoleForPath('/student')).toBe('student')
+    expect(defaultRoleForPath('/parent/progress')).toBe('parent')
+    expect(defaultRoleForPath('/teacher/dashboard')).toBe('teacher')
+    expect(defaultRoleForPath('/')).toBe('teacher')
+    expect(defaultRoleForPath('/does-not-exist')).toBe('teacher')
+    // A path that only starts with the same letters is not the student area.
+    expect(defaultRoleForPath('/students-archive')).toBe('teacher')
+  })
+
+  it('every student and parent nav destination defaults to its own role', () => {
+    for (const item of studentNav) expect(defaultRoleForPath(item.to)).toBe('student')
+    for (const item of parentNav) expect(defaultRoleForPath(item.to)).toBe('parent')
+    for (const item of teacherNav) expect(defaultRoleForPath(item.to)).toBe('teacher')
   })
 })
