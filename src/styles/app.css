@@ -2798,3 +2798,17 @@ h3 + .summary-list {
   line-height: 1;
   letter-spacing: 0.02em;
 }
+
+/* ==== Reduced motion ======================================================== */
+/* People who ask the OS for less motion get no sliding drawer or transitions. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

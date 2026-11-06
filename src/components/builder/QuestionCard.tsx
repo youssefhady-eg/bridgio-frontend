@@ -276,7 +276,7 @@ export function QuestionCard({
           />
           {confirmingDelete ? (
             <div className="delete-confirm" role="alert">
-              <p>{strings.deleteConfirm}</p>
+              <p>{strings.deleteConfirmPrompt}</p>
               <div className="builder-actions">
                 <button
                   type="button"
