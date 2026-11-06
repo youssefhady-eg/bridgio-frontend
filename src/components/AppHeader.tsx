@@ -91,13 +91,16 @@ export function AppHeader({ onOpenSidebar, onOpenChat }: AppHeaderProps) {
                 ? strings.header.langToEnglish
                 : strings.header.langToArabic
             }`}
-            title={strings.header.langLabel}
-          >
-            <AppIcon name="globe" size={18} />
-            <span className="app-utility__label">
-              {nextLang === 'en'
+            title={
+              nextLang === 'en'
                 ? strings.header.langToEnglish
-                : strings.header.langToArabic}
+                : strings.header.langToArabic
+            }
+          >
+            <span className="app-utility__glyph" aria-hidden="true">
+              {nextLang === 'en'
+                ? strings.header.langGlyphEnglish
+                : strings.header.langGlyphArabic}
             </span>
           </a>
 
@@ -106,9 +109,9 @@ export function AppHeader({ onOpenSidebar, onOpenChat }: AppHeaderProps) {
             className="app-utility__button app-utility__button--theme"
             onClick={toggleTheme}
             aria-label={`${strings.header.themeLabel}: ${themeActionLabel}`}
+            title={themeActionLabel}
           >
-            <AppIcon name={theme === 'dark' ? 'sun' : 'moon'} size={18} />
-            <span className="app-utility__label">{themeActionLabel}</span>
+            <AppIcon name={theme === 'dark' ? 'sun' : 'moon'} size={20} />
           </button>
 
           <button

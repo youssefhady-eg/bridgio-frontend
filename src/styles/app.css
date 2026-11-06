@@ -2784,3 +2784,18 @@ h3 + .summary-list {
 :root[data-theme='dark'] .status-chip--warning {
   color: #2c0706;
 }
+
+/* Language and theme are icon-only toggles: round, same size, one glance. */
+.app-utility__button--lang,
+.app-utility__button--theme {
+  justify-content: center;
+  width: var(--touch-target);
+  padding: 0;
+}
+
+.app-utility__glyph {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
