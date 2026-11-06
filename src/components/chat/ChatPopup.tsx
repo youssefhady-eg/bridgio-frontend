@@ -1,7 +1,6 @@
-import { useRef } from 'react'
+import { Dialog, Modal, ModalOverlay } from 'react-aria-components'
 import { AppIcon } from '~/components/AppIcon'
 import { ChatSurface } from '~/components/chat/ChatSurface'
-import { useFocusScope } from '~/shell/useFocusScope'
 import { useStrings } from '~/shell/useStrings'
 
 /**
@@ -21,41 +20,34 @@ interface ChatPopupProps {
 export function ChatPopup({ open, onClose }: ChatPopupProps) {
   const strings = useStrings()
 
-  // Focus moves into the dialog, stays inside it, Escape closes it, and focus
-  // returns to the button that opened it.
-  const panelRef = useRef<HTMLDivElement>(null)
-  useFocusScope(open, panelRef, onClose)
-
-  if (!open) return null
-
+  // React Aria supplies the modal behaviour: focus moves in and is contained,
+  // Escape and backdrop press close it, focus returns to the opener, and the
+  // page behind is inert for assistive tech. Styling stays on our tokens.
   return (
-    <div className="chat-popup">
-      <button
-        type="button"
-        className="chat-popup__backdrop"
-        aria-label={strings.chat.closeLabel}
-        onClick={onClose}
-      />
-      <div
-        ref={panelRef}
-        className="chat-popup__panel"
-        role="dialog"
-        aria-modal="true"
-        aria-label={strings.chat.title}
-      >
-        <header className="chat-popup__head">
-          <h2 className="chat-popup__title">{strings.chat.title}</h2>
-          <button
-            type="button"
-            className="chat-popup__close"
-            onClick={onClose}
-            aria-label={strings.chat.closeLabel}
-          >
-            <AppIcon name="close" size={20} />
-          </button>
-        </header>
-        <ChatSurface active={open} />
-      </div>
-    </div>
+    <ModalOverlay
+      className="chat-popup"
+      isOpen={open}
+      onOpenChange={(next) => {
+        if (!next) onClose()
+      }}
+      isDismissable
+    >
+      <Modal className="chat-popup__panel">
+        <Dialog className="chat-popup__dialog" aria-label={strings.chat.title}>
+          <header className="chat-popup__head">
+            <h2 className="chat-popup__title">{strings.chat.title}</h2>
+            <button
+              type="button"
+              className="chat-popup__close"
+              onClick={onClose}
+              aria-label={strings.chat.closeLabel}
+            >
+              <AppIcon name="close" size={20} />
+            </button>
+          </header>
+          <ChatSurface active={open} />
+        </Dialog>
+      </Modal>
+    </ModalOverlay>
   )
 }
