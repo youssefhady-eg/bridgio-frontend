@@ -2688,3 +2688,99 @@ h3 + .summary-list {
     gap: var(--space-3);
   }
 }
+
+/* ==== Foldable sidebar (desktop) ============================================ */
+
+.app-sidebar__foot {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .app-sidebar__foot {
+    display: block;
+    margin-block-start: auto;
+    padding: var(--space-4);
+    border-block-start: var(--outline-hairline) solid var(--border);
+  }
+
+  .app-sidebar__toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    width: 100%;
+    min-height: var(--touch-target);
+    padding: var(--space-2) var(--space-3);
+    border: 1.5px solid var(--border-strong);
+    border-radius: var(--radius-input);
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
+    font-size: var(--font-label-size);
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .app-sidebar__toggle:hover {
+    background: var(--hover-bg);
+  }
+
+  /* The chevron points toward the sidebar's own edge, so mirror it in RTL. */
+  html[dir='rtl'] .app-sidebar__toggle svg {
+    transform: scaleX(-1);
+  }
+
+  /* Folded: an icon rail. Labels stay in the DOM (visually hidden) so every
+     control keeps its accessible name. */
+  .app-body--collapsed {
+    grid-template-columns: 5rem minmax(0, 1fr);
+  }
+
+  .app-sidebar.is-collapsed .app-sidebar__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .app-sidebar.is-collapsed .app-sidebar__nav {
+    padding-inline: var(--space-3);
+  }
+
+  .app-sidebar.is-collapsed .app-sidebar__link,
+  .app-sidebar.is-collapsed .app-sidebar__toggle {
+    justify-content: center;
+    padding-inline: 0;
+  }
+
+  .app-sidebar.is-collapsed .app-sidebar__foot {
+    padding-inline: var(--space-3);
+  }
+
+  .app-sidebar.is-collapsed .app-sidebar__note {
+    display: none;
+  }
+}
+
+/* ==== Dark theme adjustments ================================================ */
+
+/* Dark: the cream wordmark (fills baked in the file) is the logo at every size;
+   the colour lockup and the maroon wordmark are made for light surfaces. */
+:root[data-theme='dark'] .app-header__lockup,
+:root[data-theme='dark'] .app-header__wordmark--maroon {
+  display: none;
+}
+
+:root[data-theme='dark'] .app-header__wordmark--cream {
+  display: block;
+  width: 148px;
+}
+
+/* Warning is a fill with dark text; the text token flips to cream in dark. */
+:root[data-theme='dark'] .status-chip--warning {
+  color: #2c0706;
+}

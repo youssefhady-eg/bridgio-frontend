@@ -116,6 +116,7 @@ docs/                   contract, delivery notes, source rules, screenshots
 - [Stage 4 delivery note](docs/STAGE-4-DELIVERY-NOTE.md)
 - [Stage 5 delivery note](docs/STAGE-5-DELIVERY-NOTE.md)
 - [Stage 6 delivery note](docs/STAGE-6-DELIVERY-NOTE.md)
+- [Theme and sidebar note](docs/THEME-AND-SIDEBAR-NOTE.md) (dark tokens PROPOSED)
 - [Live rules](docs/BRIDGIO-LIVE_RULES.md)
 - [OpenCode stages](docs/BRIDGIO-OpenCode-stages.md)
 - [AI build handoff](docs/BRIDGIO-AI-build-handoff.md)

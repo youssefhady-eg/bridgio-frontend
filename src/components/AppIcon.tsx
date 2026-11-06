@@ -21,6 +21,10 @@ export type AppIconName =
   | 'progress'
   | 'results'
   | 'messages'
+  | 'sun'
+  | 'moon'
+  | 'collapse'
+  | 'expand'
 
 const paths: Record<AppIconName, string> = {
   menu: 'M4 7h16M4 12h16M4 17h16',
@@ -39,6 +43,10 @@ const paths: Record<AppIconName, string> = {
   results:
     'M12 4l2.1 4.3 4.7.7-3.4 3.3.8 4.7L12 15l-4.2 2.2.8-4.7L5.2 9l4.7-.7L12 4Z',
   messages: 'M4 5h16v11H9l-5 4V5Z',
+  sun: 'M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4',
+  moon: 'M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5Z',
+  collapse: 'M15 6l-6 6 6 6',
+  expand: 'M9 6l6 6-6 6',
 }
 
 interface AppIconProps extends Omit<SVGProps<SVGSVGElement>, 'name'> {
