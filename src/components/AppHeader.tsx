@@ -98,7 +98,9 @@ export function AppHeader({ onOpenSidebar, onOpenChat }: AppHeaderProps) {
             }
           >
             <span className="app-utility__glyph" aria-hidden="true">
-              {nextLang === 'en' ? 'EN' : 'ع'}
+              {nextLang === 'en'
+                ? strings.header.langGlyphEnglish
+                : strings.header.langGlyphArabic}
             </span>
           </a>
 
