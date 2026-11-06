@@ -2184,16 +2184,15 @@ h3 + .row-meta {
   position: fixed;
   inset: 0;
   z-index: 80;
+  background: rgb(44 7 6 / 45%);
 }
 
-.chat-popup__backdrop {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  padding: 0;
-  border: 0;
-  background: rgb(44 7 6 / 45%);
-  cursor: pointer;
+.chat-popup__dialog {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  outline: none;
 }
 
 .chat-popup__panel {
