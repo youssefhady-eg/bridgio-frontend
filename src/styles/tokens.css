@@ -12,7 +12,7 @@
  */
 
 :root {
-  color-scheme: light; /* Light theme only — no dark mode may be invented. */
+  color-scheme: light; /* Dark is opt-in via data-theme="dark" — PROPOSED, see the block at the end. */
 
   /* ---- Colours — LOCKED ------------------------------------------------- */
   --bridgio-red: #d51c1d; /* brand red — NOT status red */
