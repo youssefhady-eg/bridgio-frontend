@@ -2,7 +2,6 @@ import { useRouterState } from '@tanstack/react-router'
 import { AppIcon } from '~/components/AppIcon'
 import { hrefWithLang } from '~/shell/lang'
 import { useLang, useStrings } from '~/shell/useStrings'
-import { useTheme } from '~/shell/useTheme'
 
 /**
  * Slim utility header — refinement branch.
@@ -31,9 +30,6 @@ export function AppHeader({ onOpenSidebar, onOpenChat }: AppHeaderProps) {
   const lang = useLang()
   const strings = useStrings()
   const nextLang = lang === 'en' ? 'ar' : 'en'
-  const { theme, toggle: toggleTheme } = useTheme()
-  const themeActionLabel =
-    theme === 'dark' ? strings.header.themeToLight : strings.header.themeToDark
 
   return (
     <header className="app-header">
@@ -103,16 +99,6 @@ export function AppHeader({ onOpenSidebar, onOpenChat }: AppHeaderProps) {
                 : strings.header.langGlyphArabic}
             </span>
           </a>
-
-          <button
-            type="button"
-            className="app-utility__button app-utility__button--theme"
-            onClick={toggleTheme}
-            aria-label={`${strings.header.themeLabel}: ${themeActionLabel}`}
-            title={themeActionLabel}
-          >
-            <AppIcon name={theme === 'dark' ? 'sun' : 'moon'} size={20} />
-          </button>
 
           <button
             type="button"

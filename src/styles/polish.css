@@ -1,0 +1,563 @@
+/*
+ * BRIDGIO — UI skeleton polish layer.
+ *
+ * Loaded after app.css. Refines the existing hand-rolled token CSS: same class
+ * names, same locked brand colours and token names, light theme only. Only
+ * derived tints are added (color-mix of locked colours), no new palette.
+ *
+ * Direction: "calm sticker". Solid paper surfaces with crisp hairline maroon
+ * outlines (no blurred drop shadows, per token sheet §3), generous rhythm,
+ * one clear primary action per area, brand red used only as a small accent.
+ */
+
+:root {
+  /* Derived tints of locked colours — not new brand colours. */
+  --tint-red: color-mix(in srgb, var(--bridgio-red) 9%, var(--bridgio-paper));
+  --tint-info: color-mix(in srgb, var(--bridgio-info) 9%, var(--bridgio-paper));
+  --tint-success: color-mix(in srgb, var(--bridgio-success) 10%, var(--bridgio-paper));
+  --tint-warning: color-mix(in srgb, var(--bridgio-warning-fill) 22%, var(--bridgio-paper));
+  --tint-error: color-mix(in srgb, var(--bridgio-error) 8%, var(--bridgio-paper));
+  --tint-cream-deep: color-mix(in srgb, var(--bridgio-maroon) 5%, var(--bridgio-cream));
+  --outline-card: 1.5px;
+  --card-border: rgba(44, 7, 6, 0.85);
+  --radius-panel: 20px;
+  --content-max: 72rem;
+  --header-h: 72px;
+}
+
+body {
+  background: var(--bridgio-cream);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--bridgio-red) 22%, transparent);
+}
+
+/* ---- Utility header: slimmer, quieter ------------------------------------ */
+
+.app-header {
+  border-bottom: var(--outline-hairline) solid var(--card-border);
+}
+
+.app-header__inner {
+  max-width: none;
+  min-height: var(--header-h);
+  padding: var(--space-2) var(--space-4);
+  gap: var(--space-2);
+}
+
+.app-utility__button,
+.app-header__menu {
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+@media (min-width: 768px) {
+  .app-header {
+    background: var(--bridgio-paper);
+  }
+
+  .app-header__inner {
+    padding-inline: var(--space-6);
+  }
+
+  .app-utility__button {
+    background: var(--bridgio-paper);
+    border-color: var(--border-strong);
+  }
+
+  .app-utility__button:hover:not(:disabled) {
+    border-color: var(--bridgio-maroon);
+    background: var(--hover-bg);
+  }
+}
+
+@media (min-width: 1024px) {
+  /* Lockup keeps its LOCKED 200 px minimum; the bar just loses dead space. */
+  .app-header__inner {
+    padding-block: var(--space-1);
+  }
+
+  .app-header__lockup {
+    margin-block: -6px;
+  }
+}
+
+/* ---- Sidebar ------------------------------------------------------------- */
+
+.app-sidebar {
+  background: var(--bridgio-paper);
+  border-inline-end: var(--outline-hairline) solid var(--card-border);
+}
+
+.app-sidebar__nav {
+  padding: var(--space-4) var(--space-3);
+}
+
+.app-sidebar__list {
+  gap: 2px;
+}
+
+.app-sidebar__link {
+  position: relative;
+  border-radius: 14px;
+  padding-inline: var(--space-3) var(--space-4);
+  color: var(--text-secondary);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.app-sidebar__link:hover {
+  background: var(--tint-cream-deep);
+  color: var(--text-primary);
+}
+
+.app-sidebar__link:hover .app-sidebar__icon {
+  color: var(--text-primary);
+}
+
+.app-sidebar__icon {
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+}
+
+.app-sidebar__link.is-active {
+  background: var(--bridgio-maroon);
+  color: var(--bridgio-cream);
+}
+
+.app-sidebar__link.is-active .app-sidebar__icon {
+  background: rgba(249, 236, 217, 0.12);
+}
+
+/* Small brand-red tick on the active item — accent, never a status. */
+.app-sidebar__link.is-active::after {
+  content: '';
+  position: absolute;
+  inset-inline-end: 12px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--bridgio-red);
+}
+
+.app-sidebar__note {
+  margin: var(--space-4) var(--space-1) 0;
+  padding: var(--space-3);
+  border-radius: 14px;
+  background: var(--bridgio-cream);
+  line-height: 1.5;
+}
+
+@media (min-width: 1024px) {
+  .app-body {
+    grid-template-columns: 16rem minmax(0, 1fr);
+  }
+
+  .app-sidebar__foot {
+    padding: var(--space-3);
+  }
+
+  .app-sidebar__toggle {
+    border-color: transparent;
+    border-radius: 14px;
+    color: var(--text-muted);
+  }
+
+  .app-sidebar__toggle:hover {
+    color: var(--text-primary);
+    background: var(--tint-cream-deep);
+  }
+
+  .app-sidebar.is-collapsed .app-sidebar__link.is-active::after {
+    display: none;
+  }
+}
+
+@media (max-width: 1023.98px) {
+  .app-sidebar {
+    border-inline-end: var(--outline-sticker) solid var(--bridgio-maroon);
+  }
+}
+
+/* ---- Stage banner: an inline notice, not a second header ------------------ */
+
+.stage-banner {
+  margin: var(--space-4) var(--space-4) 0;
+  padding: var(--space-3) var(--space-4);
+  border: var(--outline-hairline) dashed var(--border-strong);
+  border-radius: 14px;
+  background: transparent;
+  line-height: 1.5;
+}
+
+.stage-banner__stage {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.stage-banner__stage::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bridgio-warning-fill);
+  border: 1.5px solid var(--bridgio-maroon);
+}
+
+@media (min-width: 768px) {
+  .stage-banner {
+    margin: var(--space-6) var(--space-8) 0;
+  }
+}
+
+/* ---- Main column --------------------------------------------------------- */
+
+.app-main {
+  max-width: var(--content-max);
+  padding: var(--space-8) var(--space-4) var(--space-16);
+}
+
+@media (min-width: 768px) {
+  .app-main {
+    padding: var(--space-8) var(--space-8) var(--space-16);
+  }
+}
+
+h1 {
+  letter-spacing: -0.01em;
+}
+
+/* Eyebrow badge above each page title. */
+.app-shell__badge {
+  gap: var(--space-2);
+  padding: 4px var(--space-3);
+  border: 0;
+  background: var(--tint-red);
+  color: var(--bridgio-maroon);
+  font-weight: 700;
+}
+
+.app-shell__badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--bridgio-red);
+}
+
+.app-shell__hero,
+.dashboard__hero,
+.builder__hero,
+.player__hero {
+  margin-block-end: var(--space-8);
+}
+
+.dashboard__lead,
+.builder__lead,
+.player__lead,
+.app-shell__lead {
+  color: var(--text-secondary);
+  max-width: 44rem;
+}
+
+/* ---- Cards & panels: one consistent surface ------------------------------ */
+
+.app-card,
+.panel,
+.class-card,
+.total-card,
+.builder-panel,
+.question-card,
+.draft-card,
+.summary-card,
+.player-test,
+.player-run,
+.mohsen-panel,
+.parent-unit,
+.placeholder {
+  background: var(--bridgio-paper);
+  border: var(--outline-card) solid var(--card-border);
+  border-radius: var(--radius-panel);
+}
+
+.class-card,
+.total-card,
+.player-test,
+.choice-card,
+.player-option {
+  transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+}
+
+.class-card:hover,
+.player-test:hover {
+  transform: translateY(-2px);
+}
+
+/* Section headings with a count chip. */
+.section-head {
+  margin-block-end: var(--space-4);
+}
+
+.count-chip {
+  border-color: transparent;
+  background: var(--tint-cream-deep);
+  font-weight: 700;
+}
+
+/* Totals: big number, quiet label, icon in a tinted tile. */
+.dashboard__totals {
+  gap: var(--space-3);
+}
+
+.total-card {
+  padding: var(--space-4) var(--space-4) var(--space-4) var(--space-4);
+}
+
+.total-card__icon {
+  border-radius: 12px;
+  border: 0;
+  background: var(--tint-red);
+  color: var(--bridgio-maroon);
+}
+
+.total-card__value {
+  letter-spacing: -0.02em;
+}
+
+.total-card__label {
+  color: var(--text-secondary);
+}
+
+/* Class card stats sit on a soft inner strip. */
+.class-card__stats {
+  margin-block-start: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-top: 0;
+  border-radius: 14px;
+  background: var(--bridgio-cream);
+}
+
+/* Rows inside panels. */
+.test-row,
+.progress-row {
+  transition: background-color 0.15s ease;
+}
+
+.test-row + .test-row,
+.progress-row + .progress-row {
+  border-top-color: var(--border);
+}
+
+/* Progress bar: rounder, calmer track. */
+.progress {
+  height: 10px;
+  border-radius: var(--radius-pill);
+  background: var(--tint-cream-deep);
+  border: 0;
+  overflow: hidden;
+}
+
+.progress__fill {
+  border-radius: var(--radius-pill);
+}
+
+/* Status chips: icon + word, tinted fill per status (never colour alone). */
+.status-chip {
+  border-width: 1.5px;
+  font-weight: 700;
+}
+
+.status-chip--success {
+  background: var(--tint-success);
+}
+
+.status-chip--neutral {
+  background: var(--tint-cream-deep);
+}
+
+/* Empty / error / success notes. */
+.empty-note {
+  border-radius: var(--radius-panel);
+  border: var(--outline-hairline) dashed var(--border-strong);
+  background: transparent;
+}
+
+.empty-note--error {
+  border-style: solid;
+  border-color: var(--bridgio-error);
+  background: var(--tint-error);
+}
+
+.empty-note--success {
+  border-style: solid;
+  border-color: var(--bridgio-success);
+  background: var(--tint-success);
+}
+
+.loading-note {
+  color: var(--text-muted);
+}
+
+/* ---- Buttons ------------------------------------------------------------- */
+
+.button {
+  border-radius: var(--radius-pill);
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.button--primary {
+  background: var(--bridgio-maroon);
+  border-color: var(--bridgio-maroon);
+  color: var(--bridgio-cream);
+}
+
+.button--primary:hover:not(:disabled) {
+  background: var(--bridgio-maroon-outline);
+}
+
+.button--secondary {
+  background: var(--bridgio-paper);
+  border-color: var(--card-border);
+}
+
+.button--secondary:hover:not(:disabled) {
+  background: var(--tint-cream-deep);
+}
+
+/* ---- Form controls ------------------------------------------------------- */
+
+.input,
+.textarea,
+.chat-surface__input,
+select.input {
+  border-radius: 14px;
+  background: var(--bridgio-paper);
+  transition: border-color 0.15s ease;
+}
+
+.input:hover,
+.textarea:hover,
+.chat-surface__input:hover {
+  border-color: var(--bridgio-maroon);
+}
+
+/* Selectable cards (builder sources, player answers). */
+.choice-card,
+.player-option {
+  border-radius: 16px;
+  background: var(--bridgio-paper);
+}
+
+.choice-card:hover:not(.is-disabled),
+.player-option:hover {
+  border-color: var(--bridgio-maroon);
+}
+
+.choice-card.is-selected,
+.player-option.is-selected {
+  background: var(--tint-cream-deep);
+}
+
+/* ---- Builder stepper: connected steps ------------------------------------- */
+
+.builder-steps {
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--tint-cream-deep);
+}
+
+.builder-step__button {
+  border-color: transparent;
+  background: transparent;
+}
+
+.builder-step.is-active .builder-step__button {
+  background: var(--bridgio-maroon);
+  border-color: var(--bridgio-maroon);
+}
+
+.builder-step.is-done .builder-step__button {
+  background: var(--bridgio-paper);
+  border-color: var(--border-strong);
+}
+
+@media (max-width: 767.98px) {
+  .builder-steps {
+    border-radius: 20px;
+  }
+}
+
+/* ---- Mohsen + grounding --------------------------------------------------- */
+
+.grounding,
+.source-banner {
+  border-radius: 14px;
+  background: var(--tint-info);
+  border-color: color-mix(in srgb, var(--bridgio-info) 35%, transparent);
+}
+
+/* ---- Footer: lighter build note ------------------------------------------ */
+
+.app-footer {
+  margin-block-start: var(--space-8);
+  border-top: var(--outline-hairline) solid var(--border-strong);
+  background: transparent;
+}
+
+.app-footer__inner {
+  max-width: var(--content-max);
+}
+
+@media (min-width: 768px) {
+  .app-footer {
+    padding-inline: var(--space-8);
+  }
+}
+
+.app-roles__link {
+  background: var(--bridgio-paper);
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.app-roles__link:hover:not(.is-active) {
+  border-color: var(--bridgio-maroon);
+}
+
+/* ---- Chat popup --------------------------------------------------------- */
+
+.chat-popup__panel {
+  border-width: var(--outline-card);
+}
+
+.chat-thread.is-active {
+  border-radius: 14px;
+}
+
+/* ---- Phone: never overflow horizontally ---------------------------------- */
+
+html,
+body {
+  overflow-x: clip;
+}
+
+@media (max-width: 1023.98px) {
+  .app-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .app-header__inner {
+    min-height: 60px;
+  }
+
+  .dashboard__totals {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
