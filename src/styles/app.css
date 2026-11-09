@@ -339,6 +339,29 @@ summary:focus-visible,
   }
 }
 
+/* ---- Dark theme: cream artwork on the maroon base ------------------------- */
+
+/*
+ * The colour lockup and the maroon wordmark are drawn for light surfaces
+ * (their fills are baked into the files and are never recoloured). On the
+ * maroon base the adopted cream wordmark is the only legible option at every
+ * width above the phone band. Light theme artwork is untouched.
+ */
+:root[data-theme='dark'] .app-header__wordmark--maroon {
+  display: none;
+}
+
+:root[data-theme='dark'] .app-header__wordmark--cream {
+  display: block;
+  width: 136px; /* ≥ 120 px required for the adopted wordmark */
+}
+
+@media (min-width: 1024px) {
+  :root[data-theme='dark'] .app-header__lockup {
+    display: none;
+  }
+}
+
 /* ---- App body: sidebar + content -------------------------------------------- */
 
 .app-body {

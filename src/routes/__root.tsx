@@ -18,6 +18,8 @@ import {
   type Lang,
 } from '~/shell/lang'
 import { hrefWithRole, parseAppRole, appRoles, type AppRole } from '~/shell/nav'
+import { THEME_STORAGE_KEY } from '~/shell/theme-state'
+import { useTheme } from '~/shell/useTheme'
 import { useLang, useStrings, stringsFor } from '~/shell/useStrings'
 import { isDemoData, showDevChrome } from '~/shell/dev-chrome'
 import { useSidebarCollapsed } from '~/shell/useSidebarCollapsed'
@@ -36,6 +38,13 @@ type RootSearch = { as?: AppRole; lang: Lang }
 
 /** localStorage key for language persistence (see ShellDocument). */
 const LANG_STORAGE_KEY = 'bridgio.lang'
+
+/**
+ * Pre-paint theme init. Runs in <head> before the body renders, so a visitor
+ * who chose dark never sees a light flash. Default light when nothing is
+ * stored; only the exact value "dark" applies. Kept dependency-free.
+ */
+const THEME_INIT_SCRIPT = `(function(){try{if(localStorage.getItem('${THEME_STORAGE_KEY}')==='dark'){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();`
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -139,6 +148,7 @@ function ShellDocument({ children }: Readonly<{ children: ReactNode }>) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { collapsed: sidebarCollapsed, toggle: toggleSidebarCollapsed } =
     useSidebarCollapsed()
+  const { theme, toggle: toggleTheme } = useTheme()
   const [chatOpen, setChatOpen] = useState(false)
   const previewRole = usePreviewRole()
   const devChrome = showDevChrome()
@@ -179,6 +189,7 @@ function ShellDocument({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <html lang={lang} dir={dir} suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <HeadContent />
       </head>
       <body>
@@ -188,6 +199,8 @@ function ShellDocument({ children }: Readonly<{ children: ReactNode }>) {
         <AppHeader
           onOpenSidebar={() => setSidebarOpen(true)}
           onOpenChat={() => setChatOpen(true)}
+          theme={theme}
+          onToggleTheme={toggleTheme}
         />
         <div
           className={`app-body${sidebarCollapsed ? ' app-body--collapsed' : ''}`}

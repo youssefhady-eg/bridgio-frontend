@@ -92,6 +92,9 @@ export const ar = {
     assistantOpenLabel: 'افتح المحادثات',
     accountLabel: 'الحساب',
     accountNote: 'تسجيل الدخول والأدوار مسؤولية Mentingo، ولم تُوصَل بعد.',
+    themeLabel: 'المظهر',
+    themeToDark: 'المظهر الداكن',
+    themeToLight: 'المظهر الفاتح',
   },
   /**
    * Preview-role diagnostic (`?as`) — UI state only, never auth. Moved out of
@@ -698,6 +701,9 @@ export const en: Strings = {
     assistantOpenLabel: 'Open messages',
     accountLabel: 'Account',
     accountNote: 'Sign-in and roles are owned by Mentingo and are not connected yet.',
+    themeLabel: 'Theme',
+    themeToDark: 'Dark theme',
+    themeToLight: 'Light theme',
   },
   preview: {
     groupAria: 'Preview role — UI state only, no sign-in.',

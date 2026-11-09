@@ -579,3 +579,28 @@ body {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* ---- Dark theme refinements ---------------------------------------------- */
+
+/*
+ * Same class names and locked roles as light. Only the derived card rim and
+ * the two controls whose default assumes a light surface need dark rules.
+ */
+:root[data-theme='dark'] {
+  /* A maroon rim disappears on the maroon base, so the card edge flips to a
+     translucent cream hairline (fill and radius are unchanged). */
+  --card-border: rgba(249, 236, 217, 0.3);
+}
+
+/* The active sidebar pill is cream in dark, so its icon chip must darken, not
+   lighten (the light rule lays cream over cream). */
+:root[data-theme='dark'] .app-sidebar__link.is-active .app-sidebar__icon {
+  background: rgba(44, 7, 6, 0.12);
+}
+
+/* Warning is a bright amber fill; its chip keeps dark maroon text and rim in
+   both themes (cream text on amber would fail contrast). */
+:root[data-theme='dark'] .status-chip--warning {
+  border-color: #2c0706;
+  color: #2c0706;
+}

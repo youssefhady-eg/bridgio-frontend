@@ -13,6 +13,19 @@ function token(name: string): string {
   return match[1].trim()
 }
 
+/**
+ * Dark values live in a `[data-theme='dark']` block later in the same file.
+ * Its tokens shadow the light ones, so they are read from that block only.
+ */
+const darkStart = css.indexOf("[data-theme='dark']")
+const darkCss = darkStart === -1 ? '' : css.slice(darkStart)
+
+function darkToken(name: string): string {
+  const match = new RegExp(`${name}:\\s*([^;]+);`).exec(darkCss)
+  if (!match?.[1]) throw new Error(`dark token ${name} not found`)
+  return match[1].trim()
+}
+
 type Rgb = [number, number, number]
 
 function parse(value: string): { rgb: Rgb; alpha: number } {
@@ -50,7 +63,7 @@ function contrast(fg: string, bg: string): number {
   return (hi + 0.05) / (lo + 0.05)
 }
 
-describe('text tokens meet WCAG AA (4.5:1) on both surfaces', () => {
+describe('light theme text tokens meet WCAG AA (4.5:1) on both surfaces', () => {
   for (const surface of ['--bridgio-cream', '--bridgio-paper']) {
     for (const text of ['--text-secondary', '--text-muted']) {
       it(`${text} on ${surface}`, () => {
@@ -58,4 +71,35 @@ describe('text tokens meet WCAG AA (4.5:1) on both surfaces', () => {
       })
     }
   }
+})
+
+describe('dark theme text tokens meet WCAG AA (4.5:1) on both surfaces', () => {
+  for (const surface of ['--bridgio-cream', '--bridgio-paper']) {
+    for (const text of ['--text-secondary', '--text-muted']) {
+      it(`${text} on ${surface}`, () => {
+        expect(contrast(darkToken(text), darkToken(surface))).toBeGreaterThanOrEqual(4.5)
+      })
+    }
+  }
+
+  it('cream ink reads on both dark surfaces', () => {
+    for (const surface of ['--bridgio-cream', '--bridgio-paper']) {
+      expect(contrast(darkToken('--bridgio-maroon'), darkToken(surface))).toBeGreaterThanOrEqual(4.5)
+    }
+  })
+})
+
+describe('dark theme status hues meet WCAG AA (4.5:1) on the dark surface', () => {
+  const surface = '--bridgio-paper'
+
+  for (const status of ['--bridgio-success', '--bridgio-info', '--bridgio-error']) {
+    it(`${status} on ${surface}`, () => {
+      expect(contrast(darkToken(status), darkToken(surface))).toBeGreaterThanOrEqual(4.5)
+    })
+  }
+
+  it('the warning chip keeps dark text on the unchanged amber fill', () => {
+    // `polish.css` pins the warning chip text to #2c0706 in dark.
+    expect(contrast('#2c0706', token('--bridgio-warning-fill'))).toBeGreaterThanOrEqual(4.5)
+  })
 })
