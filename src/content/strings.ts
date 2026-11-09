@@ -515,6 +515,7 @@ export const ar = {
    */
   parent: {
     headTitle: `ولي الأمر — ${B}`,
+    badge: 'وليّ الأمر',
     loading: 'جارٍ تحميل بيانات الابن...',
     loadErrorTitle: 'تعذّر تحميل البيانات.',
     loadErrorBody: 'من جهتنا، لا من جهتك. أعد المحاولة بعد قليل.',
@@ -1089,6 +1090,7 @@ export const en: Strings = {
   },
   parent: {
     headTitle: `Parents — ${B}`,
+    badge: 'Parent',
     loading: 'Loading the child data...',
     loadErrorTitle: 'We could not load the data.',
     loadErrorBody: 'It is on our side, not yours. Try again shortly.',
