@@ -22,7 +22,12 @@
   --card-border: rgba(44, 7, 6, 0.85);
   --radius-panel: 20px;
   --content-max: 72rem;
-  --header-h: 72px;
+  /* Header minimum for the inner bar (phone/tablet sizing). */
+  --header-min: 72px;
+  /* Measured full header height at >= 1024 px: the locked 200 px lockup plus
+     its padding and the bottom hairline is ~85.6 px, not 72 px. The sticky
+     sidebar offset uses this so its foot sits exactly on the fold. */
+  --header-h: 86px;
 }
 
 body {
@@ -41,7 +46,7 @@ body {
 
 .app-header__inner {
   max-width: none;
-  min-height: var(--header-h);
+  min-height: var(--header-min);
   padding: var(--space-2) var(--space-4);
   gap: var(--space-2);
 }
