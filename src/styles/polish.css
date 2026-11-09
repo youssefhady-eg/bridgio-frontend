@@ -155,8 +155,18 @@ body {
     grid-template-columns: 16rem minmax(0, 1fr);
   }
 
+  /* Collapsed rail — must stay after the 16rem rule above to win at equal
+     specificity (this was the live collapse bug). */
   .app-body--collapsed {
     grid-template-columns: 5rem minmax(0, 1fr);
+  }
+
+  /* The sidebar starts below the 72 px header, so a sticky top:0 + height:100dvh
+     pushed the foot (and its collapse toggle) 72 px below the fold. Pin it under
+     the header instead, so the toggle is visible without scrolling. */
+  .app-sidebar {
+    top: var(--header-h);
+    height: calc(100dvh - var(--header-h));
   }
 
   .app-sidebar__foot {
