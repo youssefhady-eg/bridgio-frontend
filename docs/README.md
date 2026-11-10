@@ -66,6 +66,19 @@ Stage 3–6 artefacts (delivery notes record each stage as handed over, so their
   across dashboard, builder and player; shared styling and string centralisation,
   no new features.
 
+Post-stage work (delivery notes, owner-reviewed after merge unless stated):
+
+- [REFINEMENT-DELIVERY-NOTE.md](REFINEMENT-DELIVERY-NOTE.md) — sidebar, AR/EN
+  toggle, parent view and in-app messages mock (PR #12).
+- [VERCEL-FIX-DELIVERY-NOTE.md](VERCEL-FIX-DELIVERY-NOTE.md) — Nitro hosting
+  fix to a working production URL (PR #13).
+- [THEME-AND-SIDEBAR-NOTE.md](THEME-AND-SIDEBAR-NOTE.md) — theme/sidebar work
+  merged in PRs #14–19; the dark theme colouring was rejected by the owner.
+- [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md) — design-system patterns.
+- [POLISH-PORT-DELIVERY-NOTE.md](POLISH-PORT-DELIVERY-NOTE.md) — port of the
+  Lovable skeleton polish layer to `main` `d6a4217`, light-only. Branch
+  `feat/port-lovable-polish`, not yet verified by Muse.
+
 ## Copying note
 
 The four rules/spec markdown files above were copied into this repo so a fresh
@@ -94,5 +107,10 @@ changes shared styling and string plumbing only: no new screen, route, feature,
 contract field or adapter method. A Muse verification result for Stage 6 is not
 recorded in `BRIDGIO-LIVE_RULES.md`, so this index does not claim one.
 
+Post-stage refinements are merged through PR #20; `main` is at `d6a4217`
+(production https://bridgio-frontend.vercel.app/ is live). The Lovable skeleton
+export was audited on 2026-11-08 and is not merged: its build fails, so only its
+polish layer was ported on `feat/port-lovable-polish`.
+
 Every Mentingo endpoint remains PROPOSED, and Mentingo auth transport is still
-unconfirmed. Stage 7 has not started.
+unconfirmed. Stage 7 remains parked.

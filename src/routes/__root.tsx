@@ -20,11 +20,11 @@ import {
 import { hrefWithRole, parseAppRole, appRoles, type AppRole } from '~/shell/nav'
 import { useLang, useStrings, stringsFor } from '~/shell/useStrings'
 import { isDemoData, showDevChrome } from '~/shell/dev-chrome'
-import { themeInitScript } from '~/shell/theme'
 import { useSidebarCollapsed } from '~/shell/useSidebarCollapsed'
 import { usePreviewRole } from '~/shell/usePreviewRole'
 import appCss from '~/styles/app.css?url'
 import fontsCss from '~/styles/fonts.css?url'
+import polishCss from '~/styles/polish.css?url'
 import tokensCss from '~/styles/tokens.css?url'
 
 /**
@@ -71,8 +71,6 @@ export const Route = createRootRouteWithContext<{
           content: '#2c0706',
         },
       ],
-      // Apply a stored theme choice before first paint (no light flash).
-      scripts: [{ children: themeInitScript }],
       links: [
         // Interim internal placeholder favicon (Sora "B" on a red card). The
         // adopted wordmark and the full lockup are never used as a favicon.
@@ -80,6 +78,7 @@ export const Route = createRootRouteWithContext<{
         { rel: 'stylesheet', href: fontsCss },
         { rel: 'stylesheet', href: tokensCss },
         { rel: 'stylesheet', href: appCss },
+        { rel: 'stylesheet', href: polishCss },
       ],
     }
   },

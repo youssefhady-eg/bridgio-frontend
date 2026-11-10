@@ -2765,28 +2765,10 @@ h3 + .summary-list {
   }
 }
 
-/* ==== Dark theme adjustments ================================================ */
+/* ==== Header utility toggles ============================================== */
 
-/* Dark: the cream wordmark (fills baked in the file) is the logo at every size;
-   the colour lockup and the maroon wordmark are made for light surfaces. */
-:root[data-theme='dark'] .app-header__lockup,
-:root[data-theme='dark'] .app-header__wordmark--maroon {
-  display: none;
-}
-
-:root[data-theme='dark'] .app-header__wordmark--cream {
-  display: block;
-  width: 148px;
-}
-
-/* Warning is a fill with dark text; the text token flips to cream in dark. */
-:root[data-theme='dark'] .status-chip--warning {
-  color: #2c0706;
-}
-
-/* Language and theme are icon-only toggles: round, same size, one glance. */
-.app-utility__button--lang,
-.app-utility__button--theme {
+/* Language is an icon-only toggle: round, one glance. */
+.app-utility__button--lang {
   justify-content: center;
   width: var(--touch-target);
   padding: 0;

@@ -12,7 +12,7 @@
  */
 
 :root {
-  color-scheme: light; /* Dark is opt-in via data-theme="dark" — PROPOSED, see the block at the end. */
+  color-scheme: light; /* Light theme only — the dark theme was rejected by the owner. */
 
   /* ---- Colours — LOCKED ------------------------------------------------- */
   --bridgio-red: #d51c1d; /* brand red — NOT status red */
@@ -105,43 +105,3 @@
   }
 }
 
-/* ---- Dark theme — PROPOSED FOR UI (not a brand lock) ------------------------
- * Opt-in, user-chosen (`data-theme="dark"` on <html>). Built by swapping the
- * ROLES of the locked brand colours rather than inventing a new palette:
- *   background  = a deeper step below the brand maroon (the one new value),
- *   surface     = the brand maroon #2c0706,
- *   ink/outline = the brand cream #f9ecd9.
- * Because the app already reads these tokens for surfaces, text, outlines and
- * the primary button, the swap inverts the whole UI consistently. Status
- * colours get lighter tints so they keep AA contrast on the dark surface.
- * Pending brand approval; labelled proposed in docs/THEME-AND-SIDEBAR-NOTE.md.
- */
-:root[data-theme='dark'] {
-  color-scheme: dark;
-
-  --bridgio-cream: #1a0403; /* app background (PROPOSED, deeper than maroon) */
-  --bridgio-paper: #2c0706; /* surface = brand maroon */
-  --bridgio-maroon: #f9ecd9; /* ink + outlines = brand cream */
-
-  --bridgio-success: #5cc79b;
-  --bridgio-info: #8ab8f2;
-  --bridgio-error: #f0909f;
-  /* --bridgio-warning-fill is a fill and stays; its text is forced dark below. */
-
-  --text-primary: #f9ecd9;
-  --text-secondary: rgba(249, 236, 217, 0.78);
-  --text-muted: rgba(249, 236, 217, 0.68);
-  --border: rgba(249, 236, 217, 0.16);
-  --border-strong: rgba(249, 236, 217, 0.28);
-  --disabled-text: rgba(249, 236, 217, 0.42);
-  --hover-bg: rgba(249, 236, 217, 0.07);
-  --disabled-overlay: rgba(249, 236, 217, 0.1);
-
-  /* The header band keeps cream text on maroon; literal values so the role swap
-     above does not flip them. */
-  --band-bg: #2c0706;
-  --band-text: #f9ecd9;
-  --band-text-secondary: rgba(249, 236, 217, 0.75);
-  --band-border: rgba(249, 236, 217, 0.24);
-  --band-hover: rgba(249, 236, 217, 0.08);
-}
