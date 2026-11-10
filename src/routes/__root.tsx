@@ -7,6 +7,7 @@ import {
   useRouterState,
 } from '@tanstack/react-router'
 import { useEffect, useState, type ReactNode } from 'react'
+import { Analytics } from '@vercel/analytics/react'
 import { AppHeader } from '~/components/AppHeader'
 import { AppSidebar } from '~/components/AppSidebar'
 import { ChatPopup } from '~/components/chat/ChatPopup'
@@ -258,6 +259,7 @@ function ShellDocument({ children }: Readonly<{ children: ReactNode }>) {
           </div>
         </div>
         <ChatPopup open={chatOpen} onClose={() => setChatOpen(false)} />
+        <Analytics />
         <Scripts />
       </body>
     </html>
