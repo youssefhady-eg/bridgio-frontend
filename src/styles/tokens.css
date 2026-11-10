@@ -12,7 +12,10 @@
  */
 
 :root {
-  color-scheme: light; /* Light theme only — the dark theme was rejected by the owner. */
+  /* Light is the default and the only theme the page paints without a
+     `data-theme` attribute. The dark theme (below) is opt-in via the header
+     toggle and persists in localStorage. */
+  color-scheme: light;
 
   /* ---- Colours — LOCKED ------------------------------------------------- */
   --bridgio-red: #d51c1d; /* brand red — NOT status red */
@@ -91,6 +94,61 @@
   /* ---- Provenance -------------------------------------------------------- */
   --bridgio-wordmark-min-width: 120px; /* adopted wordmark: ≥120 px slots */
   --bridgio-lockup-min-width: 200px; /* LOCKED minimum full-lockup width */
+}
+
+/*
+ * Dark theme — PROPOSED, not a brand lock. Opt-in via `data-theme="dark"` on
+ * <html>, set by the header toggle and remembered in localStorage.
+ *
+ * Unlike the rejected dark attempt (an invented #1a0403 page colour with the
+ * brand maroon as the surface), this palette is built only from LOCKED brand
+ * colours and one derived rule:
+ *   page base  = brand maroon  #2c0706  (the maroon base)
+ *   surface    = locked logo-outline    #471e1b  (a lifted maroon)
+ *   ink        = brand cream   #f9ecd9  (cream ink)
+ *   accent     = brand red     #d51c1d  (small ticks/dots only, unchanged)
+ * Status hues stay the locked brand hues, lightened toward cream only enough
+ * to reach AA on the dark surface (derived by mixing, not new brand colours).
+ */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* ---- LOCKED roles swap (values reused, none invented) ----------------- */
+  --bridgio-cream: #2c0706; /* page background  = brand maroon */
+  --bridgio-paper: #471e1b; /* surface          = locked logo-outline (lifted) */
+  --bridgio-maroon: #f9ecd9; /* ink/outline      = brand cream */
+  /* --bridgio-red / --bridgio-red-accent: unchanged (accent only). */
+  /* --bridgio-maroon-outline: unchanged (#471e1b) — it is the primary-button
+     hover shade and still reads as a darkening under cream buttons. */
+
+  /* ---- Status hues derived from the locked hues toward cream (AA) ------- */
+  --bridgio-success: #76a88b;
+  --bridgio-info: #7d99c0;
+  --bridgio-error: #e08a90;
+  /* --bridgio-warning-fill #f2a93b: fill only; its chip keeps dark text. */
+
+  /* ---- PROPOSED neutrals, mirrored onto cream --------------------------- */
+  --text-primary: #f9ecd9;
+  --text-secondary: rgba(249, 236, 217, 0.72);
+  --text-muted: rgba(249, 236, 217, 0.64);
+  --border: rgba(249, 236, 217, 0.14);
+  --border-strong: rgba(249, 236, 217, 0.24);
+  --disabled-text: rgba(249, 236, 217, 0.4);
+  --hover-bg: rgba(249, 236, 217, 0.06);
+  --disabled-overlay: rgba(249, 236, 217, 0.08);
+
+  /* The header band is already maroon; keep cream on it explicit (the cream
+     token now means maroon, so these must not alias through it). */
+  --band-bg: #2c0706;
+  --band-text: #f9ecd9;
+  --band-text-secondary: rgba(249, 236, 217, 0.75);
+  --band-border: rgba(249, 236, 217, 0.24);
+  --band-hover: rgba(249, 236, 217, 0.08);
+
+  /* Cream ring reads on every dark surface; the "on-dark" variant stays cream
+     too, because the phone header band is still maroon. */
+  --focus-ring-color: #f9ecd9;
+  --focus-ring-color-on-dark: #f9ecd9;
 }
 
 /* Larger canvas, larger type: the phone sizes read small on a 1440px screen. */

@@ -11,7 +11,7 @@ Status: documents what the code already does, plus a short audit. Nothing here i
 | Type sizes | 2 literal `font-size` values outside the scale. |
 | Focus | 15 `:focus-visible` rules; focus ring is a token. |
 | Reduced motion | Was missing — added in this branch. |
-| Dark theme | Opt-in token override (PROPOSED), axe-clean. |
+| Dark theme | Opt-in token override (PROPOSED), built only from locked brand colours; text/status contrast checked. |
 | Documentation | None for components — this file. |
 
 Priority actions: (1) keep new CSS on tokens, (2) migrate remaining dialogs/menus to React Aria, (3) replace the 11 literal spacings and 2 literal font sizes over time.
@@ -25,7 +25,17 @@ Three tiers. Components should only use tiers 2 and 3.
 3. **Scale (PROPOSED)**: spacing 4/8/12/16/24/32/48/64 px; type h1 28 / h2 22 / h3 18 / body 16 / small 14 / label 15 / caption 13 (larger from 1024 px); radius card 24, input 12, pill 999; sticker outline 2 px, hairline 1.5 px; touch target 44 px.
 
 ### Dark theme (PROPOSED)
-Set with `data-theme="dark"` on `<html>`. Roles swap: surface = maroon #2c0706, ink = cream #f9ecd9, page background = #1a0403 (new), lighter success/info/error tints. The cream wordmark replaces the colour lockup in dark. Details: `docs/THEME-AND-SIDEBAR-NOTE.md`.
+Set with `data-theme="dark"` on `<html>` (header toggle, remembered in `localStorage` under `bridgio-theme`; a tiny inline `<head>` script applies it before first paint). Default is light. The palette is built only from locked brand colours plus one mix rule, and is deliberately **not** the rejected `#1a0403` attempt:
+
+| Role | Token | Dark value | Source |
+| --- | --- | --- | --- |
+| Page base | `--bridgio-cream` | `#2c0706` | brand maroon (LOCKED) |
+| Surface | `--bridgio-paper` | `#471e1b` | locked logo-outline, lifted |
+| Ink / outline | `--bridgio-maroon` | `#f9ecd9` | brand cream (LOCKED) |
+| Accent | `--bridgio-red` | `#d51c1d` | unchanged, small ticks only |
+| Success / info / error | `--bridgio-success/info/error` | `#76a88b` / `#7d99c0` / `#e08a90` | locked hues mixed toward cream for AA |
+
+Warning stays the amber fill with dark `#2c0706` text. The colour lockup and maroon wordmark are for light surfaces, so dark uses the adopted cream wordmark at every width (fills are baked in the files, never recoloured). Details and rationale: `docs/THEME-AND-SIDEBAR-NOTE.md`.
 
 ## 3. Components
 

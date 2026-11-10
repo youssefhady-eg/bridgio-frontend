@@ -339,6 +339,29 @@ summary:focus-visible,
   }
 }
 
+/* ---- Dark theme: cream artwork on the maroon base ------------------------- */
+
+/*
+ * The colour lockup and the maroon wordmark are drawn for light surfaces
+ * (their fills are baked into the files and are never recoloured). On the
+ * maroon base the adopted cream wordmark is the only legible option at every
+ * width above the phone band. Light theme artwork is untouched.
+ */
+:root[data-theme='dark'] .app-header__wordmark--maroon {
+  display: none;
+}
+
+:root[data-theme='dark'] .app-header__wordmark--cream {
+  display: block;
+  width: 136px; /* ≥ 120 px required for the adopted wordmark */
+}
+
+@media (min-width: 1024px) {
+  :root[data-theme='dark'] .app-header__lockup {
+    display: none;
+  }
+}
+
 /* ---- App body: sidebar + content -------------------------------------------- */
 
 .app-body {
@@ -747,7 +770,8 @@ summary:focus-visible,
  */
 
 .dashboard {
-  max-width: 68rem;
+  /* Fill the .app-main canvas so the dashboard uses the width it is given. */
+  max-width: none;
 }
 
 .dashboard__hero {
@@ -858,6 +882,85 @@ summary:focus-visible,
   font-size: var(--font-caption-size);
   font-weight: 600;
   line-height: 1.45;
+}
+
+/* Quick actions — real destinations only, styled as compact sticker cards. */
+
+.dashboard__quick {
+  margin-block-start: var(--space-6);
+}
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+}
+
+.quick-action {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--bridgio-paper);
+  border: var(--outline-sticker) solid var(--bridgio-maroon);
+  border-radius: var(--radius-card);
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+
+.quick-action:hover {
+  background: var(--tint-cream-deep);
+}
+
+.quick-action__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  color: var(--text-primary);
+}
+
+.quick-action__text {
+  display: grid;
+  gap: 2px;
+}
+
+.quick-action__title {
+  font-family: 'thmanyahserifdisplay', 'Bridgio Display', sans-serif;
+  font-size: var(--font-display-size-h3);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.quick-action__body {
+  color: var(--text-secondary);
+  font-size: var(--font-body-small-size);
+  line-height: 1.45;
+}
+
+/* Denser dashboard composition: one column on phones, two on wide screens.
+   The column containers own the vertical rhythm so sections never double up. */
+
+.dashboard__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-8);
+  margin-block-start: var(--space-8);
+}
+
+.dashboard__col {
+  display: grid;
+  gap: var(--space-8);
+  align-content: start;
+  min-width: 0;
+}
+
+.dashboard__col .dashboard__section {
+  margin-block-start: 0;
 }
 
 /* Classes */
@@ -2673,18 +2776,37 @@ h3 + .summary-list {
   }
 }
 
-/* Dashboard: recent tests and student progress share a row on wide screens. */
-@media (min-width: 1200px) {
-  .dashboard__columns {
-    display: grid;
+/* Dashboard: quick actions pair up, and the attention/activity column sits
+   beside student progress and classes on wide screens. */
+@media (min-width: 768px) {
+  .quick-actions {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: var(--space-6);
+  }
+}
+
+@media (min-width: 1200px) {
+  .dashboard__grid {
+    grid-template-columns: minmax(0, 1.6fr) minmax(20rem, 1fr);
     align-items: start;
   }
 
-  .dashboard__columns .progress-row {
+  /* The side column is narrower, so progress and class stats stack instead of
+     competing for horizontal room. */
+  .dashboard__col--side .progress-row {
     grid-template-columns: minmax(0, 1fr);
     gap: var(--space-3);
+  }
+
+  .dashboard__col--side .class-card__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    border-block-start: 0;
+    margin-block-start: var(--space-2);
+  }
+
+  .dashboard__col--side .class-card__stats div {
+    padding: 0;
   }
 }
 

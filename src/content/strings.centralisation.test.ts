@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { ar, assistant, brand } from './strings'
+import { ar, assistant, brand, en } from './strings'
 
 /**
  * Stage 6 guard: UI copy lives in this central file, not in components/routes.
@@ -33,6 +33,21 @@ describe('centralised UI strings', () => {
       .filter((path) => ARABIC.test(readFileSync(path, 'utf8')))
 
     expect(offenders).toEqual([])
+  })
+
+  it('labels the parent role apart from every section heading', () => {
+    // Regression: the parent frame rendered the same string as the eyebrow and
+    // the H1, duplicating the heading on every parent section.
+    for (const copy of [ar.parent, en.parent]) {
+      const headings = [
+        copy.progress.heading,
+        copy.tests.heading,
+        copy.results.heading,
+        copy.messages.heading,
+      ]
+      expect(copy.badge.length).toBeGreaterThan(0)
+      expect(headings).not.toContain(copy.badge)
+    }
   })
 
   it('builds every named mention from the two working-name swap points', () => {

@@ -362,10 +362,13 @@ function ParentFrame({
   childName?: string
   children: React.ReactNode
 }) {
+  const strings = useStrings()
   return (
     <div className="dashboard parent-view">
       <header className="dashboard__hero">
-        <p className="app-shell__badge">{heading}</p>
+        {/* Eyebrow names the role; the section heading is the H1. The two used
+            to render the same string, duplicating the heading on every section. */}
+        <p className="app-shell__badge">{strings.parent.badge}</p>
         <h1>{heading}</h1>
         {lead ? <p className="dashboard__lead">{lead}</p> : null}
         {childName ? <p className="dashboard__greeting">{childName}</p> : null}

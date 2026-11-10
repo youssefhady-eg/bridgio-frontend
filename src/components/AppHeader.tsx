@@ -1,6 +1,7 @@
 import { useRouterState } from '@tanstack/react-router'
 import { AppIcon } from '~/components/AppIcon'
 import { hrefWithLang } from '~/shell/lang'
+import type { Theme } from '~/shell/theme-state'
 import { useLang, useStrings } from '~/shell/useStrings'
 
 /**
@@ -22,9 +23,16 @@ import { useLang, useStrings } from '~/shell/useStrings'
 interface AppHeaderProps {
   onOpenSidebar: () => void
   onOpenChat: () => void
+  theme: Theme
+  onToggleTheme: () => void
 }
 
-export function AppHeader({ onOpenSidebar, onOpenChat }: AppHeaderProps) {
+export function AppHeader({
+  onOpenSidebar,
+  onOpenChat,
+  theme,
+  onToggleTheme,
+}: AppHeaderProps) {
   const { pathname, href } = useRouterState({ select: (state) => state.location })
   const searchStr = href.slice(pathname.length).split('#')[0] ?? ''
   const lang = useLang()
@@ -99,6 +107,24 @@ export function AppHeader({ onOpenSidebar, onOpenChat }: AppHeaderProps) {
                 : strings.header.langGlyphArabic}
             </span>
           </a>
+
+          <button
+            type="button"
+            className="app-utility__button app-utility__button--theme"
+            onClick={onToggleTheme}
+            aria-label={`${strings.header.themeLabel}: ${
+              theme === 'dark'
+                ? strings.header.themeToLight
+                : strings.header.themeToDark
+            }`}
+            title={
+              theme === 'dark'
+                ? strings.header.themeToLight
+                : strings.header.themeToDark
+            }
+          >
+            <AppIcon name={theme === 'dark' ? 'sun' : 'moon'} size={18} />
+          </button>
 
           <button
             type="button"

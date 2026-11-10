@@ -92,6 +92,9 @@ export const ar = {
     assistantOpenLabel: 'افتح المحادثات',
     accountLabel: 'الحساب',
     accountNote: 'تسجيل الدخول والأدوار مسؤولية Mentingo، ولم تُوصَل بعد.',
+    themeLabel: 'المظهر',
+    themeToDark: 'المظهر الداكن',
+    themeToLight: 'المظهر الفاتح',
   },
   /**
    * Preview-role diagnostic (`?as`) — UI state only, never auth. Moved out of
@@ -182,6 +185,25 @@ export const ar = {
     headTitle: `لوحة المعلم — ${B}`,
     badge: 'لوحة المعلم',
     title: 'وفّر وقت المتابعة',
+    quickActions: {
+      heading: 'إجراءات سريعة',
+      createTest: 'أنشئ اختبارًا',
+      createTestBody: 'افتح منشئ الاختبار وابدأ اختبارًا جديدًا.',
+      viewTests: 'اعرض الاختبارات',
+      viewTestsBody: 'راجع اختباراتك من صفحة الاختبارات.',
+    },
+    activity: {
+      heading: 'آخر النشاط',
+      lead: 'أحدث الاختبارات التي عملت عليها، الأحدث أولًا.',
+      emptyTitle: 'لا نشاط بعد',
+      emptyBody: 'سيظهر هنا آخر ما عملت عليه من اختبارات.',
+    },
+    attention: {
+      heading: 'اختبارات تحتاج انتباهك',
+      lead: 'المسودات غير المنشورة أولًا، حتى لا يبقى اختبار ناقص.',
+      emptyTitle: 'لا اختبارات معلّقة',
+      emptyBody: 'كل اختباراتك منشورة، ولا شيء يحتاج انتباهك الآن.',
+    },
     lead:
       'صفوفك وآخر اختباراتك وتقدّم طلابك في شاشة واحدة، حتى تصل إلى ما يحتاج متابعة دون التنقّل بين الصفحات.',
     greeting: (name: string) => `أهلًا، ${name}.`,
@@ -496,6 +518,7 @@ export const ar = {
    */
   parent: {
     headTitle: `ولي الأمر — ${B}`,
+    badge: 'وليّ الأمر',
     loading: 'جارٍ تحميل بيانات الابن...',
     loadErrorTitle: 'تعذّر تحميل البيانات.',
     loadErrorBody: 'من جهتنا، لا من جهتك. أعد المحاولة بعد قليل.',
@@ -678,6 +701,9 @@ export const en: Strings = {
     assistantOpenLabel: 'Open messages',
     accountLabel: 'Account',
     accountNote: 'Sign-in and roles are owned by Mentingo and are not connected yet.',
+    themeLabel: 'Theme',
+    themeToDark: 'Dark theme',
+    themeToLight: 'Light theme',
   },
   preview: {
     groupAria: 'Preview role — UI state only, no sign-in.',
@@ -748,6 +774,25 @@ export const en: Strings = {
     headTitle: `Teacher dashboard — ${B}`,
     badge: 'Teacher dashboard',
     title: 'Spend less time chasing updates',
+    quickActions: {
+      heading: 'Quick actions',
+      createTest: 'Create a test',
+      createTestBody: 'Open the test builder and start a new test.',
+      viewTests: 'View tests',
+      viewTestsBody: 'Review your tests from the tests screen.',
+    },
+    activity: {
+      heading: 'Recent activity',
+      lead: 'The tests you worked on most recently, newest first.',
+      emptyTitle: 'No activity yet',
+      emptyBody: 'Your latest test work will appear here.',
+    },
+    attention: {
+      heading: 'Tests needing attention',
+      lead: 'Unpublished drafts come first, so no test is left incomplete.',
+      emptyTitle: 'Nothing pending',
+      emptyBody: 'Every test is published and nothing needs your attention right now.',
+    },
     lead: 'Your classes, recent tests and student progress on one screen, so you reach what needs attention without hopping between pages.',
     greeting: (name: string) => `Welcome, ${name}.`,
     totals: {
@@ -1051,6 +1096,7 @@ export const en: Strings = {
   },
   parent: {
     headTitle: `Parents — ${B}`,
+    badge: 'Parent',
     loading: 'Loading the child data...',
     loadErrorTitle: 'We could not load the data.',
     loadErrorBody: 'It is on our side, not yours. Try again shortly.',

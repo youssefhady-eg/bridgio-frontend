@@ -20,9 +20,15 @@
   --tint-cream-deep: color-mix(in srgb, var(--bridgio-maroon) 5%, var(--bridgio-cream));
   --outline-card: 1.5px;
   --card-border: rgba(44, 7, 6, 0.85);
-  --radius-panel: 20px;
+  --radius-panel: var(--radius-card);
   --content-max: 72rem;
-  --header-h: 72px;
+  /* Header minimum for the inner bar (phone/tablet sizing). */
+  --header-min: 72px;
+  /* Full header height at >= 1024 px (box-sizing: border-box). The locked
+     200 px lockup is 88.6 px tall at its fixed 3078:1364 aspect, plus its
+     vertical padding and the bottom hairline. The sticky sidebar offset uses
+     this so its foot meets the fold with the collapse toggle visible. */
+  --header-h: 98px;
 }
 
 body {
@@ -41,7 +47,7 @@ body {
 
 .app-header__inner {
   max-width: none;
-  min-height: var(--header-h);
+  min-height: var(--header-min);
   padding: var(--space-2) var(--space-4);
   gap: var(--space-2);
 }
@@ -72,13 +78,11 @@ body {
 }
 
 @media (min-width: 1024px) {
-  /* Lockup keeps its LOCKED 200 px minimum; the bar just loses dead space. */
+  /* Lockup keeps its LOCKED 200 px minimum and its full height. The previous
+     margin-block: -6px pulled it 2 px above the viewport top, clipping the top
+     of the logo; the bar now sizes to the lockup instead of bleeding it. */
   .app-header__inner {
     padding-block: var(--space-1);
-  }
-
-  .app-header__lockup {
-    margin-block: -6px;
   }
 }
 
@@ -99,7 +103,7 @@ body {
 
 .app-sidebar__link {
   position: relative;
-  border-radius: 14px;
+  border-radius: 12px;
   padding-inline: var(--space-3) var(--space-4);
   color: var(--text-secondary);
   transition: background-color 0.15s ease, color 0.15s ease;
@@ -119,7 +123,7 @@ body {
   height: 32px;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
+  border-radius: 12px;
 }
 
 .app-sidebar__link.is-active {
@@ -145,7 +149,7 @@ body {
 .app-sidebar__note {
   margin: var(--space-4) var(--space-1) 0;
   padding: var(--space-3);
-  border-radius: 14px;
+  border-radius: 12px;
   background: var(--bridgio-cream);
   line-height: 1.5;
 }
@@ -155,8 +159,18 @@ body {
     grid-template-columns: 16rem minmax(0, 1fr);
   }
 
+  /* Collapsed rail — must stay after the 16rem rule above to win at equal
+     specificity (this was the live collapse bug). */
   .app-body--collapsed {
     grid-template-columns: 5rem minmax(0, 1fr);
+  }
+
+  /* The sidebar starts below the 72 px header, so a sticky top:0 + height:100dvh
+     pushed the foot (and its collapse toggle) 72 px below the fold. Pin it under
+     the header instead, so the toggle is visible without scrolling. */
+  .app-sidebar {
+    top: var(--header-h);
+    height: calc(100dvh - var(--header-h));
   }
 
   .app-sidebar__foot {
@@ -165,7 +179,7 @@ body {
 
   .app-sidebar__toggle {
     border-color: transparent;
-    border-radius: 14px;
+    border-radius: 12px;
     color: var(--text-muted);
   }
 
@@ -191,7 +205,7 @@ body {
   margin: var(--space-4) var(--space-4) 0;
   padding: var(--space-3) var(--space-4);
   border: var(--outline-hairline) dashed var(--border-strong);
-  border-radius: 14px;
+  border-radius: 12px;
   background: transparent;
   line-height: 1.5;
 }
@@ -340,7 +354,7 @@ h1 {
   margin-block-start: var(--space-4);
   padding: var(--space-3) var(--space-4);
   border-top: 0;
-  border-radius: 14px;
+  border-radius: 12px;
   background: var(--bridgio-cream);
 }
 
@@ -437,7 +451,7 @@ h1 {
 .textarea,
 .chat-surface__input,
 select.input {
-  border-radius: 14px;
+  border-radius: 12px;
   background: var(--bridgio-paper);
   transition: border-color 0.15s ease;
 }
@@ -451,7 +465,7 @@ select.input {
 /* Selectable cards (builder sources, player answers). */
 .choice-card,
 .player-option {
-  border-radius: 16px;
+  border-radius: 12px;
   background: var(--bridgio-paper);
 }
 
@@ -491,7 +505,7 @@ select.input {
 
 @media (max-width: 767.98px) {
   .builder-steps {
-    border-radius: 20px;
+    border-radius: var(--radius-card);
   }
 }
 
@@ -499,7 +513,7 @@ select.input {
 
 .grounding,
 .source-banner {
-  border-radius: 14px;
+  border-radius: 12px;
   background: var(--tint-info);
   border-color: color-mix(in srgb, var(--bridgio-info) 35%, transparent);
 }
@@ -538,7 +552,7 @@ select.input {
 }
 
 .chat-thread.is-active {
-  border-radius: 14px;
+  border-radius: 12px;
 }
 
 /* ---- Phone: never overflow horizontally ---------------------------------- */
@@ -564,4 +578,29 @@ body {
   .dashboard__totals {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+
+/* ---- Dark theme refinements ---------------------------------------------- */
+
+/*
+ * Same class names and locked roles as light. Only the derived card rim and
+ * the two controls whose default assumes a light surface need dark rules.
+ */
+:root[data-theme='dark'] {
+  /* A maroon rim disappears on the maroon base, so the card edge flips to a
+     translucent cream hairline (fill and radius are unchanged). */
+  --card-border: rgba(249, 236, 217, 0.3);
+}
+
+/* The active sidebar pill is cream in dark, so its icon chip must darken, not
+   lighten (the light rule lays cream over cream). */
+:root[data-theme='dark'] .app-sidebar__link.is-active .app-sidebar__icon {
+  background: rgba(44, 7, 6, 0.12);
+}
+
+/* Warning is a bright amber fill; its chip keeps dark maroon text and rim in
+   both themes (cream text on amber would fail contrast). */
+:root[data-theme='dark'] .status-chip--warning {
+  border-color: #2c0706;
+  color: #2c0706;
 }
