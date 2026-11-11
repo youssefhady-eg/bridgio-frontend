@@ -2,8 +2,8 @@ import { useQuery } from '@tanstack/react-query'
 import { Link, useRouterState } from '@tanstack/react-router'
 import { capabilitiesQueryOptions, sessionQueryOptions } from '~/api/queries'
 import { AppIcon, navIconName } from '~/components/AppIcon'
-import { useRef } from 'react'
-import { navFor } from '~/shell/nav'
+import { useEffect, useRef, useState } from 'react'
+import { assistantCapabilityOrder, navFor } from '~/shell/nav'
 import { useFocusScope } from '~/shell/useFocusScope'
 import { usePreviewRole } from '~/shell/usePreviewRole'
 import { useLang, useStrings } from '~/shell/useStrings'
@@ -38,7 +38,20 @@ export function AppSidebar({
   const role = usePreviewRole()
   const lang = useLang()
   const strings = useStrings()
-  const { pathname } = useRouterState({ select: (state) => state.location })
+  const { pathname } = useRouterState({
+    select: (state) => state.location,
+  })
+
+  // The fragment never reaches the server, so the assistant anchor is read once
+  // after mount: the server render and the first client render stay identical
+  // (same expanded + same active item) and the anchor only then takes effect.
+  const [anchor, setAnchor] = useState('')
+  useEffect(() => {
+    const readAnchor = () => setAnchor(window.location.hash.replace(/^#/, ''))
+    readAnchor()
+    window.addEventListener('hashchange', readAnchor)
+    return () => window.removeEventListener('hashchange', readAnchor)
+  }, [])
 
   // Only the assistant needs capabilities; the query stays disabled otherwise.
   const sessionQuery = useQuery({ ...sessionQueryOptions(), enabled: role === 'assistant' })
@@ -55,6 +68,36 @@ export function AppSidebar({
       : navFor(role)
 
   const showAssistantNote = role === 'assistant' && items.length === 0
+
+  // The assistant has a single granted-sections screen, so its items are
+  // distinguished by the in-page anchor. With no anchor yet in the URL, the
+  // first granted section is the one in view.
+  const assistantHash =
+    anchor.length > 0
+      ? anchor
+      : (assistantCapabilityOrder.find((capability) =>
+          items.some((item) => item.hash === capability),
+        ) ?? '')
+
+  function isActive(item: (typeof items)[number]): boolean {
+    // A child screen keeps its section highlighted: `/teacher/classes/x` is
+    // still the classes area, so the sidebar never goes blank on a detail page.
+    const inSection =
+      pathname === item.to || pathname.startsWith(`${item.to}/`)
+    if (!inSection) return false
+    if (!item.hash) return true
+    return item.hash === assistantHash
+  }
+
+  const utilityLinks = [
+    { id: 'help', to: '/help', label: strings.sidebar.helpLabel, icon: 'lessons' },
+    {
+      id: 'profile',
+      to: '/profile',
+      label: strings.sidebar.profileLabel,
+      icon: 'user',
+    },
+  ] as const
 
   // Below 1024px the sidebar is a drawer: while it is open keep focus inside,
   // close on Escape, and return focus to the menu button. On desktop it is never
@@ -83,11 +126,12 @@ export function AppSidebar({
       <nav className="app-sidebar__nav" aria-label={strings.sidebar.navLabel}>
         <ul className="app-sidebar__list">
           {items.map((item) => {
-            const active = pathname === item.to
+            const active = isActive(item)
             return (
-              <li key={item.id}>
+              <li key={`${item.id}:${item.hash ?? ''}`}>
                 <Link
                   to={item.to}
+                  hash={item.hash}
                   search={{ as: role, lang }}
                   className={`app-sidebar__link${active ? ' is-active' : ''}`}
                   title={collapsed ? strings.nav[item.id] : undefined}
@@ -109,6 +153,31 @@ export function AppSidebar({
         {showAssistantNote ? (
           <p className="app-sidebar__note">{strings.sidebar.assistantNote}</p>
         ) : null}
+
+        {/* Pinned utilities: the same two screens for every role. */}
+        <ul className="utility-links" aria-label={strings.sidebar.utilitiesLabel}>
+          {utilityLinks.map((link) => {
+            const active = pathname === link.to
+            return (
+              <li key={link.id}>
+                <Link
+                  to={link.to}
+                  search={{ as: role, lang }}
+                  className={`utility-links__link${active ? ' is-active' : ''}`}
+                  title={collapsed ? link.label : undefined}
+                  aria-current={active ? 'page' : undefined}
+                  preload={false}
+                  onClick={onClose}
+                >
+                  <span className="utility-links__icon" aria-hidden="true">
+                    <AppIcon name={link.icon} size={20} />
+                  </span>
+                  <span className="app-sidebar__label">{link.label}</span>
+                </Link>
+              </li>
+            )
+          })}
+        </ul>
       </nav>
 
       {/* Desktop only (hidden on the phone drawer): fold to an icon rail. */}

@@ -1,7 +1,9 @@
 import type { AttemptSummary, TestSummary } from '~/api/types'
+import { Link } from '@tanstack/react-router'
 import { EmptyNote } from '~/components/dashboard/EmptyNote'
 import { StatusChip } from '~/components/dashboard/StatusChip'
 import { formatCount } from '~/components/dashboard/format'
+import { usePreviewRole } from '~/shell/usePreviewRole'
 import { useLang, useStrings } from '~/shell/useStrings'
 import { attemptForTest, attemptStateFor } from './player'
 
@@ -9,8 +11,9 @@ import { attemptForTest, attemptStateFor } from './player'
  * Stage 4 — published tests for the student's classes.
  *
  * Status per row comes from the student's own attempts (adapter data): new,
- * in progress or already submitted. A submitted test offers no action — the
- * stage records attempts only and has no marking screen.
+ * in progress or already submitted. A submitted test offers the review screen;
+ * the stage records attempts only and has no marking screen, so the review
+ * shows the student's own choices without saying right or wrong.
  */
 export function TestList({
   tests,
@@ -26,7 +29,9 @@ export function TestList({
   onOpen: (testId: string) => void
 }) {
   const strings = useStrings().player.list
+  const resultsLabel = useStrings().results.badge
   const lang = useLang()
+  const role = usePreviewRole()
   if (tests.length === 0) {
     return (
       <EmptyNote
@@ -80,7 +85,18 @@ export function TestList({
 
               <div className="player-test__actions">
                 {state === 'submitted' ? (
-                  <p className="screen-meta">{strings.submittedNote}</p>
+                  <>
+                    <p className="screen-meta">{strings.submittedNote}</p>
+                    <Link
+                      to="/student/tests/$testId/results"
+                      params={{ testId: test.id }}
+                      search={{ as: role, lang }}
+                      className="button button--secondary button--small"
+                      preload={false}
+                    >
+                      {resultsLabel}
+                    </Link>
+                  </>
                 ) : (
                   <button
                     type="button"

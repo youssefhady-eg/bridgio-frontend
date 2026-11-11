@@ -42,6 +42,12 @@ export interface NavRoute {
   id: NavScreenId
   /** Placeholder or real route opened by this nav item. */
   to: string
+  /**
+   * Optional in-page anchor. The Teacher Assistant has one granted-sections
+   * screen, so each granted capability points at a named section of it rather
+   * than at its own route; the sidebar uses this to mark the active item.
+   */
+  hash?: string
 }
 
 export const teacherNav: readonly NavRoute[] = [
@@ -65,9 +71,10 @@ export const parentNav: readonly NavRoute[] = [
 ] as const
 
 /**
- * Teacher Assistant capabilities → the matching teacher route. The assistant
- * has no menu of its own: the sidebar renders exactly the granted subset, in
- * this fixed order. A capability the backend did not grant is simply absent.
+ * Teacher Assistant capabilities. The assistant has no menu of its own and no
+ * separate screens: every granted capability points at the single
+ * `/assistant` grants screen, anchored to the section for that capability. A
+ * capability the backend did not grant is simply absent.
  */
 export const assistantCapabilityOrder: readonly NavCapability[] = [
   'dashboard',
@@ -76,11 +83,14 @@ export const assistantCapabilityOrder: readonly NavCapability[] = [
   'students',
 ] as const
 
+/** The one screen that shows the granted sections. */
+export const assistantRoute = '/assistant'
+
 export const assistantCapabilityRoutes: Record<NavCapability, NavRoute> = {
-  dashboard: teacherNav[0]!,
-  classes: teacherNav[1]!,
-  tests: teacherNav[2]!,
-  students: teacherNav[3]!,
+  dashboard: { ...teacherNav[0]!, to: assistantRoute, hash: 'dashboard' },
+  classes: { ...teacherNav[1]!, to: assistantRoute, hash: 'classes' },
+  tests: { ...teacherNav[2]!, to: assistantRoute, hash: 'tests' },
+  students: { ...teacherNav[3]!, to: assistantRoute, hash: 'students' },
 }
 
 /**
@@ -116,9 +126,9 @@ export function navFor(
 
 /**
  * Role implied by the route area when no `?as` is given: `/student/*` is the
- * student area and `/parent/*` the parent area; everything else keeps the
- * teacher default. This stops a student screen showing the teacher nav just
- * because the preview param is absent.
+ * student area, `/parent/*` the parent area and `/assistant` the assistant
+ * area; everything else keeps the teacher default. This stops a student screen
+ * showing the teacher nav just because the preview param is absent.
  */
 export function defaultRoleForPath(pathname: string): AppRole {
   if (pathname === '/student' || pathname.startsWith('/student/')) {
@@ -126,6 +136,9 @@ export function defaultRoleForPath(pathname: string): AppRole {
   }
   if (pathname === '/parent' || pathname.startsWith('/parent/')) {
     return 'parent'
+  }
+  if (pathname === assistantRoute) {
+    return 'assistant'
   }
   return 'teacher'
 }

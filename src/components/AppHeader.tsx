@@ -1,6 +1,7 @@
-import { useRouterState } from '@tanstack/react-router'
+import { Link, useRouterState } from '@tanstack/react-router'
 import { AppIcon } from '~/components/AppIcon'
 import { hrefWithLang } from '~/shell/lang'
+import { usePreviewRole } from '~/shell/usePreviewRole'
 import type { Theme } from '~/shell/theme-state'
 import { useLang, useStrings } from '~/shell/useStrings'
 
@@ -36,6 +37,7 @@ export function AppHeader({
   const { pathname, href } = useRouterState({ select: (state) => state.location })
   const searchStr = href.slice(pathname.length).split('#')[0] ?? ''
   const lang = useLang()
+  const role = usePreviewRole()
   const strings = useStrings()
   const nextLang = lang === 'en' ? 'ar' : 'en'
 
@@ -138,18 +140,19 @@ export function AppHeader({
             </span>
           </button>
 
-          <button
-            type="button"
+          <Link
+            to="/profile"
+            search={{ as: role, lang }}
             className="app-utility__button app-utility__button--account"
-            disabled
             aria-label={strings.header.accountLabel}
             title={strings.header.accountNote}
+            preload={false}
           >
             <AppIcon name="user" size={18} />
             <span className="app-utility__label">
               {strings.header.accountLabel}
             </span>
-          </button>
+          </Link>
         </div>
       </div>
     </header>

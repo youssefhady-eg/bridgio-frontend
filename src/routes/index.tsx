@@ -22,6 +22,12 @@ export const Route = createFileRoute('/')({
         search: { as: 'parent', lang: search.lang },
       })
     }
+    if (search.as === 'assistant') {
+      throw redirect({
+        to: '/assistant',
+        search: { as: 'assistant', lang: search.lang },
+      })
+    }
   },
   component: ShellHome,
 })
