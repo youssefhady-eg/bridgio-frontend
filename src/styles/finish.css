@@ -52,6 +52,35 @@
   }
 }
 
+/* ---- Class detail roster: stacked rows inside the narrow side column ----- */
+
+/*
+ * `.progress-row` is a two-track grid (name | progress) sized for the wide
+ * dashboard column. The class roster lives in the narrow side column, where the
+ * second track collapses: the percentage runs past the panel edge (the panel
+ * clips it) and the last-active line wraps one character per line. Inside the
+ * two-column detail layout the roster therefore stacks its name above its own
+ * full-width progress block, so nothing is clipped and no type size changes.
+ * Below 1024px the roster is full width and keeps the standard row.
+ */
+@media (min-width: 1024px) {
+  .roster-list .progress-row {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-2);
+  }
+}
+
+.roster-list .progress-row__who,
+.roster-list .progress-row__detail {
+  min-width: 0;
+}
+
+.roster-list .progress-row__labels {
+  flex-wrap: wrap;
+  row-gap: var(--space-1);
+}
+
 /* ---- Sidebar utility links (Help / Profile), pinned under the main nav --- */
 
 .utility-links {

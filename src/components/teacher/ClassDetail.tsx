@@ -243,7 +243,7 @@ export function ClassDetail({ classId }: { classId: string }) {
               />
             ) : (
               <div className="panel">
-                <ul className="progress-list">
+                <ul className="progress-list roster-list">
                   {roster.map((entry) => (
                     <li className="progress-row" key={entry.student.id}>
                       <div className="progress-row__who">
