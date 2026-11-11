@@ -1,0 +1,243 @@
+/*
+ * BRIDGIO — frontend-finish layer.
+ *
+ * Loaded after polish.css. It adds only the layout the remaining screens need
+ * and reuses the existing component classes (.panel, .class-grid, .test-list,
+ * .progress-list, .parent-unit-list, .summary-list, .question-card,
+ * .status-chip, .empty-note, .button, .field) wherever they already fit.
+ *
+ * Rules kept from the token sheet: solid sticker surfaces (no blurred
+ * shadows), logical properties only so RTL mirrors without a hack, status is
+ * always icon + word, and no new colour is introduced — every value below is a
+ * locked token or a derived tint defined in polish.css.
+ */
+
+/* ---- Back link above a detail-page title --------------------------------- */
+
+.page-back {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  margin-block-end: var(--space-2);
+  color: var(--bridgio-maroon);
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
+  font-size: var(--font-body-small-size);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.page-back:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+
+/* ---- Two-column detail layout (main reading column + side column) -------- */
+
+.finish-grid {
+  display: grid;
+  gap: var(--space-6);
+  align-items: start;
+  min-width: 0;
+}
+
+.finish-grid__main,
+.finish-grid__side {
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .finish-grid {
+    grid-template-columns: minmax(0, 1.7fr) minmax(18rem, 1fr);
+  }
+}
+
+/* ---- Sidebar utility links (Help / Profile), pinned under the main nav --- */
+
+.utility-links {
+  margin: var(--space-4) 0 0;
+  padding: var(--space-4) var(--space-3) 0;
+  border-block-start: var(--outline-hairline) solid var(--card-border);
+  list-style: none;
+  display: grid;
+  gap: 2px;
+}
+
+.utility-links__link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--touch-target);
+  padding-inline: var(--space-3) var(--space-4);
+  border-radius: 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.utility-links__link:hover {
+  background: var(--tint-cream-deep);
+  color: var(--text-primary);
+}
+
+.utility-links__link.is-active {
+  background: var(--tint-cream-deep);
+  color: var(--bridgio-maroon);
+}
+
+.utility-links__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex: none;
+}
+
+@media (min-width: 1024px) {
+  .app-sidebar.is-collapsed .utility-links {
+    padding-inline: var(--space-3);
+  }
+
+  .app-sidebar.is-collapsed .utility-links__link {
+    justify-content: center;
+    padding-inline: 0;
+  }
+}
+
+/* ---- Teacher Assistant: granted sections --------------------------------- */
+
+.capability-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.capability-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--bridgio-paper);
+  border: var(--outline-card) solid var(--card-border);
+  border-radius: var(--radius-card);
+}
+
+.capability-item__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  flex: none;
+  border-radius: 12px;
+  background: var(--tint-red);
+  color: var(--bridgio-maroon);
+}
+
+.capability-item__text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.capability-item__text strong {
+  font-size: var(--font-label-size);
+}
+
+/* ---- Sign-in (informational only; no invented auth) ---------------------- */
+
+.signin-form {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 28rem;
+}
+
+.signin-form__submit {
+  justify-self: start;
+}
+
+/* ---- Student result review ---------------------------------------------- */
+
+.result-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-4);
+}
+
+.result-question {
+  padding: var(--space-6);
+  background: var(--bridgio-paper);
+  border: var(--outline-card) solid var(--card-border);
+  border-radius: var(--radius-card);
+}
+
+.result-question__number {
+  margin: 0;
+  color: var(--text-muted);
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
+  font-size: var(--font-caption-size);
+  font-weight: 700;
+}
+
+.result-question h3 {
+  margin-block: var(--space-2) 0;
+}
+
+.result-question__options {
+  list-style: none;
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.result-question__option {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: var(--outline-card) solid var(--card-border);
+  border-radius: 12px;
+  background: var(--bridgio-paper);
+}
+
+.result-question__option.is-chosen {
+  background: var(--tint-cream-deep);
+  border-color: var(--bridgio-maroon);
+}
+
+.result-question__chosen-note {
+  margin: var(--space-3) 0 0;
+  font-size: var(--font-body-small-size);
+  font-weight: 600;
+}
+
+/* ---- Small helpers ------------------------------------------------------- */
+
+/* A single meta line under a title that is not inside .progress-row. */
+.finish-note {
+  margin: var(--space-2) 0 0;
+  color: var(--text-secondary);
+  font-size: var(--font-body-small-size);
+}
+
+/* Row that pairs a label with an inline status chip. */
+.finish-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.finish-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-block-start: var(--space-4);
+}

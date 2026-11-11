@@ -25,6 +25,7 @@ import { isDemoData, showDevChrome } from '~/shell/dev-chrome'
 import { useSidebarCollapsed } from '~/shell/useSidebarCollapsed'
 import { usePreviewRole } from '~/shell/usePreviewRole'
 import appCss from '~/styles/app.css?url'
+import finishCss from '~/styles/finish.css?url'
 import fontsCss from '~/styles/fonts.css?url'
 import polishCss from '~/styles/polish.css?url'
 import tokensCss from '~/styles/tokens.css?url'
@@ -88,6 +89,7 @@ export const Route = createRootRouteWithContext<{
         { rel: 'stylesheet', href: tokensCss },
         { rel: 'stylesheet', href: appCss },
         { rel: 'stylesheet', href: polishCss },
+        { rel: 'stylesheet', href: finishCss },
       ],
     }
   },

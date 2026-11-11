@@ -20,17 +20,21 @@ function draftFrom(question: Question): QuestionDraft {
 }
 
 /**
- * One editable/deletable question card. Editing is local UI state; saving and
- * deleting go through the adapter callbacks supplied by the review step.
+ * One question card. When `readOnly` is set (a published test) the static view
+ * is shown with no edit or delete actions, because the backend refuses to edit a
+ * published test. Otherwise editing is local UI state and saving/deleting go
+ * through the adapter callbacks supplied by the review step.
  */
 export function QuestionCard({
   question,
   onSave,
   onDelete,
+  readOnly = false,
 }: {
   question: Question
-  onSave: (draft: QuestionDraft) => Promise<boolean>
-  onDelete: () => Promise<boolean>
+  onSave?: (draft: QuestionDraft) => Promise<boolean>
+  onDelete?: () => Promise<boolean>
+  readOnly?: boolean
 }) {
   const builder = useStrings().builder
   const strings = builder.review
@@ -60,6 +64,7 @@ export function QuestionCard({
   }
 
   async function save() {
+    if (!onSave) return
     const nextIssue = questionDraftIssue(draft)
     setIssue(nextIssue)
     if (nextIssue) return
@@ -75,6 +80,7 @@ export function QuestionCard({
   }
 
   async function remove() {
+    if (!onDelete) return
     setDeleting(true)
     const deleted = await onDelete()
     setDeleting(false)
@@ -110,7 +116,7 @@ export function QuestionCard({
             }
           />
         </div>
-        {!editing ? (
+        {!readOnly && !editing ? (
           <div className="question-card__actions">
             <button
               type="button"

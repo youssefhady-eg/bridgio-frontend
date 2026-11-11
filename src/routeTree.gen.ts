@@ -10,6 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AssistantRouteImport } from './routes/assistant'
+import { Route as HelpRouteImport } from './routes/help'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as ParentMessagesRouteImport } from './routes/parent.messages'
 import { Route as ParentProgressRouteImport } from './routes/parent.progress'
 import { Route as ParentResultsRouteImport } from './routes/parent.results'
@@ -21,10 +25,38 @@ import { Route as TeacherClassesRouteImport } from './routes/teacher.classes'
 import { Route as TeacherDashboardRouteImport } from './routes/teacher.dashboard'
 import { Route as TeacherStudentsRouteImport } from './routes/teacher.students'
 import { Route as TeacherTestsRouteImport } from './routes/teacher.tests'
+import { Route as StudentTestsIndexRouteImport } from './routes/student.tests.index'
+import { Route as TeacherClassesIndexRouteImport } from './routes/teacher.classes.index'
+import { Route as TeacherClassesClassIdRouteImport } from './routes/teacher.classes.$classId'
+import { Route as TeacherStudentsIndexRouteImport } from './routes/teacher.students.index'
+import { Route as TeacherStudentsStudentIdRouteImport } from './routes/teacher.students.$studentId'
+import { Route as TeacherTestsIndexRouteImport } from './routes/teacher.tests.index'
+import { Route as TeacherTestsTestIdRouteImport } from './routes/teacher.tests.$testId'
+import { Route as StudentTestsTestIdResultsRouteImport } from './routes/student.tests.$testId.results'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AssistantRoute = AssistantRouteImport.update({
+  id: '/assistant',
+  path: '/assistant',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignInRoute = SignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ParentMessagesRoute = ParentMessagesRouteImport.update({
@@ -82,54 +114,132 @@ const TeacherTestsRoute = TeacherTestsRouteImport.update({
   path: '/teacher/tests',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StudentTestsIndexRoute = StudentTestsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StudentTestsRoute,
+} as any)
+const TeacherClassesIndexRoute = TeacherClassesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => TeacherClassesRoute,
+} as any)
+const TeacherClassesClassIdRoute = TeacherClassesClassIdRouteImport.update({
+  id: '/$classId',
+  path: '/$classId',
+  getParentRoute: () => TeacherClassesRoute,
+} as any)
+const TeacherStudentsIndexRoute = TeacherStudentsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => TeacherStudentsRoute,
+} as any)
+const TeacherStudentsStudentIdRoute =
+  TeacherStudentsStudentIdRouteImport.update({
+    id: '/$studentId',
+    path: '/$studentId',
+    getParentRoute: () => TeacherStudentsRoute,
+  } as any)
+const TeacherTestsIndexRoute = TeacherTestsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => TeacherTestsRoute,
+} as any)
+const TeacherTestsTestIdRoute = TeacherTestsTestIdRouteImport.update({
+  id: '/$testId',
+  path: '/$testId',
+  getParentRoute: () => TeacherTestsRoute,
+} as any)
+const StudentTestsTestIdResultsRoute =
+  StudentTestsTestIdResultsRouteImport.update({
+    id: '/$testId/results',
+    path: '/$testId/results',
+    getParentRoute: () => StudentTestsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/assistant': typeof AssistantRoute
+  '/help': typeof HelpRoute
+  '/profile': typeof ProfileRoute
+  '/sign-in': typeof SignInRoute
   '/parent/messages': typeof ParentMessagesRoute
   '/parent/progress': typeof ParentProgressRoute
   '/parent/results': typeof ParentResultsRoute
   '/parent/tests': typeof ParentTestsRoute
   '/student/lessons': typeof StudentLessonsRoute
   '/student/progress': typeof StudentProgressRoute
-  '/student/tests': typeof StudentTestsRoute
-  '/teacher/classes': typeof TeacherClassesRoute
+  '/student/tests': typeof StudentTestsRouteWithChildren
+  '/teacher/classes': typeof TeacherClassesRouteWithChildren
   '/teacher/dashboard': typeof TeacherDashboardRoute
-  '/teacher/students': typeof TeacherStudentsRoute
-  '/teacher/tests': typeof TeacherTestsRoute
+  '/teacher/students': typeof TeacherStudentsRouteWithChildren
+  '/teacher/tests': typeof TeacherTestsRouteWithChildren
+  '/teacher/classes/$classId': typeof TeacherClassesClassIdRoute
+  '/teacher/students/$studentId': typeof TeacherStudentsStudentIdRoute
+  '/teacher/tests/$testId': typeof TeacherTestsTestIdRoute
+  '/student/tests/': typeof StudentTestsIndexRoute
+  '/teacher/classes/': typeof TeacherClassesIndexRoute
+  '/teacher/students/': typeof TeacherStudentsIndexRoute
+  '/teacher/tests/': typeof TeacherTestsIndexRoute
+  '/student/tests/$testId/results': typeof StudentTestsTestIdResultsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/assistant': typeof AssistantRoute
+  '/help': typeof HelpRoute
+  '/profile': typeof ProfileRoute
+  '/sign-in': typeof SignInRoute
   '/parent/messages': typeof ParentMessagesRoute
   '/parent/progress': typeof ParentProgressRoute
   '/parent/results': typeof ParentResultsRoute
   '/parent/tests': typeof ParentTestsRoute
   '/student/lessons': typeof StudentLessonsRoute
   '/student/progress': typeof StudentProgressRoute
-  '/student/tests': typeof StudentTestsRoute
-  '/teacher/classes': typeof TeacherClassesRoute
   '/teacher/dashboard': typeof TeacherDashboardRoute
-  '/teacher/students': typeof TeacherStudentsRoute
-  '/teacher/tests': typeof TeacherTestsRoute
+  '/teacher/classes/$classId': typeof TeacherClassesClassIdRoute
+  '/teacher/students/$studentId': typeof TeacherStudentsStudentIdRoute
+  '/teacher/tests/$testId': typeof TeacherTestsTestIdRoute
+  '/student/tests': typeof StudentTestsIndexRoute
+  '/teacher/classes': typeof TeacherClassesIndexRoute
+  '/teacher/students': typeof TeacherStudentsIndexRoute
+  '/teacher/tests': typeof TeacherTestsIndexRoute
+  '/student/tests/$testId/results': typeof StudentTestsTestIdResultsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/assistant': typeof AssistantRoute
+  '/help': typeof HelpRoute
+  '/profile': typeof ProfileRoute
+  '/sign-in': typeof SignInRoute
   '/parent/messages': typeof ParentMessagesRoute
   '/parent/progress': typeof ParentProgressRoute
   '/parent/results': typeof ParentResultsRoute
   '/parent/tests': typeof ParentTestsRoute
   '/student/lessons': typeof StudentLessonsRoute
   '/student/progress': typeof StudentProgressRoute
-  '/student/tests': typeof StudentTestsRoute
-  '/teacher/classes': typeof TeacherClassesRoute
+  '/student/tests': typeof StudentTestsRouteWithChildren
+  '/teacher/classes': typeof TeacherClassesRouteWithChildren
   '/teacher/dashboard': typeof TeacherDashboardRoute
-  '/teacher/students': typeof TeacherStudentsRoute
-  '/teacher/tests': typeof TeacherTestsRoute
+  '/teacher/students': typeof TeacherStudentsRouteWithChildren
+  '/teacher/tests': typeof TeacherTestsRouteWithChildren
+  '/teacher/classes/$classId': typeof TeacherClassesClassIdRoute
+  '/teacher/students/$studentId': typeof TeacherStudentsStudentIdRoute
+  '/teacher/tests/$testId': typeof TeacherTestsTestIdRoute
+  '/student/tests/': typeof StudentTestsIndexRoute
+  '/teacher/classes/': typeof TeacherClassesIndexRoute
+  '/teacher/students/': typeof TeacherStudentsIndexRoute
+  '/teacher/tests/': typeof TeacherTestsIndexRoute
+  '/student/tests/$testId/results': typeof StudentTestsTestIdResultsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/assistant'
+    | '/help'
+    | '/profile'
+    | '/sign-in'
     | '/parent/messages'
     | '/parent/progress'
     | '/parent/results'
@@ -141,23 +251,43 @@ export interface FileRouteTypes {
     | '/teacher/dashboard'
     | '/teacher/students'
     | '/teacher/tests'
+    | '/teacher/classes/$classId'
+    | '/teacher/students/$studentId'
+    | '/teacher/tests/$testId'
+    | '/student/tests/'
+    | '/teacher/classes/'
+    | '/teacher/students/'
+    | '/teacher/tests/'
+    | '/student/tests/$testId/results'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/assistant'
+    | '/help'
+    | '/profile'
+    | '/sign-in'
     | '/parent/messages'
     | '/parent/progress'
     | '/parent/results'
     | '/parent/tests'
     | '/student/lessons'
     | '/student/progress'
+    | '/teacher/dashboard'
+    | '/teacher/classes/$classId'
+    | '/teacher/students/$studentId'
+    | '/teacher/tests/$testId'
     | '/student/tests'
     | '/teacher/classes'
-    | '/teacher/dashboard'
     | '/teacher/students'
     | '/teacher/tests'
+    | '/student/tests/$testId/results'
   id:
     | '__root__'
     | '/'
+    | '/assistant'
+    | '/help'
+    | '/profile'
+    | '/sign-in'
     | '/parent/messages'
     | '/parent/progress'
     | '/parent/results'
@@ -169,21 +299,33 @@ export interface FileRouteTypes {
     | '/teacher/dashboard'
     | '/teacher/students'
     | '/teacher/tests'
+    | '/teacher/classes/$classId'
+    | '/teacher/students/$studentId'
+    | '/teacher/tests/$testId'
+    | '/student/tests/'
+    | '/teacher/classes/'
+    | '/teacher/students/'
+    | '/teacher/tests/'
+    | '/student/tests/$testId/results'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AssistantRoute: typeof AssistantRoute
+  HelpRoute: typeof HelpRoute
+  ProfileRoute: typeof ProfileRoute
+  SignInRoute: typeof SignInRoute
   ParentMessagesRoute: typeof ParentMessagesRoute
   ParentProgressRoute: typeof ParentProgressRoute
   ParentResultsRoute: typeof ParentResultsRoute
   ParentTestsRoute: typeof ParentTestsRoute
   StudentLessonsRoute: typeof StudentLessonsRoute
   StudentProgressRoute: typeof StudentProgressRoute
-  StudentTestsRoute: typeof StudentTestsRoute
-  TeacherClassesRoute: typeof TeacherClassesRoute
+  StudentTestsRoute: typeof StudentTestsRouteWithChildren
+  TeacherClassesRoute: typeof TeacherClassesRouteWithChildren
   TeacherDashboardRoute: typeof TeacherDashboardRoute
-  TeacherStudentsRoute: typeof TeacherStudentsRoute
-  TeacherTestsRoute: typeof TeacherTestsRoute
+  TeacherStudentsRoute: typeof TeacherStudentsRouteWithChildren
+  TeacherTestsRoute: typeof TeacherTestsRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -193,6 +335,34 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/assistant': {
+      id: '/assistant'
+      path: '/assistant'
+      fullPath: '/assistant'
+      preLoaderRoute: typeof AssistantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-in': {
+      id: '/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof SignInRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/parent/messages': {
@@ -272,22 +442,138 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TeacherTestsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/student/tests/': {
+      id: '/student/tests/'
+      path: '/'
+      fullPath: '/student/tests/'
+      preLoaderRoute: typeof StudentTestsIndexRouteImport
+      parentRoute: typeof StudentTestsRoute
+    }
+    '/teacher/classes/': {
+      id: '/teacher/classes/'
+      path: '/'
+      fullPath: '/teacher/classes/'
+      preLoaderRoute: typeof TeacherClassesIndexRouteImport
+      parentRoute: typeof TeacherClassesRoute
+    }
+    '/teacher/classes/$classId': {
+      id: '/teacher/classes/$classId'
+      path: '/$classId'
+      fullPath: '/teacher/classes/$classId'
+      preLoaderRoute: typeof TeacherClassesClassIdRouteImport
+      parentRoute: typeof TeacherClassesRoute
+    }
+    '/teacher/students/': {
+      id: '/teacher/students/'
+      path: '/'
+      fullPath: '/teacher/students/'
+      preLoaderRoute: typeof TeacherStudentsIndexRouteImport
+      parentRoute: typeof TeacherStudentsRoute
+    }
+    '/teacher/students/$studentId': {
+      id: '/teacher/students/$studentId'
+      path: '/$studentId'
+      fullPath: '/teacher/students/$studentId'
+      preLoaderRoute: typeof TeacherStudentsStudentIdRouteImport
+      parentRoute: typeof TeacherStudentsRoute
+    }
+    '/teacher/tests/': {
+      id: '/teacher/tests/'
+      path: '/'
+      fullPath: '/teacher/tests/'
+      preLoaderRoute: typeof TeacherTestsIndexRouteImport
+      parentRoute: typeof TeacherTestsRoute
+    }
+    '/teacher/tests/$testId': {
+      id: '/teacher/tests/$testId'
+      path: '/$testId'
+      fullPath: '/teacher/tests/$testId'
+      preLoaderRoute: typeof TeacherTestsTestIdRouteImport
+      parentRoute: typeof TeacherTestsRoute
+    }
+    '/student/tests/$testId/results': {
+      id: '/student/tests/$testId/results'
+      path: '/$testId/results'
+      fullPath: '/student/tests/$testId/results'
+      preLoaderRoute: typeof StudentTestsTestIdResultsRouteImport
+      parentRoute: typeof StudentTestsRoute
+    }
   }
 }
 
+interface StudentTestsRouteChildren {
+  StudentTestsIndexRoute: typeof StudentTestsIndexRoute
+  StudentTestsTestIdResultsRoute: typeof StudentTestsTestIdResultsRoute
+}
+
+const StudentTestsRouteChildren: StudentTestsRouteChildren = {
+  StudentTestsIndexRoute: StudentTestsIndexRoute,
+  StudentTestsTestIdResultsRoute: StudentTestsTestIdResultsRoute,
+}
+
+const StudentTestsRouteWithChildren = StudentTestsRoute._addFileChildren(
+  StudentTestsRouteChildren,
+)
+
+interface TeacherClassesRouteChildren {
+  TeacherClassesClassIdRoute: typeof TeacherClassesClassIdRoute
+  TeacherClassesIndexRoute: typeof TeacherClassesIndexRoute
+}
+
+const TeacherClassesRouteChildren: TeacherClassesRouteChildren = {
+  TeacherClassesClassIdRoute: TeacherClassesClassIdRoute,
+  TeacherClassesIndexRoute: TeacherClassesIndexRoute,
+}
+
+const TeacherClassesRouteWithChildren = TeacherClassesRoute._addFileChildren(
+  TeacherClassesRouteChildren,
+)
+
+interface TeacherStudentsRouteChildren {
+  TeacherStudentsStudentIdRoute: typeof TeacherStudentsStudentIdRoute
+  TeacherStudentsIndexRoute: typeof TeacherStudentsIndexRoute
+}
+
+const TeacherStudentsRouteChildren: TeacherStudentsRouteChildren = {
+  TeacherStudentsStudentIdRoute: TeacherStudentsStudentIdRoute,
+  TeacherStudentsIndexRoute: TeacherStudentsIndexRoute,
+}
+
+const TeacherStudentsRouteWithChildren = TeacherStudentsRoute._addFileChildren(
+  TeacherStudentsRouteChildren,
+)
+
+interface TeacherTestsRouteChildren {
+  TeacherTestsTestIdRoute: typeof TeacherTestsTestIdRoute
+  TeacherTestsIndexRoute: typeof TeacherTestsIndexRoute
+}
+
+const TeacherTestsRouteChildren: TeacherTestsRouteChildren = {
+  TeacherTestsTestIdRoute: TeacherTestsTestIdRoute,
+  TeacherTestsIndexRoute: TeacherTestsIndexRoute,
+}
+
+const TeacherTestsRouteWithChildren = TeacherTestsRoute._addFileChildren(
+  TeacherTestsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AssistantRoute: AssistantRoute,
+  HelpRoute: HelpRoute,
+  ProfileRoute: ProfileRoute,
+  SignInRoute: SignInRoute,
   ParentMessagesRoute: ParentMessagesRoute,
   ParentProgressRoute: ParentProgressRoute,
   ParentResultsRoute: ParentResultsRoute,
   ParentTestsRoute: ParentTestsRoute,
   StudentLessonsRoute: StudentLessonsRoute,
   StudentProgressRoute: StudentProgressRoute,
-  StudentTestsRoute: StudentTestsRoute,
-  TeacherClassesRoute: TeacherClassesRoute,
+  StudentTestsRoute: StudentTestsRouteWithChildren,
+  TeacherClassesRoute: TeacherClassesRouteWithChildren,
   TeacherDashboardRoute: TeacherDashboardRoute,
-  TeacherStudentsRoute: TeacherStudentsRoute,
-  TeacherTestsRoute: TeacherTestsRoute,
+  TeacherStudentsRoute: TeacherStudentsRouteWithChildren,
+  TeacherTestsRoute: TeacherTestsRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -432,11 +432,22 @@ function SectionHead({
 function TestRow({ test }: { test: TestSummary }) {
   const strings = useStrings().dashboard
   const lang = useLang()
+  const role = usePreviewRole()
   const published = test.status === 'published'
   return (
     <li className="test-row">
       <div className="test-row__main">
-        <h3>{test.title}</h3>
+        <h3>
+          <Link
+            to="/teacher/tests/$testId"
+            params={{ testId: test.id }}
+            search={{ as: role, lang }}
+            className="screen-link"
+            preload={false}
+          >
+            {test.title}
+          </Link>
+        </h3>
         <p className="row-meta">{test.classroomName}</p>
       </div>
       <div className="test-row__aside">

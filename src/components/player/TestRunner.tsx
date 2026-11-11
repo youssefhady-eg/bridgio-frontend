@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { api } from '~/api'
 import { queryKeys } from '~/api/query-keys'
@@ -11,6 +12,7 @@ import { EmptyNote } from '~/components/dashboard/EmptyNote'
 import { ProgressBar } from '~/components/dashboard/ProgressBar'
 import { formatCount, formatPercent } from '~/components/dashboard/format'
 import { Icon } from '~/components/dashboard/icons'
+import { usePreviewRole } from '~/shell/usePreviewRole'
 import { useLang, useStrings } from '~/shell/useStrings'
 import {
   answeredPercent,
@@ -354,6 +356,9 @@ function Completion({
   onExit: () => void
 }) {
   const strings = useStrings().player.runner
+  const resultsLabel = useStrings().results.badge
+  const lang = useLang()
+  const role = usePreviewRole()
   // The question and submit controls are gone once the attempt is recorded, so
   // put keyboard focus on the confirmation heading instead of <body>.
   const headingRef = useRef<HTMLHeadingElement>(null)
@@ -384,6 +389,15 @@ function Completion({
         >
           {strings.backToList}
         </button>
+        <Link
+          to="/student/tests/$testId/results"
+          params={{ testId: attempt.testId }}
+          search={{ as: role, lang }}
+          className="button button--secondary"
+          preload={false}
+        >
+          {resultsLabel}
+        </Link>
       </div>
     </div>
   )

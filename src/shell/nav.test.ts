@@ -113,4 +113,25 @@ describe('shell nav', () => {
     for (const item of parentNav) expect(defaultRoleForPath(item.to)).toBe('parent')
     for (const item of teacherNav) expect(defaultRoleForPath(item.to)).toBe('teacher')
   })
+
+  it('routes the assistant area to the assistant role', () => {
+    expect(defaultRoleForPath('/assistant')).toBe('assistant')
+    expect(defaultRoleForPath('/assistants')).toBe('teacher')
+  })
+
+  it('points every granted assistant capability at the one grants screen', () => {
+    const items = assistantNav(['students', 'classes', 'tests', 'dashboard'])
+    expect(items.map((item) => item.to)).toEqual([
+      '/assistant',
+      '/assistant',
+      '/assistant',
+      '/assistant',
+    ])
+    expect(items.map((item) => item.hash)).toEqual([
+      'dashboard',
+      'classes',
+      'tests',
+      'students',
+    ])
+  })
 })

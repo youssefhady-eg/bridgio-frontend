@@ -133,6 +133,39 @@ export const attemptQueryOptions = (attemptId: AttemptId) =>
   })
 
 /**
+ * Frontend-finish screens — every option below wraps an existing Stage 0
+ * adapter method. No contract field or adapter method is added; each screen
+ * reads its data through this layer only.
+ */
+
+/** Class detail roster — `classrooms.listStudents` (PROPOSED, teacher-only). */
+export const classroomStudentsQueryOptions = (classroomId: ClassroomId) =>
+  queryOptions({
+    queryKey: queryKeys.classrooms.students(classroomId),
+    queryFn: () => api.classrooms.listStudents({ classroomId }),
+    staleTime: 30_000,
+  })
+
+/** Teacher test list — `tests.listForTeacher` (PROPOSED, teacher-only). */
+export const teacherTestsQueryOptions = (teacherId: UserId) =>
+  queryOptions({
+    queryKey: queryKeys.tests.forTeacher(teacherId),
+    queryFn: () => api.tests.listForTeacher({ teacherId }),
+    staleTime: 0,
+  })
+
+/** One student's progress — `students.getProgress` (PROPOSED). */
+export const studentProgressQueryOptions = (
+  studentId: UserId,
+  classroomId?: ClassroomId,
+) =>
+  queryOptions({
+    queryKey: queryKeys.students.progress(studentId, classroomId),
+    queryFn: () => api.students.getProgress({ studentId, classroomId }),
+    staleTime: 30_000,
+  })
+
+/**
  * Teacher Assistant grants — RBAC-owned. The sidebar reads this and renders
  * only the granted items; the frontend never decides grants.
  */

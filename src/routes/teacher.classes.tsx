@@ -1,10 +1,12 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { NotBuiltScreen } from '~/components/NotBuiltScreen'
+import { Outlet, createFileRoute } from '@tanstack/react-router'
 
 /**
- * Stage 1 placeholder ONLY ("My Classes" from the teacher nav). Teacher classes
- * belong to the Stage 2 dashboard scope.
+ * Teacher classes area layout.
+ *
+ * The path is shared by two screens: the class list at `/teacher/classes` and
+ * one class's detail at `/teacher/classes/$classId`. The layout renders only the
+ * matched child, so the list never appears behind the detail screen.
  */
 export const Route = createFileRoute('/teacher/classes')({
-  component: () => <NotBuiltScreen id="teacher-classes" />,
+  component: () => <Outlet />,
 })
