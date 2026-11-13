@@ -14,6 +14,8 @@ const links = [
   { id: 'classes', to: '/teacher/classes' },
   { id: 'students', to: '/teacher/students' },
   { id: 'tests', to: '/teacher/tests' },
+  { id: 'questionBank', to: '/teacher/question-bank' },
+  { id: 'materials', to: '/teacher/materials' },
   { id: 'lessons', to: '/student/lessons' },
   { id: 'progress', to: '/student/progress' },
   { id: 'profile', to: '/profile' },

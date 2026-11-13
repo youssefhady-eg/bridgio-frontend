@@ -288,3 +288,84 @@
   gap: var(--space-3);
   margin-block-start: var(--space-4);
 }
+
+/* ---- Batch 1: question bank + material library --------------------------- */
+
+/* Shared filter bar: class select + text search, aligned to the control row. */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--space-3);
+  margin-block-end: var(--space-4);
+}
+
+.filter-bar__field {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 12rem;
+}
+
+.filter-bar__field--grow {
+  flex: 1 1 18rem;
+}
+
+.filter-bar__summary {
+  margin: 0;
+  padding-block-end: var(--space-3);
+  color: var(--text-secondary);
+  font-size: var(--font-body-small-size);
+}
+
+/* Material library: three-up metadata row inside the create form. */
+.material-form__row {
+  display: grid;
+  gap: var(--space-6);
+}
+
+@media (min-width: 768px) {
+  .material-form__row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.material-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.material-row {
+  padding: var(--space-4);
+  background: var(--bridgio-paper);
+  border: var(--outline-sticker) solid var(--bridgio-maroon);
+  border-radius: var(--radius-card);
+}
+
+.material-row__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+  margin-block-end: var(--space-2);
+}
+
+.material-row h3 {
+  margin: 0;
+  font-size: var(--font-display-size-h3);
+}
+
+.material-row__detail {
+  margin-block-start: var(--space-3);
+  padding-block-start: var(--space-3);
+  border-block-start: var(--outline-hairline) solid var(--border);
+}
+
+.material-row__text {
+  margin: 0 0 var(--space-3);
+  white-space: pre-wrap;
+  line-height: 1.6;
+}

@@ -2,7 +2,8 @@
  * Role-aware navigation config — refinement branch.
  *
  * Nav sets come from the refinement brief:
- *   teacher   : Dashboard, My Classes, Tests, Students
+ *   teacher   : Dashboard, My Classes, Tests, Question bank, Material library,
+ *               Students
  *   student   : My Tests, Lessons, Progress
  *   parent    : Progress, Tests, Results, Messages  (UI name "Parents")
  *   assistant : ONLY the items the backend/RBAC granted (no fixed menu)
@@ -29,6 +30,8 @@ export type NavScreenId =
   | 'teacher-dashboard'
   | 'teacher-classes'
   | 'teacher-tests'
+  | 'teacher-question-bank'
+  | 'teacher-materials'
   | 'teacher-students'
   | 'student-tests'
   | 'student-lessons'
@@ -54,6 +57,8 @@ export const teacherNav: readonly NavRoute[] = [
   { id: 'teacher-dashboard', to: '/teacher/dashboard' },
   { id: 'teacher-classes', to: '/teacher/classes' },
   { id: 'teacher-tests', to: '/teacher/tests' },
+  { id: 'teacher-question-bank', to: '/teacher/question-bank' },
+  { id: 'teacher-materials', to: '/teacher/materials' },
   { id: 'teacher-students', to: '/teacher/students' },
 ] as const
 
@@ -86,11 +91,39 @@ export const assistantCapabilityOrder: readonly NavCapability[] = [
 /** The one screen that shows the granted sections. */
 export const assistantRoute = '/assistant'
 
+/**
+ * Look a teacher destination up by id instead of by array position. The
+ * assistant grants are a stable capability list, so adding a teacher nav item
+ * (question bank, material library) must never shift which route a grant maps
+ * to.
+ */
+function teacherRoute(id: NavScreenId): NavRoute {
+  const route = teacherNav.find((item) => item.id === id)
+  if (!route) throw new Error(`Missing teacher nav route: ${id}`)
+  return route
+}
+
 export const assistantCapabilityRoutes: Record<NavCapability, NavRoute> = {
-  dashboard: { ...teacherNav[0]!, to: assistantRoute, hash: 'dashboard' },
-  classes: { ...teacherNav[1]!, to: assistantRoute, hash: 'classes' },
-  tests: { ...teacherNav[2]!, to: assistantRoute, hash: 'tests' },
-  students: { ...teacherNav[3]!, to: assistantRoute, hash: 'students' },
+  dashboard: {
+    ...teacherRoute('teacher-dashboard'),
+    to: assistantRoute,
+    hash: 'dashboard',
+  },
+  classes: {
+    ...teacherRoute('teacher-classes'),
+    to: assistantRoute,
+    hash: 'classes',
+  },
+  tests: {
+    ...teacherRoute('teacher-tests'),
+    to: assistantRoute,
+    hash: 'tests',
+  },
+  students: {
+    ...teacherRoute('teacher-students'),
+    to: assistantRoute,
+    hash: 'students',
+  },
 }
 
 /**

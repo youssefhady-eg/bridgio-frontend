@@ -23,6 +23,8 @@ import { Route as StudentProgressRouteImport } from './routes/student.progress'
 import { Route as StudentTestsRouteImport } from './routes/student.tests'
 import { Route as TeacherClassesRouteImport } from './routes/teacher.classes'
 import { Route as TeacherDashboardRouteImport } from './routes/teacher.dashboard'
+import { Route as TeacherMaterialsRouteImport } from './routes/teacher.materials'
+import { Route as TeacherQuestionBankRouteImport } from './routes/teacher.question-bank'
 import { Route as TeacherStudentsRouteImport } from './routes/teacher.students'
 import { Route as TeacherTestsRouteImport } from './routes/teacher.tests'
 import { Route as StudentTestsIndexRouteImport } from './routes/student.tests.index'
@@ -104,6 +106,16 @@ const TeacherDashboardRoute = TeacherDashboardRouteImport.update({
   path: '/teacher/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TeacherMaterialsRoute = TeacherMaterialsRouteImport.update({
+  id: '/teacher/materials',
+  path: '/teacher/materials',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TeacherQuestionBankRoute = TeacherQuestionBankRouteImport.update({
+  id: '/teacher/question-bank',
+  path: '/teacher/question-bank',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TeacherStudentsRoute = TeacherStudentsRouteImport.update({
   id: '/teacher/students',
   path: '/teacher/students',
@@ -172,6 +184,8 @@ export interface FileRoutesByFullPath {
   '/student/tests': typeof StudentTestsRouteWithChildren
   '/teacher/classes': typeof TeacherClassesRouteWithChildren
   '/teacher/dashboard': typeof TeacherDashboardRoute
+  '/teacher/materials': typeof TeacherMaterialsRoute
+  '/teacher/question-bank': typeof TeacherQuestionBankRoute
   '/teacher/students': typeof TeacherStudentsRouteWithChildren
   '/teacher/tests': typeof TeacherTestsRouteWithChildren
   '/teacher/classes/$classId': typeof TeacherClassesClassIdRoute
@@ -196,6 +210,8 @@ export interface FileRoutesByTo {
   '/student/lessons': typeof StudentLessonsRoute
   '/student/progress': typeof StudentProgressRoute
   '/teacher/dashboard': typeof TeacherDashboardRoute
+  '/teacher/materials': typeof TeacherMaterialsRoute
+  '/teacher/question-bank': typeof TeacherQuestionBankRoute
   '/teacher/classes/$classId': typeof TeacherClassesClassIdRoute
   '/teacher/students/$studentId': typeof TeacherStudentsStudentIdRoute
   '/teacher/tests/$testId': typeof TeacherTestsTestIdRoute
@@ -221,6 +237,8 @@ export interface FileRoutesById {
   '/student/tests': typeof StudentTestsRouteWithChildren
   '/teacher/classes': typeof TeacherClassesRouteWithChildren
   '/teacher/dashboard': typeof TeacherDashboardRoute
+  '/teacher/materials': typeof TeacherMaterialsRoute
+  '/teacher/question-bank': typeof TeacherQuestionBankRoute
   '/teacher/students': typeof TeacherStudentsRouteWithChildren
   '/teacher/tests': typeof TeacherTestsRouteWithChildren
   '/teacher/classes/$classId': typeof TeacherClassesClassIdRoute
@@ -249,6 +267,8 @@ export interface FileRouteTypes {
     | '/student/tests'
     | '/teacher/classes'
     | '/teacher/dashboard'
+    | '/teacher/materials'
+    | '/teacher/question-bank'
     | '/teacher/students'
     | '/teacher/tests'
     | '/teacher/classes/$classId'
@@ -273,6 +293,8 @@ export interface FileRouteTypes {
     | '/student/lessons'
     | '/student/progress'
     | '/teacher/dashboard'
+    | '/teacher/materials'
+    | '/teacher/question-bank'
     | '/teacher/classes/$classId'
     | '/teacher/students/$studentId'
     | '/teacher/tests/$testId'
@@ -297,6 +319,8 @@ export interface FileRouteTypes {
     | '/student/tests'
     | '/teacher/classes'
     | '/teacher/dashboard'
+    | '/teacher/materials'
+    | '/teacher/question-bank'
     | '/teacher/students'
     | '/teacher/tests'
     | '/teacher/classes/$classId'
@@ -324,6 +348,8 @@ export interface RootRouteChildren {
   StudentTestsRoute: typeof StudentTestsRouteWithChildren
   TeacherClassesRoute: typeof TeacherClassesRouteWithChildren
   TeacherDashboardRoute: typeof TeacherDashboardRoute
+  TeacherMaterialsRoute: typeof TeacherMaterialsRoute
+  TeacherQuestionBankRoute: typeof TeacherQuestionBankRoute
   TeacherStudentsRoute: typeof TeacherStudentsRouteWithChildren
   TeacherTestsRoute: typeof TeacherTestsRouteWithChildren
 }
@@ -426,6 +452,20 @@ declare module '@tanstack/react-router' {
       path: '/teacher/dashboard'
       fullPath: '/teacher/dashboard'
       preLoaderRoute: typeof TeacherDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/teacher/materials': {
+      id: '/teacher/materials'
+      path: '/teacher/materials'
+      fullPath: '/teacher/materials'
+      preLoaderRoute: typeof TeacherMaterialsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/teacher/question-bank': {
+      id: '/teacher/question-bank'
+      path: '/teacher/question-bank'
+      fullPath: '/teacher/question-bank'
+      preLoaderRoute: typeof TeacherQuestionBankRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/teacher/students': {
@@ -572,6 +612,8 @@ const rootRouteChildren: RootRouteChildren = {
   StudentTestsRoute: StudentTestsRouteWithChildren,
   TeacherClassesRoute: TeacherClassesRouteWithChildren,
   TeacherDashboardRoute: TeacherDashboardRoute,
+  TeacherMaterialsRoute: TeacherMaterialsRoute,
+  TeacherQuestionBankRoute: TeacherQuestionBankRoute,
   TeacherStudentsRoute: TeacherStudentsRouteWithChildren,
   TeacherTestsRoute: TeacherTestsRouteWithChildren,
 }
