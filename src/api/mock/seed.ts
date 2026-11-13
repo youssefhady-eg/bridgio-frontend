@@ -631,13 +631,19 @@ export function createSeedDatabase(options: {
     }),
   ]
 
+  // Per-unit progress is one basis: `progressPercent` is exactly
+  // `lessonsCompleted / lessonCount`, so a unit only reads as complete when all
+  // of its lessons are done, and the class percent (the mean of these values)
+  // lines up with the completed-units count next to it.
   const enrollments: MockEnrollment[] = [
     {
       classroomId: seedIds.classMath,
       studentId: seedIds.studentSara,
       progressByUnit: {
-        [seedIds.unitDerivatives]: { progressPercent: 64, lessonsCompleted: 3 },
-        [seedIds.unitIntegration]: { progressPercent: 20, lessonsCompleted: 1 },
+        // 4 of 4 lessons — the one completed unit.
+        [seedIds.unitDerivatives]: { progressPercent: 100, lessonsCompleted: 4 },
+        // 1 of 3 lessons.
+        [seedIds.unitIntegration]: { progressPercent: 33, lessonsCompleted: 1 },
       },
       lastActiveAt: '2026-10-31T18:20:00.000Z',
     },
@@ -645,7 +651,8 @@ export function createSeedDatabase(options: {
       classroomId: seedIds.classMath,
       studentId: seedIds.studentOmar,
       progressByUnit: {
-        [seedIds.unitDerivatives]: { progressPercent: 35, lessonsCompleted: 1 },
+        // 1 of 4 lessons.
+        [seedIds.unitDerivatives]: { progressPercent: 25, lessonsCompleted: 1 },
         [seedIds.unitIntegration]: { progressPercent: 0, lessonsCompleted: 0 },
       },
       lastActiveAt: '2026-10-29T08:05:00.000Z',
@@ -654,7 +661,8 @@ export function createSeedDatabase(options: {
       classroomId: seedIds.classPhysics,
       studentId: seedIds.studentYoussef,
       progressByUnit: {
-        [seedIds.unitMotion]: { progressPercent: 50, lessonsCompleted: 2 },
+        // 1 of 4 lessons.
+        [seedIds.unitMotion]: { progressPercent: 25, lessonsCompleted: 1 },
       },
       lastActiveAt: '2026-10-30T20:10:00.000Z',
     },

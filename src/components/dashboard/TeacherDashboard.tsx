@@ -354,7 +354,7 @@ function QuickActions() {
           preload={false}
         >
           <span className="quick-action__icon" aria-hidden="true">
-            <Icon name="tests" size={20} />
+            <Icon name="pencil" size={20} />
           </span>
           <span className="quick-action__text">
             <span className="quick-action__title">
@@ -372,7 +372,7 @@ function QuickActions() {
           preload={false}
         >
           <span className="quick-action__icon" aria-hidden="true">
-            <Icon name="pencil" size={20} />
+            <Icon name="tests" size={20} />
           </span>
           <span className="quick-action__text">
             <span className="quick-action__title">
