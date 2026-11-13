@@ -180,6 +180,13 @@ body {
      93.5 px, not 88 px. */
   .app-body {
     grid-template-columns: 272px minmax(0, 1fr);
+    /* Owner decision 2026-11-13: the sidebar and the content column animate
+       together. Only the first track changes (272px ↔ 88px); the content track
+       keeps its width and moves with the grid, so there is no separate content
+       animation and no jump. `grid-template-columns` is interpolable because
+       both states have the same track count and the same flexible second
+       track. Reduced motion is handled by the global 0.01ms rule in app.css. */
+    transition: grid-template-columns 250ms ease;
   }
 
   /* Collapsed rail — must stay after the 272 px rule above to win at equal
