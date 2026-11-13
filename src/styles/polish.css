@@ -135,11 +135,13 @@ body {
   background: rgba(249, 236, 217, 0.12);
 }
 
-/* Small brand-red tick on the active item — accent, never a status. */
+/* Small brand-red tick on the active item — accent, never a status. Sits at
+   the inline start, like the dashboard eyebrow badge's dot, so it mirrors with
+   the writing direction instead of jumping to the trailing edge. */
 .app-sidebar__link.is-active::after {
   content: '';
   position: absolute;
-  inset-inline-end: 12px;
+  inset-inline-start: var(--space-1);
   width: 6px;
   height: 6px;
   border-radius: 50%;
@@ -173,6 +175,12 @@ body {
     height: calc(100dvh - var(--header-h));
   }
 
+  /* The sidebar starts directly under the top bar: no dead band above the
+     first nav item in either the expanded column or the collapsed rail. */
+  .app-sidebar__nav {
+    padding-block-start: 0;
+  }
+
   .app-sidebar__foot {
     padding: var(--space-3);
   }
@@ -186,10 +194,6 @@ body {
   .app-sidebar__toggle:hover {
     color: var(--text-primary);
     background: var(--tint-cream-deep);
-  }
-
-  .app-sidebar.is-collapsed .app-sidebar__link.is-active::after {
-    display: none;
   }
 }
 
@@ -325,11 +329,8 @@ h1 {
   font-weight: 700;
 }
 
-/* Totals: big number, quiet label, icon in a tinted tile. */
-.dashboard__totals {
-  gap: var(--space-3);
-}
-
+/* Totals: big number, quiet label, icon in a tinted tile. Card gap comes from
+   app.css so it matches `.quick-actions` and `.class-grid`. */
 .total-card {
   padding: var(--space-4) var(--space-4) var(--space-4) var(--space-4);
 }
@@ -577,6 +578,13 @@ body {
 
   .dashboard__totals {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Two columns on a phone leaves the longest total label ("Published tests")
+     exactly at the wrap point; tighten the card so it stays on one line. */
+  .total-card {
+    gap: var(--space-2);
+    padding: var(--space-3);
   }
 }
 

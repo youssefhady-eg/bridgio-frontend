@@ -601,7 +601,10 @@ summary:focus-visible,
   padding-inline-start: 0;
 }
 
-.app-list--links .screen-link {
+/* An in-page link to another screen. Not scoped to `.app-list--links` on
+   purpose: the dashboard lists are not inside that container, and an
+   unscoped anchor falls back to the browser's blue + underline. */
+.screen-link {
   color: inherit;
   font-weight: 600;
   text-decoration: underline;
@@ -609,7 +612,7 @@ summary:focus-visible,
   text-underline-offset: 3px;
 }
 
-.app-list--links .screen-link:hover {
+.screen-link:hover {
   /* Hover is an affordance, not an error state: use the proposed maroon
      hover wash, never the wine error colour. */
   background: var(--hover-bg);
@@ -774,6 +777,16 @@ summary:focus-visible,
   max-width: none;
 }
 
+/*
+ * The dashboard already ends with a full-width section, so the shell's 64 px
+ * bottom padding stacked on the footer's own 32 px margin into ~96 px of dead
+ * canvas after the class cards. Drop the shell padding on this screen only;
+ * the footer keeps its margin, so the gap matches a normal section gap.
+ */
+.app-main:has(> .dashboard) {
+  padding-block-end: 0;
+}
+
 .dashboard__hero {
   margin-block-end: var(--space-8);
 }
@@ -843,7 +856,10 @@ summary:focus-visible,
 .dashboard__totals {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3);
+  gap: var(--space-4);
+  /* Same block rhythm as every other dashboard section, instead of butting
+     straight against the quick-action cards. */
+  margin-block-start: var(--space-8);
 }
 
 .total-card {
@@ -893,7 +909,8 @@ summary:focus-visible,
 .quick-actions {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-3);
+  /* Card gaps match `.dashboard__totals` and `.class-grid`. */
+  gap: var(--space-4);
 }
 
 .quick-action {
