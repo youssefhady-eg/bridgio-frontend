@@ -100,6 +100,8 @@ export const queryKeys = {
     all: () => ['attempts'] as const,
     forStudent: (studentId: UserId) =>
       ['attempts', 'student', studentId] as const,
+    /** Teacher-only: every attempt on one test, with backend-supplied scores. */
+    forTest: (testId: TestId) => ['attempts', 'test', testId] as const,
     detail: (attemptId: string) => ['attempts', attemptId] as const,
   },
   mohsen: {

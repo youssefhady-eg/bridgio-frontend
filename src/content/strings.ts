@@ -737,10 +737,21 @@ export const ar = {
     publishSuccessTitle: 'تم نشر الاختبار',
     publishSuccessBody: (className: string) => `نُشر الاختبار إلى ${className}.`,
     resultsHeading: 'نتائج الاختبار',
-    resultsUnavailableTitle: 'نتائج كل اختبار غير متاحة بعد',
-    resultsUnavailableBody:
-      'لا يوفّر العقد الحالي نتائج لكل اختبار. لمراجعة تقدّم الطلاب، افتح صفحة الصف.',
-    resultsClassLink: 'افتح صفحة الصف',
+    resultsLead:
+      'محاولات الطلاب على هذا الاختبار، ودرجاتهم كما تحتسبها المنصة. هذه الشاشة لا تحتسب أي درجة.',
+    resultsLoading: 'جارٍ تحميل النتائج...',
+    resultsErrorTitle: 'تعذّر تحميل النتائج.',
+    resultsErrorBody: 'من جهتنا، لا من جهتك. أعد المحاولة بعد قليل.',
+    resultsEmptyTitle: 'لا توجد محاولات بعد',
+    resultsEmptyBody: 'تظهر محاولات الطلاب هنا بمجرد بدء الاختبار.',
+    attemptSubmitted: 'تم التسليم',
+    attemptInProgress: 'قيد الحل',
+    scoreLabel: 'الدرجة',
+    scoreUnavailable: 'لم تُحتسب بعد',
+    submittedAtLabel: 'تاريخ التسليم',
+    answeredValue: (answered: string, total: string) =>
+      `أُجيب ${answered} من ${total}`,
+    notSubmitted: 'لم يُسلَّم',
   },
   /** Teacher question bank — every question across the teacher's tests. */
   questionBank: {
@@ -858,7 +869,7 @@ export const ar = {
     headTitle: `مراجعة الاختبار — ${B}`,
     badge: 'مراجعة الاختبار',
     title: 'راجع إجاباتك',
-    lead: 'شوف اللي جاوبته في الاختبار. لسه مفيش تصحيح آلي ولا درجات.',
+    lead: 'شوف جاوبت إيه في الاختبار، ودرجتك زي ما المنصة حسبتها.',
     loading: 'بنحمّل مراجعتك...',
     loadErrorTitle: 'مش قادرين نحمّل المراجعة.',
     loadErrorBody: 'المشكلة من جهتنا مش من جهتك. جرّب تاني بعد شوية.',
@@ -874,7 +885,7 @@ export const ar = {
     answeredValue: (answered: string, total: string) =>
       `${answered} من ${total}`,
     scoreLabel: 'الدرجة',
-    scoreNote: 'الدرجات بتيجي من الباك إند ولسه مش موصولة. الشاشة دي مش بتحسب أي درجة.',
+    scoreUnavailable: 'الدرجة لسه مش متاحة',
     reviewHeading: 'مراجعة الأسئلة',
     reviewLead: 'ده اختيارك في كل سؤال. مش بنقولك صح ولا غلط.',
     questionLabel: (number: string) => `السؤال ${number}`,
@@ -1760,10 +1771,22 @@ export const en: Strings = {
     publishSuccessTitle: 'Test published',
     publishSuccessBody: (className: string) => `The test was published to ${className}.`,
     resultsHeading: 'Test results',
-    resultsUnavailableTitle: 'Per-test results are not available yet',
-    resultsUnavailableBody:
-      'The current contract does not expose per-test results. To review student progress, open the class page.',
-    resultsClassLink: 'Open the class page',
+    resultsLead:
+      'Every attempt by a student on this test, with the score exactly as the platform supplies it. This screen never calculates a score.',
+    resultsLoading: 'Loading the results...',
+    resultsErrorTitle: 'We could not load the results.',
+    resultsErrorBody: 'It is on our side, not yours. Try again shortly.',
+    resultsEmptyTitle: 'No attempts yet',
+    resultsEmptyBody:
+      'Student attempts appear here as soon as they start the test.',
+    attemptSubmitted: 'Submitted',
+    attemptInProgress: 'In progress',
+    scoreLabel: 'Score',
+    scoreUnavailable: 'Not scored yet',
+    submittedAtLabel: 'Submitted at',
+    answeredValue: (answered: string, total: string) =>
+      `${answered} of ${total}`,
+    notSubmitted: 'Not submitted',
   },
   questionBank: {
     headTitle: `Question bank — ${B}`,
@@ -1884,7 +1907,7 @@ export const en: Strings = {
     headTitle: `Test review — ${B}`,
     badge: 'Test review',
     title: 'Review your answers',
-    lead: 'See what you answered on the test. There is no automatic marking or scores yet.',
+    lead: 'See what you answered on the test, and your score as the platform supplies it.',
     loading: 'Loading your review...',
     loadErrorTitle: 'We could not load your review.',
     loadErrorBody: 'The problem is on our side, not yours. Try again shortly.',
@@ -1899,8 +1922,7 @@ export const en: Strings = {
     answeredLabel: 'Questions answered',
     answeredValue: (answered: string, total: string) => `${answered} of ${total}`,
     scoreLabel: 'Score',
-    scoreNote:
-      'Scores are backend-supplied and are not connected yet. This screen never computes a score.',
+    scoreUnavailable: 'Score unavailable',
     reviewHeading: 'Question review',
     reviewLead: 'This is your choice on each question. We do not say right or wrong.',
     questionLabel: (number: string) => `Question ${number}`,

@@ -41,6 +41,7 @@ export const seedIds = {
   materialDerivatives: 'mat_math_deriv_notes',
   materialPhysics: 'mat_physics_motion_notes',
   testDerivatives: 'test_math_deriv_1',
+  testIntegration: 'test_math_integration_1',
   testIntegrationDraft: 'test_math_integration_draft',
   testPhysics: 'test_physics_motion_1',
   threadTeacher: 'thread_parent_teacher',
@@ -95,7 +96,7 @@ export interface MockDatabase {
   materials: Material[]
   tests: MockTest[]
   questions: Question[]
-  attempts: Attempt[]
+  attempts: MockAttempt[]
   /** RBAC grants by user (assistant permissions are backend-owned). */
   capabilities: Record<UserId, NavCapability[]>
   /** Parent → child links. */
@@ -106,6 +107,14 @@ export interface MockDatabase {
   resultScores: Record<string, number | null>
   sessionUserId: UserId | null
 }
+
+/**
+ * Attempt as the mock stores it. The score is NOT stored on the attempt: it is
+ * a backend-supplied value (`MockDatabase.resultScores`), exactly like the
+ * parent projection reads it, so the mock has one source of truth and the
+ * adapters map it on the way out.
+ */
+export type MockAttempt = Omit<Attempt, 'scorePercent'>
 
 export interface MockQuestionBankItem {
   prompt: string
@@ -491,6 +500,23 @@ export function createSeedDatabase(options: {
       publishedAt,
     },
     {
+      id: seedIds.testIntegration,
+      teacherId: seedIds.teacher,
+      classroomId: seedIds.classMath,
+      title: 'اختبار التكامل — الوحدة الثانية',
+      description: 'اختبار قصير على التكامل كعملية عكسية للاشتقاق.',
+      status: 'published',
+      source: {
+        kind: 'curriculum_unit',
+        materialId: null,
+        unitId: seedIds.unitIntegration,
+        label: 'التكامل',
+      },
+      createdAt: '2026-11-02T16:20:00.000Z',
+      updatedAt: '2026-11-02T16:30:00.000Z',
+      publishedAt: '2026-11-02T16:30:00.000Z',
+    },
+    {
       id: seedIds.testIntegrationDraft,
       teacherId: seedIds.teacher,
       classroomId: seedIds.classMath,
@@ -602,6 +628,63 @@ export function createSeedDatabase(options: {
       origin: 'mohsen',
     }),
     question({
+      id: 'q_integ_1',
+      testId: seedIds.testIntegration,
+      order: 1,
+      prompt: 'ما العلاقة بين التكامل والاشتقاق؟',
+      options: [
+        'التكامل هو العملية العكسية للاشتقاق',
+        'التكامل هو ضرب المشتقة في الدالة',
+        'لا توجد علاقة بينهما',
+      ],
+      correctIndex: 0,
+      grounding: [
+        {
+          kind: 'curriculum_unit',
+          materialId: null,
+          unitId: seedIds.unitIntegration,
+          label: 'التكامل',
+          excerpt: 'التكامل هو العملية العكسية للاشتقاق.',
+        },
+      ],
+      origin: 'mohsen',
+      at: '2026-11-02T16:24:00.000Z',
+    }),
+    question({
+      id: 'q_integ_2',
+      testId: seedIds.testIntegration,
+      order: 2,
+      prompt: 'ما تكامل x^n بالنسبة لـ x؟',
+      options: ['x^(n+1)/(n+1) + C', 'n·x^(n−1) + C', 'x^n + C'],
+      correctIndex: 0,
+      grounding: [
+        {
+          kind: 'curriculum_unit',
+          materialId: null,
+          unitId: seedIds.unitIntegration,
+          label: 'التكامل',
+          excerpt: 'تكامل x^n هو x^(n+1)/(n+1) + C.',
+        },
+      ],
+      origin: 'mohsen',
+      at: '2026-11-02T16:25:00.000Z',
+    }),
+    question({
+      id: 'q_integ_3',
+      testId: seedIds.testIntegration,
+      order: 3,
+      prompt: 'ما الذي يحسبه التكامل المحدد؟',
+      options: [
+        'المساحة تحت المنحنى',
+        'ميل المماس عند نقطة',
+        'قيمة الدالة عند الصفر',
+      ],
+      correctIndex: 0,
+      grounding: [],
+      origin: 'teacher',
+      at: '2026-11-02T16:27:00.000Z',
+    }),
+    question({
       id: 'q_physics_1',
       testId: seedIds.testPhysics,
       order: 1,
@@ -694,7 +777,21 @@ export function createSeedDatabase(options: {
     answeredAt: null,
   }))
 
-  const attempts: Attempt[] = [
+  /**
+   * Sara's submitted attempt on the published integration test — the demo row
+   * for a scored result. The score itself is NOT here: it comes from
+   * `resultScores` below, and nothing in this build marks an answer or derives a
+   * score from these picks. They are demo content only.
+   */
+  const saraIntegrationQuestions = findQuestionIds(seedIds.testIntegration)
+  const saraIntegrationPicks = [0, 1, 0]
+  const saraIntegrationAnswers = saraIntegrationQuestions.map((item, index) => ({
+    questionId: item.id,
+    optionId: item.options[saraIntegrationPicks[index] ?? 0]?.id ?? null,
+    answeredAt: '2026-11-02T17:52:00.000Z',
+  }))
+
+  const attempts: MockAttempt[] = [
     {
       id: 'attempt_sara_deriv',
       testId: seedIds.testDerivatives,
@@ -724,6 +821,22 @@ export function createSeedDatabase(options: {
       submittedAt: '2026-10-29T08:05:00.000Z',
     },
     {
+      id: 'attempt_sara_integration',
+      testId: seedIds.testIntegration,
+      testTitle: 'اختبار التكامل — الوحدة الثانية',
+      classroomId: seedIds.classMath,
+      classroomName: 'الصف الثالث الثانوي — أ',
+      studentId: seedIds.studentSara,
+      status: 'submitted',
+      answeredCount: saraIntegrationAnswers.filter(
+        (answer) => answer.optionId !== null,
+      ).length,
+      questionCount: saraIntegrationQuestions.length,
+      answers: saraIntegrationAnswers,
+      startedAt: '2026-11-02T17:40:00.000Z',
+      submittedAt: '2026-11-02T17:58:00.000Z',
+    },
+    {
       id: 'attempt_youssef_physics',
       testId: seedIds.testPhysics,
       testTitle: 'اختبار الحركة — الوحدة الأولى',
@@ -745,6 +858,7 @@ export function createSeedDatabase(options: {
    */
   const resultScores: Record<string, number | null> = {
     attempt_omar_deriv: 67,
+    attempt_sara_integration: 67,
     attempt_sara_deriv: null,
     attempt_youssef_physics: null,
   }

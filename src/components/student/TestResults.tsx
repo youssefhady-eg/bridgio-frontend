@@ -10,7 +10,7 @@ import {
 import type { StudentQuestion } from '~/api/types'
 import { EmptyNote } from '~/components/dashboard/EmptyNote'
 import { StatusChip } from '~/components/dashboard/StatusChip'
-import { formatCount, formatDate } from '~/components/dashboard/format'
+import { formatCount, formatDate, formatPercent } from '~/components/dashboard/format'
 import { MetaList } from '~/components/shared/MetaList'
 import { PageHero } from '~/components/shared/PageHero'
 import { usePreviewRole } from '~/shell/usePreviewRole'
@@ -22,10 +22,12 @@ import { useLang, useStrings } from '~/shell/useStrings'
  * The attempt and its saved answers come from `attempts.listForStudent` and
  * `attempts.get`; the prompts and option texts come from the student-safe
  * `questions.listForStudentTest` (never `listForTest`, so no answer key can
- * reach this screen). There is no marking and no score in the contract, so no
- * correctness is shown or computed. "Retake" is offered but the mock rejects a
- * second attempt on a submitted test (`attempts.start` → CONFLICT); the honest
- * error is surfaced rather than hidden, and the gap is documented.
+ * reach this screen). The score is backend-supplied (`Attempt.scorePercent`);
+ * this screen renders it as given, shows "score unavailable" when it is null,
+ * and never marks an answer or computes a score. "Retake" is offered but the
+ * mock rejects a second attempt on a submitted test (`attempts.start` →
+ * CONFLICT); the honest error is surfaced rather than hidden, and the gap is
+ * documented.
  */
 export function TestResults({ testId }: { testId: string }) {
   const strings = useStrings()
@@ -173,7 +175,16 @@ export function TestResults({ testId }: { testId: string }) {
           },
           {
             label: copy.scoreLabel,
-            value: <span className="row-meta">{copy.scoreNote}</span>,
+            value:
+              attempt.scorePercent === null ? (
+                <span className="score-unavailable">
+                  {copy.scoreUnavailable}
+                </span>
+              ) : (
+                <strong className="score-value">
+                  {formatPercent(attempt.scorePercent, lang)}
+                </strong>
+              ),
           },
         ]}
       />
@@ -302,7 +313,12 @@ function Frame({
       >
         {strings.results.back}
       </Link>
-      <PageHero badge={strings.results.badge} title={title} footer={greeting} />
+      <PageHero
+        badge={strings.results.badge}
+        title={title}
+        lead={strings.results.lead}
+        footer={greeting}
+      />
       {children}
     </div>
   )

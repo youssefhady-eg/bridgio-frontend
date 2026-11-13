@@ -45,6 +45,8 @@ function attempt(input: {
       optionId: answer.optionId,
       answeredAt: answer.optionId ? '2026-11-03T10:05:00.000Z' : null,
     })),
+    // Backend-supplied display data only; nothing in the player computes it.
+    scorePercent: null,
   }
 }
 

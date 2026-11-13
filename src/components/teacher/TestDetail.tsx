@@ -5,6 +5,7 @@ import { api } from '~/api'
 import { queryKeys } from '~/api/query-keys'
 import {
   sessionQueryOptions,
+  testAttemptsQueryOptions,
   testQueryOptions,
   testQuestionsQueryOptions,
 } from '~/api/queries'
@@ -12,7 +13,11 @@ import type { Question, Test, UserId } from '~/api/types'
 import { isApiError } from '~/api/errors'
 import { EmptyNote } from '~/components/dashboard/EmptyNote'
 import { StatusChip } from '~/components/dashboard/StatusChip'
-import { formatCount, formatDate } from '~/components/dashboard/format'
+import {
+  formatCount,
+  formatDate,
+  formatPercent,
+} from '~/components/dashboard/format'
 import { QuestionCard } from '~/components/builder/QuestionCard'
 import { removeQuestion, replaceQuestion, type QuestionDraft } from '~/components/builder/builder'
 import { MetaList } from '~/components/shared/MetaList'
@@ -26,15 +31,16 @@ import { useLang, useStrings } from '~/shell/useStrings'
  * A draft can be edited (title/description via `tests.update`, questions via
  * `questions.update` / `questions.delete`) and published via `tests.publish`. A
  * published test is read-only, because the mock refuses to edit a published
- * test; the read-only state is stated, not hidden. Per-test results are not in
- * the contract, so an honest note links to the class page instead of inventing
- * a results table.
+ * test; the read-only state is stated, not hidden.
+ *
+ * Per-test results come from `attempts.listForTest`, a PROPOSED Batch 2 method
+ * of the contract. The scores it returns are backend-supplied: this screen
+ * renders them as given and never marks an answer or computes a score.
  */
 export function TestDetail({ testId }: { testId: string }) {
   const strings = useStrings()
   const copy = strings.testDetail
   const lang = useLang()
-  const role = usePreviewRole()
 
   const sessionQuery = useQuery(sessionQueryOptions())
   const teacherId =
@@ -160,31 +166,103 @@ export function TestDetail({ testId }: { testId: string }) {
             </section>
           )}
 
-          <section
-            className="dashboard__section"
-            aria-labelledby="test-results-heading"
-          >
-            <h2 id="test-results-heading">{copy.resultsHeading}</h2>
-            <EmptyNote
-              icon="chart"
-              title={copy.resultsUnavailableTitle}
-              body={copy.resultsUnavailableBody}
-            />
-            <p className="finish-actions">
-              <Link
-                to="/teacher/classes/$classId"
-                params={{ classId: test.classroomId }}
-                search={{ as: role, lang }}
-                className="button button--secondary button--small"
-                preload={false}
-              >
-                {copy.resultsClassLink}
-              </Link>
-            </p>
-          </section>
+          {teacherId ? (
+            <ResultsPanel testId={test.id} />
+          ) : null}
         </div>
       </div>
     </Frame>
+  )
+}
+
+/**
+ * Per-test results — every attempt on this test, with the backend-supplied
+ * score. The list is teacher-only (`attempts.listForTest`); a row never shows a
+ * computed value, and a null score reads as "not scored yet", never as zero.
+ */
+function ResultsPanel({ testId }: { testId: string }) {
+  const strings = useStrings()
+  const copy = strings.testDetail
+  const lang = useLang()
+  const resultsQuery = useQuery(testAttemptsQueryOptions(testId))
+
+  return (
+    <section
+      className="dashboard__section"
+      aria-labelledby="test-results-heading"
+    >
+      <div className="section-head">
+        <h2 id="test-results-heading">{copy.resultsHeading}</h2>
+        {resultsQuery.data ? (
+          <span className="count-chip">
+            {formatCount(resultsQuery.data.length, lang)}
+          </span>
+        ) : null}
+      </div>
+      <p className="section-lead">{copy.resultsLead}</p>
+      {resultsQuery.isError ? (
+        <EmptyNote
+          tone="error"
+          title={copy.resultsErrorTitle}
+          body={copy.resultsErrorBody}
+        />
+      ) : resultsQuery.isPending ? (
+        <p className="loading-note" role="status">
+          {copy.resultsLoading}
+        </p>
+      ) : resultsQuery.data.length === 0 ? (
+        <EmptyNote
+          icon="chart"
+          title={copy.resultsEmptyTitle}
+          body={copy.resultsEmptyBody}
+        />
+      ) : (
+        <div className="panel">
+          <ul className="attempt-list">
+            {resultsQuery.data.map((attempt) => (
+              <li className="attempt-row" key={attempt.id}>
+                <div className="attempt-row__main">
+                  <div className="attempt-row__head">
+                    <h3>{attempt.studentName}</h3>
+                    <StatusChip
+                      tone={
+                        attempt.status === 'submitted' ? 'success' : 'warning'
+                      }
+                      icon={attempt.status === 'submitted' ? 'check' : 'clock'}
+                      label={
+                        attempt.status === 'submitted'
+                          ? copy.attemptSubmitted
+                          : copy.attemptInProgress
+                      }
+                    />
+                  </div>
+                  <p className="row-meta">
+                    {copy.answeredValue(
+                      formatCount(attempt.answeredCount, lang),
+                      formatCount(attempt.questionCount, lang),
+                    )}
+                  </p>
+                  <p className="row-meta">
+                    {copy.submittedAtLabel}:{' '}
+                    {formatDate(attempt.submittedAt, copy.notSubmitted, lang)}
+                  </p>
+                </div>
+                <p className="attempt-score">
+                  <span className="attempt-score__label">
+                    {copy.scoreLabel}
+                  </span>
+                  <strong>
+                    {attempt.scorePercent === null
+                      ? copy.scoreUnavailable
+                      : formatPercent(attempt.scorePercent, lang)}
+                  </strong>
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </section>
   )
 }
 

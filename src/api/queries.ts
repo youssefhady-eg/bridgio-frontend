@@ -144,6 +144,19 @@ export const attemptQueryOptions = (attemptId: AttemptId) =>
   })
 
 /**
+ * Teacher per-test results — `attempts.listForTest`, a PROPOSED Batch 2 method
+ * the contract did not have before. TEACHER-ONLY: the mock refuses any other
+ * role. Scores in this list are backend-supplied values; nothing here computes
+ * one.
+ */
+export const testAttemptsQueryOptions = (testId: TestId) =>
+  queryOptions({
+    queryKey: queryKeys.attempts.forTest(testId),
+    queryFn: () => api.attempts.listForTest({ testId }),
+    staleTime: 0,
+  })
+
+/**
  * Frontend-finish screens — every option below wraps an existing Stage 0
  * adapter method. No contract field or adapter method is added; each screen
  * reads its data through this layer only.
