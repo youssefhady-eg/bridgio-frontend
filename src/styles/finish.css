@@ -125,6 +125,24 @@
 }
 
 @media (min-width: 1024px) {
+  /* The utility rows keep the same 48 / 8 / 16 metrics as the main nav rows. */
+  .utility-links {
+    gap: 8px;
+  }
+
+  .utility-links__link {
+    min-height: 48px;
+    gap: 8px;
+    padding-block: 8px;
+    padding-inline: 14px;
+    border-radius: 16px;
+  }
+
+  .utility-links__icon {
+    width: 32px;
+    height: 32px;
+  }
+
   .app-sidebar.is-collapsed .utility-links {
     padding-inline: var(--space-3);
   }

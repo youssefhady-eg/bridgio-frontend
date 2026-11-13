@@ -354,7 +354,7 @@ function QuickActions() {
           preload={false}
         >
           <span className="quick-action__icon" aria-hidden="true">
-            <Icon name="pencil" size={20} />
+            <Icon name="pencil" size={22} />
           </span>
           <span className="quick-action__text">
             <span className="quick-action__title">
@@ -372,7 +372,7 @@ function QuickActions() {
           preload={false}
         >
           <span className="quick-action__icon" aria-hidden="true">
-            <Icon name="tests" size={20} />
+            <Icon name="tests" size={22} />
           </span>
           <span className="quick-action__text">
             <span className="quick-action__title">
@@ -485,7 +485,7 @@ function Total({
   return (
     <article className="total-card">
       <span className="total-card__icon" aria-hidden="true">
-        <Icon name={icon} size={20} />
+        <Icon name={icon} size={22} />
       </span>
       <div>
         <p className="total-card__value">{formatCount(value, lang)}</p>

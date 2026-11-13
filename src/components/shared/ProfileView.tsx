@@ -101,6 +101,7 @@ export function ProfileView() {
               label: copy.languageLabel,
               value: (
                 <a
+                  className="screen-link"
                   href={hrefWithLang(pathname, searchStr, nextLang)}
                   lang={nextLang}
                   hrefLang={nextLang}
@@ -114,7 +115,11 @@ export function ProfileView() {
             {
               label: copy.themeLabel,
               value: (
-                <button type="button" className="screen-link" onClick={toggle}>
+                <button
+                  type="button"
+                  className="button button--secondary"
+                  onClick={toggle}
+                >
                   {theme === 'dark' ? copy.themeLight : copy.themeDark}
                 </button>
               ),

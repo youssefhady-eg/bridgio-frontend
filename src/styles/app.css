@@ -158,11 +158,13 @@ summary:focus-visible,
  * The refinement header is a slim utility bar: it no longer carries the primary
  * navigation (the sidebar does). It holds the menu button (phone/tablet), the
  * brand, and the utility controls (language switch, messages trigger, account
- * placeholder). Three locked brand states remain, one DOM, media queries only:
+ * placeholder). Three brand size states remain, one DOM, media queries only:
  *  - < 768 px           : dark band (maroon) — adopted wordmark (cream fill)
  *  - 768 px – 1023.98 px: light small header — adopted wordmark (maroon fill)
- *  - ≥ 1024 px          : large header — full colour lockup
- * The wordmark/lockup are never mirrored, never stretched, never recoloured.
+ *  - ≥ 1024 px          : large header — adopted wordmark (maroon fill, 136 px)
+ * The 200 px colour lockup is no longer rendered in the header (owner decision
+ * 2026-11-13); the asset stays in the repo for large/cover use. The wordmark is
+ * never mirrored, never stretched, never recoloured.
  */
 
 .app-header {
@@ -208,8 +210,7 @@ summary:focus-visible,
   align-items: center;
 }
 
-/* Brand artwork slots — exactly one visible per breakpoint. */
-.app-header__lockup,
+/* Brand artwork slot — exactly one wordmark visible per breakpoint/theme. */
 .app-header__wordmark {
   display: none;
   height: auto;
@@ -318,20 +319,17 @@ summary:focus-visible,
   }
 }
 
-/* ---- Large header (desktop): full colour lockup ----------------------------- */
+/* ---- Large header (desktop): 136 px clean wordmark -------------------------- */
 
 @media (min-width: 1024px) {
   .app-header {
     background: var(--bridgio-paper);
   }
 
+  /* 136 px clean wordmark, not the 200 px lockup (owner decision 2026-11-13). */
   .app-header__wordmark--maroon {
-    display: none;
-  }
-
-  .app-header__lockup {
     display: block;
-    width: var(--bridgio-lockup-min-width); /* LOCKED minimum 200 px */
+    width: 136px;
   }
 
   .app-header__menu {
@@ -354,12 +352,6 @@ summary:focus-visible,
 :root[data-theme='dark'] .app-header__wordmark--cream {
   display: block;
   width: 136px; /* ≥ 120 px required for the adopted wordmark */
-}
-
-@media (min-width: 1024px) {
-  :root[data-theme='dark'] .app-header__lockup {
-    display: none;
-  }
 }
 
 /* ---- App body: sidebar + content -------------------------------------------- */
@@ -435,8 +427,8 @@ summary:focus-visible,
 }
 
 .app-sidebar__link.is-active {
-  background: var(--bridgio-maroon);
-  color: var(--bridgio-cream);
+  background: var(--bridgio-cream);
+  color: var(--bridgio-maroon);
 }
 
 .app-sidebar__icon {
@@ -446,7 +438,7 @@ summary:focus-visible,
 }
 
 .app-sidebar__link.is-active .app-sidebar__icon {
-  color: var(--bridgio-cream);
+  color: var(--bridgio-maroon);
 }
 
 .app-sidebar__note {
@@ -474,7 +466,7 @@ summary:focus-visible,
 /* Desktop: the sidebar is a fixed column beside the content. */
 @media (min-width: 1024px) {
   .app-body {
-    grid-template-columns: 17rem minmax(0, 1fr);
+    grid-template-columns: 272px minmax(0, 1fr);
   }
 
   .app-sidebar {
@@ -2870,7 +2862,7 @@ h3 + .summary-list {
   /* Folded: an icon rail. Labels stay in the DOM (visually hidden) so every
      control keeps its accessible name. */
   .app-body--collapsed {
-    grid-template-columns: 5rem minmax(0, 1fr);
+    grid-template-columns: 88px minmax(0, 1fr);
   }
 
   .app-sidebar.is-collapsed .app-sidebar__label {

@@ -53,7 +53,7 @@ Warning stays the amber fill with dark `#2c0706` text. The colour lockup and mar
 ### Rules
 - Status is icon + word. Warning is a fill with dark text; never amber text on cream.
 - Primary action per screen is one `.button--primary`.
-- Never recolour or mirror the wordmark/lockup; lockup minimum 200 px on the large header.
+- Never recolour or mirror the wordmark or lockup. Since the shell polish (2026-11-13) the large (≥ 1024 px) header renders the 136 px clean wordmark only; the 200 px colour lockup stays in the repo for large/cover use and is no longer rendered in the header.
 
 ## 4. Accessibility rules (WCAG 2.1 AA)
 - Text contrast ≥ 4.5:1 (measured with alpha blended over the real background); UI parts ≥ 3:1.
