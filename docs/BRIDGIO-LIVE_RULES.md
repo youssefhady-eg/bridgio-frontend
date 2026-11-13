@@ -97,6 +97,7 @@ Prototype framing (owner, 2026-10-28): Arabic-first UI; prototype offered as one
 
 - Student-facing / casual: Egyptian colloquial Arabic, plus simple English where the product uses it. Calm, encouraging, nonchalant: short sentences, no panic, no hustle talk.
 - Teacher / admin / formal (teachers, parents, certificates, legal, employer copy): MSA formal, plus clear English for product terms. Respectful, time-saving, direct about what Mohsen can and cannot do.
+- Assistant screen (owner decision, 2026-11-13): BALANCED register — MSA and Egyptian colloquial both, professional but friendly. Greetings and encouragement in colloquial; instructions, labels, and statuses in MSA. Never mix the two inside one string.
 - Never mix dialects in one message.
 - Teacher copy leads with time saved (tests, revision, follow-up), not with hiring promises.
 - Student copy leads with the next small step, not career pressure.
@@ -274,3 +275,8 @@ Stage-specific gates are in `BRIDGIO-OpenCode-stages.md` and are not repeated he
 - **Shell numbers confirmed exact on the live preview (owner console run):** header 76px, sidebar 272px expanded / 88px collapsed, mid-transition 118.662px at ~125ms (smooth interpolation, not a snap), expands back to 272px.
 - **Durable measurement lessons:** Vercel truncates long branch slugs — never guess a branch preview URL from the branch name (Batch 1 preview: `bridgio-frontend-git-feat-teacher-question-a95535-youssef-17fc.vercel.app`). The owner's Chrome reports `devicePixelRatio: 2` — screenshot-crop width readings are not verdicts; `getBoundingClientRect` is. The sidebar collapse toggle's selector is `.app-sidebar__toggle` (`querySelector('button')` finds the drawer's close button first).
 - **Batch 1 MERGED 2026-11-13 ~19:22 EET as PR #29 (`main` = `cc1fff3`).** Production still serves PR #27 — two merges behind main (#28 shell polish + #29 Batch 1); promote pending the owner's word.
+
+## 2026-11-13 — Batch 2 gate verdict (Muse, ~20:10 EET)
+
+- **Batch 2: VERIFIED PASS, merge authorised.** Branch `feat/teacher-test-results`, tip `74429a9` (docs `46b62be` + feat), base `cc1fff3`. Gates re-run 142/142, typecheck, build pass. Contract adds PROPOSED `attempts.listForTest` + display-only `Attempt.scorePercent`; no marking anywhere (single score source `db.resultScores`). Teacher results verified live on the branch preview (Sara in-progress/unscored, Omar submitted 67%). Student score verified via screenshots (67% shown).
+- **Known limitation (carried, not a defect):** the student screen cannot be checked live on a hosted preview — hosted builds are baked with the teacher session (`VITE_MOCK_SESSION`), so `?as=student` shows the no-session empty state. Same limitation as the refinement gate; student/assistant populated states are verified via dev-server screenshots.
