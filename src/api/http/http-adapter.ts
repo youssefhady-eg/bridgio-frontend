@@ -35,6 +35,7 @@ import type {
   TeacherDashboard,
   TeacherProfile,
   Test,
+  TestAttemptSummary,
   TestSummary,
   UpdateQuestionInput,
   UpdateTestInput,
@@ -346,6 +347,11 @@ export function createHttpApi(options: HttpApiOptions): BridgioApi {
         client.request<AttemptSummary[]>({
           method: 'GET',
           path: endpoints.attempts.forStudent(input.studentId),
+        }),
+      listForTest: (input) =>
+        client.request<TestAttemptSummary[]>({
+          method: 'GET',
+          path: endpoints.attempts.forTest(input.testId),
         }),
       start: (input: StartAttemptInput) =>
         client.request<Attempt>({

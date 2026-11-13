@@ -51,6 +51,7 @@ const EXPECTED_METHODS = [
   'questions.delete',
   'questions.reorder',
   'attempts.listForStudent',
+  'attempts.listForTest',
   'attempts.start',
   'attempts.get',
   'attempts.saveAnswer',
@@ -258,6 +259,7 @@ describe('mock adapter — student player flow (no marking)', () => {
     const submitted = await api.attempts.submit({ attemptId: attempt.id })
     expect(submitted.status).toBe('submitted')
     expect(submitted.submittedAt).not.toBeNull()
+    expect(submitted.scorePercent).toBeNull()
     expect('score' in submitted).toBe(false)
     expect('correctCount' in submitted).toBe(false)
 
@@ -268,6 +270,84 @@ describe('mock adapter — student player flow (no marking)', () => {
         optionId: secondOption.id,
       }),
     ).rejects.toMatchObject({ code: 'CONFLICT' })
+  })
+})
+
+describe('mock adapter — teacher per-test results (PROPOSED)', () => {
+  it('lists every attempt on the teacher own test, newest activity first', async () => {
+    const api = created()
+    const rows = await api.attempts.listForTest({
+      testId: seedIds.testDerivatives,
+    })
+
+    expect(rows.map((row) => row.studentId)).toEqual([
+      seedIds.studentSara,
+      seedIds.studentOmar,
+    ])
+    expect(rows[0]).toMatchObject({
+      status: 'in_progress',
+      studentName: 'سارة محمد',
+      scorePercent: null,
+      submittedAt: null,
+    })
+    expect(rows[1]).toMatchObject({
+      status: 'submitted',
+      studentName: 'عمر خالد',
+      scorePercent: 67,
+    })
+    expect(rows[1]?.submittedAt).not.toBeNull()
+    expect(rows[1]?.answeredCount).toBeLessThanOrEqual(
+      rows[1]?.questionCount ?? 0,
+    )
+  })
+
+  it('returns the seeded scored attempt for the integration test', async () => {
+    const api = created()
+    const rows = await api.attempts.listForTest({
+      testId: seedIds.testIntegration,
+    })
+
+    expect(rows).toHaveLength(1)
+    expect(rows[0]).toMatchObject({
+      id: 'attempt_sara_integration',
+      studentId: seedIds.studentSara,
+      status: 'submitted',
+      scorePercent: 67,
+    })
+  })
+
+  it('returns an empty list for a test with no attempts', async () => {
+    const api = created()
+    await expect(
+      api.attempts.listForTest({ testId: seedIds.testIntegrationDraft }),
+    ).resolves.toEqual([])
+  })
+
+  it('refuses a student session', async () => {
+    const api = created()
+    await api.auth.signIn({
+      email: 'sara.student@bridgio.test',
+      password: 'demo',
+    })
+    await expect(
+      api.attempts.listForTest({ testId: seedIds.testDerivatives }),
+    ).rejects.toMatchObject({ code: 'FORBIDDEN' })
+  })
+
+  it('maps a backend score onto attempts.get without computing one', async () => {
+    const api = created()
+    await api.auth.signIn({
+      email: 'sara.student@bridgio.test',
+      password: 'demo',
+    })
+
+    const scored = await api.attempts.get({
+      attemptId: 'attempt_sara_integration',
+    })
+    expect(scored.scorePercent).toBe(67)
+
+    const unscored = await api.attempts.get({ attemptId: 'attempt_sara_deriv' })
+    expect(unscored.scorePercent).toBeNull()
   })
 })
 

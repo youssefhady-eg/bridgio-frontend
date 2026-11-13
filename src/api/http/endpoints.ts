@@ -81,6 +81,8 @@ export const endpoints = {
   attempts: {
     forStudent: (studentId: string) =>
       `/students/${encode(studentId)}/attempts`,
+    // PROPOSED (Batch 2) — teacher-only attempts on one test, with scores.
+    forTest: (testId: string) => `/tests/${encode(testId)}/attempts`,
     start: '/attempts',
     detail: (attemptId: string) => `/attempts/${encode(attemptId)}`,
     answer: (attemptId: string, questionId: string) =>

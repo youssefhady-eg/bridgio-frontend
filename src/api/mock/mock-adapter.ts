@@ -39,6 +39,7 @@ import type {
   TeacherDashboard,
   TeacherProfile,
   Test,
+  TestAttemptSummary,
   TestSource,
   TestSummary,
   UpdateQuestionInput,
@@ -55,6 +56,7 @@ import {
   seedIds,
   type MockClassroom,
   type MockDatabase,
+  type MockAttempt,
   type MockEnrollment,
   type MockTest,
 } from './seed'
@@ -310,7 +312,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
     return test
   }
 
-  function requireAttempt(id: string): Attempt {
+  function requireAttempt(id: string): MockAttempt {
     const attempt = db.attempts.find((item) => item.id === id)
     if (!attempt) fail('NOT_FOUND', `Attempt "${id}" not found.`, 404)
     return attempt
@@ -478,7 +480,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
     }
   }
 
-  function attemptSummary(attempt: Attempt): AttemptSummary {
+  function attemptSummary(attempt: MockAttempt): AttemptSummary {
     const test = requireTest(attempt.testId)
     const classroom = requireClassroom(test.classroomId)
     return {
@@ -497,11 +499,34 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
     }
   }
 
-  function attemptDetail(attempt: Attempt): Attempt {
+  function attemptDetail(attempt: MockAttempt): Attempt {
     return {
       ...attemptSummary(attempt),
       studentId: attempt.studentId,
       answers: attempt.answers,
+      // Backend-supplied only. The UI renders this value; it never computes one.
+      scorePercent: db.resultScores[attempt.id] ?? null,
+    }
+  }
+
+  /**
+   * Teacher-facing row for one attempt on a test. Same backend-supplied score
+   * source as `attemptDetail`, plus the student the teacher needs to identify.
+   */
+  function teacherAttemptSummary(attempt: MockAttempt): TestAttemptSummary {
+    return {
+      id: attempt.id,
+      testId: attempt.testId,
+      studentId: attempt.studentId,
+      studentName: requireUser(attempt.studentId).displayName,
+      status: attempt.status,
+      answeredCount: attempt.answers.filter(
+        (answer) => answer.optionId !== null,
+      ).length,
+      questionCount: questionsForTest(attempt.testId).length,
+      startedAt: attempt.startedAt,
+      submittedAt: attempt.submittedAt,
+      scorePercent: db.resultScores[attempt.id] ?? null,
     }
   }
 
@@ -871,7 +896,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
           )
 
     const attempts = db.attempts.filter((item) => item.studentId === child.id)
-    const attemptFor = (testId: string): Attempt | undefined =>
+    const attemptFor = (testId: string): MockAttempt | undefined =>
       attempts.find((item) => item.testId === testId)
 
     const classTests = classroom
@@ -1615,6 +1640,26 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
             .map(attemptSummary)
         }),
 
+      /**
+       * PROPOSED — NEW in Batch 2, teacher-only. Returns every attempt on the
+       * teacher's own test, newest activity first, with the backend-supplied
+       * score. A student session, or a teacher who does not own the test, is
+       * refused; nothing is marked or computed here.
+       */
+      listForTest: (input) =>
+        respond<TestAttemptSummary[]>(() => {
+          const teacher = requireActor('teacher')
+          const test = requireVisibleTest(input.testId, teacher)
+          return db.attempts
+            .filter((attempt) => attempt.testId === test.id)
+            .sort((left, right) =>
+              (right.submittedAt ?? right.startedAt).localeCompare(
+                left.submittedAt ?? left.startedAt,
+              ),
+            )
+            .map(teacherAttemptSummary)
+        }),
+
       start: (input: StartAttemptInput) =>
         respond<Attempt>(() => {
           const student = requireSelf('student', input.studentId)
@@ -1632,7 +1677,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
             }
             return attemptDetail(existing)
           }
-          const attempt: Attempt = {
+          const attempt: MockAttempt = {
             id: nextId('attempt'),
             testId: test.id,
             testTitle: test.title,

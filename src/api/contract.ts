@@ -39,6 +39,7 @@ import type {
   TeacherDashboard,
   TeacherProfile,
   Test,
+  TestAttemptSummary,
   TestId,
   TestSummary,
   UnitId,
@@ -230,6 +231,15 @@ export interface BridgioApi {
   attempts: {
     /** PROPOSED — student's attempts for "My Tests". */
     listForStudent(input: { studentId: UserId }): Promise<AttemptSummary[]>
+    /**
+     * PROPOSED — NEW in Batch 2. TEACHER-ONLY: every attempt on one of the
+     * teacher's own tests, newest first, each with the student it belongs to and
+     * the backend-supplied score. The contract had `listForStudent` only, so
+     * this method is a proposal for Mentingo to implement on restore/rebuild —
+     * not an existing endpoint. The frontend shows `scorePercent` as given and
+     * never marks an answer or computes a score.
+     */
+    listForTest(input: { testId: TestId }): Promise<TestAttemptSummary[]>
     /** PROPOSED — start or resume an in-progress attempt. */
     start(input: StartAttemptInput): Promise<Attempt>
     /** PROPOSED — attempt with saved answers. */

@@ -197,6 +197,28 @@ describe('http adapter — student question list', () => {
   })
 })
 
+describe('http adapter — teacher test attempts', () => {
+  it('uses the PROPOSED per-test attempts route', async () => {
+    const { fetchImpl, calls } = fakeFetch(
+      () =>
+        new Response('[]', {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        }),
+    )
+    const http = createHttpApi({
+      baseUrl: BASE_URL,
+      requestTimeoutMs: 1_000,
+      fetchImpl,
+    })
+
+    await http.attempts.listForTest({ testId: 'test_1' })
+
+    expect(calls[0]?.init?.method).toBe('GET')
+    expect(calls[0]?.url).toBe(`${BASE_URL}/tests/test_1/attempts`)
+  })
+})
+
 describe('http adapter — errors', () => {
   it('maps backend errors to ApiError with the shared code', async () => {
     const { fetchImpl } = fakeFetch(() =>
