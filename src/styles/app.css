@@ -595,19 +595,24 @@ summary:focus-visible,
 
 /* An in-page link to another screen. Not scoped to `.app-list--links` on
    purpose: the dashboard lists are not inside that container, and an
-   unscoped anchor falls back to the browser's blue + underline. */
+   unscoped anchor falls back to the browser's blue + underline.
+   Owner decision 2026-11-13: no underline at rest. Maroon ink + semibold keep
+   the link distinct from body text; the underline returns on hover and on
+   keyboard focus, together with the hover wash and the global focus ring. */
 .screen-link {
-  color: inherit;
+  color: var(--bridgio-maroon);
   font-weight: 600;
-  text-decoration: underline;
-  text-decoration-thickness: 1.5px;
-  text-underline-offset: 3px;
+  text-decoration: none;
 }
 
-.screen-link:hover {
+.screen-link:hover,
+.screen-link:focus-visible {
   /* Hover is an affordance, not an error state: use the proposed maroon
      hover wash, never the wine error colour. */
   background: var(--hover-bg);
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
 }
 
 .app-list--links li {

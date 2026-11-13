@@ -8,6 +8,8 @@ import {
   FolderOpen,
   Globe,
   House,
+  Library,
+  ListChecks,
   Menu,
   MessageSquare,
   MessagesSquare,
@@ -43,6 +45,8 @@ export type AppIconName =
   | 'dashboard'
   | 'classes'
   | 'tests'
+  | 'questions'
+  | 'materials'
   | 'students'
   | 'lessons'
   | 'progress'
@@ -68,6 +72,8 @@ const icons: Record<AppIconName, LucideIcon> = {
   dashboard: House,
   classes: PanelsTopLeft,
   tests: ClipboardList,
+  questions: ListChecks,
+  materials: Library,
   students: Users,
   lessons: FolderOpen,
   progress: ChartColumn,
@@ -110,6 +116,10 @@ export function navIconName(id: string): AppIconName {
     case 'student-tests':
     case 'parent-tests':
       return 'tests'
+    case 'teacher-question-bank':
+      return 'questions'
+    case 'teacher-materials':
+      return 'materials'
     case 'teacher-students':
       return 'students'
     case 'student-lessons':

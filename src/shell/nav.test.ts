@@ -12,11 +12,13 @@ import {
 } from './nav'
 
 describe('shell nav', () => {
-  it('teacher nav is Dashboard, My Classes, Tests, Students — in that order', () => {
+  it('teacher nav is Dashboard, My Classes, Tests, Question bank, Material library, Students — in that order', () => {
     expect(teacherNav.map((item) => item.id)).toEqual([
       'teacher-dashboard',
       'teacher-classes',
       'teacher-tests',
+      'teacher-question-bank',
+      'teacher-materials',
       'teacher-students',
     ])
   })
@@ -64,6 +66,16 @@ describe('shell nav', () => {
       'teacher-tests',
       'teacher-students',
     ])
+  })
+
+  it('keeps assistant capability routes stable when teacher nav grows', () => {
+    // The question bank and material library sit between Tests and Students;
+    // the assistant must still map each grant to its own original item.
+    expect(assistantNav(['students'])[0]?.id).toBe('teacher-students')
+    expect(assistantNav(['tests'])[0]?.id).toBe('teacher-tests')
+    expect(assistantNav(['classes'])[0]?.id).toBe('teacher-classes')
+    expect(assistantNav(['dashboard'])[0]?.id).toBe('teacher-dashboard')
+    expect(assistantNav(['students'])[0]?.hash).toBe('students')
   })
 
   it('every nav route has a unique path', () => {

@@ -71,6 +71,15 @@ export const queryKeys = {
       ['materials', 'teacher', teacherId, classroomId ?? 'all'] as const,
     detail: (materialId: MaterialId) =>
       ['materials', materialId] as const,
+    /** Composed library view: materials + the teacher's classes and units. */
+    library: (teacherId: UserId) =>
+      ['materials', 'library', teacherId] as const,
+  },
+  questions: {
+    all: () => ['questions'] as const,
+    /** Composed bank view: every test of the teacher with its full questions. */
+    forTeacher: (teacherId: UserId) =>
+      ['questions', 'teacher', teacherId] as const,
   },
   tests: {
     all: () => ['tests'] as const,

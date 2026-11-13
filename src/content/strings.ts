@@ -57,6 +57,8 @@ export type ScreenId =
   | 'teacher-dashboard'
   | 'teacher-classes'
   | 'teacher-tests'
+  | 'teacher-question-bank'
+  | 'teacher-materials'
   | 'teacher-students'
   | 'student-tests'
   | 'student-lessons'
@@ -133,6 +135,8 @@ export const ar = {
     'teacher-dashboard': 'لوحة التحكم',
     'teacher-classes': 'صفوفي',
     'teacher-tests': 'الاختبارات',
+    'teacher-question-bank': 'بنك الأسئلة',
+    'teacher-materials': 'مكتبة المواد',
     'teacher-students': 'الطلاب',
     'student-tests': 'اختباراتي',
     'student-lessons': 'دروسي',
@@ -145,6 +149,8 @@ export const ar = {
     | 'teacher-dashboard'
     | 'teacher-classes'
     | 'teacher-tests'
+    | 'teacher-question-bank'
+    | 'teacher-materials'
     | 'teacher-students'
     | 'student-tests'
     | 'student-lessons'
@@ -177,6 +183,7 @@ export const ar = {
         'تنقّل المعلم وتنقّل الطالب وتنقّل وليّ الأمر، ومساعد المعلم بحسب الصلاحيات الممنوحة من الخادم.',
         'لوحة المعلم: الصفوف وآخر الاختبارات وتقدّم الطلاب عبر طبقة البيانات.',
         'منشئ الاختبارات: أربع خطوات من اختيار المصدر إلى النشر، عبر طبقة البيانات.',
+        'بنك الأسئلة ومكتبة المواد: استعراض أسئلة المعلم ومواده النصية وروابطه، دون رفع ملفات.',
         `مشغّل اختبار الطالب: السؤال والخيارات والتقدّم والتسليم، مع لوحة أسئلة ${M}، عبر طبقة البيانات.`,
         'عرض وليّ الأمر للقراءة فقط: التقدّم والاختبارات والنتائج والرسائل، عبر طبقة البيانات.',
       ],
@@ -735,6 +742,117 @@ export const ar = {
       'لا يوفّر العقد الحالي نتائج لكل اختبار. لمراجعة تقدّم الطلاب، افتح صفحة الصف.',
     resultsClassLink: 'افتح صفحة الصف',
   },
+  /** Teacher question bank — every question across the teacher's tests. */
+  questionBank: {
+    headTitle: `بنك الأسئلة — ${B}`,
+    badge: 'بنك الأسئلة',
+    title: 'أسئلة اختباراتك في مكان واحد',
+    lead:
+      'استعرض كل سؤال كتبته أو صاغه محسن في اختباراتك، مع مصدره وإجابته المرجعية. البنك للعرض فقط في هذه النسخة.',
+    loading: 'جارٍ تحميل الأسئلة...',
+    loadErrorTitle: 'تعذّر تحميل بنك الأسئلة.',
+    loadErrorBody: 'من جهتنا، لا من جهتك. أعد المحاولة بعد قليل.',
+    noSessionTitle: 'بنك الأسئلة للمعلمين فقط',
+    noSessionBody:
+      'سجّل الدخول بحساب معلم لعرض الأسئلة. تسجيل الدخول مسؤولية Mentingo ولم يُوصَل بعد.',
+    filtersLabel: 'تصفية بنك الأسئلة',
+    filterClass: 'الصف',
+    allClasses: 'كل الصفوف',
+    searchLabel: 'ابحث في الأسئلة',
+    searchPlaceholder: 'ابحث في نص السؤال أو الخيارات...',
+    clearFilters: 'امسح عوامل التصفية',
+    testsCount: (count: number) => countPhrase(count, testsMsa),
+    questionsCount: (count: number) => countPhrase(count, questionsMsa),
+    matchesCount: (count: number) => countPhrase(count, questionsMsa),
+    emptyTitle: 'لا توجد اختبارات بعد',
+    emptyBody: 'أنشئ اختبارًا وأضف إليه أسئلة، وستظهر أسئلته هنا.',
+    noQuestionsTitle: 'لا توجد أسئلة بعد',
+    noQuestionsBody: 'أضف أسئلة من منشئ الاختبار أو اطلب من محسن صياغتها.',
+    noMatchTitle: 'لا توجد أسئلة مطابقة',
+    noMatchBody: 'جرّب كلمة بحث أخرى أو اختر صفًا مختلفًا.',
+    readOnlyNote:
+      'الأسئلة هنا للعرض فقط. لتعديل سؤال، افتح اختباره في منشئ الاختبار.',
+  },
+  /** Teacher material library — list/get/create/delete; metadata only. */
+  materialLibrary: {
+    headTitle: `مكتبة المواد — ${B}`,
+    badge: 'مكتبة المواد',
+    title: 'موادك التعليمية',
+    lead:
+      'اعرض المواد النصية والروابط التي تعتمد عليها اختباراتك. الإضافة هنا تسجّل بيانات المادة الوصفية فقط.',
+    loading: 'جارٍ تحميل المواد...',
+    loadErrorTitle: 'تعذّر تحميل المواد.',
+    loadErrorBody: 'من جهتنا، لا من جهتك. أعد المحاولة بعد قليل.',
+    noSessionTitle: 'مكتبة المواد للمعلمين فقط',
+    noSessionBody:
+      'سجّل الدخول بحساب معلم لعرض المواد. تسجيل الدخول مسؤولية Mentingo ولم يُوصَل بعد.',
+    uploadGapTitle: 'رفع الملفات غير متاح بعد',
+    uploadGapBody:
+      'رفع ملفات PDF والصور يحتاج تخزينًا في الخادم، وهو تكامل لم يُوصَل. تستطيع الآن إضافة مادة نصية أو رابط، وتُحفظ بياناتها الوصفية فقط.',
+    addHeading: 'أضف مادة',
+    addLead:
+      'سجّل عنوان المادة ومحتواها النصي أو رابطها. لا يُرفع أي ملف في هذه النسخة.',
+    noClassesTitle: 'لا توجد صفوف بعد',
+    noClassesBody: 'أضف صفًا أولًا حتى تستطيع ربط مادة به.',
+    classLabel: 'الصف',
+    classPlaceholder: 'اختر صفًا',
+    unitLabel: 'الوحدة (اختياري)',
+    noUnit: 'بلا وحدة',
+    kindLabel: 'نوع المادة',
+    kindText: 'نص',
+    kindLink: 'رابط',
+    kindPdf: 'PDF',
+    kindImage: 'صورة',
+    titleLabel: 'عنوان المادة',
+    titlePlaceholder: 'مثال: مذكرة قواعد الاشتقاق',
+    textLabel: 'المحتوى النصي',
+    textPlaceholder: 'الصق المحتوى الذي ستُبنى عليه الأسئلة...',
+    urlLabel: 'رابط المادة',
+    urlPlaceholder: 'https://example.com/lesson',
+    submit: 'أضف المادة',
+    submitting: 'جارٍ الإضافة...',
+    createErrorTitle: 'تعذّر إضافة المادة.',
+    createErrorBody: 'راجع الحقول المطلوبة وحاول مرة أخرى.',
+    createSuccessTitle: 'أُضيفت المادة',
+    createSuccessBody: (title: string) => `حُفظت بيانات «${title}».`,
+    listHeading: 'المواد',
+    listLead: 'كل المواد مرتبة من الأحدث.',
+    filtersLabel: 'تصفية المواد',
+    filterClass: 'الصف',
+    allClasses: 'كل الصفوف',
+    clearFilters: 'امسح عامل التصفية',
+    materialsCount: (count: number) => countPhrase(count, materialsMsa),
+    wordsCount: (count: number) => countPhrase(count, wordsMsa),
+    created: 'أُضيفت في',
+    unknownDate: 'تاريخ غير متاح',
+    noClass: 'صف غير متاح',
+    statusReady: 'جاهزة',
+    statusProcessing: 'قيد المعالجة',
+    statusFailed: 'فشلت المعالجة',
+    actionsLabel: 'إجراءات المادة',
+    view: 'اعرض المحتوى',
+    hide: 'أخفِ المحتوى',
+    delete: 'احذف',
+    deleteConfirmTitle: 'حذف المادة؟',
+    deleteConfirmBody: 'لا يمكن التراجع عن الحذف.',
+    deleteConfirm: 'نعم، احذف',
+    deleteCancel: 'إلغاء',
+    deleting: 'جارٍ الحذف...',
+    deleteErrorTitle: 'تعذّر حذف المادة.',
+    deleteErrorBody: 'من جهتنا، لا من جهتك. أعد المحاولة بعد قليل.',
+    deleteConflictTitle: 'المادة مستخدمة في اختبار',
+    deleteConflictBody:
+      'لا يمكن حذف مادة يعتمد عليها اختبار. أزل الاختبار أو غيّر مصدره أولًا.',
+    detailLoading: 'جارٍ تحميل محتوى المادة...',
+    detailErrorTitle: 'تعذّر تحميل محتوى المادة.',
+    detailErrorBody: 'من جهتنا، لا من جهتك. أعد المحاولة بعد قليل.',
+    detailNoContent: 'لا يوجد محتوى نصي محفوظ لهذه المادة.',
+    openLink: 'افتح الرابط',
+    emptyTitle: 'لا توجد مواد بعد',
+    emptyBody: 'أضف أول مادة نصية أو رابط من النموذج أعلاه.',
+    emptyFilterTitle: 'لا توجد مواد لهذا الصف',
+    emptyFilterBody: 'جرّب صفًا آخر أو أضف مادة جديدة.',
+  },
   /** Student test review + retake. Student register: Egyptian casual. */
   results: {
     headTitle: `مراجعة الاختبار — ${B}`,
@@ -917,6 +1035,8 @@ export const ar = {
       classes: 'صفوفي',
       students: 'الطلاب',
       tests: 'اختباراتي',
+      questionBank: 'بنك الأسئلة',
+      materials: 'مكتبة المواد',
       lessons: 'دروسي',
       progress: 'تقدّمي',
       profile: 'الملف الشخصي والإعدادات',
@@ -926,6 +1046,8 @@ export const ar = {
       | 'classes'
       | 'students'
       | 'tests'
+      | 'questionBank'
+      | 'materials'
       | 'lessons'
       | 'progress'
       | 'profile'
@@ -946,6 +1068,8 @@ export const ar = {
       'teacher-dashboard': 'لوحة المعلم',
       'teacher-classes': 'صفوفي',
       'teacher-tests': 'الاختبارات',
+      'teacher-question-bank': 'بنك الأسئلة',
+      'teacher-materials': 'مكتبة المواد',
       'teacher-students': 'الطلاب',
       'student-tests': 'اختباراتي',
       'student-lessons': 'الدروس',
@@ -960,6 +1084,8 @@ export const ar = {
       'teacher-dashboard': 'المرحلة ٢ — لوحة المعلم.',
       'teacher-classes': 'المرحلة ٢ — الصفوف تظهر الآن في لوحة التحكم فقط.',
       'teacher-tests': 'المرحلة ٣ — منشئ الاختبارات.',
+      'teacher-question-bank': 'هذه الدفعة — بنك الأسئلة (عرض فقط).',
+      'teacher-materials': 'هذه الدفعة — مكتبة المواد (بيانات وصفية فقط).',
       'teacher-students':
         'المرحلة ٢ — تقدّم الطلاب يظهر الآن في لوحة التحكم فقط.',
       'student-tests': 'المرحلة ٤ — مشغّل الاختبار.',
@@ -1062,6 +1188,8 @@ export const en: Strings = {
     'teacher-dashboard': 'Dashboard',
     'teacher-classes': 'My Classes',
     'teacher-tests': 'Tests',
+    'teacher-question-bank': 'Question bank',
+    'teacher-materials': 'Material library',
     'teacher-students': 'Students',
     'student-tests': 'My Tests',
     'student-lessons': 'Lessons',
@@ -1092,6 +1220,7 @@ export const en: Strings = {
         'Teacher, student and parent navigation, plus Teacher Assistant navigation limited to the capabilities granted by the backend.',
         'The teacher dashboard: classes, recent tests and student progress through the data layer.',
         'The test builder: four steps from choosing a source to publishing, through the data layer.',
+        'The question bank and the material library: browsing the teacher\'s questions and text or link materials, without file upload.',
         `The student test player: question, options, progress and submission, with the ${M} question panel, through the data layer.`,
         'A read-only parent view: progress, tests, results and messages, through the data layer.',
       ],
@@ -1636,6 +1765,121 @@ export const en: Strings = {
       'The current contract does not expose per-test results. To review student progress, open the class page.',
     resultsClassLink: 'Open the class page',
   },
+  questionBank: {
+    headTitle: `Question bank — ${B}`,
+    badge: 'Question bank',
+    title: 'Every question from your tests, in one place',
+    lead:
+      'Browse every question you wrote or Mohsen drafted across your tests, with its source and reference answer. The bank is read-only in this build.',
+    loading: 'Loading questions...',
+    loadErrorTitle: 'We could not load the question bank.',
+    loadErrorBody: 'It is on our side, not yours. Try again shortly.',
+    noSessionTitle: 'The question bank is for teachers only',
+    noSessionBody:
+      'Sign in with a teacher account to browse questions. Sign-in is owned by Mentingo and is not connected yet.',
+    filtersLabel: 'Filter the question bank',
+    filterClass: 'Class',
+    allClasses: 'All classes',
+    searchLabel: 'Search questions',
+    searchPlaceholder: 'Search the question or its options...',
+    clearFilters: 'Clear filters',
+    testsCount: (count: number) => englishCount(count, 'test', 'tests'),
+    questionsCount: (count: number) =>
+      englishCount(count, 'question', 'questions'),
+    matchesCount: (count: number) =>
+      englishCount(count, 'matching question', 'matching questions'),
+    emptyTitle: 'No tests yet',
+    emptyBody:
+      'Create a test and add questions; its questions will appear here.',
+    noQuestionsTitle: 'No questions yet',
+    noQuestionsBody:
+      'Add questions from the test builder or ask Mohsen to draft them.',
+    noMatchTitle: 'No matching questions',
+    noMatchBody: 'Try another search word or choose a different class.',
+    readOnlyNote:
+      'Questions here are read-only. To edit one, open its test in the test builder.',
+  },
+  materialLibrary: {
+    headTitle: `Material library — ${B}`,
+    badge: 'Material library',
+    title: 'Your teaching materials',
+    lead:
+      'Browse the text materials and links your tests rely on. Adding a material here records its metadata only.',
+    loading: 'Loading materials...',
+    loadErrorTitle: 'We could not load the materials.',
+    loadErrorBody: 'It is on our side, not yours. Try again shortly.',
+    noSessionTitle: 'The material library is for teachers only',
+    noSessionBody:
+      'Sign in with a teacher account to browse materials. Sign-in is owned by Mentingo and is not connected yet.',
+    uploadGapTitle: 'File upload is not available yet',
+    uploadGapBody:
+      'Uploading PDF and image files needs server storage, which is an integration that is not connected. You can add a text material or a link now; only its metadata is saved.',
+    addHeading: 'Add a material',
+    addLead:
+      'Record the title and its text content or link. No file is uploaded in this build.',
+    noClassesTitle: 'No classes yet',
+    noClassesBody: 'Add a class first so a material can be linked to it.',
+    classLabel: 'Class',
+    classPlaceholder: 'Choose a class',
+    unitLabel: 'Unit (optional)',
+    noUnit: 'No unit',
+    kindLabel: 'Material type',
+    kindText: 'Text',
+    kindLink: 'Link',
+    kindPdf: 'PDF',
+    kindImage: 'Image',
+    titleLabel: 'Material title',
+    titlePlaceholder: 'For example: Differentiation rules notes',
+    textLabel: 'Text content',
+    textPlaceholder: 'Paste the content the questions will be based on...',
+    urlLabel: 'Material URL',
+    urlPlaceholder: 'https://example.com/lesson',
+    submit: 'Add material',
+    submitting: 'Adding...',
+    createErrorTitle: 'We could not add the material.',
+    createErrorBody: 'Check the required fields and try again.',
+    createSuccessTitle: 'Material added',
+    createSuccessBody: (title: string) =>
+      `The metadata for “${title}” was saved.`,
+    listHeading: 'Materials',
+    listLead: 'Every material, newest first.',
+    filtersLabel: 'Filter materials',
+    filterClass: 'Class',
+    allClasses: 'All classes',
+    clearFilters: 'Clear the filter',
+    materialsCount: (count: number) =>
+      englishCount(count, 'material', 'materials'),
+    wordsCount: (count: number) => englishCount(count, 'word', 'words'),
+    created: 'Added',
+    unknownDate: 'Date unavailable',
+    noClass: 'Class unavailable',
+    statusReady: 'Ready',
+    statusProcessing: 'Processing',
+    statusFailed: 'Processing failed',
+    actionsLabel: 'Material actions',
+    view: 'View content',
+    hide: 'Hide content',
+    delete: 'Delete',
+    deleteConfirmTitle: 'Delete this material?',
+    deleteConfirmBody: 'This cannot be undone.',
+    deleteConfirm: 'Yes, delete',
+    deleteCancel: 'Cancel',
+    deleting: 'Deleting...',
+    deleteErrorTitle: 'We could not delete the material.',
+    deleteErrorBody: 'It is on our side, not yours. Try again shortly.',
+    deleteConflictTitle: 'This material is used by a test',
+    deleteConflictBody:
+      'A material that a test relies on cannot be deleted. Remove the test or change its source first.',
+    detailLoading: 'Loading the material content...',
+    detailErrorTitle: 'We could not load the material content.',
+    detailErrorBody: 'It is on our side, not yours. Try again shortly.',
+    detailNoContent: 'No text content is stored for this material.',
+    openLink: 'Open the link',
+    emptyTitle: 'No materials yet',
+    emptyBody: 'Add the first text material or link from the form above.',
+    emptyFilterTitle: 'No materials in this class',
+    emptyFilterBody: 'Try another class or add a new material.',
+  },
   results: {
     headTitle: `Test review — ${B}`,
     badge: 'Test review',
@@ -1811,6 +2055,8 @@ export const en: Strings = {
       classes: 'My Classes',
       students: 'Students',
       tests: 'My Tests',
+      questionBank: 'Question bank',
+      materials: 'Material library',
       lessons: 'Lessons',
       progress: 'My Progress',
       profile: 'Profile and settings',
@@ -1830,6 +2076,8 @@ export const en: Strings = {
       'teacher-dashboard': 'Teacher dashboard',
       'teacher-classes': 'My Classes',
       'teacher-tests': 'Tests',
+      'teacher-question-bank': 'Question bank',
+      'teacher-materials': 'Material library',
       'teacher-students': 'Students',
       'student-tests': 'My Tests',
       'student-lessons': 'Lessons',
@@ -1844,6 +2092,8 @@ export const en: Strings = {
       'teacher-dashboard': 'Stage 2 — the teacher dashboard.',
       'teacher-classes': 'Stage 2 — classes currently appear on the dashboard only.',
       'teacher-tests': 'Stage 3 — the test builder.',
+      'teacher-question-bank': 'This batch — question bank (read only).',
+      'teacher-materials': 'This batch — material library (metadata only).',
       'teacher-students':
         'Stage 2 — student progress currently appears on the dashboard only.',
       'student-tests': 'Stage 4 — the test player.',

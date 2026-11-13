@@ -1,7 +1,18 @@
 import { queryOptions } from '@tanstack/react-query'
 import { api } from './index'
 import { queryKeys } from './query-keys'
-import type { AttemptId, ClassroomId, TestId, UserId } from './types'
+import type {
+  AttemptId,
+  ClassroomId,
+  ClassroomSummary,
+  CurriculumUnit,
+  Material,
+  MaterialId,
+  Question,
+  TestId,
+  TestSummary,
+  UserId,
+} from './types'
 
 /**
  * Query options for the single API layer. Feature stages add their own options
@@ -151,6 +162,83 @@ export const teacherTestsQueryOptions = (teacherId: UserId) =>
   queryOptions({
     queryKey: queryKeys.tests.forTeacher(teacherId),
     queryFn: () => api.tests.listForTeacher({ teacherId }),
+    staleTime: 0,
+  })
+
+/**
+ * Teacher question bank — composed from existing adapter methods, no contract
+ * change.
+ *
+ * The PROPOSED contract has `questions.listForTest` only, so the bank lists the
+ * teacher's tests and then reads each test's full questions: one call per test.
+ * That N+1 is the honest cost of not inventing an endpoint; a future
+ * `questions.listForTeacher` would collapse it.
+ *
+ * TEACHER-ONLY: full questions carry `correctOptionId`, so only the teacher
+ * bank screen may use this option. Student screens must keep using
+ * `studentTestQuestionsQueryOptions`.
+ */
+export interface QuestionBankGroup {
+  test: TestSummary
+  questions: Question[]
+}
+
+export const teacherQuestionBankQueryOptions = (teacherId: UserId) =>
+  queryOptions({
+    queryKey: queryKeys.questions.forTeacher(teacherId),
+    queryFn: async (): Promise<QuestionBankGroup[]> => {
+      const tests = await api.tests.listForTeacher({ teacherId })
+      return Promise.all(
+        tests.map(async (test) => ({
+          test,
+          questions: await api.questions.listForTest({ testId: test.id }),
+        })),
+      )
+    },
+    staleTime: 0,
+  })
+
+/**
+ * Teacher material library — composed from existing adapter methods, no
+ * contract change.
+ *
+ * `materials.listForTeacher` supplies the materials, `classrooms.listForTeacher`
+ * the class filter, and `classrooms.get` the unit names (and the per-class unit
+ * choices for the create form). All are PROPOSED.
+ */
+export interface MaterialLibraryData {
+  materials: Material[]
+  classrooms: ClassroomSummary[]
+  unitsByClass: Record<ClassroomId, CurriculumUnit[]>
+}
+
+export const materialLibraryQueryOptions = (teacherId: UserId) =>
+  queryOptions({
+    queryKey: queryKeys.materials.library(teacherId),
+    queryFn: async (): Promise<MaterialLibraryData> => {
+      const [materials, classrooms] = await Promise.all([
+        api.materials.listForTeacher({ teacherId }),
+        api.classrooms.listForTeacher({ teacherId }),
+      ])
+      const details = await Promise.all(
+        classrooms.map((classroom) =>
+          api.classrooms.get({ classroomId: classroom.id }),
+        ),
+      )
+      const unitsByClass: Record<ClassroomId, CurriculumUnit[]> = {}
+      for (const detail of details) {
+        unitsByClass[detail.id] = detail.units.map((entry) => entry.unit)
+      }
+      return { materials, classrooms, unitsByClass }
+    },
+    staleTime: 0,
+  })
+
+/** One material's full record — `materials.get` (PROPOSED, teacher-only). */
+export const materialDetailQueryOptions = (materialId: MaterialId) =>
+  queryOptions({
+    queryKey: queryKeys.materials.detail(materialId),
+    queryFn: () => api.materials.get({ materialId }),
     staleTime: 0,
   })
 
