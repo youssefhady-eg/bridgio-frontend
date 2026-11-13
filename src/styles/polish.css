@@ -245,38 +245,6 @@ body {
   }
 }
 
-/* ---- Stage banner: an inline notice, not a second header ------------------ */
-
-.stage-banner {
-  margin: var(--space-4) var(--space-4) 0;
-  padding: var(--space-3) var(--space-4);
-  border: var(--outline-hairline) dashed var(--border-strong);
-  border-radius: 12px;
-  background: transparent;
-  line-height: 1.5;
-}
-
-.stage-banner__stage {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.stage-banner__stage::before {
-  content: '';
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--bridgio-warning-fill);
-  border: 1.5px solid var(--bridgio-maroon);
-}
-
-@media (min-width: 768px) {
-  .stage-banner {
-    margin: var(--space-6) var(--space-8) 0;
-  }
-}
-
 /* ---- Main column --------------------------------------------------------- */
 
 .app-main {
@@ -312,7 +280,6 @@ h1 {
   background: var(--bridgio-red);
 }
 
-.app-shell__hero,
 .dashboard__hero,
 .builder__hero,
 .player__hero {
@@ -321,8 +288,7 @@ h1 {
 
 .dashboard__lead,
 .builder__lead,
-.player__lead,
-.app-shell__lead {
+.player__lead {
   color: var(--text-secondary);
   max-width: 44rem;
 }
@@ -340,8 +306,7 @@ h1 {
 .player-test,
 .player-run,
 .mohsen-panel,
-.parent-unit,
-.placeholder {
+.parent-unit {
   background: var(--bridgio-paper);
   border: var(--outline-card) solid var(--card-border);
   border-radius: var(--radius-panel);
@@ -565,33 +530,6 @@ select.input {
   border-radius: 12px;
   background: var(--tint-info);
   border-color: color-mix(in srgb, var(--bridgio-info) 35%, transparent);
-}
-
-/* ---- Footer: lighter build note ------------------------------------------ */
-
-.app-footer {
-  margin-block-start: var(--space-8);
-  border-top: var(--outline-hairline) solid var(--border-strong);
-  background: transparent;
-}
-
-.app-footer__inner {
-  max-width: var(--content-max);
-}
-
-@media (min-width: 768px) {
-  .app-footer {
-    padding-inline: var(--space-8);
-  }
-}
-
-.app-roles__link {
-  background: var(--bridgio-paper);
-  transition: border-color 0.15s ease, background-color 0.15s ease;
-}
-
-.app-roles__link:hover:not(.is-active) {
-  border-color: var(--bridgio-maroon);
 }
 
 /* ---- Chat popup --------------------------------------------------------- */

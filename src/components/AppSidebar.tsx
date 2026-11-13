@@ -92,6 +92,12 @@ export function AppSidebar({
   const utilityLinks = [
     { id: 'help', to: '/help', label: strings.sidebar.helpLabel, icon: 'help' },
     {
+      id: 'guide',
+      to: '/guide',
+      label: strings.sidebar.guideLabel,
+      icon: 'guide',
+    },
+    {
       id: 'profile',
       to: '/profile',
       label: strings.sidebar.profileLabel,
@@ -154,7 +160,7 @@ export function AppSidebar({
           <p className="app-sidebar__note">{strings.sidebar.assistantNote}</p>
         ) : null}
 
-        {/* Pinned utilities: the same two screens for every role. */}
+        {/* Pinned utilities: the same three screens for every role. */}
         <ul className="utility-links" aria-label={strings.sidebar.utilitiesLabel}>
           {utilityLinks.map((link) => {
             const active = pathname === link.to

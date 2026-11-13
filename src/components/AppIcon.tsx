@@ -4,6 +4,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ClipboardList,
+  Compass,
   FileQuestion,
   FolderOpen,
   Globe,
@@ -53,6 +54,7 @@ export type AppIconName =
   | 'results'
   | 'messages'
   | 'help'
+  | 'guide'
   | 'sun'
   | 'moon'
   | 'collapse'
@@ -80,6 +82,7 @@ const icons: Record<AppIconName, LucideIcon> = {
   results: ShieldCheck,
   messages: MessagesSquare,
   help: FileQuestion,
+  guide: Compass,
   sun: Sun,
   moon: Moon,
   collapse: ChevronLeft,

@@ -159,7 +159,6 @@ export function ChatSurface({ active }: { active: boolean }) {
           {strings.chat.sendError}
         </p>
       ) : null}
-      <p className="chat-surface__note">{strings.chat.mockNote}</p>
     </div>
   )
 }

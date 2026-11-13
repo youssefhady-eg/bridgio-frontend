@@ -55,8 +55,8 @@ describe('centralised UI strings', () => {
     expect(assistant.nameAr.length).toBeGreaterThan(0)
 
     expect(ar.head.title).toContain(brand.name)
-    expect(ar.footer.note).toContain(brand.name)
-    expect(ar.footer.note).toContain(assistant.nameAr)
+    expect(ar.help.headTitle).toContain(brand.name)
+    expect(ar.guide.headTitle).toContain(brand.name)
     expect(ar.builder.draft.heading).toContain(assistant.nameAr)
     expect(ar.player.mohsen.heading).toContain(assistant.nameAr)
   })

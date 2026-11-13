@@ -19,8 +19,8 @@ import { useLang, useStrings } from '~/shell/useStrings'
  *   768–1023 : light small header — adopted wordmark, maroon fill, 148 px
  *   <768 px  : dark band — adopted wordmark, cream fill, 136 px
  *
- * No component here fetches data; auth is owned by Mentingo (method
- * unconfirmed), so the account area is a labelled placeholder only.
+ * No component here fetches data; the account area is a labelled placeholder
+ * only, and every label comes from the central strings.
  */
 
 interface AppHeaderProps {
@@ -139,7 +139,6 @@ export function AppHeader({
             search={{ as: role, lang }}
             className="app-utility__button app-utility__button--account"
             aria-label={strings.header.accountLabel}
-            title={strings.header.accountNote}
             preload={false}
           >
             <AppIcon name="user" size={20} />

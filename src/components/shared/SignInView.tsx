@@ -1,15 +1,12 @@
-import { EmptyNote } from '~/components/dashboard/EmptyNote'
 import { PageHero } from '~/components/shared/PageHero'
 import { useStrings } from '~/shell/useStrings'
 
 /**
  * Sign in — informational only.
  *
- * BRIDGIO has no auth system; sign-in and roles are owned by Mentingo and the
- * transport is unconfirmed. So this screen does NOT call `auth.signIn` and does
- * NOT invent a flow: the fields are disabled, a note explains why, and the demo
- * session mechanism is described. When Mentingo auth lands, this screen becomes
- * the real entry point.
+ * The fields are disabled and one plain status line says sign-in is not
+ * available yet. Nothing is invented here: no flow, no provider, no contact
+ * detail.
  */
 export function SignInView() {
   const strings = useStrings()
@@ -49,17 +46,9 @@ export function SignInView() {
         </button>
       </form>
 
-      <p className="finish-note">{copy.disabledNote}</p>
-
-      <section className="dashboard__section">
-        <EmptyNote icon="alert" title={copy.noteTitle} body={copy.note} />
-      </section>
-
-      <section className="dashboard__section">
-        <h2>{copy.demoHeading}</h2>
-        <p className="section-lead">{copy.demoLead}</p>
-        <p className="finish-note">{copy.demoNote}</p>
-      </section>
+      <p className="finish-note" role="status">
+        {copy.status}
+      </p>
     </div>
   )
 }
