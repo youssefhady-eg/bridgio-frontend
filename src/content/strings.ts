@@ -51,22 +51,52 @@ const testsMsa: NounForms = { one: 'اختبار واحد', two: 'اختبارا
 const studentsMsa: NounForms = { one: 'طالب واحد', two: 'طالبان', few: 'طلاب', many: 'طالبًا' }
 const materialsMsa: NounForms = { one: 'مادة واحدة', two: 'مادتان', few: 'مواد', many: 'مادة' }
 
-/** Screen route/page identifiers shared with src/shell/nav.ts. */
-export type ScreenId =
-  | 'shell-home'
-  | 'teacher-dashboard'
-  | 'teacher-classes'
-  | 'teacher-tests'
-  | 'teacher-question-bank'
-  | 'teacher-materials'
-  | 'teacher-students'
-  | 'student-tests'
-  | 'student-lessons'
-  | 'student-progress'
-  | 'parent-progress'
-  | 'parent-tests'
-  | 'parent-results'
-  | 'parent-messages'
+/** Help Center categories; the view shows a role-scoped subset in this order. */
+export type HelpCategory =
+  | 'gettingStarted'
+  | 'teacher'
+  | 'student'
+  | 'parent'
+  | 'assistant'
+  | 'account'
+  | 'faq'
+
+/**
+ * Link targets an article or guide step can point at. The matching routes live
+ * in `src/shell/help-links.ts`, because URLs are code, not copy.
+ */
+export type HelpLinkId =
+  | 'profile'
+  | 'teacherDashboard'
+  | 'teacherClasses'
+  | 'teacherTests'
+  | 'teacherQuestionBank'
+  | 'teacherMaterials'
+  | 'teacherStudents'
+  | 'studentTests'
+  | 'studentLessons'
+  | 'studentProgress'
+  | 'parentProgress'
+  | 'parentTests'
+  | 'parentResults'
+  | 'parentMessages'
+  | 'assistantHome'
+
+/** One Help Center article: a single task with short numbered steps. */
+export interface HelpArticle {
+  category: HelpCategory
+  title: string
+  body: string
+  steps: string[]
+  link?: HelpLinkId
+}
+
+/** One numbered step of a role walkthrough on `/guide`. */
+export interface GuideStep {
+  title: string
+  body: string
+  link: HelpLinkId
+}
 
 /** Preview roles (`?as`) — diagnostic UI state only, never auth. */
 export type PreviewRoleId = 'teacher' | 'student' | 'assistant' | 'parent'
@@ -74,13 +104,9 @@ export type PreviewRoleId = 'teacher' | 'student' | 'assistant' | 'parent'
 /** DRAFT Arabic — not approved final copy. */
 export const ar = {
   head: {
-    title: `${B} — هيكل بشريط جانبي ودعم كامل للعربية والإنجليزية`,
+    title: `${B} — منصّة التعليم والاختبارات`,
     description:
-      `نسخة تحسين الهيكل في ${B}: شريط جانبي للتنقّل لكل الأدوار، شريط علوي مختصر، خطوط عربية Thmanyah، ومفتاح كامل بين العربية والإنجليزية مع اتجاه من اليسار إلى اليمين. بتخطيط مبني على الخصائص المنطقية وبالبيانات التجريبية عبر طبقة البيانات. هذه نسخة داخلية للتحقق وليست نسخة منتج نهائية.`,
-  },
-  stageBanner: {
-    stage: 'تحسين الهيكل — فرع منفصل',
-    note: 'شريط جانبي وشريط علوي مختصر وخطوط عربية ومفتاح لغة. البيانات تجريبية وتأتي عبر طبقة البيانات، وليست بيانات حقيقية.',
+      'منصّة للمعلمين والطلاب: الصفوف والاختبارات والمواد، ومساعد يجيب من مادة الاختبار.',
   },
   header: {
     navLabel: 'التنقّل الرئيس',
@@ -98,24 +124,9 @@ export const ar = {
     assistantLabel: 'المحادثات',
     assistantOpenLabel: 'افتح المحادثات',
     accountLabel: 'الحساب',
-    accountNote: 'تسجيل الدخول والأدوار مسؤولية Mentingo، ولم تُوصَل بعد.',
     themeLabel: 'المظهر',
     themeToDark: 'المظهر الداكن',
     themeToLight: 'المظهر الفاتح',
-  },
-  /**
-   * Preview-role diagnostic (`?as`) — UI state only, never auth. Moved out of
-   * the header into the footer so the header stays a slim utility bar.
-   */
-  preview: {
-    groupAria: 'معاينة الدور — حالة واجهة فقط، دون تسجيل دخول.',
-    label: 'دور المعاينة:',
-    roles: {
-      teacher: 'المعلم',
-      student: 'الطالب',
-      assistant: 'مساعد المعلم',
-      parent: 'وليّ الأمر',
-    } as Record<PreviewRoleId, string>,
   },
   /** Primary navigation sidebar (all roles). */
   sidebar: {
@@ -125,9 +136,10 @@ export const ar = {
     collapseLabel: 'طيّ القائمة الجانبية',
     expandLabel: 'توسيع القائمة الجانبية',
     assistantNote:
-      'تظهر هذه العناصر بحسب الصلاحيات الممنوحة لهذا الحساب من الخادم. لا واجهة منح في هذه النسخة.',
+      'تظهر هذه العناصر بحسب الصلاحيات الممنوحة لهذا الحساب.',
     utilitiesLabel: 'روابط مساعدة',
-    helpLabel: 'المساعدة والدليل',
+    helpLabel: 'المساعدة',
+    guideLabel: 'الدليل',
     profileLabel: 'الملف الشخصي',
   },
   /** Nav item labels — teacher copy is MSA formal, student copy is Egyptian casual, parent copy is MSA formal. */
@@ -161,45 +173,9 @@ export const ar = {
     | 'parent-messages',
     string
   >,
-  footer: {
-    demoNote: 'البيانات المعروضة هنا تجريبية.',
-    note: `${B} و${M} اسمان عملان قابلان للتغيير، وصياغة العربية مسودات بانتظار المراجعة.`,
-    noteEn: `${B} — internal build for brand verification. Not final, nothing external-facing.`,
-  },
-  shell: {
-    home: {
-      badge: 'الهيكل والعلامة',
-      title: 'هيكل التطبيق: الألوان، الخطوط، التخطيط',
-      lead:
-        'هذه شاشة إرشادية للهيكل فقط. لوحة المعلم مبنية في المرحلة ٢، ومشغّل اختبار الطالب في المرحلة ٤، أما بقية شاشات الطالب فتُبنى في مراحل لاحقة.',
-      builtHeading: 'ما هو مُبنى حتى الآن',
-      built: [
-        'طبقة التصميم كاملة: ألوان العلامة وألوان الحالات وألوان الواجهة المقترحة.',
-        'خط عربي Thmanyah للواجهة (بأسماء Thmanyah وتحويل احتياطي إلى Alexandria، لأن ملفات الخط غير مضمّنة في المستودع العام).',
-        'Sora وNunito للاتينية في الواجهة الإنجليزية.',
-        'شريط جانبي ثابت للتنقّل الأساسي لكل الأدوار، وعلى الهاتف يظهر كدُرج من زر القائمة.',
-        'شريط علوي مختصر: العلامة ومفتاح اللغة وزر المحادثات ومنطقة الحساب (دون روابط تنقّل).',
-        'مفتاح كامل بين العربية والإنجليزية مع تبديل اتجاه الصفحة من اليمين إلى اليسار.',
-        'تنقّل المعلم وتنقّل الطالب وتنقّل وليّ الأمر، ومساعد المعلم بحسب الصلاحيات الممنوحة من الخادم.',
-        'لوحة المعلم: الصفوف وآخر الاختبارات وتقدّم الطلاب عبر طبقة البيانات.',
-        'منشئ الاختبارات: أربع خطوات من اختيار المصدر إلى النشر، عبر طبقة البيانات.',
-        'بنك الأسئلة ومكتبة المواد: استعراض أسئلة المعلم ومواده النصية وروابطه، دون رفع ملفات.',
-        `مشغّل اختبار الطالب: السؤال والخيارات والتقدّم والتسليم، مع لوحة أسئلة ${M}، عبر طبقة البيانات.`,
-        'عرض وليّ الأمر للقراءة فقط: التقدّم والاختبارات والنتائج والرسائل، عبر طبقة البيانات.',
-      ],
-      notBuiltHeading: 'ما لم يُبنَ بعد',
-      notBuiltLead:
-        'باقي شاشات المنتج تُبنى في المراحل التالية. الروابط أدناه تفتح صفحات إرشادية فارغة، وليست شاشات منتج.',
-    },
-    roleHint:
-      'بدّل دور المعاينة (تشخيصي فقط) من أسفل الشاشة، أو مباشرة من عنوان الصفحة:',
-    codeHint:
-      '…?as=teacher أو …?as=student أو …?as=assistant أو …?as=parent',
-  },
   dashboard: {
     headTitle: `لوحة المعلم — ${B}`,
-    badge: 'لوحة المعلم',
-    title: 'وفّر وقت المتابعة',
+    title: 'لوحة المعلم',
     quickActions: {
       heading: 'إجراءات سريعة',
       createTest: 'أنشئ اختبارًا',
@@ -264,8 +240,7 @@ export const ar = {
     loadErrorTitle: 'تعذّر تحميل لوحتك.',
     loadErrorBody: 'من جهتنا، لا من جهتك. أعد المحاولة بعد قليل.',
     noSessionTitle: 'لا توجد جلسة معلم.',
-    noSessionBody:
-      'تسجيل الدخول والأدوار مسؤولية Mentingo، ولم تُوصَل بعد. هذه شاشة معاينة داخلية فقط.',
+    noSessionBody: 'سجّل الدخول بحساب معلم لعرض لوحتك.',
     emptyAllTitle: 'لا يوجد شيء هنا بعد',
     emptyAllBody:
       'لا صفوف ولا اختبارات بعد. ستظهر هنا بمجرد إضافتها.',
@@ -288,8 +263,7 @@ export const ar = {
     loadErrorTitle: 'تعذّر تحميل منشئ الاختبار.',
     loadErrorBody: 'من جهتنا، لا من جهتك. أعد المحاولة بعد قليل.',
     noSessionTitle: 'لا توجد جلسة معلم.',
-    noSessionBody:
-      'تسجيل الدخول والأدوار مسؤولية Mentingo، ولم تُوصَل بعد. هذه شاشة معاينة داخلية فقط.',
+    noSessionBody: 'سجّل الدخول بحساب معلم لفتح منشئ الاختبارات.',
     source: {
       heading: 'اختر المادة أو وحدة المنهج',
       lead:
@@ -394,7 +368,7 @@ export const ar = {
       optionsLabel: 'الخيارات',
       optionLabel: (number: string) => `الخيار ${number}`,
       correctHint:
-        'تُحفظ الإجابة المرجعية للمعلم فقط؛ لا يوجد تصحيح آلي حاليًا.',
+        'تُحفظ الإجابة المرجعية مع السؤال ليراها المعلم وحده.',
       addOption: 'أضف خيارًا',
       removeOption: (number: string) => `احذف الخيار ${number}`,
       issuePrompt: 'اكتب نص السؤال.',
@@ -435,8 +409,7 @@ export const ar = {
       successTitle: 'تم نشر الاختبار',
       successBody: (title: string, className: string) =>
         `نُشر «${title}» إلى ${className}.`,
-      successNote:
-        'يمكنك إنشاء اختبار جديد الآن. لا يوجد تصحيح آلي أو احتساب درجات حاليًا.',
+      successNote: 'يمكنك إنشاء اختبار جديد الآن.',
       newTest: 'أنشئ اختبارًا جديدًا',
       noGrounding: 'لا يوجد مصدر معروض.',
     },
@@ -460,8 +433,7 @@ export const ar = {
     loadErrorTitle: 'مش قادرين نحمّل اختباراتك.',
     loadErrorBody: 'المشكلة من جهتنا مش من جهتك. جرّب تاني بعد شوية.',
     noSessionTitle: 'مفيش جلسة طالب.',
-    noSessionBody:
-      'تسجيل الدخول والأدوار مسؤولية Mentingo ولسه مش متوصّلة. دي شاشة معاينة داخلية بس.',
+    noSessionBody: 'لازم تسجّل دخول الطالب عشان تشوف اختباراتك.',
     list: {
       heading: 'الاختبارات المتاحة',
       lead: 'دي الاختبارات المنشورة لصفوفك. دوس على الاختبار تبدأ أو تكمّل.',
@@ -473,7 +445,7 @@ export const ar = {
       statusSubmitted: 'تم التسليم',
       start: 'ابدأ الاختبار',
       resume: 'كمّل الاختبار',
-      submittedNote: 'سلّمت الاختبار ده خلاص. لسه مفيش تصحيح.',
+      submittedNote: 'سلّمت الاختبار ده خلاص.',
       starting: 'بنبدأ الاختبار...',
       startErrorTitle: 'مش عارفين نبدأ الاختبار.',
       startErrorBody: 'جرّب تاني بعد شوية.',
@@ -502,8 +474,7 @@ export const ar = {
       changeTest: 'اختبار تاني',
       doneTitle: 'تم تسليم الاختبار',
       doneBody: (title: string) => `سجّلنا تسليمك لاختبار «${title}».`,
-      doneNoMarking:
-        'اتسجّلت محاولتك. لسه مفيش تصحيح آلي ولا درجات.',
+      doneNoMarking: 'اتسجّلت محاولتك.',
       doneNext: 'تقدر تختار اختبار تاني من القائمة.',
       backToList: 'ارجع لقائمة الاختبارات',
     },
@@ -539,7 +510,7 @@ export const ar = {
     loadErrorBody: 'من جهتنا، لا من جهتك. أعد المحاولة بعد قليل.',
     noSessionTitle: 'لا توجد جلسة وليّ أمر.',
     noSessionBody:
-      'تسجيل الدخول والأدوار مسؤولية Mentingo، ولم تُوصَل بعد. هذه شاشة معاينة داخلية فقط.',
+      'سجّل الدخول بحساب وليّ أمر لعرض بيانات ابنك.',
     childLabel: 'الابن',
     childPlaceholder: 'اختر ابنًا',
     readOnlyNote:
@@ -582,7 +553,7 @@ export const ar = {
     },
     messages: {
       heading: 'الرسائل',
-      lead: 'محادثات داخلية تجريبية مع المعلم ومساعد المعلم. لا إشعارات ولا اتصال فوري.',
+      lead: 'محادثاتك مع المعلم ومساعد المعلم.',
       open: 'افتح المحادثات',
     },
   },
@@ -609,8 +580,6 @@ export const ar = {
     sendError: 'تعذّر إرسال الرسالة. أعد المحاولة.',
     youLabel: 'أنت',
     replyFrom: (name: string) => `الرد من ${name}`,
-    mockNote:
-      'محادثة داخلية تجريبية فقط، دون إشعارات أو اتصال فوري أو قناة خارجية.',
     roleNames: {
       parent: 'وليّ الأمر',
       teacher: 'المعلم',
@@ -712,7 +681,7 @@ export const ar = {
     unknownDate: 'تاريخ غير متاح',
     readOnlyTitle: 'الاختبار منشور',
     readOnlyBody:
-      'الاختبارات المنشورة للقراءة فقط في هذه النسخة. لا يمكن تعديل المشاركة أو الأسئلة بعد النشر.',
+      'لا يمكن تعديل الاختبار أو أسئلته بعد النشر.',
     editHeading: 'تعديل بيانات الاختبار',
     editLead: 'يمكن تعديل العنوان والوصف ما دام الاختبار مسودة.',
     titleLabel: 'عنوان الاختبار',
@@ -759,13 +728,12 @@ export const ar = {
     badge: 'بنك الأسئلة',
     title: 'أسئلة اختباراتك في مكان واحد',
     lead:
-      'استعرض كل سؤال كتبته أو صاغه محسن في اختباراتك، مع مصدره وإجابته المرجعية. البنك للعرض فقط في هذه النسخة.',
+      `استعرض كل سؤال كتبته أو صاغه ${M} في اختباراتك، مع مصدره وإجابته المرجعية.`,
     loading: 'جارٍ تحميل الأسئلة...',
     loadErrorTitle: 'تعذّر تحميل بنك الأسئلة.',
     loadErrorBody: 'من جهتنا، لا من جهتك. أعد المحاولة بعد قليل.',
     noSessionTitle: 'بنك الأسئلة للمعلمين فقط',
-    noSessionBody:
-      'سجّل الدخول بحساب معلم لعرض الأسئلة. تسجيل الدخول مسؤولية Mentingo ولم يُوصَل بعد.',
+    noSessionBody: 'سجّل الدخول بحساب معلم لعرض الأسئلة.',
     filtersLabel: 'تصفية بنك الأسئلة',
     filterClass: 'الصف',
     allClasses: 'كل الصفوف',
@@ -778,7 +746,7 @@ export const ar = {
     emptyTitle: 'لا توجد اختبارات بعد',
     emptyBody: 'أنشئ اختبارًا وأضف إليه أسئلة، وستظهر أسئلته هنا.',
     noQuestionsTitle: 'لا توجد أسئلة بعد',
-    noQuestionsBody: 'أضف أسئلة من منشئ الاختبار أو اطلب من محسن صياغتها.',
+    noQuestionsBody: `أضف أسئلة من منشئ الاختبار أو اطلب من ${M} صياغتها.`,
     noMatchTitle: 'لا توجد أسئلة مطابقة',
     noMatchBody: 'جرّب كلمة بحث أخرى أو اختر صفًا مختلفًا.',
     readOnlyNote:
@@ -790,19 +758,17 @@ export const ar = {
     badge: 'مكتبة المواد',
     title: 'موادك التعليمية',
     lead:
-      'اعرض المواد النصية والروابط التي تعتمد عليها اختباراتك. الإضافة هنا تسجّل بيانات المادة الوصفية فقط.',
+      'اعرض المواد النصية والروابط التي تعتمد عليها اختباراتك.',
     loading: 'جارٍ تحميل المواد...',
     loadErrorTitle: 'تعذّر تحميل المواد.',
     loadErrorBody: 'من جهتنا، لا من جهتك. أعد المحاولة بعد قليل.',
     noSessionTitle: 'مكتبة المواد للمعلمين فقط',
-    noSessionBody:
-      'سجّل الدخول بحساب معلم لعرض المواد. تسجيل الدخول مسؤولية Mentingo ولم يُوصَل بعد.',
+    noSessionBody: 'سجّل الدخول بحساب معلم لعرض المواد.',
     uploadGapTitle: 'رفع الملفات غير متاح بعد',
     uploadGapBody:
-      'رفع ملفات PDF والصور يحتاج تخزينًا في الخادم، وهو تكامل لم يُوصَل. تستطيع الآن إضافة مادة نصية أو رابط، وتُحفظ بياناتها الوصفية فقط.',
+      'يمكنك إضافة مادة نصية أو رابط. رفع ملفات PDF والصور غير متاح بعد.',
     addHeading: 'أضف مادة',
-    addLead:
-      'سجّل عنوان المادة ومحتواها النصي أو رابطها. لا يُرفع أي ملف في هذه النسخة.',
+    addLead: 'سجّل عنوان المادة ومحتواها النصي أو رابطها.',
     noClassesTitle: 'لا توجد صفوف بعد',
     noClassesBody: 'أضف صفًا أولًا حتى تستطيع ربط مادة به.',
     classLabel: 'الصف',
@@ -892,12 +858,11 @@ export const ar = {
     yourAnswer: 'إجابتك',
     noAnswer: 'من غير إجابة',
     retakeHeading: 'إعادة المحاولة',
-    retakeBody:
-      'المحاكي الحالي بيمنع إعادة محاولة اختبار اتسلّم. إعادة المحاولة محتاجة دعم من الباك إند.',
+    retakeBody: 'تقدر تبدأ محاولة جديدة للاختبار من هنا.',
     retake: 'أعد المحاولة',
     retaking: 'بنبدأ محاولة جديدة...',
     retakeErrorTitle: 'مش قادرين نبدأ محاولة جديدة.',
-    retakeErrorBody: 'الاختبار ده متسلّم بالفعل في المحاكي.',
+    retakeErrorBody: 'الاختبار ده متسلّم بالفعل.',
     notSubmittedTitle: 'المحاولة لسه مخلّصتش',
     notSubmittedBody: 'كمّل الاختبار الأول، وبعدها تراجع من هنا.',
   },
@@ -946,20 +911,19 @@ export const ar = {
     headTitle: `مساحة مساعد المعلم — ${B}`,
     badge: 'مساعد المعلم',
     title: 'الأقسام الممنوحة لحسابك',
-    lead: 'دي الأقسام اللي الخادم منحها لحسابك. مفيش واجهة منح هنا، والواجهة بتعرض الممنوح بس.',
+    greeting: (name: string) => `أهلًا يا ${name}، نورت.`,
+    lead: 'هذه الأقسام ممنوحة لحسابك، وتعرض الشاشة ما هو ممنوح فقط.',
     loading: 'جارٍ تحميل الصلاحيات...',
     loadErrorTitle: 'تعذّر تحميل الصلاحيات.',
     loadErrorBody: 'من جهتنا، لا من جهتك. أعد المحاولة بعد قليل.',
     noSessionTitle: 'لا توجد جلسة مساعد معلم.',
-    noSessionBody:
-      'هذه شاشة معاينة داخلية. شغّل جلسة المساعد التجريبية لعرض الأقسام الممنوحة.',
+    noSessionBody: 'سجّل الدخول بحساب مساعد معلم لعرض الأقسام الممنوحة.',
     grantedHeading: 'الممنوح لك',
-    grantedLead: 'الأقسام الممنوحة، بترتيب ثابت من الخادم.',
+    grantedLead: 'الأقسام الممنوحة لحسابك.',
     grantedEmptyTitle: 'لا أقسام ممنوحة',
-    grantedEmptyBody: 'لم يمنح الخادم أي قسم لحسابك بعد.',
+    grantedEmptyBody: 'لا توجد أقسام ممنوحة لحسابك بعد.',
     noteTitle: 'ملاحظة على الصلاحيات',
-    note:
-      'محتوى المعلم يحتاج جلسة معلم وفرض صلاحيات من الباك إند. هذه الشاشة تعرض الممنوح من الخادم فقط.',
+    note: 'يعرض هذا القسم الأقسام الممنوحة لحسابك، ويُدار المنح من إدارة الحسابات.',
     sessionHeading: 'الجلسة الحالية',
     sessionName: 'الاسم',
     sessionRole: 'الدور',
@@ -975,28 +939,20 @@ export const ar = {
     headTitle: `تسجيل الدخول — ${B}`,
     badge: 'تسجيل الدخول',
     title: 'تسجيل الدخول',
-    lead: 'تسجيل الدخول والأدوار مسؤولية Mentingo، ولم تُوصَل بعد. هذه شاشة معاينة داخلية فقط.',
+    lead: 'سجّل الدخول للوصول إلى حسابك على المنصة.',
     emailLabel: 'البريد الإلكتروني',
     emailPlaceholder: 'name@example.com',
     passwordLabel: 'كلمة المرور',
     passwordPlaceholder: '••••••••',
     submit: 'دخول',
-    disabledNote:
-      'الحقول معطّلة لأن المصادقة غير موصولة بعد، ولن نخترع نظام دخول.',
-    noteTitle: 'ملاحظة',
-    note: 'لا يوجد نظام مصادقة خاص بـ BRIDGIO. سيُحوّل الدخول إلى Mentingo عند توفّره.',
-    demoHeading: 'الجلسات التجريبية',
-    demoLead:
-      'هذه النسخة تعمل بجلسة تجريبية تُحدَّد من متغيّر بيئة، لا بتسجيل دخول.',
-    demoNote:
-      'لتبديل الدور، شغّل النسخة بجلسة تجريبية أخرى ثم بدّل الدور من أسفل الشاشة.',
+    status: 'تسجيل الدخول غير متاح حاليًا.',
   },
   /** Profile / settings — session display + UI settings. */
   profile: {
     headTitle: `الملف الشخصي والإعدادات — ${B}`,
     badge: 'الملف الشخصي',
     title: 'الملف الشخصي والإعدادات',
-    lead: 'بيانات الحساب مسؤولية Mentingo. تعرض هذه الشاشة الجلسة الحالية وإعدادات الواجهة.',
+    lead: 'تعرض هذه الشاشة بيانات الجلسة الحالية وإعدادات الواجهة.',
     loading: 'جارٍ تحميل الجلسة...',
     loadErrorTitle: 'تعذّر تحميل الجلسة.',
     loadErrorBody: 'من جهتنا، لا من جهتك. أعد المحاولة بعد قليل.',
@@ -1007,7 +963,7 @@ export const ar = {
     noSession: 'لا توجد جلسة معروضة.',
     accountHeading: 'بيانات الحساب',
     accountNote:
-      'تعديل الاسم أو البريد أو الأدوار مسؤولية Mentingo، ولم تُوصَل بعد. لا نعرض نموذجًا وهميًا.',
+      'بيانات الحساب تأتي من الجلسة، ولا يمكن تعديلها من هذه الشاشة.',
     accountSignIn: 'افتح صفحة تسجيل الدخول',
     settingsHeading: 'إعدادات الواجهة',
     languageLabel: 'اللغة',
@@ -1021,92 +977,428 @@ export const ar = {
       parent: 'وليّ الأمر',
     } as Record<PreviewRoleId, string>,
   },
-  /** Help / guide — pinned utility. */
+  /**
+   * Help Center — a role-scoped reference library. Every article is one task
+   * with short numbered steps and a link into the real screen. Register: MSA
+   * throughout, so a reader never meets two voices inside one article.
+   */
   help: {
-    headTitle: `المساعدة والدليل — ${B}`,
+    headTitle: `المساعدة — ${B}`,
     badge: 'المساعدة',
-    title: 'المساعدة والدليل',
-    lead: `دليل سريع للشاشات المبنية في نسخة ${B} هذه، وحدودها.`,
-    screensHeading: 'الشاشات المبنية',
-    screensLead: 'افتح أي شاشة من الروابط التالية.',
-    open: 'افتح',
-    limitsHeading: 'حدود هذه النسخة',
-    limits: [
-      'لا تصحيح آلي ولا درجات في مشغّل الطالب.',
-      'لا سعر ولا اشتراكات في الواجهة.',
-      'تسجيل الدخول والأدوار مسؤولية Mentingo، ولم تُوصَل بعد.',
-      'البيانات تجريبية وتأتي عبر طبقة البيانات، وليست بيانات حقيقية.',
-      `صياغة العربية مسودات بانتظار المراجعة، و${B} و${M} اسمان عملان.`,
-    ],
-    sessionHeading: 'الجلسات التجريبية',
-    sessionBody:
-      'تُحدَّد الجلسة من متغيّر البيئة VITE_MOCK_SESSION، وبديل عنها مبدّل دور المعاينة من أسفل الشاشة.',
+    title: 'مرجع المهام',
+    lead: 'مقالات قصيرة لكل مهمة في دورك، مع خطوات مرتّبة ورابط إلى الشاشة.',
+    indexHeading: 'المحتويات',
+    stepsLabel: 'الخطوات',
+    open: 'افتح الشاشة',
+    categories: {
+      gettingStarted: 'البدء',
+      teacher: 'للمعلم',
+      student: 'للطالب',
+      parent: 'لولي الأمر',
+      assistant: 'لمساعد المعلم',
+      account: 'الحساب والإعدادات',
+      faq: 'أسئلة شائعة',
+    } as Record<HelpCategory, string>,
     links: {
-      dashboard: 'لوحة المعلم',
-      classes: 'صفوفي',
-      students: 'الطلاب',
-      tests: 'اختباراتي',
-      questionBank: 'بنك الأسئلة',
-      materials: 'مكتبة المواد',
-      lessons: 'دروسي',
-      progress: 'تقدّمي',
       profile: 'الملف الشخصي والإعدادات',
-      signIn: 'تسجيل الدخول',
-    } as Record<
-      | 'dashboard'
-      | 'classes'
-      | 'students'
-      | 'tests'
-      | 'questionBank'
-      | 'materials'
-      | 'lessons'
-      | 'progress'
-      | 'profile'
-      | 'signIn',
-      string
-    >,
+      teacherDashboard: 'لوحة المعلم',
+      teacherClasses: 'صفوفي',
+      teacherTests: 'الاختبارات',
+      teacherQuestionBank: 'بنك الأسئلة',
+      teacherMaterials: 'مكتبة المواد',
+      teacherStudents: 'الطلاب',
+      studentTests: 'اختباراتي',
+      studentLessons: 'دروسي',
+      studentProgress: 'تقدّمي',
+      parentProgress: 'تقدّم الابن',
+      parentTests: 'اختبارات الابن',
+      parentResults: 'النتائج',
+      parentMessages: 'الرسائل',
+      assistantHome: 'الأقسام الممنوحة',
+    } as Record<HelpLinkId, string>,
+    articles: {
+      'start-tour': {
+        category: 'gettingStarted',
+        title: 'تعرّف على التنقّل',
+        body: 'كل شاشاتك تُفتح من القائمة الجانبية، ومساعدتك ودليلك وملفك الشخصي أسفلها.',
+        steps: [
+          'افتح القائمة الجانبية من زر القائمة على الهاتف، أو استخدمها ثابتة على الحاسوب.',
+          'اختر الشاشة التي تريدها من القائمة.',
+          'استخدم روابط المساعدة والدليل والملف الشخصي أسفل القائمة.',
+        ],
+      },
+      'start-language': {
+        category: 'gettingStarted',
+        title: 'بدّل اللغة',
+        body: 'تتبدّل اللغة من الشريط العلوي أو من الملف الشخصي والإعدادات، مع اتجاه الصفحة.',
+        steps: [
+          'افتح مفتاح اللغة من الشريط العلوي.',
+          'اختر العربية أو English.',
+          'يتبدّل اتجاه الصفحة تلقائيًا مع اللغة.',
+        ],
+        link: 'profile',
+      },
+      'teacher-classes': {
+        category: 'teacher',
+        title: 'افتح صفًا واطّلع على تفاصيله',
+        body: 'تفاصيل الصف تعرض طلابه ووحداته واختباراته.',
+        steps: [
+          'افتح صفوفي من القائمة الجانبية.',
+          'اختر صفًا لعرض تفاصيله.',
+          'راجع طلاب الصف ووحداته واختباراته داخله.',
+        ],
+        link: 'teacherClasses',
+      },
+      'teacher-create-test': {
+        category: 'teacher',
+        title: 'أنشئ اختبارًا وانشره',
+        body: 'منشئ الاختبارات أربع خطوات، تنتهي بالنشر إلى الصف.',
+        steps: [
+          'افتح الاختبارات وابدأ اختبارًا جديدًا.',
+          'اختر الصف ومصدر الأسئلة، ثم اطلب صياغة الأسئلة.',
+          'راجع كل سؤال وعدّله أو احذفه قبل المتابعة.',
+          'راجع الملخّص وانشر الاختبار إلى الصف المحدد.',
+        ],
+        link: 'teacherTests',
+      },
+      'teacher-results': {
+        category: 'teacher',
+        title: 'راجع نتائج اختبار',
+        body: 'نتائج كل اختبار تظهر في صفحة تفاصيله، كما تحتسبها المنصة.',
+        steps: [
+          'افتح الاختبارات واختر الاختبار.',
+          'انزل إلى قسم نتائج الاختبار.',
+          'راجع محاولات الطلاب ودرجاتهم كما تحتسبها المنصة.',
+        ],
+        link: 'teacherTests',
+      },
+      'teacher-question-bank': {
+        category: 'teacher',
+        title: 'تصفّح بنك الأسئلة',
+        body: 'بنك الأسئلة يجمع أسئلة اختباراتك في شاشة واحدة، مع مصدر كل سؤال.',
+        steps: [
+          'افتح بنك الأسئلة من القائمة الجانبية.',
+          'صفِّ بحسب الصف أو ابحث في نص السؤال.',
+          'لتعديل سؤال، افتح اختباره في منشئ الاختبارات.',
+        ],
+        link: 'teacherQuestionBank',
+      },
+      'teacher-materials': {
+        category: 'teacher',
+        title: 'أضف مادة نصية أو رابطًا',
+        body: 'مكتبة المواد تجمع المواد التي تعتمد عليها اختباراتك.',
+        steps: [
+          'افتح مكتبة المواد.',
+          'اختر الصف، واكتب عنوان المادة ومحتواها النصي أو رابطها.',
+          'أضف المادة، ثم اخترها كمصدر عند إنشاء اختبار.',
+        ],
+        link: 'teacherMaterials',
+      },
+      'teacher-students': {
+        category: 'teacher',
+        title: 'تابع تقدّم طالب',
+        body: 'شاشة الطلاب تجمع طلاب صفوفك مع تقدّم كل طالب وآخر نشاط.',
+        steps: [
+          'افتح الطلاب من القائمة الجانبية.',
+          'افتح طالبًا لعرض تقدّمه.',
+          'راجع الدروس المكتملة وآخر نشاط.',
+        ],
+        link: 'teacherStudents',
+      },
+      'student-start-test': {
+        category: 'student',
+        title: 'ابدأ اختبارًا وسلّمه',
+        body: 'الاختبارات المنشورة لصفوفك تظهر في اختباراتي.',
+        steps: [
+          'افتح اختباراتي.',
+          'اختر الاختبار وابدأ الحل.',
+          'أجب على الأسئلة ثم سلّم الاختبار.',
+        ],
+        link: 'studentTests',
+      },
+      'student-ask-mohsen': {
+        category: 'student',
+        title: `اسأل ${M}`,
+        body: `تستطيع سؤال ${M} عن أي شيء في مادة الاختبار.`,
+        steps: [
+          'افتح الاختبار.',
+          `افتح لوحة اسأل ${M}.`,
+          'اكتب سؤالك وانتظر الرد.',
+        ],
+        link: 'studentTests',
+      },
+      'student-lessons': {
+        category: 'student',
+        title: 'تابع دروسك',
+        body: 'دروسك هي وحدات صفوفك والدروس التي بداخلها.',
+        steps: [
+          'افتح دروسي.',
+          'اختر الوحدة التي تحتاج عملًا.',
+          'ابدأ من الدرس غير المكتمل.',
+        ],
+        link: 'studentLessons',
+      },
+      'student-progress': {
+        category: 'student',
+        title: 'اعرض تقدّمك',
+        body: 'تقدّمك في وحدات صفوفك في شاشة واحدة.',
+        steps: [
+          'افتح تقدّمي.',
+          'راجع الوحدات المكتملة.',
+          'ابدأ بالوحدة الأقل تقدّمًا.',
+        ],
+        link: 'studentProgress',
+      },
+      'parent-child': {
+        category: 'parent',
+        title: 'اختر ابنك',
+        body: 'تعرض شاشة وليّ الأمر بيانات ابن واحد في كل مرة.',
+        steps: [
+          'افتح تقدّم الابن.',
+          'اختر ابنًا من قائمة الابن.',
+          'تتبدّل كل البيانات إلى الابن المختار.',
+        ],
+        link: 'parentProgress',
+      },
+      'parent-progress': {
+        category: 'parent',
+        title: 'تابع تقدّم ابنك',
+        body: 'تقدّم الابن يعرض الوحدات المكتملة وآخر نشاط.',
+        steps: [
+          'افتح تقدّم الابن.',
+          'راجع التقدّم العام والوحدات المكتملة.',
+          'راجع الوحدات درسًا درسًا.',
+        ],
+        link: 'parentProgress',
+      },
+      'parent-tests': {
+        category: 'parent',
+        title: 'اطّلع على اختبارات ابنك',
+        body: 'اختبارات الابن تعرض حالة كل اختبار.',
+        steps: [
+          'افتح اختبارات الابن.',
+          'راجع حالة كل اختبار: لم يبدأ، أو قيد الحل، أو تم التسليم.',
+        ],
+        link: 'parentTests',
+      },
+      'parent-results': {
+        category: 'parent',
+        title: 'راجع نتائج ابنك',
+        body: 'النتائج تُعرض كما تحتسبها المنصة.',
+        steps: [
+          'افتح النتائج.',
+          'راجع الدرجة وتاريخ التسليم لكل اختبار.',
+        ],
+        link: 'parentResults',
+      },
+      'parent-messages': {
+        category: 'parent',
+        title: 'افتح الرسائل',
+        body: 'الرسائل تجمع محادثاتك مع المعلم ومساعد المعلم.',
+        steps: [
+          'افتح الرسائل.',
+          'اختر محادثة لعرض رسائلها.',
+          'اكتب رسالتك وأرسلها.',
+        ],
+        link: 'parentMessages',
+      },
+      'assistant-granted': {
+        category: 'assistant',
+        title: 'اطّلع على الأقسام الممنوحة',
+        body: 'تعرض شاشة المساعد الأقسام الممنوحة لحسابك فقط.',
+        steps: [
+          'افتح مساحة مساعد المعلم.',
+          'راجع قسم الممنوح لك.',
+          'افتح أي قسم ممنوح من القائمة الجانبية.',
+        ],
+        link: 'assistantHome',
+      },
+      'assistant-scope': {
+        category: 'assistant',
+        title: 'اعرف نطاق ما يمكنك فعله',
+        body: 'كل قسم ممنوح يُفتح داخل شاشة المساعد نفسها.',
+        steps: [
+          'افتح قسمًا ممنوحًا من القائمة الجانبية.',
+          'تُنقل الشاشة إلى القسم المحدد داخل مساحة المساعد.',
+        ],
+        link: 'assistantHome',
+      },
+      'account-session': {
+        category: 'account',
+        title: 'راجع بيانات جلستك',
+        body: 'يعرض الملف الشخصي بيانات الجلسة الحالية.',
+        steps: [
+          'افتح الملف الشخصي من أسفل القائمة الجانبية.',
+          'راجع الاسم والدور والبريد في قسم الجلسة الحالية.',
+          'بيانات الحساب تأتي من الجلسة، ولا تُعدَّل من هذه الشاشة.',
+        ],
+        link: 'profile',
+      },
+      'account-theme': {
+        category: 'account',
+        title: 'بدّل المظهر',
+        body: 'اختر المظهر الفاتح أو الداكن من إعدادات الواجهة.',
+        steps: [
+          'افتح الملف الشخصي.',
+          'اختر فاتح أو داكن في إعدادات الواجهة.',
+          'يُطبَّق المظهر على كل الشاشات.',
+        ],
+        link: 'profile',
+      },
+    } as Record<string, HelpArticle>,
+    faq: [
+      {
+        question: 'لماذا لا تظهر بعض الأقسام؟',
+        answer:
+          'تظهر الأقسام بحسب دورك وصلاحياتك. مساعد المعلم يرى الأقسام الممنوحة لحسابه فقط.',
+      },
+      {
+        question: 'هل يمكن تعديل اختبار بعد نشره؟',
+        answer: 'لا. بعد النشر لا يمكن تعديل الاختبار أو أسئلته.',
+      },
+      {
+        question: 'أين أجد درجات الاختبارات؟',
+        answer:
+          'في قسم نتائج الاختبار عند المعلم، وفي صفحة النتائج عند وليّ الأمر، وفي مراجعة الاختبار عند الطالب.',
+      },
+      {
+        question: 'كيف أختار مصدر أسئلة الاختبار؟',
+        answer:
+          'اختر مادة من مكتبة المواد أو وحدة من منهج الصف في الخطوة الأولى من منشئ الاختبارات.',
+      },
+    ] as { question: string; answer: string }[],
   },
-  placeholder: {
-    badge: 'شاشة لم تُبنَ بعد',
-    notBuiltYetTeacher:
-      'صفحة إرشادية فقط، لا شاشة منتج. وفق خطة المراحل، تُبنى هذه الشاشة في مرحلة لاحقة.',
-    notBuiltYetStudent:
-      'دي مش شاشة منتج، مجرد صفحة إرشادية. الشاشة نفسها هتيجي خطوة خطوة في مراحل جاية.',
-    builtBy: 'تُبنى:',
-    homeScreenName: 'هيكل التطبيق والعلامة',
-    screens: {
-      'shell-home': 'هيكل التطبيق والعلامة',
-      'teacher-dashboard': 'لوحة المعلم',
-      'teacher-classes': 'صفوفي',
-      'teacher-tests': 'الاختبارات',
-      'teacher-question-bank': 'بنك الأسئلة',
-      'teacher-materials': 'مكتبة المواد',
-      'teacher-students': 'الطلاب',
-      'student-tests': 'اختباراتي',
-      'student-lessons': 'الدروس',
-      'student-progress': 'تقدمي',
-      'parent-progress': 'تقدّم الابن',
-      'parent-tests': 'الاختبارات',
-      'parent-results': 'النتائج',
-      'parent-messages': 'الرسائل',
+  /**
+   * Guide — a role walkthrough. Teacher, parent and assistant run in MSA; the
+   * student walkthrough is Egyptian casual. Each page shows one role only, so
+   * the two registers never mix inside a page.
+   */
+  guide: {
+    headTitle: `الدليل — ${B}`,
+    badge: 'الدليل',
+    title: 'ابدأ من هنا',
+    lead: 'خطوات أولى مرتّبة لدورك الحالي، من أول شاشة إلى النتيجة.',
+    stepsLabel: 'خطوات المسار',
+    open: 'افتح الشاشة',
+    teacher: {
+      title: 'من الصف إلى النتائج',
+      lead: 'مسار أول اختبار: افتح الصف، أنشئ الاختبار، انشره، ثم راجع النتائج.',
+      steps: [
+        {
+          title: 'ابدأ من لوحة المعلم',
+          body: 'لوحة المعلم تجمع صفوفك وآخر اختباراتك وتقدّم الطلاب.',
+          link: 'teacherDashboard',
+        },
+        {
+          title: 'افتح صفًا',
+          body: 'من صفوفي، افتح الصف الذي ستضع فيه الاختبار، وراجع طلابه ووحداته.',
+          link: 'teacherClasses',
+        },
+        {
+          title: 'أنشئ اختبارًا',
+          body: 'ابدأ اختبارًا جديدًا، واختر الصف ومصدر الأسئلة، ثم اطلب صياغة الأسئلة.',
+          link: 'teacherTests',
+        },
+        {
+          title: 'راجع الأسئلة',
+          body: 'عدّل الأسئلة واحذف ما لا يناسبك قبل المتابعة.',
+          link: 'teacherTests',
+        },
+        {
+          title: 'انشر الاختبار',
+          body: 'راجع الملخّص وانشر الاختبار إلى الصف.',
+          link: 'teacherTests',
+        },
+        {
+          title: 'تابع النتائج',
+          body: 'من تفاصيل الاختبار، راجع محاولات الطلاب ودرجاتهم.',
+          link: 'teacherTests',
+        },
+      ] as GuideStep[],
     },
-    builtByScreen: {
-      'shell-home': 'هذه المرحلة (١) — فقط كموضع للهيكل.',
-      'teacher-dashboard': 'المرحلة ٢ — لوحة المعلم.',
-      'teacher-classes': 'المرحلة ٢ — الصفوف تظهر الآن في لوحة التحكم فقط.',
-      'teacher-tests': 'المرحلة ٣ — منشئ الاختبارات.',
-      'teacher-question-bank': 'هذه الدفعة — بنك الأسئلة (عرض فقط).',
-      'teacher-materials': 'هذه الدفعة — مكتبة المواد (بيانات وصفية فقط).',
-      'teacher-students':
-        'المرحلة ٢ — تقدّم الطلاب يظهر الآن في لوحة التحكم فقط.',
-      'student-tests': 'المرحلة ٤ — مشغّل الاختبار.',
-      'student-lessons': 'لم يُحدَّد في خطة المراحل بعد — دون وعود.',
-      'student-progress': 'لم يُحدَّد في خطة المراحل بعد — دون وعود.',
-      'parent-progress': 'هذه النسخة — عرض وليّ الأمر (قراءة فقط).',
-      'parent-tests': 'هذه النسخة — عرض وليّ الأمر (قراءة فقط).',
-      'parent-results': 'هذه النسخة — عرض وليّ الأمر (قراءة فقط).',
-      'parent-messages': 'هذه النسخة — عرض وليّ الأمر (قراءة فقط).',
-    } as Record<ScreenId, string>,
+    student: {
+      title: 'اختبارك الأول',
+      lead: 'من اختيار الاختبار إلى ما بعد التسليم.',
+      steps: [
+        {
+          title: 'افتح اختباراتي',
+          body: 'هنا الاختبارات المنشورة لصفك.',
+          link: 'studentTests',
+        },
+        {
+          title: 'ابدأ الاختبار',
+          body: 'اختر الاختبار وابدأ الحل.',
+          link: 'studentTests',
+        },
+        {
+          title: 'أجب وسلّم',
+          body: 'أجب على الأسئلة، وراجع إجاباتك قبل التسليم.',
+          link: 'studentTests',
+        },
+        {
+          title: 'راجع نتيجتك',
+          body: 'بعد التسليم، افتح الاختبار وراجع الدرجة كما تحتسبها المنصة.',
+          link: 'studentTests',
+        },
+        {
+          title: `اسأل ${M}`,
+          body: `داخل الاختبار، افتح لوحة اسأل ${M} واسأله عن مادة الاختبار.`,
+          link: 'studentTests',
+        },
+      ] as GuideStep[],
+    },
+    parent: {
+      title: 'نظرتك الأولى',
+      lead: 'من اختيار الابن إلى متابعة تقدّمه ونتائجه.',
+      steps: [
+        {
+          title: 'افتح تقدّم الابن',
+          body: 'ابدأ من شاشة وليّ الأمر.',
+          link: 'parentProgress',
+        },
+        {
+          title: 'اختر ابنك',
+          body: 'اختر ابنًا لتُعرض بياناته.',
+          link: 'parentProgress',
+        },
+        {
+          title: 'راجع التقدّم',
+          body: 'راجع التقدّم العام والوحدات المكتملة.',
+          link: 'parentProgress',
+        },
+        {
+          title: 'راجع الاختبارات والنتائج',
+          body: 'تابع حالة اختبارات ابنك، ثم نتائجه.',
+          link: 'parentResults',
+        },
+        {
+          title: 'افتح الرسائل',
+          body: 'تواصل مع المعلم ومساعد المعلم من الرسائل.',
+          link: 'parentMessages',
+        },
+      ] as GuideStep[],
+    },
+    assistant: {
+      title: 'الأقسام الممنوحة لك',
+      lead: 'ابدأ من الأقسام التي منحها حسابك.',
+      steps: [
+        {
+          title: 'افتح مساحة المساعد',
+          body: 'تصل إليها من القائمة الجانبية.',
+          link: 'assistantHome',
+        },
+        {
+          title: 'راجع الممنوح لك',
+          body: 'تعرض الشاشة الأقسام الممنوحة لحسابك فقط.',
+          link: 'assistantHome',
+        },
+        {
+          title: 'افتح قسمًا ممنوحًا',
+          body: 'اختر أحد الأقسام الممنوحة من القائمة الجانبية.',
+          link: 'assistantHome',
+        },
+      ] as GuideStep[],
+    },
   },
   root: {
     notFound: 'الصفحة غير موجودة.',
@@ -1144,13 +1436,9 @@ export type Strings = Widen<typeof ar>
  */
 export const en: Strings = {
   head: {
-    title: `${B} — sidebar shell with full Arabic and English support`,
+    title: `${B} — teaching and testing platform`,
     description:
-      `A shell refinement in ${B}: a sidebar for every role, a slim utility header, Thmanyah Arabic fonts, and a full Arabic/English toggle that flips the page to left-to-right. Built on logical properties and driven by demo data through the data layer. This is an internal build for verification, not a final product.`,
-  },
-  stageBanner: {
-    stage: 'Shell refinement — separate branch',
-    note: 'Sidebar, slim utility header, Thmanyah Arabic fonts and a language toggle. Demo data comes through the data layer; it is not real data.',
+      `A platform for teachers and students: classes, tests and materials, with an assistant that answers from the test material.`,
   },
   header: {
     navLabel: 'Primary navigation',
@@ -1168,20 +1456,9 @@ export const en: Strings = {
     assistantLabel: 'Messages',
     assistantOpenLabel: 'Open messages',
     accountLabel: 'Account',
-    accountNote: 'Sign-in and roles are owned by Mentingo and are not connected yet.',
     themeLabel: 'Theme',
     themeToDark: 'Dark theme',
     themeToLight: 'Light theme',
-  },
-  preview: {
-    groupAria: 'Preview role — UI state only, no sign-in.',
-    label: 'Preview role:',
-    roles: {
-      teacher: 'Teacher',
-      student: 'Student',
-      assistant: 'Teacher Assistant',
-      parent: 'Parents',
-    },
   },
   sidebar: {
     navLabel: 'Primary navigation',
@@ -1190,9 +1467,10 @@ export const en: Strings = {
     collapseLabel: 'Collapse sidebar',
     expandLabel: 'Expand sidebar',
     assistantNote:
-      'These items appear only when this account has been granted them by the backend. There is no granting UI in this build.',
+      'These items appear only when this account has been granted them.',
     utilitiesLabel: 'Helpful links',
-    helpLabel: 'Help and guide',
+    helpLabel: 'Help',
+    guideLabel: 'Guide',
     profileLabel: 'Profile',
   },
   nav: {
@@ -1210,44 +1488,9 @@ export const en: Strings = {
     'parent-results': 'Results',
     'parent-messages': 'Messages',
   },
-  footer: {
-    demoNote: 'The data shown here is demo data.',
-    note: `${B} and ${M} are working names that can change, and the Arabic wording is a draft awaiting review.`,
-    noteEn: `${B} — internal build for brand verification. Not final, nothing external-facing.`,
-  },
-  shell: {
-    home: {
-      badge: 'Shell and brand',
-      title: 'App shell: colour, fonts, layout',
-      lead: 'This is a guidance screen for the shell only. The teacher dashboard was built in Stage 2 and the student test player in Stage 4; the remaining student screens arrive in later stages.',
-      builtHeading: 'What is built so far',
-      built: [
-        'The full design layer: brand colours, state colours and the proposed UI colours.',
-        'A Thmanyah Arabic UI font (referenced by Thmanyah family name with a fallback to Alexandria, because the font files are not bundled in the public repository).',
-        'Sora and Nunito for Latin text in the English UI.',
-        'A fixed sidebar for the primary navigation of every role, shown as a drawer from the menu button on phones.',
-        'A slim utility header: brand, language toggle, messages button and account area (no navigation links).',
-        'A full Arabic/English toggle that flips the page direction between right-to-left and left-to-right.',
-        'Teacher, student and parent navigation, plus Teacher Assistant navigation limited to the capabilities granted by the backend.',
-        'The teacher dashboard: classes, recent tests and student progress through the data layer.',
-        'The test builder: four steps from choosing a source to publishing, through the data layer.',
-        'The question bank and the material library: browsing the teacher\'s questions and text or link materials, without file upload.',
-        `The student test player: question, options, progress and submission, with the ${M} question panel, through the data layer.`,
-        'A read-only parent view: progress, tests, results and messages, through the data layer.',
-      ],
-      notBuiltHeading: 'What is not built yet',
-      notBuiltLead:
-        'The rest of the product screens arrive in later stages. The links below open empty guidance pages, not product screens.',
-    },
-    roleHint:
-      'Switch the preview role (diagnostic only) from the footer, or directly in the page URL:',
-    codeHint:
-      '…?as=teacher, …?as=student, …?as=assistant or …?as=parent',
-  },
   dashboard: {
     headTitle: `Teacher dashboard — ${B}`,
-    badge: 'Teacher dashboard',
-    title: 'Spend less time chasing updates',
+    title: 'Teacher dashboard',
     quickActions: {
       heading: 'Quick actions',
       createTest: 'Create a test',
@@ -1311,8 +1554,7 @@ export const en: Strings = {
     loadErrorTitle: 'We could not load your dashboard.',
     loadErrorBody: 'It is on our side, not yours. Try again shortly.',
     noSessionTitle: 'No teacher session.',
-    noSessionBody:
-      'Sign-in and roles are owned by Mentingo and are not connected yet. This is an internal preview screen only.',
+    noSessionBody: 'Sign in with a teacher account to view your dashboard.',
     emptyAllTitle: 'Nothing here yet',
     emptyAllBody:
       'No classes and no tests yet. They will appear here as soon as they are added.',
@@ -1334,8 +1576,7 @@ export const en: Strings = {
     loadErrorTitle: 'We could not load the test builder.',
     loadErrorBody: 'It is on our side, not yours. Try again shortly.',
     noSessionTitle: 'No teacher session.',
-    noSessionBody:
-      'Sign-in and roles are owned by Mentingo and are not connected yet. This is an internal preview screen only.',
+    noSessionBody: 'Sign in with a teacher account to open the test builder.',
     source: {
       heading: 'Choose a material or curriculum unit',
       lead: `Pick a class first, then choose the question source. The source stays visible with every draft and every question ${M} drafts.`,
@@ -1434,7 +1675,7 @@ export const en: Strings = {
       optionsLabel: 'Options',
       optionLabel: (number: string) => `Option ${number}`,
       correctHint:
-        'The reference answer is saved for the teacher only; there is no automatic marking yet.',
+        'The reference answer is saved with the question, for the teacher to see.',
       addOption: 'Add an option',
       removeOption: (number: string) => `Remove option ${number}`,
       issuePrompt: 'Write the question text.',
@@ -1474,8 +1715,7 @@ export const en: Strings = {
       successTitle: 'Test published',
       successBody: (title: string, className: string) =>
         `“${title}” was published to ${className}.`,
-      successNote:
-        'You can create a new test now. There is no automatic marking or scoring yet.',
+      successNote: 'You can create a new test now.',
       newTest: 'Create a new test',
       noGrounding: 'No source is shown.',
     },
@@ -1498,8 +1738,7 @@ export const en: Strings = {
     loadErrorTitle: 'We could not load your tests.',
     loadErrorBody: 'The problem is on our side, not yours. Try again shortly.',
     noSessionTitle: 'No student session.',
-    noSessionBody:
-      'Sign-in and roles are owned by Mentingo and are not connected yet. This is an internal preview screen only.',
+    noSessionBody: 'Sign in with a student account to see your tests.',
     list: {
       heading: 'Available tests',
       lead: 'These are the tests published to your classes. Tap a test to start or continue.',
@@ -1512,8 +1751,7 @@ export const en: Strings = {
       statusSubmitted: 'Submitted',
       start: 'Start the test',
       resume: 'Continue the test',
-      submittedNote:
-        'You already submitted this test. Nothing is marked yet.',
+      submittedNote: 'You already submitted this test.',
       starting: 'Starting the test...',
       startErrorTitle: 'We could not start the test.',
       startErrorBody: 'Try again shortly.',
@@ -1544,8 +1782,7 @@ export const en: Strings = {
       changeTest: 'Another test',
       doneTitle: 'Test submitted',
       doneBody: (title: string) => `We recorded your submission for “${title}”.`,
-      doneNoMarking:
-        'Your attempt is recorded. There is no automatic marking or scores yet.',
+      doneNoMarking: 'Your attempt is recorded.',
       doneNext: 'You can pick another test from the list.',
       backToList: 'Back to the tests list',
     },
@@ -1575,8 +1812,7 @@ export const en: Strings = {
     loadErrorTitle: 'We could not load the data.',
     loadErrorBody: 'It is on our side, not yours. Try again shortly.',
     noSessionTitle: 'No parent session.',
-    noSessionBody:
-      'Sign-in and roles are owned by Mentingo and are not connected yet. This is an internal preview screen only.',
+    noSessionBody: "Sign in with a parent account to view your child's data.",
     childLabel: 'Child',
     childPlaceholder: 'Choose a child',
     readOnlyNote:
@@ -1621,7 +1857,7 @@ export const en: Strings = {
     },
     messages: {
       heading: 'Messages',
-      lead: 'Mock in-app conversations with the teacher and the teacher assistant. No notifications and no real-time.',
+      lead: 'Your conversations with the teacher and the teacher assistant.',
       open: 'Open messages',
     },
   },
@@ -1644,8 +1880,6 @@ export const en: Strings = {
     sendError: 'We could not send the message. Try again.',
     youLabel: 'You',
     replyFrom: (name: string) => `Reply from ${name}`,
-    mockNote:
-      'Mock in-app chat only — no notifications, no real-time transport and no external channel.',
     roleNames: {
       parent: 'Parent',
       teacher: 'Teacher',
@@ -1745,7 +1979,7 @@ export const en: Strings = {
     unknownDate: 'Date unavailable',
     readOnlyTitle: 'This test is published',
     readOnlyBody:
-      'Published tests are read-only in this build. The share target and the questions cannot be edited after publishing.',
+      'The test and its questions cannot be edited after publishing.',
     editHeading: 'Edit test details',
     editLead: 'The title and description can be edited while the test is a draft.',
     titleLabel: 'Test title',
@@ -1793,13 +2027,12 @@ export const en: Strings = {
     badge: 'Question bank',
     title: 'Every question from your tests, in one place',
     lead:
-      'Browse every question you wrote or Mohsen drafted across your tests, with its source and reference answer. The bank is read-only in this build.',
+      `Browse every question you wrote or ${M} drafted across your tests, with its source and reference answer.`,
     loading: 'Loading questions...',
     loadErrorTitle: 'We could not load the question bank.',
     loadErrorBody: 'It is on our side, not yours. Try again shortly.',
     noSessionTitle: 'The question bank is for teachers only',
-    noSessionBody:
-      'Sign in with a teacher account to browse questions. Sign-in is owned by Mentingo and is not connected yet.',
+    noSessionBody: 'Sign in with a teacher account to browse questions.',
     filtersLabel: 'Filter the question bank',
     filterClass: 'Class',
     allClasses: 'All classes',
@@ -1816,7 +2049,7 @@ export const en: Strings = {
       'Create a test and add questions; its questions will appear here.',
     noQuestionsTitle: 'No questions yet',
     noQuestionsBody:
-      'Add questions from the test builder or ask Mohsen to draft them.',
+      `Add questions from the test builder or ask ${M} to draft them.`,
     noMatchTitle: 'No matching questions',
     noMatchBody: 'Try another search word or choose a different class.',
     readOnlyNote:
@@ -1826,20 +2059,17 @@ export const en: Strings = {
     headTitle: `Material library — ${B}`,
     badge: 'Material library',
     title: 'Your teaching materials',
-    lead:
-      'Browse the text materials and links your tests rely on. Adding a material here records its metadata only.',
+    lead: 'Browse the text materials and links your tests rely on.',
     loading: 'Loading materials...',
     loadErrorTitle: 'We could not load the materials.',
     loadErrorBody: 'It is on our side, not yours. Try again shortly.',
     noSessionTitle: 'The material library is for teachers only',
-    noSessionBody:
-      'Sign in with a teacher account to browse materials. Sign-in is owned by Mentingo and is not connected yet.',
+    noSessionBody: 'Sign in with a teacher account to browse materials.',
     uploadGapTitle: 'File upload is not available yet',
     uploadGapBody:
-      'Uploading PDF and image files needs server storage, which is an integration that is not connected. You can add a text material or a link now; only its metadata is saved.',
+      'You can add a text material or a link. Uploading PDF and image files is not available yet.',
     addHeading: 'Add a material',
-    addLead:
-      'Record the title and its text content or link. No file is uploaded in this build.',
+    addLead: 'Record the material title and its text content or link.',
     noClassesTitle: 'No classes yet',
     noClassesBody: 'Add a class first so a material can be linked to it.',
     classLabel: 'Class',
@@ -1929,12 +2159,11 @@ export const en: Strings = {
     yourAnswer: 'Your answer',
     noAnswer: 'No answer',
     retakeHeading: 'Retake',
-    retakeBody:
-      'The current mock rejects a retake of a submitted test. Retaking needs backend support.',
+    retakeBody: 'You can start a new attempt for this test here.',
     retake: 'Retake the test',
     retaking: 'Starting a new attempt...',
     retakeErrorTitle: 'We could not start a new attempt.',
-    retakeErrorBody: 'This test is already submitted in the mock.',
+    retakeErrorBody: 'This test is already submitted.',
     notSubmittedTitle: 'The attempt is not finished',
     notSubmittedBody: 'Finish the test first, then review your answers from here.',
   },
@@ -1980,20 +2209,20 @@ export const en: Strings = {
     headTitle: `Teacher Assistant area — ${B}`,
     badge: 'Teacher Assistant',
     title: 'The sections granted to your account',
-    lead: 'These are the sections the backend granted your account. There is no granting UI here; the UI shows only what is granted.',
+    greeting: (name: string) => `Welcome, ${name}.`,
+    lead: 'These sections are granted to your account, and the screen shows only what is granted.',
     loading: 'Loading the capabilities...',
     loadErrorTitle: 'We could not load the capabilities.',
     loadErrorBody: 'It is on our side, not yours. Try again shortly.',
     noSessionTitle: 'No teacher assistant session.',
-    noSessionBody:
-      'This is an internal preview screen. Run the assistant demo session to see the granted sections.',
+    noSessionBody: 'Sign in with a teacher assistant account to see the granted sections.',
     grantedHeading: 'Granted to you',
-    grantedLead: 'The granted sections, in the backend\'s fixed order.',
+    grantedLead: 'The sections granted to your account.',
     grantedEmptyTitle: 'No granted sections',
-    grantedEmptyBody: 'The backend has not granted any section to your account yet.',
+    grantedEmptyBody: 'No section is granted to your account yet.',
     noteTitle: 'A note on permissions',
     note:
-      'Teacher content needs a teacher session and backend RBAC enforcement. This screen shows only what the backend granted.',
+      'This section lists the sections granted to your account; grants are managed from account administration.',
     sessionHeading: 'Current session',
     sessionName: 'Name',
     sessionRole: 'Role',
@@ -2008,27 +2237,19 @@ export const en: Strings = {
     headTitle: `Sign in — ${B}`,
     badge: 'Sign in',
     title: 'Sign in',
-    lead: 'Sign-in and roles are owned by Mentingo and are not connected yet. This is an internal preview screen only.',
+    lead: 'Sign in to reach your account on the platform.',
     emailLabel: 'Email',
     emailPlaceholder: 'name@example.com',
     passwordLabel: 'Password',
     passwordPlaceholder: '••••••••',
     submit: 'Sign in',
-    disabledNote:
-      'The fields are disabled because authentication is not connected yet, and we will not invent a sign-in flow.',
-    noteTitle: 'A note',
-    note: 'There is no BRIDGIO auth system. Sign-in will delegate to Mentingo when available.',
-    demoHeading: 'Demo sessions',
-    demoLead:
-      'This build runs on a demo session set by an environment variable, not by signing in.',
-    demoNote:
-      'To switch the role, run the build with another demo session, then switch the preview role from the footer.',
+    status: 'Sign-in is not available yet.',
   },
   profile: {
     headTitle: `Profile and settings — ${B}`,
     badge: 'Profile',
     title: 'Profile and settings',
-    lead: 'Account data is owned by Mentingo. This screen shows the current session and the UI settings.',
+    lead: 'This screen shows the current session details and the interface settings.',
     loading: 'Loading the session...',
     loadErrorTitle: 'We could not load the session.',
     loadErrorBody: 'It is on our side, not yours. Try again shortly.',
@@ -2039,7 +2260,7 @@ export const en: Strings = {
     noSession: 'No session is shown.',
     accountHeading: 'Account data',
     accountNote:
-      'Editing the name, email or roles is owned by Mentingo and is not connected yet. No fake form is shown here.',
+      'Account details come from the session and cannot be edited on this screen.',
     accountSignIn: 'Open the sign-in page',
     settingsHeading: 'UI settings',
     languageLabel: 'Language',
@@ -2053,78 +2274,425 @@ export const en: Strings = {
       parent: 'Parents',
     },
   },
+  /**
+   * Help Center — see the Arabic block for the intent. Register: MSA (formal
+   * English) throughout, so a reader never meets two voices inside one article.
+   */
   help: {
-    headTitle: `Help and guide — ${B}`,
+    headTitle: `Help — ${B}`,
     badge: 'Help',
-    title: 'Help and guide',
-    lead: `A quick guide to the screens built in this ${B} build, and their limits.`,
-    screensHeading: 'Built screens',
-    screensLead: 'Open any screen from the links below.',
-    open: 'Open',
-    limitsHeading: 'Limits of this build',
-    limits: [
-      'No automatic marking and no scores in the student player.',
-      'No price and no subscriptions in the UI.',
-      'Sign-in and roles are owned by Mentingo and are not connected yet.',
-      'The data is demo data that comes through the data layer; it is not real data.',
-      `The Arabic wording is a draft awaiting review, and ${B} and ${M} are working names.`,
-    ],
-    sessionHeading: 'Demo sessions',
-    sessionBody:
-      'The session is set by the VITE_MOCK_SESSION environment variable; the preview-role switch in the footer is an alternative.',
+    title: 'Task reference',
+    lead: 'Short articles for every task in your role, each with ordered steps and a link to the screen.',
+    indexHeading: 'Contents',
+    stepsLabel: 'Steps',
+    open: 'Open the screen',
+    categories: {
+      gettingStarted: 'Getting started',
+      teacher: 'For teachers',
+      student: 'For students',
+      parent: 'For parents',
+      assistant: 'For assistants',
+      account: 'Account & settings',
+      faq: 'FAQ',
+    },
     links: {
-      dashboard: 'Teacher dashboard',
-      classes: 'My Classes',
-      students: 'Students',
-      tests: 'My Tests',
-      questionBank: 'Question bank',
-      materials: 'Material library',
-      lessons: 'Lessons',
-      progress: 'My Progress',
       profile: 'Profile and settings',
-      signIn: 'Sign in',
+      teacherDashboard: 'Teacher dashboard',
+      teacherClasses: 'My Classes',
+      teacherTests: 'Tests',
+      teacherQuestionBank: 'Question bank',
+      teacherMaterials: 'Material library',
+      teacherStudents: 'Students',
+      studentTests: 'My Tests',
+      studentLessons: 'Lessons',
+      studentProgress: 'My Progress',
+      parentProgress: "Child's Progress",
+      parentTests: "Child's tests",
+      parentResults: 'Results',
+      parentMessages: 'Messages',
+      assistantHome: 'Granted sections',
     },
+    articles: {
+      'start-tour': {
+        category: 'gettingStarted',
+        title: 'Find your way around',
+        body: 'Every screen opens from the sidebar, with help, guide and profile below it.',
+        steps: [
+          'Open the sidebar from the menu button on a phone, or use it fixed on a computer.',
+          'Choose the screen you want from the list.',
+          'Use the help, guide and profile links at the bottom of the sidebar.',
+        ],
+      },
+      'start-language': {
+        category: 'gettingStarted',
+        title: 'Switch language',
+        body: 'The language switches from the top bar or from Profile & settings, with the page direction.',
+        steps: [
+          'Open the language switch in the top bar.',
+          'Choose Arabic or English.',
+          'The page direction flips with the language.',
+        ],
+        link: 'profile',
+      },
+      'teacher-classes': {
+        category: 'teacher',
+        title: 'Open a class and see its details',
+        body: 'A class page shows its students, units and tests.',
+        steps: [
+          'Open My Classes from the sidebar.',
+          'Choose a class to open its details.',
+          'Review the class students, units and tests inside it.',
+        ],
+        link: 'teacherClasses',
+      },
+      'teacher-create-test': {
+        category: 'teacher',
+        title: 'Create a test and publish it',
+        body: 'The test builder has four steps and ends by publishing to the class.',
+        steps: [
+          'Open Tests and start a new test.',
+          'Choose the class and the question source, then ask for the questions.',
+          'Review, edit or delete every question before continuing.',
+          'Review the summary and publish the test to the chosen class.',
+        ],
+        link: 'teacherTests',
+      },
+      'teacher-results': {
+        category: 'teacher',
+        title: 'Review a test result',
+        body: 'Each test result appears on its own detail page, as the platform calculates it.',
+        steps: [
+          'Open Tests and choose the test.',
+          'Scroll to the test results section.',
+          'Review the student attempts and their scores as the platform calculates them.',
+        ],
+        link: 'teacherTests',
+      },
+      'teacher-question-bank': {
+        category: 'teacher',
+        title: 'Browse the question bank',
+        body: 'The question bank gathers the questions of your tests, with each question source.',
+        steps: [
+          'Open the question bank from the sidebar.',
+          'Filter by class or search the question text.',
+          'To edit a question, open its test in the test builder.',
+        ],
+        link: 'teacherQuestionBank',
+      },
+      'teacher-materials': {
+        category: 'teacher',
+        title: 'Add a text material or a link',
+        body: 'The material library gathers the materials your tests rely on.',
+        steps: [
+          'Open the material library.',
+          'Choose the class, then write the material title and its text content or link.',
+          'Add the material, then choose it as the source when creating a test.',
+        ],
+        link: 'teacherMaterials',
+      },
+      'teacher-students': {
+        category: 'teacher',
+        title: 'Follow a student progress',
+        body: 'The students screen gathers the students of your classes with each progress and last activity.',
+        steps: [
+          'Open Students from the sidebar.',
+          'Open a student to see their progress.',
+          'Review the completed lessons and the last activity.',
+        ],
+        link: 'teacherStudents',
+      },
+      'student-start-test': {
+        category: 'student',
+        title: 'Start a test and submit it',
+        body: 'The tests published to your classes appear in My Tests.',
+        steps: [
+          'Open My Tests.',
+          'Choose the test and start answering.',
+          'Answer the questions, then submit the test.',
+        ],
+        link: 'studentTests',
+      },
+      'student-ask-mohsen': {
+        category: 'student',
+        title: 'Ask Mohsen',
+        body: 'You can ask Mohsen about anything in the test material.',
+        steps: [
+          'Open the test.',
+          'Open the Ask Mohsen panel.',
+          'Write your question and wait for the answer.',
+        ],
+        link: 'studentTests',
+      },
+      'student-lessons': {
+        category: 'student',
+        title: 'Follow your lessons',
+        body: 'Your lessons are the units of your classes and the lessons inside them.',
+        steps: [
+          'Open Lessons.',
+          'Choose the unit that needs work.',
+          'Start from the unfinished lesson.',
+        ],
+        link: 'studentLessons',
+      },
+      'student-progress': {
+        category: 'student',
+        title: 'See your progress',
+        body: 'Your progress across your class units on one screen.',
+        steps: [
+          'Open My Progress.',
+          'Review the completed units.',
+          'Start with the least completed unit.',
+        ],
+        link: 'studentProgress',
+      },
+      'parent-child': {
+        category: 'parent',
+        title: 'Choose your child',
+        body: 'The parent screen shows one child at a time.',
+        steps: [
+          "Open the child's progress.",
+          'Choose a child from the child list.',
+          'Every figure switches to the chosen child.',
+        ],
+        link: 'parentProgress',
+      },
+      'parent-progress': {
+        category: 'parent',
+        title: "Follow your child's progress",
+        body: "Your child's progress shows the completed units and the last activity.",
+        steps: [
+          "Open the child's progress.",
+          'Review the overall progress and the completed units.',
+          'Review the units lesson by lesson.',
+        ],
+        link: 'parentProgress',
+      },
+      'parent-tests': {
+        category: 'parent',
+        title: "See your child's tests",
+        body: "Your child's tests show the state of each test.",
+        steps: [
+          "Open your child's tests.",
+          'Review each test state: not started, in progress, or submitted.',
+        ],
+        link: 'parentTests',
+      },
+      'parent-results': {
+        category: 'parent',
+        title: "Review your child's results",
+        body: 'The results are shown as the platform calculates them.',
+        steps: [
+          'Open Results.',
+          'Review the score and the submission date for each test.',
+        ],
+        link: 'parentResults',
+      },
+      'parent-messages': {
+        category: 'parent',
+        title: 'Open messages',
+        body: 'Messages gathers your conversations with the teacher and the teacher assistant.',
+        steps: [
+          'Open Messages.',
+          'Choose a conversation to see its messages.',
+          'Write your message and send it.',
+        ],
+        link: 'parentMessages',
+      },
+      'assistant-granted': {
+        category: 'assistant',
+        title: 'See the granted sections',
+        body: 'The assistant screen shows the sections granted to your account only.',
+        steps: [
+          'Open the teacher assistant area.',
+          'Review the granted-to-you section.',
+          'Open any granted section from the sidebar.',
+        ],
+        link: 'assistantHome',
+      },
+      'assistant-scope': {
+        category: 'assistant',
+        title: 'Know the scope of what you can do',
+        body: 'Every granted section opens inside the assistant screen itself.',
+        steps: [
+          'Open a granted section from the sidebar.',
+          'The screen moves to that section inside the assistant area.',
+        ],
+        link: 'assistantHome',
+      },
+      'account-session': {
+        category: 'account',
+        title: 'Review your session details',
+        body: 'The profile screen shows the current session details.',
+        steps: [
+          'Open the profile from the bottom of the sidebar.',
+          'Review the name, role and email in the current session section.',
+          'Account details come from the session and cannot be edited on this screen.',
+        ],
+        link: 'profile',
+      },
+      'account-theme': {
+        category: 'account',
+        title: 'Switch the theme',
+        body: 'Choose the light or dark theme from the interface settings.',
+        steps: [
+          'Open the profile.',
+          'Choose Light or Dark in the interface settings.',
+          'The theme applies to every screen.',
+        ],
+        link: 'profile',
+      },
+    },
+    faq: [
+      {
+        question: 'Why do some sections not appear?',
+        answer:
+          'Sections appear by your role and permissions. The teacher assistant sees the sections granted to their account only.',
+      },
+      {
+        question: 'Can a test be edited after publishing?',
+        answer: 'No. After publishing, the test and its questions cannot be edited.',
+      },
+      {
+        question: 'Where do I find the test scores?',
+        answer:
+          'In the test results section for the teacher, on the results screen for the parent, and in the test review for the student.',
+      },
+      {
+        question: 'How do I choose the question source?',
+        answer:
+          'Choose a material from the material library or a unit of the class curriculum in the first step of the test builder.',
+      },
+    ],
   },
-  placeholder: {
-    badge: 'Screen not built yet',
-    notBuiltYetTeacher:
-      'A guidance page only, not a product screen. Per the stage plan, this screen is built in a later stage.',
-    notBuiltYetStudent:
-      'This is not a product screen, just a guidance page. The screen itself arrives step by step in later stages.',
-    builtBy: 'Built in:',
-    homeScreenName: 'App shell and brand',
-    screens: {
-      'shell-home': 'App shell and brand',
-      'teacher-dashboard': 'Teacher dashboard',
-      'teacher-classes': 'My Classes',
-      'teacher-tests': 'Tests',
-      'teacher-question-bank': 'Question bank',
-      'teacher-materials': 'Material library',
-      'teacher-students': 'Students',
-      'student-tests': 'My Tests',
-      'student-lessons': 'Lessons',
-      'student-progress': 'My Progress',
-      'parent-progress': "Child's Progress",
-      'parent-tests': 'Tests',
-      'parent-results': 'Results',
-      'parent-messages': 'Messages',
+  /**
+   * Guide — see the Arabic block. Teacher, parent and assistant run in formal
+   * English; the student walkthrough is Egyptian casual in Arabic only.
+   */
+  guide: {
+    headTitle: `Guide — ${B}`,
+    badge: 'Guide',
+    title: 'Start here',
+    lead: 'First steps for your current role, from the first screen to the result.',
+    stepsLabel: 'Path steps',
+    open: 'Open the screen',
+    teacher: {
+      title: 'From the class to the results',
+      lead: 'The path of a first test: open the class, create the test, publish it, then review the results.',
+      steps: [
+        {
+          title: 'Start from the teacher dashboard',
+          body: 'The teacher dashboard gathers your classes, recent tests and student progress.',
+          link: 'teacherDashboard',
+        },
+        {
+          title: 'Open a class',
+          body: 'From My Classes, open the class you will put the test in, and review its students and units.',
+          link: 'teacherClasses',
+        },
+        {
+          title: 'Create a test',
+          body: 'Start a new test, choose the class and the question source, then ask for the questions.',
+          link: 'teacherTests',
+        },
+        {
+          title: 'Review the questions',
+          body: 'Edit the questions and delete what does not fit before continuing.',
+          link: 'teacherTests',
+        },
+        {
+          title: 'Publish the test',
+          body: 'Review the summary and publish the test to the class.',
+          link: 'teacherTests',
+        },
+        {
+          title: 'Follow the results',
+          body: 'From the test detail, review the student attempts and their scores.',
+          link: 'teacherTests',
+        },
+      ],
     },
-    builtByScreen: {
-      'shell-home': 'This stage (1) — as the shell placeholder only.',
-      'teacher-dashboard': 'Stage 2 — the teacher dashboard.',
-      'teacher-classes': 'Stage 2 — classes currently appear on the dashboard only.',
-      'teacher-tests': 'Stage 3 — the test builder.',
-      'teacher-question-bank': 'This batch — question bank (read only).',
-      'teacher-materials': 'This batch — material library (metadata only).',
-      'teacher-students':
-        'Stage 2 — student progress currently appears on the dashboard only.',
-      'student-tests': 'Stage 4 — the test player.',
-      'student-lessons': 'Not set in the stage plan yet — no promises.',
-      'student-progress': 'Not set in the stage plan yet — no promises.',
-      'parent-progress': 'This build — parent view (read only).',
-      'parent-tests': 'This build — parent view (read only).',
-      'parent-results': 'This build — parent view (read only).',
-      'parent-messages': 'This build — parent view (read only).',
+    student: {
+      title: 'Your first test',
+      lead: 'From choosing the test to what comes after submitting.',
+      steps: [
+        {
+          title: 'Open My Tests',
+          body: 'The tests published to your class are here.',
+          link: 'studentTests',
+        },
+        {
+          title: 'Start the test',
+          body: 'Choose the test and start answering.',
+          link: 'studentTests',
+        },
+        {
+          title: 'Answer and submit',
+          body: 'Answer the questions, and review your answers before submitting.',
+          link: 'studentTests',
+        },
+        {
+          title: 'Review your score',
+          body: 'After submitting, open the test and review the score as the platform calculates it.',
+          link: 'studentTests',
+        },
+        {
+          title: 'Ask Mohsen',
+          body: 'Inside a test, open the Ask Mohsen panel and ask about the test material.',
+          link: 'studentTests',
+        },
+      ],
+    },
+    parent: {
+      title: 'Your first look',
+      lead: "From choosing your child to following their progress and results.",
+      steps: [
+        {
+          title: "Open your child's progress",
+          body: 'Start from the parent screen.',
+          link: 'parentProgress',
+        },
+        {
+          title: 'Choose your child',
+          body: 'Choose a child so their figures are shown.',
+          link: 'parentProgress',
+        },
+        {
+          title: 'Review the progress',
+          body: 'Review the overall progress and the completed units.',
+          link: 'parentProgress',
+        },
+        {
+          title: 'Review the tests and results',
+          body: "Follow the state of your child's tests, then their results.",
+          link: 'parentResults',
+        },
+        {
+          title: 'Open messages',
+          body: 'Reach the teacher and the teacher assistant from Messages.',
+          link: 'parentMessages',
+        },
+      ],
+    },
+    assistant: {
+      title: 'The sections granted to you',
+      lead: 'Start from the sections your account has been granted.',
+      steps: [
+        {
+          title: 'Open the assistant area',
+          body: 'You reach it from the sidebar.',
+          link: 'assistantHome',
+        },
+        {
+          title: 'Review what is granted to you',
+          body: 'The screen shows the sections granted to your account only.',
+          link: 'assistantHome',
+        },
+        {
+          title: 'Open a granted section',
+          body: 'Choose one of the granted sections from the sidebar.',
+          link: 'assistantHome',
+        },
+      ],
     },
   },
   root: {

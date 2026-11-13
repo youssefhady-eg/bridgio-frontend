@@ -437,3 +437,299 @@
 .summary-list .score-unavailable {
   color: var(--text-muted);
 }
+
+/* ---- Batch 3: Help Center + Guide ---------------------------------------- */
+
+.help-layout {
+  display: grid;
+  gap: var(--space-8);
+  margin-block-start: var(--space-8);
+}
+
+@media (min-width: 1024px) {
+  .help-layout {
+    grid-template-columns: minmax(15rem, 18rem) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+/* Sticky index: the article list stays reachable while reading. */
+.help-index {
+  padding: var(--space-4) var(--space-4) var(--space-6);
+  background: var(--bridgio-paper);
+  border: var(--outline-card) solid var(--card-border);
+  border-radius: var(--radius-card);
+}
+
+.help-index h2 {
+  margin: 0 0 var(--space-4);
+  font-size: var(--font-label-size);
+}
+
+@media (min-width: 1024px) {
+  .help-index {
+    position: sticky;
+    inset-block-start: var(--space-6);
+    max-height: calc(100vh - var(--space-12));
+    overflow-y: auto;
+  }
+}
+
+.help-index__list,
+.help-index__articles {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.help-index__list > li + li {
+  margin-block-start: var(--space-4);
+}
+
+.help-index__category {
+  display: inline-block;
+  color: var(--bridgio-maroon);
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
+  font-size: var(--font-caption-size);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.help-index__category:hover {
+  text-decoration: underline;
+}
+
+.help-index__articles {
+  display: grid;
+  gap: var(--space-1);
+  margin-block-start: var(--space-2);
+}
+
+.help-index__articles a {
+  display: block;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-input);
+  color: var(--text-secondary);
+  font-size: var(--font-caption-size);
+  line-height: 1.45;
+  text-decoration: none;
+}
+
+.help-index__articles a:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}
+
+.help-articles {
+  display: grid;
+  gap: var(--space-8);
+  min-width: 0;
+}
+
+/* Anchor targets clear the sticky header when jumped to. */
+.help-category,
+.help-article {
+  scroll-margin-block-start: calc(var(--space-16) + var(--space-8));
+}
+
+.help-category > h2 {
+  margin: 0;
+  font-size: var(--font-display-size-h2);
+}
+
+.help-article {
+  margin-block-start: var(--space-4);
+  padding: var(--space-4) var(--space-6) var(--space-6);
+  background: var(--bridgio-paper);
+  border: var(--outline-card) solid var(--card-border);
+  border-radius: var(--radius-card);
+}
+
+.help-article h3 {
+  margin: 0;
+  font-size: var(--font-display-size-h3);
+}
+
+.help-article__body {
+  margin-block: var(--space-2) var(--space-4);
+  color: var(--text-secondary);
+}
+
+.help-article__steps-label {
+  margin: 0 0 var(--space-2);
+  color: var(--text-muted);
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
+  font-size: var(--font-caption-size);
+  font-weight: 600;
+}
+
+.help-article__steps {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding-inline-start: 1.25rem;
+}
+
+.help-article__steps li::marker {
+  color: var(--bridgio-red);
+  font-weight: 700;
+}
+
+.help-article__link,
+.guide__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target);
+  margin-block-start: var(--space-4);
+  padding: var(--space-1) var(--space-4);
+  border: 1.5px solid var(--bridgio-maroon);
+  border-radius: var(--radius-pill);
+  background: var(--bridgio-paper);
+  color: var(--bridgio-maroon);
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
+  font-size: var(--font-label-size);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.help-article__link:hover,
+.guide__link:hover {
+  background: var(--tint-red);
+}
+
+.help-article__link-target,
+.guide__link-target {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+/* FAQ — question and answer, no numbered steps. */
+.help-faq {
+  display: grid;
+  gap: var(--space-4);
+  margin: var(--space-4) 0 0;
+}
+
+.help-faq__item {
+  padding: var(--space-4) var(--space-6);
+  background: var(--bridgio-paper);
+  border: var(--outline-card) solid var(--card-border);
+  border-radius: var(--radius-card);
+}
+
+.help-faq__item dt {
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
+  font-size: var(--font-label-size);
+  font-weight: 700;
+}
+
+.help-faq__item dd {
+  margin: var(--space-2) 0 0;
+  color: var(--text-secondary);
+}
+
+/* ---- Guide: numbered walkthrough with a connecting rail ------------------ */
+
+.guide {
+  max-width: 52rem;
+  margin-block-start: var(--space-8);
+}
+
+.guide__head {
+  margin-block-end: var(--space-6);
+}
+
+.guide__role {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-3);
+  margin: 0 0 var(--space-4);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--tint-red);
+  color: var(--bridgio-maroon);
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
+  font-size: var(--font-caption-size);
+  font-weight: 700;
+}
+
+.guide__head h2 {
+  margin: 0;
+}
+
+/* `.section-lead` pulls up towards a heading; here the heading sits above a
+   badge, so the lead keeps a small positive gap instead. */
+.guide__head .section-lead {
+  margin-block-start: var(--space-2);
+}
+
+.guide__steps {
+  display: grid;
+  gap: var(--space-4);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.guide__step {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--touch-target) minmax(0, 1fr);
+  gap: var(--space-4);
+}
+
+/* The rail links consecutive markers, so the order reads as one path. */
+.guide__step:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  inset-block-start: var(--touch-target);
+  inset-block-end: calc(-1 * var(--space-4));
+  inset-inline-start: calc(var(--touch-target) / 2 - 1px);
+  width: 2px;
+  background: var(--border-strong);
+}
+
+.guide__marker {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  border-radius: 50%;
+  background: var(--bridgio-maroon);
+  color: var(--bridgio-cream);
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
+  font-size: var(--font-label-size);
+  font-weight: 700;
+}
+
+.guide__body {
+  padding: var(--space-4) var(--space-6) var(--space-6);
+  background: var(--bridgio-paper);
+  border: var(--outline-card) solid var(--card-border);
+  border-radius: var(--radius-card);
+}
+
+.guide__body h3 {
+  margin: 0;
+  font-size: var(--font-display-size-h3);
+}
+
+.guide__body p {
+  margin-block: var(--space-2) 0;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 599.98px) {
+  .guide__step {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+
+  .guide__step:not(:last-child)::before {
+    display: none;
+  }
+}

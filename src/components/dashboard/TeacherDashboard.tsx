@@ -399,7 +399,6 @@ function DashboardFrame({
   return (
     <div className="dashboard">
       <header className="dashboard__hero">
-        <p className="app-shell__badge">{strings.badge}</p>
         <h1>{strings.title}</h1>
         <p className="dashboard__lead">{strings.lead}</p>
         {greeting ? <p className="dashboard__greeting">{greeting}</p> : null}

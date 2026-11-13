@@ -96,7 +96,7 @@ export function AssistantView() {
     <Frame
       greeting={
         <p className="dashboard__greeting">
-          {copy.sessionName}: {session.user.displayName}
+          {copy.greeting(session.user.displayName)}
         </p>
       }
     >

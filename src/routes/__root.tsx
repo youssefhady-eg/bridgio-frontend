@@ -4,7 +4,6 @@ import {
   Outlet,
   Scripts,
   createRootRouteWithContext,
-  useRouterState,
 } from '@tanstack/react-router'
 import { useEffect, useState, type ReactNode } from 'react'
 import { AppHeader } from '~/components/AppHeader'
@@ -17,13 +16,11 @@ import {
   parseLang,
   type Lang,
 } from '~/shell/lang'
-import { hrefWithRole, parseAppRole, appRoles, type AppRole } from '~/shell/nav'
+import { parseAppRole, type AppRole } from '~/shell/nav'
 import { THEME_STORAGE_KEY } from '~/shell/theme-state'
 import { useTheme } from '~/shell/useTheme'
 import { useLang, useStrings, stringsFor } from '~/shell/useStrings'
-import { isDemoData, showDevChrome } from '~/shell/dev-chrome'
 import { useSidebarCollapsed } from '~/shell/useSidebarCollapsed'
-import { usePreviewRole } from '~/shell/usePreviewRole'
 import appCss from '~/styles/app.css?url'
 import finishCss from '~/styles/finish.css?url'
 import fontsCss from '~/styles/fonts.css?url'
@@ -144,16 +141,12 @@ function ShellDocument({ children }: Readonly<{ children: ReactNode }>) {
   const lang = useLang()
   const dir = dirFor(lang)
   const strings = useStrings()
-  const { pathname, href } = useRouterState({ select: (state) => state.location })
-  const searchStr = href.slice(pathname.length).split('#')[0] ?? ''
 
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { collapsed: sidebarCollapsed, toggle: toggleSidebarCollapsed } =
     useSidebarCollapsed()
   const { theme, toggle: toggleTheme } = useTheme()
   const [chatOpen, setChatOpen] = useState(false)
-  const previewRole = usePreviewRole()
-  const devChrome = showDevChrome()
 
   // Reflect the active language on <html> and remember it for the next visit.
   useEffect(() => {
@@ -221,55 +214,7 @@ function ShellDocument({ children }: Readonly<{ children: ReactNode }>) {
             onClick={() => setSidebarOpen(false)}
           />
           <div className="app-content">
-            {devChrome ? (
-              <aside
-                className="stage-banner"
-                aria-label={strings.stageBanner.stage}
-              >
-                <strong className="stage-banner__stage">
-                  {strings.stageBanner.stage}
-                </strong>
-                <span>{strings.stageBanner.note}</span>
-              </aside>
-            ) : null}
             {children}
-            <footer className="app-footer">
-              <div className="app-footer__inner">
-                {devChrome ? (
-                  <>
-                    <p>{strings.footer.note}</p>
-                    <p className="app-footer__en" lang="en" dir="ltr">
-                      {strings.footer.noteEn}
-                    </p>
-                    <div
-                      className="app-footer__roles"
-                      role="group"
-                      aria-label={strings.preview.groupAria}
-                    >
-                      <span className="app-roles__hint">
-                        {strings.preview.label}
-                      </span>
-                      {appRoles.map((candidate) => (
-                        <a
-                          key={candidate}
-                          href={hrefWithRole(pathname, searchStr, candidate)}
-                          className={`app-roles__link${
-                            candidate === previewRole ? ' is-active' : ''
-                          }`}
-                          aria-current={
-                            candidate === previewRole ? 'true' : undefined
-                          }
-                        >
-                          {strings.preview.roles[candidate]}
-                        </a>
-                      ))}
-                    </div>
-                  </>
-                ) : isDemoData() ? (
-                  <p>{strings.footer.demoNote}</p>
-                ) : null}
-              </div>
-            </footer>
           </div>
         </div>
         <ChatPopup open={chatOpen} onClose={() => setChatOpen(false)} />
