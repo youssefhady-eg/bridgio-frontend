@@ -20,7 +20,7 @@ The token sheet has no dark theme. These values are proposals pending brand appr
 Only the swap of roles reuses locked colours; the background and status tints are new.
 
 ## Logo in dark — PROPOSED deviation
-The colour lockup and maroon wordmark are made for light surfaces. In dark, the adopted cream wordmark (fill baked in the file, never recoloured) is used at every width. This replaces the ≥ 1024 px full-colour lockup (200 px minimum) while dark is active; needs brand sign-off.
+The colour lockup and maroon wordmark are made for light surfaces. In dark, the adopted cream wordmark (fill baked in the file, never recoloured) is used at every width. Since the shell polish (2026-11-13) the ≥ 1024 px header renders the 136 px clean wordmark, not the 200 px colour lockup, so dark and light now show the same wordmark size with only the fill swapping; needs brand sign-off.
 
 ## Verification
 axe-core (wcag2a/2aa/21a/21aa/best-practice): no violations, light and dark, 7 routes, 1440/1024/390 px, ar and en. No horizontal overflow. Unit tests for theme and sidebar-state parsing.

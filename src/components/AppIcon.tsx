@@ -1,18 +1,19 @@
 import type { SVGProps } from 'react'
 import {
-  BookOpen,
   ChartColumn,
   ChevronLeft,
   ChevronRight,
   ClipboardList,
+  FileQuestion,
+  FolderOpen,
   Globe,
-  LayoutDashboard,
+  House,
   Menu,
   MessageSquare,
   MessagesSquare,
   Moon,
-  School,
-  Star,
+  PanelsTopLeft,
+  ShieldCheck,
   Sun,
   User,
   Users,
@@ -22,11 +23,15 @@ import {
 
 /**
  * Small icon set for the refinement shell (sidebar + utility header).
- * Lucide is the single BRIDGIO icon source (owner decision 2026-11-13); icons
- * render with `strokeWidth` 1.8 and stroke uses `currentColor` so every icon
- * inherits the surrounding text colour in both themes and both directions.
- * Decorative by default: callers pass an accessible name on the surrounding
- * control, so `aria-hidden` is set here.
+ *
+ * Lucide is the single BRIDGIO icon source (owner decision 2026-11-13). The
+ * shapes follow the Figma shell sheet (house, window panes, clipboard, question
+ * card, people, open folder, shield check). The default stroke is 1.8 for the
+ * header and chat; the sidebar passes `strokeWidth` 2 to match the Redesign
+ * rail. Stroke uses `currentColor`, so every icon inherits the surrounding text
+ * colour in both themes and both directions. Decorative by default: callers
+ * pass an accessible name on the surrounding control, so `aria-hidden` is set
+ * here.
  */
 
 export type AppIconName =
@@ -43,6 +48,7 @@ export type AppIconName =
   | 'progress'
   | 'results'
   | 'messages'
+  | 'help'
   | 'sun'
   | 'moon'
   | 'collapse'
@@ -59,14 +65,15 @@ const icons: Record<AppIconName, LucideIcon> = {
   globe: Globe,
   chat: MessageSquare,
   user: User,
-  dashboard: LayoutDashboard,
-  classes: School,
+  dashboard: House,
+  classes: PanelsTopLeft,
   tests: ClipboardList,
   students: Users,
-  lessons: BookOpen,
+  lessons: FolderOpen,
   progress: ChartColumn,
-  results: Star,
+  results: ShieldCheck,
   messages: MessagesSquare,
+  help: FileQuestion,
   sun: Sun,
   moon: Moon,
   collapse: ChevronLeft,

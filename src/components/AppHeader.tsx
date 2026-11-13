@@ -13,9 +13,11 @@ import { useLang, useStrings } from '~/shell/useStrings'
  * brand, the language toggle, the messages trigger and the account area.
  *
  * Three brand size states are unchanged (see app.css), one DOM, media queries:
- *   ≥1024 px : full colour lockup (public/brand/logo-colour.svg, min 200 px)
- *   768–1023 : light small header — adopted wordmark, maroon fill, ≥120 px
- *   <768 px  : dark band — adopted wordmark, cream fill, ≥120 px
+ *  - ≥ 1024 px : large header — adopted wordmark, maroon fill, 136 px
+ *    (the 200 px colour lockup is no longer rendered in the header; the asset
+ *    stays in the repo for large/cover use)
+ *   768–1023 : light small header — adopted wordmark, maroon fill, 148 px
+ *   <768 px  : dark band — adopted wordmark, cream fill, 136 px
  *
  * No component here fetches data; auth is owned by Mentingo (method
  * unconfirmed), so the account area is a labelled placeholder only.
@@ -54,16 +56,8 @@ export function AppHeader({
         </button>
 
         <div className="app-header__brand">
-          {/* Full colour lockup — large header only (min 200 px, LOCKED). */}
-          <img
-            className="app-header__lockup"
-            src="/brand/logo-colour.svg"
-            alt={strings.header.lockupAlt}
-            width={200}
-            height={89}
-            decoding="async"
-          />
-          {/* Adopted wordmark — small header slots, ≥120 px, fills baked in. */}
+          {/* Adopted wordmark — fills baked in the files, never recoloured.
+              One of the two is visible per breakpoint/theme (see app.css). */}
           <img
             className="app-header__wordmark app-header__wordmark--cream"
             src="/brand/wordmark-cream.svg"
@@ -125,7 +119,7 @@ export function AppHeader({
                 : strings.header.themeToDark
             }
           >
-            <AppIcon name={theme === 'dark' ? 'sun' : 'moon'} size={18} />
+            <AppIcon name={theme === 'dark' ? 'sun' : 'moon'} size={20} />
           </button>
 
           <button
@@ -134,7 +128,7 @@ export function AppHeader({
             onClick={onOpenChat}
             aria-label={strings.header.assistantOpenLabel}
           >
-            <AppIcon name="chat" size={18} />
+            <AppIcon name="chat" size={20} />
             <span className="app-utility__label">
               {strings.header.assistantLabel}
             </span>
@@ -148,7 +142,7 @@ export function AppHeader({
             title={strings.header.accountNote}
             preload={false}
           >
-            <AppIcon name="user" size={18} />
+            <AppIcon name="user" size={20} />
             <span className="app-utility__label">
               {strings.header.accountLabel}
             </span>

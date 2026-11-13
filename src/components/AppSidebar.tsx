@@ -90,7 +90,7 @@ export function AppSidebar({
   }
 
   const utilityLinks = [
-    { id: 'help', to: '/help', label: strings.sidebar.helpLabel, icon: 'lessons' },
+    { id: 'help', to: '/help', label: strings.sidebar.helpLabel, icon: 'help' },
     {
       id: 'profile',
       to: '/profile',
@@ -140,7 +140,7 @@ export function AppSidebar({
                   onClick={onClose}
                 >
                   <span className="app-sidebar__icon" aria-hidden="true">
-                    <AppIcon name={navIconName(item.id)} size={20} />
+                    <AppIcon name={navIconName(item.id)} size={22} strokeWidth={2} />
                   </span>
                   <span className="app-sidebar__label">
                     {strings.nav[item.id]}
@@ -170,7 +170,7 @@ export function AppSidebar({
                   onClick={onClose}
                 >
                   <span className="utility-links__icon" aria-hidden="true">
-                    <AppIcon name={link.icon} size={20} />
+                    <AppIcon name={link.icon} size={22} strokeWidth={2} />
                   </span>
                   <span className="app-sidebar__label">{link.label}</span>
                 </Link>
@@ -195,7 +195,11 @@ export function AppSidebar({
             collapsed ? strings.sidebar.expandLabel : strings.sidebar.collapseLabel
           }
         >
-          <AppIcon name={collapsed ? 'expand' : 'collapse'} size={20} />
+          <AppIcon
+            name={collapsed ? 'expand' : 'collapse'}
+            size={22}
+            strokeWidth={2}
+          />
           <span className="app-sidebar__label">
             {collapsed ? strings.sidebar.expandLabel : strings.sidebar.collapseLabel}
           </span>

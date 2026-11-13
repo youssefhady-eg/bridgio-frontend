@@ -24,11 +24,11 @@
   --content-max: 72rem;
   /* Header minimum for the inner bar (phone/tablet sizing). */
   --header-min: 72px;
-  /* Full header height at >= 1024 px (box-sizing: border-box). The locked
-     200 px lockup is 88.6 px tall at its fixed 3078:1364 aspect, plus its
-     vertical padding and the bottom hairline. The sticky sidebar offset uses
+  /* Full desktop header height, border included (box-sizing: border-box).
+     Figma + Redesign shell lock: a 76 px bar with a 2 px bottom rule and a
+     136 px clean wordmark vertically centred. The sticky sidebar offset uses
      this so its foot meets the fold with the collapse toggle visible. */
-  --header-h: 98px;
+  --header-h: 76px;
 }
 
 body {
@@ -79,27 +79,26 @@ body {
 
 @media (min-width: 1024px) {
   /* The sidebar pins under the header at --header-h, so the header has to stay
-     pinned too. Without this the header scrolls away and leaves a 98 px band
-     above the sidebar. z-index 40 matches the below-1024 px rule and stays
-     under the drawer (60), backdrop (50) and chat popup (80). */
+     pinned too. Without this the header scrolls away and leaves a band above
+     the sidebar. z-index 40 matches the below-1024 px rule and stays under the
+     drawer (60), backdrop (50) and chat popup (80). */
   .app-header {
     position: sticky;
     top: 0;
     z-index: 40;
-    /* Border-box: keeps the bar exactly --header-h tall in both themes, so the
-       sidebar's 98 px sticky offset meets it with no sub-pixel band. */
+    /* Border-box: exactly --header-h tall including the 2 px rule, so the
+       sidebar's --header-h sticky offset meets it with no band. */
     min-height: var(--header-h);
+    border-bottom-width: var(--outline-sticker);
   }
 
-  /* Lockup keeps its LOCKED 200 px minimum and its full height. The previous
-     margin-block: -6px pulled it 2 px above the viewport top, clipping the top
-     of the logo; the bar now sizes to the lockup instead of bleeding it. */
+  /* 74 px content box + 2 px rule = the 76 px bar. The 136 px wordmark is
+     49.1 px tall, so the flex row centres it with no vertical padding and the
+     bar keeps --header-h in both themes. */
   .app-header__inner {
-    padding-block: var(--space-1);
-    /* Dark hides the 200 px lockup and shows the 136 px wordmark, so the bar
-       would shrink to 72 px + border and leave a gap above the sidebar. Hold
-       the desktop bar at --header-h in both themes (border included). */
-    min-height: calc(var(--header-h) - var(--outline-hairline));
+    min-height: calc(var(--header-h) - var(--outline-sticker));
+    padding-block: 0;
+    padding-inline: 32px;
   }
 }
 
@@ -143,22 +142,24 @@ body {
   border-radius: 12px;
 }
 
+/* Active tile: cream fill + maroon label. The locked token pair inverts in
+   dark (maroon fill + cream label), so this one rule covers both themes. No
+   icon-chip fill — the tile itself carries the state. */
 .app-sidebar__link.is-active {
-  background: var(--bridgio-maroon);
-  color: var(--bridgio-cream);
-}
-
-.app-sidebar__link.is-active .app-sidebar__icon {
-  background: rgba(249, 236, 217, 0.12);
+  background: var(--bridgio-cream);
+  color: var(--bridgio-maroon);
 }
 
 /* Small brand-red tick on the active item — accent, never a status. Sits at
-   the inline start, like the dashboard eyebrow badge's dot, so it mirrors with
-   the writing direction instead of jumping to the trailing edge. */
+   the inline start, vertically centred so the 16 px tile radius never clips it
+   (it clipped at the corner before), and mirrors with the writing direction
+   instead of jumping to the trailing edge. */
 .app-sidebar__link.is-active::after {
   content: '';
   position: absolute;
   inset-inline-start: var(--space-1);
+  top: 50%;
+  transform: translateY(-50%);
   width: 6px;
   height: 6px;
   border-radius: 50%;
@@ -174,28 +175,43 @@ body {
 }
 
 @media (min-width: 1024px) {
+  /* Redesign shell lock: 272 px expanded / 88 px collapsed. Written in px on
+     purpose — the desktop root font-size is 17 px, so 5.5rem would render
+     93.5 px, not 88 px. */
   .app-body {
-    grid-template-columns: 16rem minmax(0, 1fr);
+    grid-template-columns: 272px minmax(0, 1fr);
   }
 
-  /* Collapsed rail — must stay after the 16rem rule above to win at equal
+  /* Collapsed rail — must stay after the 272 px rule above to win at equal
      specificity (this was the live collapse bug). */
   .app-body--collapsed {
-    grid-template-columns: 5rem minmax(0, 1fr);
+    grid-template-columns: 88px minmax(0, 1fr);
   }
 
-  /* The sidebar starts below the 72 px header, so a sticky top:0 + height:100dvh
-     pushed the foot (and its collapse toggle) 72 px below the fold. Pin it under
-     the header instead, so the toggle is visible without scrolling. */
+  /* The sidebar starts below the header, so a sticky top:0 + height:100dvh
+     pushed the foot (and its collapse toggle) below the fold. Pin it under the
+     header instead, so the toggle is visible without scrolling. */
   .app-sidebar {
     top: var(--header-h);
     height: calc(100dvh - var(--header-h));
   }
 
-  /* The sidebar starts directly under the top bar: no dead band above the
-     first nav item in either the expanded column or the collapsed rail. */
+  /* The designed 24 px gap between the header and the first nav item. */
   .app-sidebar__nav {
-    padding-block-start: 0;
+    padding-block-start: 24px;
+  }
+
+  /* 48 px rows (32 px icon chip + 8 px block padding), 8 px gap, 16 px radius,
+     14 px inline padding — the Redesign numbers. */
+  .app-sidebar__list {
+    gap: 8px;
+  }
+
+  .app-sidebar__link {
+    min-height: 48px;
+    padding-block: 8px;
+    padding-inline: 14px;
+    border-radius: 16px;
   }
 
   .app-sidebar__foot {
@@ -203,8 +219,10 @@ body {
   }
 
   .app-sidebar__toggle {
+    min-height: 48px;
+    gap: 8px;
     border-color: transparent;
-    border-radius: 12px;
+    border-radius: 16px;
     color: var(--text-muted);
   }
 
@@ -461,6 +479,12 @@ h1 {
 
 .button--secondary:hover:not(:disabled) {
   background: var(--tint-cream-deep);
+}
+
+/* Settings control inside a summary row (Profile): a real 48 px secondary
+   pill (Figma button height) rather than the inline link treatment. */
+.summary-list dd .button {
+  min-height: 48px;
 }
 
 /* ---- Form controls ------------------------------------------------------- */
