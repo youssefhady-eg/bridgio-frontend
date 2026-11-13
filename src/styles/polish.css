@@ -78,11 +78,28 @@ body {
 }
 
 @media (min-width: 1024px) {
+  /* The sidebar pins under the header at --header-h, so the header has to stay
+     pinned too. Without this the header scrolls away and leaves a 98 px band
+     above the sidebar. z-index 40 matches the below-1024 px rule and stays
+     under the drawer (60), backdrop (50) and chat popup (80). */
+  .app-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    /* Border-box: keeps the bar exactly --header-h tall in both themes, so the
+       sidebar's 98 px sticky offset meets it with no sub-pixel band. */
+    min-height: var(--header-h);
+  }
+
   /* Lockup keeps its LOCKED 200 px minimum and its full height. The previous
      margin-block: -6px pulled it 2 px above the viewport top, clipping the top
      of the logo; the bar now sizes to the lockup instead of bleeding it. */
   .app-header__inner {
     padding-block: var(--space-1);
+    /* Dark hides the 200 px lockup and shows the 136 px wordmark, so the bar
+       would shrink to 72 px + border and leave a gap above the sidebar. Hold
+       the desktop bar at --header-h in both themes (border included). */
+    min-height: calc(var(--header-h) - var(--outline-hairline));
   }
 }
 
