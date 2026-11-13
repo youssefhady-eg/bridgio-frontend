@@ -29,7 +29,7 @@
 
 - `src/shell/nav.ts`: two new teacher ids, `teacher-question-bank` and `teacher-materials`, inserted between Tests and Students. Teacher order is now Dashboard, My Classes, Tests, **Question bank**, **Material library**, Students.
 - `assistantCapabilityRoutes` now looks each grant up by id through a new `teacherRoute(id)` helper instead of by numeric `teacherNav` index, so adding teacher items cannot silently re-map a granted capability. The Assistant capability list is **unchanged** (the mock still grants two), and neither new screen is exposed to the assistant.
-- `src/components/AppIcon.tsx`: `questions → FileQuestion`, `materials → FolderOpen` (both already-imported Lucide icons); no new dependency.
+- `src/components/AppIcon.tsx`: `questions → ListChecks`, `materials → Library` (both Lucide icons, added to the existing import); `help` stays `FileQuestion` and `lessons` stays `FolderOpen`. No new dependency. (Originally `questions` shared `FileQuestion` with `help`; see §5.7.)
 - `src/shell/nav.test.ts`: teacher-order test updated; a new test asserts the assistant grants keep their own items now that teacher nav has grown.
 
 ### B — Question bank (`/teacher/question-bank`)
@@ -145,6 +145,7 @@ Colour stays `#2c0706` (maroon) with `font-weight: 600` in every state.
 4. **Collapsed label visibility is immediate.** Labels use the existing clip-based visually-hidden pattern (so each control keeps its accessible name); the rail geometry animates, the label text does not fade. Recorded as a known, deliberate trade-off, not a layout jump.
 5. **390 px screenshots carry a desktop scrollbar.** Captured in Brave at a 390 px viewport, so a ~15 px scrollbar sits inside the layout; a real phone has none. The drawer-open capture shows the drawer flush to the layout viewport for the same reason.
 6. **Delete of a seeded material always conflicts** because each seeded material is a test's source in the mock. Use a newly created material to see a successful delete.
+7. **Icon collision fixed (post-gate).** The Muse gate flagged that the Question bank nav item and the Help utility link shared the `FileQuestion` glyph, so the teacher sidebar showed the same "?" twice. `questions` now maps to `ListChecks` and `materials` to `Library`; `help` keeps `FileQuestion` and `lessons` keeps `FolderOpen`. Resulting teacher sidebar icons, all distinct: Dashboard `House`, My Classes `PanelsTopLeft`, Tests `ClipboardList`, Question bank `ListChecks`, Material library `Library`, Students `Users`, Help `FileQuestion`, Profile `User`. No route was renamed (`/teacher/question-bank` unchanged), no nav order changed, no other icon changed and no contract, adapter, dependency or copy changed. Screenshots: `batch1-fix-sidebar-1920-*.png`.
 
 ---
 
@@ -167,6 +168,8 @@ Colour stays `#2c0706` (maroon) with `font-weight: 600` in every state.
 | `batch1-sidebar-mid-collapse-1920.png` / `-mid-expand-1920.png` | Animation frozen at 125 ms of each direction |
 | `batch1-screen-link-rest.png` / `-hover.png` / `-focus.png` | Link at rest, hover, keyboard focus |
 | `batch1-assistant-nav-1920.png` | Assistant session: only the granted items (no new screens) |
+| `batch1-fix-sidebar-1920-light.png` | Icon fix: expanded teacher sidebar (light, 1920) — Question bank `ListChecks`, next to Help `FileQuestion`; Material library `Library` |
+| `batch1-fix-sidebar-nav-1920-light.png` | Icon fix: sidebar rail close-up, all eight icons distinct |
 
 ---
 
