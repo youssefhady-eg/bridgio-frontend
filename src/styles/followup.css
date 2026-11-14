@@ -170,6 +170,39 @@ html {
   }
 }
 
+/*
+ * The remaining interactive surfaces: link cards, step/stepper buttons and
+ * inline links. Button-shaped surfaces also take the press scale; inline links
+ * take the wash only, so text does not jump.
+ */
+.quick-action:active,
+.page-back:active,
+.builder-step__button:active:not(:disabled),
+.number-field__button:active,
+.notification-row__open:active {
+  background: var(--disabled-overlay);
+  transform: scale(var(--motion-press-scale));
+}
+
+.screen-link:active,
+.auth-links__link:active,
+.help-index__category:active,
+.help-index__articles a:active,
+.guide__link:active {
+  background: var(--disabled-overlay);
+}
+
+/* Selection cards already change colour when chosen; the press darkens the
+   whole card instead of replacing its selected fill. */
+.player-option:active,
+.choice-card:active {
+  filter: brightness(0.98);
+}
+
+.app-header__brand:active {
+  filter: brightness(0.94);
+}
+
 /* ---- 4. Motion (owner-approved tokens) ----------------------------------- */
 
 @keyframes bridgio-surface-in {
@@ -492,7 +525,12 @@ select.input {
   .chat-popup__close:active,
   .mohsen-fab:active,
   .mohsen-ask__close:active,
-  .account-menu__item:active {
+  .account-menu__item:active,
+  .quick-action:active,
+  .page-back:active,
+  .builder-step__button:active:not(:disabled),
+  .number-field__button:active,
+  .notification-row__open:active {
     transform: none;
   }
 
