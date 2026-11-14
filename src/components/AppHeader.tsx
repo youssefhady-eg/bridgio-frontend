@@ -128,6 +128,20 @@ export function AppHeader({
             <AppIcon name={theme === 'dark' ? 'sun' : 'moon'} size={20} />
           </button>
 
+          <Link
+            to="/search"
+            search={{ as: role, lang, q: '' }}
+            className="app-utility__button"
+            aria-label={strings.header.searchOpenLabel}
+            title={strings.header.searchLabel}
+            preload={false}
+          >
+            <AppIcon name="search" size={20} />
+            <span className="app-utility__label">
+              {strings.header.searchLabel}
+            </span>
+          </Link>
+
           <button
             type="button"
             className="app-utility__button"

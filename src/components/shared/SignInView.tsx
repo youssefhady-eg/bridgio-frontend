@@ -1,16 +1,21 @@
+import { Link } from '@tanstack/react-router'
 import { PageHero } from '~/components/shared/PageHero'
-import { useStrings } from '~/shell/useStrings'
+import { usePreviewRole } from '~/shell/usePreviewRole'
+import { useLang, useStrings } from '~/shell/useStrings'
 
 /**
  * Sign in — informational only.
  *
  * The fields are disabled and one plain status line says sign-in is not
  * available yet. Nothing is invented here: no flow, no provider, no contact
- * detail.
+ * detail. The two self-service links open screens that state the accounts
+ * backend is not connected; they never fake a result.
  */
 export function SignInView() {
   const strings = useStrings()
   const copy = strings.auth
+  const role = usePreviewRole()
+  const lang = useLang()
 
   return (
     <div className="dashboard">
@@ -49,6 +54,26 @@ export function SignInView() {
       <p className="finish-note" role="status">
         {copy.status}
       </p>
+
+      <nav className="auth-links" aria-label={copy.linksHeading}>
+        <h2 className="auth-links__heading">{copy.linksHeading}</h2>
+        <Link
+          to="/sign-up"
+          search={{ as: role, lang }}
+          className="auth-links__link"
+          preload={false}
+        >
+          {copy.signUpLink}
+        </Link>
+        <Link
+          to="/forgot-password"
+          search={{ as: role, lang }}
+          className="auth-links__link"
+          preload={false}
+        >
+          {copy.forgotLink}
+        </Link>
+      </nav>
     </div>
   )
 }
