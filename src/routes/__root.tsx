@@ -1,6 +1,7 @@
 import type { QueryClient } from '@tanstack/react-query'
 import {
   HeadContent,
+  Link,
   Outlet,
   Scripts,
   createRootRouteWithContext,
@@ -20,11 +21,13 @@ import {
 import { parseAppRole, type AppRole } from '~/shell/nav'
 import { THEME_STORAGE_KEY } from '~/shell/theme-state'
 import { useTheme } from '~/shell/useTheme'
+import { usePreviewRole } from '~/shell/usePreviewRole'
 import { useLang, useStrings, stringsFor } from '~/shell/useStrings'
 import { useSidebarCollapsed } from '~/shell/useSidebarCollapsed'
 import appCss from '~/styles/app.css?url'
 import batch5Css from '~/styles/batch5.css?url'
 import finishCss from '~/styles/finish.css?url'
+import followupCss from '~/styles/followup.css?url'
 import fontsCss from '~/styles/fonts.css?url'
 import polishCss from '~/styles/polish.css?url'
 import tokensCss from '~/styles/tokens.css?url'
@@ -90,33 +93,38 @@ export const Route = createRootRouteWithContext<{
         { rel: 'stylesheet', href: polishCss },
         { rel: 'stylesheet', href: finishCss },
         { rel: 'stylesheet', href: batch5Css },
+        { rel: 'stylesheet', href: followupCss },
       ],
     }
   },
   component: RootComponent,
-  notFoundComponent: () => (
-    <ShellDocument>
-      <main className="app-main" id="app-main">
-        <NotFoundScreen />
-      </main>
-    </ShellDocument>
-  ),
-  errorComponent: () => (
-    <ShellDocument>
-      <main className="app-main" id="app-main">
-        <ErrorScreen />
-      </main>
-    </ShellDocument>
-  ),
+  // Rendered in place of the matched route's outlet while RootComponent (the
+  // document and shell) stays mounted. Wrapping these in ShellDocument again
+  // nests a second <html> inside <main>, which the browser drops and leaves a
+  // blank screen — see the follow-up delivery note.
+  notFoundComponent: () => <NotFoundScreen />,
+  errorComponent: () => <ErrorScreen />,
 })
 
 function NotFoundScreen() {
   const strings = useStrings()
+  const role = usePreviewRole()
+  const lang = useLang()
   return (
-    <>
+    <div className="not-found">
       <h1>{strings.root.notFound}</h1>
       <p>{strings.root.notFoundBody}</p>
-    </>
+      <p className="not-found__actions">
+        <Link
+          to="/"
+          search={{ as: role, lang }}
+          className="button button--primary"
+          preload={false}
+        >
+          {strings.root.notFoundHome}
+        </Link>
+      </p>
+    </div>
   )
 }
 

@@ -1,0 +1,506 @@
+/* ==========================================================================
+   Batch 5 follow-up — scrollbars, mobile brand band, tables, motion, states
+   --------------------------------------------------------------------------
+   Loaded last so it can refine existing layers without rewriting them. No new
+   colour is introduced: every value is a token from tokens.css. Logical
+   properties keep the whole file RTL-correct.
+   ========================================================================== */
+
+/* ---- 1. Branded scrollbars (app-wide) ------------------------------------ */
+/*
+ * The native scrollbar is replaced with a thin maroon thumb on a transparent
+ * track. In the dark theme `--bridgio-maroon` flips to cream, so the same rule
+ * keeps contrast without a second palette. Firefox reads the two standard
+ * properties; Chromium/Safari read the pseudo-elements.
+ */
+
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--bridgio-maroon) transparent;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--bridgio-maroon) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--bridgio-maroon);
+  border: 2px solid var(--bridgio-paper);
+  border-radius: var(--radius-pill);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--bridgio-red);
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* ---- 2. Centred wordmark in the phone dark band -------------------------- */
+/*
+ * At phone width the menu button and the utility cluster together leave no
+ * room for a 120 px wordmark in one row, so the band becomes two rows: controls
+ * on top, brand centred underneath. The brand is still the adopted 136 px
+ * cream artwork, never recoloured, mirrored or shrunk.
+ */
+
+@media (max-width: 767.98px) {
+  .app-header__inner {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      'menu utilities'
+      'brand brand';
+    row-gap: var(--space-2);
+    align-items: center;
+  }
+
+  .app-header__menu {
+    grid-area: menu;
+  }
+
+  .app-header__utilities {
+    grid-area: utilities;
+    justify-self: end;
+  }
+
+  .app-header__brand {
+    grid-area: brand;
+    justify-self: center;
+  }
+
+  .app-header__wordmark--cream {
+    width: 136px;
+  }
+
+  /* The account avatar now lives in the top row: without it the phone has no
+     route to sign out once the sidebar Profile item is gone. */
+  .app-utility__button--account {
+    display: inline-flex;
+  }
+}
+
+/* ---- 3. Pressed states --------------------------------------------------- */
+/*
+ * Every control gets a visible pressed response: a token wash plus the single
+ * `--motion-press-scale` transform. The transform exists only because the
+ * motion tokens define it; no component invents its own.
+ */
+
+.button,
+.app-header__menu,
+.app-utility__button,
+.app-sidebar__close,
+.app-sidebar__link,
+.utility-links__link,
+.app-sidebar__toggle,
+.chat-thread,
+.chat-surface__send,
+.chat-popup__close,
+.mohsen-fab,
+.mohsen-ask__close,
+.account-menu__item {
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-ease-standard),
+    border-color var(--motion-duration-fast) var(--motion-ease-standard),
+    color var(--motion-duration-fast) var(--motion-ease-standard),
+    filter var(--motion-duration-fast) var(--motion-ease-standard),
+    transform var(--motion-duration-fast) var(--motion-ease-standard);
+}
+
+.button:active:not(:disabled),
+.app-header__menu:active,
+.app-utility__button:active,
+.app-sidebar__close:active,
+.app-sidebar__link:active,
+.utility-links__link:active,
+.app-sidebar__toggle:active,
+.chat-thread:active,
+.chat-surface__send:active:not(:disabled),
+.chat-popup__close:active,
+.mohsen-fab:active,
+.mohsen-ask__close:active,
+.account-menu__item:active {
+  transform: scale(var(--motion-press-scale));
+}
+
+.button--primary:active:not(:disabled),
+.mohsen-fab:active {
+  background: var(--bridgio-maroon-outline);
+  filter: brightness(0.96);
+}
+
+.button--secondary:active:not(:disabled),
+.button--danger:active:not(:disabled),
+.button--ghost:active:not(:disabled),
+.app-sidebar__close:active,
+.app-sidebar__link:active,
+.utility-links__link:active,
+.app-sidebar__toggle:active,
+.chat-popup__close:active,
+.mohsen-ask__close:active,
+.account-menu__item:active {
+  background: var(--disabled-overlay);
+}
+
+.app-utility__button:active,
+.app-header__menu:active {
+  background: var(--band-hover);
+}
+
+.chat-thread:active {
+  background: var(--hover-bg);
+}
+
+@media (min-width: 768px) {
+  .app-utility__button:active,
+  .app-header__menu:active {
+    background: var(--disabled-overlay);
+  }
+}
+
+/* ---- 4. Motion (owner-approved tokens) ----------------------------------- */
+
+@keyframes bridgio-surface-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes bridgio-detail-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bridgio-fab-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.chat-popup__panel,
+.mohsen-ask__panel {
+  animation: bridgio-surface-in var(--motion-duration-base)
+    var(--motion-ease-emphasis);
+}
+
+.mohsen-fab {
+  animation: bridgio-fab-in var(--motion-duration-slow)
+    var(--motion-ease-emphasis);
+}
+
+.material-row__detail {
+  animation: bridgio-detail-in var(--motion-duration-base)
+    var(--motion-ease-standard);
+}
+
+/* Sidebar drawer: the locked 250 ms ease, both directions. */
+@media (max-width: 1023.98px) {
+  .app-sidebar {
+    transition:
+      transform var(--motion-duration-slow) var(--motion-ease-standard),
+      visibility 0s linear var(--motion-duration-slow);
+  }
+
+  .app-sidebar.is-open {
+    transition-delay: 0s;
+  }
+}
+
+/* Inputs respond to hover/focus with the same token timing. */
+.input,
+.textarea,
+select.input {
+  transition:
+    border-color var(--motion-duration-fast) var(--motion-ease-standard),
+    background-color var(--motion-duration-fast) var(--motion-ease-standard),
+    box-shadow var(--motion-duration-fast) var(--motion-ease-standard);
+}
+
+/* ---- 5. Classes table ---------------------------------------------------- */
+/*
+ * The class list is a real table (name / subject / grade / students / tests /
+ * status / actions). On phone it scrolls horizontally inside its own frame,
+ * using the branded scrollbar rather than shrinking the text.
+ */
+
+.class-table-wrap {
+  overflow-x: auto;
+  background: var(--bridgio-paper);
+  border: var(--outline-sticker) solid var(--bridgio-maroon);
+  border-radius: var(--radius-card);
+}
+
+.class-table {
+  width: 100%;
+  min-width: 54rem;
+  border-collapse: collapse;
+  text-align: start;
+}
+
+.class-table th,
+.class-table td {
+  padding: var(--space-3) var(--space-4);
+  border-block-end: var(--outline-hairline) solid var(--border);
+  text-align: start;
+  vertical-align: middle;
+}
+
+.class-table thead th {
+  background: var(--hover-bg);
+  color: var(--text-muted);
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
+  font-size: var(--font-caption-size);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.class-table tbody tr:last-child td {
+  border-block-end: 0;
+}
+
+.class-table tbody tr:hover {
+  background: var(--hover-bg);
+}
+
+.class-table__name {
+  font-family: 'thmanyahserifdisplay', 'Bridgio Display', sans-serif;
+  font-size: var(--font-label-size);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.class-table__number {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.class-table__actions {
+  text-align: end;
+  white-space: nowrap;
+}
+
+/* ---- 6. Material detail card --------------------------------------------- */
+/*
+ * The library stays a list; the expanded `materials.get` result opens as a
+ * framed card inside its row, with the detail animation above. The delete
+ * confirmation block is untouched.
+ */
+
+.material-row__detail {
+  margin-block-start: var(--space-4);
+  padding: var(--space-4);
+  background: var(--bridgio-cream);
+  border: var(--outline-hairline) solid var(--border-strong);
+  border-radius: var(--radius-input);
+}
+
+/* ---- 7. Account menu (header avatar) ------------------------------------- */
+
+.account-menu {
+  position: relative;
+  display: inline-flex;
+}
+
+.app-utility__button--account {
+  width: var(--touch-target);
+  padding: 0;
+  border-radius: var(--radius-pill);
+  justify-content: center;
+}
+
+.app-utility__button--account .app-utility__label {
+  display: none;
+}
+
+.account-menu__panel {
+  position: absolute;
+  inset-block-start: calc(100% + var(--space-2));
+  inset-inline-end: 0;
+  z-index: 95;
+  display: grid;
+  gap: 2px;
+  min-width: 12rem;
+  padding: var(--space-2);
+  background: var(--bridgio-paper);
+  border: var(--outline-sticker) solid var(--bridgio-maroon);
+  border-radius: var(--radius-input);
+  animation: bridgio-surface-in var(--motion-duration-base)
+    var(--motion-ease-emphasis);
+}
+
+.account-menu__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target);
+  padding: var(--space-2) var(--space-3);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-input);
+  color: var(--text-primary);
+  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
+  font-size: var(--font-label-size);
+  font-weight: 600;
+  text-align: start;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.account-menu__item:hover {
+  background: var(--hover-bg);
+}
+
+.account-menu__item:disabled {
+  color: var(--disabled-text);
+  cursor: not-allowed;
+}
+
+.account-menu__error {
+  margin: var(--space-1) var(--space-2) var(--space-2);
+  color: var(--bridgio-error);
+  font-size: var(--font-caption-size);
+}
+
+/* ---- 8. Support page ----------------------------------------------------- */
+
+.support-form {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 40rem;
+}
+
+.support-form .field,
+.support-form .textarea {
+  margin: 0;
+}
+
+.support-form__status {
+  max-width: 40rem;
+}
+
+.support-note {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--font-body-small-size);
+}
+
+/* ---- 9. Not-found / unmatched route -------------------------------------- */
+
+.not-found {
+  max-width: 40rem;
+  margin: var(--space-12) auto 0;
+  padding: var(--space-8);
+  background: var(--bridgio-paper);
+  border: var(--outline-sticker) solid var(--bridgio-maroon);
+  border-radius: var(--radius-card);
+}
+
+.not-found h1 {
+  margin-block: 0 var(--space-3);
+  font-size: var(--font-display-size-h1);
+}
+
+.not-found p {
+  margin-block: 0 var(--space-6);
+  color: var(--text-secondary);
+  font-size: var(--font-body-size);
+}
+
+.not-found__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+/* ---- 9b. Mohsen FAB: the mascot itself ---------------------------------- */
+/*
+ * The circle contains the supplied Mohsen mascot (waving pose, cropped from
+ * the 16-pose reactions sheet), not an icon or the wordmark. The image is
+ * square and cropped to a circle with `object-fit: cover`.
+ */
+
+.mohsen-fab {
+  overflow: hidden;
+  background: var(--bridgio-red);
+  border-color: var(--bridgio-maroon);
+}
+
+.mohsen-fab__mascot {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.mohsen-fab:hover:not(:active) {
+  background: var(--bridgio-red);
+  border-color: var(--bridgio-maroon);
+  transform: scale(1.04);
+}
+
+/* ---- 10. Reduced motion: no animation, no transition, no press scale ----- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
+  }
+
+  .button:active:not(:disabled),
+  .app-header__menu:active,
+  .app-utility__button:active,
+  .app-sidebar__close:active,
+  .app-sidebar__link:active,
+  .utility-links__link:active,
+  .app-sidebar__toggle:active,
+  .chat-thread:active,
+  .chat-surface__send:active:not(:disabled),
+  .chat-popup__close:active,
+  .mohsen-fab:active,
+  .mohsen-ask__close:active,
+  .account-menu__item:active {
+    transform: none;
+  }
+
+  .mohsen-fab:hover {
+    transform: none;
+  }
+
+  .app-sidebar {
+    transition: none !important;
+  }
+}

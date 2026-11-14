@@ -91,6 +91,22 @@
   --focus-ring-color-on-dark: var(--bridgio-cream);
   --touch-target: 44px;
 
+  /* ---- PROPOSED FOR UI — motion ----------------------------------------- */
+  /*
+   * Batch 5 follow-up (owner decision 2026-11-14: motion tokens are in scope).
+   * Every interaction transition reads these tokens so the feel is tuned in one
+   * place, and `prefers-reduced-motion` can switch all of them off without
+   * touching a component rule. Timings: fast for hover/press feedback, base for
+   * surfaces that open (popup, detail card), slow for the sidebar drawer.
+   */
+  --motion-duration-fast: 120ms;
+  --motion-duration-base: 180ms;
+  --motion-duration-slow: 250ms;
+  --motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --motion-ease-emphasis: cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* The one transform allowed on press; no other component invents a scale. */
+  --motion-press-scale: 0.98;
+
   /* ---- Provenance -------------------------------------------------------- */
   --bridgio-wordmark-min-width: 120px; /* adopted wordmark: ≥120 px slots */
   --bridgio-lockup-min-width: 200px; /* LOCKED minimum full-lockup width */
