@@ -55,7 +55,13 @@ export function AppHeader({
           <AppIcon name="menu" size={22} />
         </button>
 
-        <div className="app-header__brand">
+        {/* The brand links to the shell home, keeping the preview role and the
+            language in the query so `/` redirects to the same role home. */}
+        <Link
+          to="/"
+          search={{ as: role, lang }}
+          className="app-header__brand"
+        >
           {/* Adopted wordmark — fills baked in the files, never recoloured.
               One of the two is visible per breakpoint/theme (see app.css). */}
           <img
@@ -74,7 +80,7 @@ export function AppHeader({
             height={53}
             decoding="async"
           />
-        </div>
+        </Link>
 
         <div
           className="app-header__utilities"
