@@ -1,4 +1,8 @@
-import { Link, useRouterState } from '@tanstack/react-router'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Link, useNavigate, useRouterState } from '@tanstack/react-router'
+import { useEffect, useRef, useState } from 'react'
+import { api } from '~/api'
+import { sessionQueryOptions } from '~/api/queries'
 import { AppIcon } from '~/components/AppIcon'
 import { hrefWithLang } from '~/shell/lang'
 import { usePreviewRole } from '~/shell/usePreviewRole'
@@ -6,21 +10,23 @@ import type { Theme } from '~/shell/theme-state'
 import { useLang, useStrings } from '~/shell/useStrings'
 
 /**
- * Slim utility header — refinement branch.
+ * Slim utility header â€” refinement branch.
  *
  * The header no longer carries the primary navigation (that is the sidebar's
  * job). It holds only utility controls: the menu button (phone only), the
  * brand, the language toggle, the messages trigger and the account area.
  *
  * Three brand size states are unchanged (see app.css), one DOM, media queries:
- *  - ≥ 1024 px : large header — adopted wordmark, maroon fill, 136 px
+ *  - â‰¥ 1024 px : large header â€” adopted wordmark, maroon fill, 136 px
  *    (the 200 px colour lockup is no longer rendered in the header; the asset
  *    stays in the repo for large/cover use)
- *   768–1023 : light small header — adopted wordmark, maroon fill, 148 px
- *   <768 px  : dark band — adopted wordmark, cream fill, 136 px
+ *   768â€“1023 : light small header â€” adopted wordmark, maroon fill, 148 px
+ *   <768 px  : dark band â€” adopted wordmark, cream fill, 136 px, centred on its
+ *              own row (followup.css)
  *
- * No component here fetches data; the account area is a labelled placeholder
- * only, and every label comes from the central strings.
+ * The account control is the avatar only. It opens a small menu with Profile,
+ * Sign out (through `auth.signOut`) when a session exists, or Sign in when it
+ * does not. Every label comes from the central strings.
  */
 
 interface AppHeaderProps {
@@ -43,6 +49,62 @@ export function AppHeader({
   const strings = useStrings()
   const nextLang = lang === 'en' ? 'ar' : 'en'
 
+  const queryClient = useQueryClient()
+  const navigate = useNavigate()
+  const sessionQuery = useQuery(sessionQueryOptions())
+  const user = sessionQuery.data?.user ?? null
+  const [accountOpen, setAccountOpen] = useState(false)
+  const accountRef = useRef<HTMLDivElement>(null)
+
+  const signOutMutation = useMutation({
+    mutationFn: () => api.auth.signOut(),
+    onSuccess: () => {
+      setAccountOpen(false)
+      queryClient.setQueryData(sessionQueryOptions().queryKey, null)
+      void queryClient.invalidateQueries({
+        queryKey: sessionQueryOptions().queryKey,
+      })
+      void navigate({
+        to: '/sign-in',
+        search: { as: role, lang },
+      })
+    },
+  })
+
+  // Close the menu on navigation, Escape, or a click outside it.
+  useEffect(() => {
+    setAccountOpen(false)
+  }, [pathname])
+
+  useEffect(() => {
+    if (!accountOpen) return
+
+    function onPointerDown(event: MouseEvent) {
+      if (
+        accountRef.current &&
+        !accountRef.current.contains(event.target as Node)
+      ) {
+        setAccountOpen(false)
+      }
+    }
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setAccountOpen(false)
+        accountRef.current
+          ?.querySelector<HTMLButtonElement>('.app-utility__button--account')
+          ?.focus()
+      }
+    }
+
+    document.addEventListener('mousedown', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown)
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [accountOpen])
+
   return (
     <header className="app-header">
       <div className="app-header__inner">
@@ -62,7 +124,7 @@ export function AppHeader({
           search={{ as: role, lang }}
           className="app-header__brand"
         >
-          {/* Adopted wordmark — fills baked in the files, never recoloured.
+          {/* Adopted wordmark â€” fills baked in the files, never recoloured.
               One of the two is visible per breakpoint/theme (see app.css). */}
           <img
             className="app-header__wordmark app-header__wordmark--cream"
@@ -154,18 +216,75 @@ export function AppHeader({
             </span>
           </button>
 
-          <Link
-            to="/profile"
-            search={{ as: role, lang }}
-            className="app-utility__button app-utility__button--account"
-            aria-label={strings.header.accountLabel}
-            preload={false}
-          >
-            <AppIcon name="user" size={20} />
-            <span className="app-utility__label">
-              {strings.header.accountLabel}
-            </span>
-          </Link>
+          {/* Avatar-only account control: person icon in a circle. */}
+          <div className="account-menu" ref={accountRef}>
+            <button
+              type="button"
+              className="app-utility__button app-utility__button--account"
+              onClick={() => setAccountOpen((current) => !current)}
+              aria-label={strings.header.accountLabel}
+              aria-haspopup="menu"
+              aria-expanded={accountOpen}
+              aria-controls="account-menu-panel"
+              title={strings.header.accountLabel}
+            >
+              <AppIcon name="user" size={20} />
+            </button>
+
+            {accountOpen ? (
+              <div
+                className="account-menu__panel"
+                id="account-menu-panel"
+                role="menu"
+                aria-label={strings.header.accountMenuLabel}
+              >
+                {user ? (
+                  <>
+                    <Link
+                      to="/profile"
+                      search={{ as: role, lang }}
+                      className="account-menu__item"
+                      role="menuitem"
+                      preload={false}
+                      onClick={() => setAccountOpen(false)}
+                    >
+                      <AppIcon name="user" size={18} />
+                      {strings.sidebar.profileLabel}
+                    </Link>
+                    <button
+                      type="button"
+                      className="account-menu__item"
+                      role="menuitem"
+                      disabled={signOutMutation.isPending}
+                      onClick={() => signOutMutation.mutate()}
+                    >
+                      <AppIcon name="close" size={18} />
+                      {signOutMutation.isPending
+                        ? strings.header.signingOutLabel
+                        : strings.header.signOutLabel}
+                    </button>
+                  </>
+                ) : (
+                  <Link
+                    to="/sign-in"
+                    search={{ as: role, lang }}
+                    className="account-menu__item"
+                    role="menuitem"
+                    preload={false}
+                    onClick={() => setAccountOpen(false)}
+                  >
+                    <AppIcon name="user" size={18} />
+                    {strings.header.signInLabel}
+                  </Link>
+                )}
+                {signOutMutation.isError ? (
+                  <p className="account-menu__error" role="alert">
+                    {strings.header.accountError}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
         </div>
       </div>
     </header>
