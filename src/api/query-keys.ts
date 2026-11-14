@@ -48,6 +48,14 @@ export const queryKeys = {
     threads: () => ['messages', 'threads'] as const,
     thread: (threadId: string) => ['messages', 'threads', threadId] as const,
   },
+  notifications: {
+    all: () => ['notifications'] as const,
+    forUser: (userId: UserId) => ['notifications', userId] as const,
+  },
+  search: {
+    all: () => ['search'] as const,
+    results: (query: string) => ['search', query] as const,
+  },
   classrooms: {
     all: () => ['classrooms'] as const,
     forTeacher: (teacherId: UserId) =>

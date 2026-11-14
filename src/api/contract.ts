@@ -1,4 +1,5 @@
 import type {
+  AccountsResult,
   AdapterInfo,
   AskMohsenInput,
   Attempt,
@@ -15,21 +16,28 @@ import type {
   CurriculumUnit,
   DraftQuestionsInput,
   DraftQuestionsResult,
+  ListNotificationsInput,
   Material,
   MaterialId,
   Message,
   MessageThread,
   MohsenAnswer,
+  Notification,
   ParentOverview,
   ParentProfile,
   Question,
   QuestionId,
   ReorderQuestionsInput,
+  RequestPasswordResetInput,
+  ResetPasswordInput,
   SaveAnswerInput,
+  SearchInput,
+  SearchResults,
   SendMessageInput,
   SendMessageResult,
   Session,
   SignInInput,
+  SignUpInput,
   StartAttemptInput,
   StudentProfile,
   StudentProgress,
@@ -77,6 +85,21 @@ export interface BridgioApi {
     signIn(input: SignInInput): Promise<Session>
     /** PROPOSED — Mentingo to implement on restore/rebuild. */
     signOut(): Promise<void>
+    /**
+     * PROPOSED — NEW in Batch 5. Self-service account creation, owned by
+     * Mentingo auth. NOT connected: the mock always answers
+     * `{ status: 'unavailable' }` and the UI never fakes success.
+     */
+    signUp(input: SignUpInput): Promise<AccountsResult>
+    /**
+     * PROPOSED — NEW in Batch 5. Request a password-reset link. Never reports
+     * that a message was sent when the accounts backend is absent.
+     */
+    requestPasswordReset(input: RequestPasswordResetInput): Promise<AccountsResult>
+    /**
+     * PROPOSED — NEW in Batch 5. Complete a reset with a token from the link.
+     */
+    resetPassword(input: ResetPasswordInput): Promise<AccountsResult>
   }
 
   teachers: {
@@ -131,6 +154,31 @@ export interface BridgioApi {
     listMessages(input: { threadId: string }): Promise<Message[]>
     /** PROPOSED — sends a message; the mock answers with a deterministic reply. */
     sendMessage(input: SendMessageInput): Promise<SendMessageResult>
+  }
+
+  /**
+   * In-app notifications — PROPOSED, mock only.
+   *
+   * NEW in Batch 5. There is no notifications backend and no push transport; the
+   * mock DERIVES each row from existing seed data. TEACHER-ONLY: the screen and
+   * its sidebar entry are shown to the teacher role, and any other role gets an
+   * empty list rather than invented rows.
+   */
+  notifications: {
+    /** PROPOSED — the signed-in user's notifications, newest first. */
+    listForUser(input: ListNotificationsInput): Promise<Notification[]>
+  }
+
+  /**
+   * Global in-app search — PROPOSED, mock only.
+   *
+   * NEW in Batch 5. No search backend exists; the mock filters the EXISTING seed
+   * (the caller's tests, materials and questions) so nothing new is invented and
+   * nothing outside the caller's visibility is returned. TEACHER-ONLY today.
+   */
+  search: {
+    /** PROPOSED — case/whitespace-normalised match over the caller's own data. */
+    search(input: SearchInput): Promise<SearchResults>
   }
 
   classrooms: {

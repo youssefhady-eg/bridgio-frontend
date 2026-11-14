@@ -1,6 +1,7 @@
 import type { BridgioApi } from '../contract'
 import { ApiError, type ApiErrorCode } from '../errors'
 import type {
+  AccountsResult,
   AskMohsenInput,
   Attempt,
   AttemptSummary,
@@ -15,20 +16,28 @@ import type {
   DraftQuestionsInput,
   DraftQuestionsResult,
   GroundingRef,
+  ListNotificationsInput,
   Material,
   Message,
   MessageThread,
   MohsenAnswer,
+  Notification,
   ParentOverview,
   ParentProfile,
   Question,
   QuestionOption,
   ReorderQuestionsInput,
+  RequestPasswordResetInput,
+  ResetPasswordInput,
   SaveAnswerInput,
+  SearchInput,
+  SearchResult,
+  SearchResults,
   SendMessageInput,
   SendMessageResult,
   Session,
   SignInInput,
+  SignUpInput,
   StartAttemptInput,
   StudentProfile,
   StudentProgress,
@@ -988,6 +997,126 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
       }))
   }
 
+  /**
+   * Notifications are DERIVED from existing seed data — submissions on the
+   * teacher's own tests, the teacher's own published tests, and messages in the
+   * teacher's threads. Nothing is invented and there is no read/unread state.
+   * TEACHER-ONLY: every other role gets an empty list rather than fake rows.
+   */
+  function notificationsForUser(user: User): Notification[] {
+    if (user.role !== 'teacher') return []
+    const rows: Notification[] = []
+    const ownTests = db.tests.filter((test) => test.teacherId === user.id)
+    const ownTestIds = new Set(ownTests.map((test) => test.id))
+
+    for (const attempt of db.attempts) {
+      if (attempt.status !== 'submitted') continue
+      if (!ownTestIds.has(attempt.testId)) continue
+      const test = requireTest(attempt.testId)
+      const student = requireUser(attempt.studentId)
+      rows.push({
+        id: `notif_submission_${attempt.id}`,
+        kind: 'submission',
+        title: 'تسليم اختبار',
+        body: `سلّم ${student.displayName} إجابات اختبار «${test.title}».`,
+        occurredAt: attempt.submittedAt ?? attempt.startedAt,
+        link: `/teacher/tests/${test.id}`,
+      })
+    }
+
+    for (const test of ownTests) {
+      if (test.status !== 'published' || !test.publishedAt) continue
+      rows.push({
+        id: `notif_published_${test.id}`,
+        kind: 'published_test',
+        title: 'نُشر اختبار',
+        body: `نُشر اختبار «${test.title}» إلى ${requireClassroom(test.classroomId).name}.`,
+        occurredAt: test.publishedAt,
+        link: `/teacher/tests/${test.id}`,
+      })
+    }
+
+    const threadIds = new Set(threadsForUser(user).map((thread) => thread.id))
+    for (const message of db.messages) {
+      if (!threadIds.has(message.threadId)) continue
+      if (message.author.role === user.role) continue
+      rows.push({
+        id: `notif_message_${message.id}`,
+        kind: 'message',
+        title: 'رسالة جديدة',
+        body: `${message.author.name}: ${message.body}`,
+        occurredAt: message.sentAt,
+        // The teacher's human conversation opens from the header button, not a
+        // route, so this notification deliberately has nowhere to navigate.
+        link: null,
+      })
+    }
+
+    return rows.sort((left, right) =>
+      right.occurredAt.localeCompare(left.occurredAt),
+    )
+  }
+
+  /**
+   * Search filters the EXISTING seed over the caller's own data — tests,
+   * materials and questions. TEACHER-ONLY today (all three kinds carry teacher
+   * authoring data); any other role gets an empty, honest result set. Matching
+   * is case- and diacritic-normalised through the same `normalizeText` Mohsen
+   * retrieval uses.
+   */
+  function searchResults(user: User, input: SearchInput): SearchResults {
+    const raw = input.query.trim()
+    const limit = input.limit ?? 20
+    if (user.role !== 'teacher' || raw.length === 0) {
+      return { query: raw, results: [] }
+    }
+    const needle = normalizeText(raw)
+    if (needle.length === 0) return { query: raw, results: [] }
+    const matches = (text: string): boolean =>
+      normalizeText(text).includes(needle)
+
+    const results: SearchResult[] = []
+    const ownTests = db.tests.filter((test) => test.teacherId === user.id)
+    const ownTestIds = new Set(ownTests.map((test) => test.id))
+
+    for (const test of ownTests) {
+      if (!matches(test.title)) continue
+      results.push({
+        id: `search_test_${test.id}`,
+        kind: 'test',
+        title: test.title,
+        context: requireClassroom(test.classroomId).name,
+        testId: test.id,
+      })
+    }
+
+    for (const material of db.materials) {
+      if (material.teacherId !== user.id) continue
+      if (!matches(material.title)) continue
+      results.push({
+        id: `search_material_${material.id}`,
+        kind: 'material',
+        title: material.title,
+        context: requireClassroom(material.classroomId).name,
+        testId: null,
+      })
+    }
+
+    for (const question of db.questions) {
+      if (!ownTestIds.has(question.testId)) continue
+      if (!matches(question.prompt)) continue
+      results.push({
+        id: `search_question_${question.id}`,
+        kind: 'question',
+        title: question.prompt,
+        context: requireTest(question.testId).title,
+        testId: question.testId,
+      })
+    }
+
+    return { query: raw, results: results.slice(0, limit) }
+  }
+
   // ---------------------------------------------------------------------------
   // Public API — every method is PROPOSED (see contract.ts)
   // ---------------------------------------------------------------------------
@@ -1022,6 +1151,41 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
       signOut: () =>
         respond<void>(() => {
           db.sessionUserId = null
+        }),
+
+      /**
+       * PROPOSED — NEW in Batch 5, NOT connected. Mentingo owns account
+       * creation; there is no accounts backend in this build, so the mock always
+       * answers the defined `unavailable` result. It never creates a local
+       * account and never fakes success. Input is still validated so the UI's
+       * validation states are exercised honestly.
+       */
+      signUp: (input: SignUpInput) =>
+        respond<AccountsResult>(() => {
+          if (
+            input.fullName.trim().length === 0 ||
+            input.email.trim().length === 0 ||
+            input.password.trim().length === 0
+          ) {
+            fail('VALIDATION', 'All sign-up fields are required.', 422)
+          }
+          return { status: 'unavailable', reason: 'accounts_backend_missing' }
+        }),
+
+      requestPasswordReset: (input: RequestPasswordResetInput) =>
+        respond<AccountsResult>(() => {
+          if (input.email.trim().length === 0) {
+            fail('VALIDATION', 'An email is required.', 422)
+          }
+          return { status: 'unavailable', reason: 'accounts_backend_missing' }
+        }),
+
+      resetPassword: (input: ResetPasswordInput) =>
+        respond<AccountsResult>(() => {
+          if (input.token.trim().length === 0 || input.password.trim().length === 0) {
+            fail('VALIDATION', 'A reset token and a new password are required.', 422)
+          }
+          return { status: 'unavailable', reason: 'accounts_backend_missing' }
         }),
     },
 
@@ -1238,6 +1402,22 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
           thread.lastMessageAt = timestamp
           return { messages: [sent, reply], repliedBy: thread.participant }
         }),
+    },
+
+    notifications: {
+      listForUser: (input: ListNotificationsInput) =>
+        respond<Notification[]>(() => {
+          const user = currentUser()
+          if (user.id !== input.userId) {
+            fail('FORBIDDEN', 'A user may only read their own notifications.', 403)
+          }
+          return notificationsForUser(user)
+        }),
+    },
+
+    search: {
+      search: (input: SearchInput) =>
+        respond<SearchResults>(() => searchResults(currentUser(), input)),
     },
 
     classrooms: {
