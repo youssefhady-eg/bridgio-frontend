@@ -8,7 +8,13 @@ import { useLang, useStrings } from '~/shell/useStrings'
 import { EmptyNote } from './EmptyNote'
 import { ProgressBar } from './ProgressBar'
 import { StatusChip } from './StatusChip'
-import { formatCount, formatDate, formatPercent, isDashboardEmpty } from './format'
+import {
+  formatCount,
+  formatDate,
+  formatPercent,
+  isDashboardEmpty,
+  splitDashboardTests,
+} from './format'
 import { Icon } from './icons'
 
 /**
@@ -98,18 +104,10 @@ export function TeacherDashboard() {
   const dashboard = dashboardQuery.data
 
   // Presentation-only ordering of adapter values. The adapter already sorts,
-  // but the screen states its own intent: newest activity, drafts first, and
-  // the students who need attention first.
-  const activity = [...dashboard.recentTests].sort((left, right) =>
-    right.updatedAt.localeCompare(left.updatedAt),
-  )
-  const attention = activity
-    .filter((test) => test.status !== 'published')
-    .sort((left, right) => {
-      if (left.status === 'draft' && right.status !== 'draft') return -1
-      if (right.status === 'draft' && left.status !== 'draft') return 1
-      return right.updatedAt.localeCompare(left.updatedAt)
-    })
+  // but the screen states its own intent: published tests newest-first in
+  // activity, non-published tests in attention (drafts first), and the students
+  // who need attention first. The split keeps one test out of both lists.
+  const { activity, attention } = splitDashboardTests(dashboard.recentTests)
   const students = [...dashboard.studentProgress].sort(
     (left, right) => left.progressPercent - right.progressPercent,
   )

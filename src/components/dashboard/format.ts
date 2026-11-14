@@ -1,4 +1,4 @@
-import type { TeacherDashboard } from '../../api/types'
+import type { TeacherDashboard, TestSummary } from '../../api/types'
 import type { Lang } from '~/shell/lang'
 
 /**
@@ -66,6 +66,33 @@ export function formatDate(
   const date = new Date(iso)
   if (Number.isNaN(date.getTime())) return fallback
   return (lang === 'en' ? englishDate : arabicDate).format(date)
+}
+
+/**
+ * The dashboard's two test lists, split by status so a test can never appear in
+ * both: `attention` holds everything not yet published (drafts first), and
+ * `activity` holds the published tests, newest first. Both are presentation-only
+ * reorderings of the adapter's `recentTests`; no value is computed or invented.
+ */
+export interface DashboardTestLists {
+  attention: TestSummary[]
+  activity: TestSummary[]
+}
+
+export function splitDashboardTests(
+  recentTests: readonly TestSummary[],
+): DashboardTestLists {
+  const activity = recentTests
+    .filter((test) => test.status === 'published')
+    .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))
+  const attention = recentTests
+    .filter((test) => test.status !== 'published')
+    .sort((left, right) => {
+      if (left.status === 'draft' && right.status !== 'draft') return -1
+      if (right.status === 'draft' && left.status !== 'draft') return 1
+      return right.updatedAt.localeCompare(left.updatedAt)
+    })
+  return { attention, activity }
 }
 
 /**
