@@ -47,47 +47,101 @@ html {
   background: transparent;
 }
 
-/* ---- 2. Centred wordmark in the phone dark band -------------------------- */
+/* ---- 2. Wordmark alignment in the header --------------------------------- */
 /*
- * At phone width the menu button and the utility cluster together leave no
- * room for a 120 px wordmark in one row, so the band becomes two rows: controls
- * on top, brand centred underneath. The brand is still the adopted 136 px
- * cream artwork, never recoloured, mirrored or shrunk.
+ * Phone keeps the single-row bar from app.css: menu, wordmark and utilities in
+ * one flex row, wordmark straight after the menu at the inline-start. The one
+ * phone addition is the account avatar, which is now the only route to sign out
+ * because the sidebar Profile item is gone.
+ *
+ * From 768 px the bar becomes a three-column grid so the wordmark sits at the
+ * horizontal centre of the header content width: the menu stays at the
+ * inline-start, the utilities at the inline-end, and the two equal flexible
+ * columns centre the auto-width brand column between them. Explicit column
+ * assignments keep the brand in the middle column when the menu is removed at
+ * 1024 px, and the utilities drop `margin-inline-start: auto` because the grid
+ * already pins them to the inline-end edge.
  */
 
 @media (max-width: 767.98px) {
-  .app-header__inner {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    grid-template-areas:
-      'menu utilities'
-      'brand brand';
-    row-gap: var(--space-2);
-    align-items: center;
+  .app-utility__button--account {
+    display: inline-flex;
   }
 
-  .app-header__menu {
-    grid-area: menu;
+  /*
+   * The row now carries five utilities, not the three it carried when the
+   * single-row bar was designed. Give the wordmark the room: 8 px edge padding,
+   * 34 x 44 px icon-only controls and 4 px gaps keep the 136 px wordmark on a
+   * 390 px phone instead of collapsing it under the flexible row. The wordmark's
+   * own width is untouched; on this 380 px desktop-Chrome viewport (10 px
+   * scrollbar) it measures 126 px, and 136 px at a true 390 px.
+   */
+  .app-header__inner {
+    padding-inline: var(--space-2);
+    gap: var(--space-1);
+  }
+
+  .app-utility__button {
+    width: 34px;
+    min-width: 34px;
+    padding-inline: 0;
+    justify-content: center;
+  }
+
+  /* The account rule lives in section 7; this pair selector keeps the avatar
+     the same shape as the four controls beside it. */
+  .app-utility__button.app-utility__button--account {
+    width: 34px;
+    min-width: 34px;
   }
 
   .app-header__utilities {
-    grid-area: utilities;
-    justify-self: end;
+    gap: var(--space-1);
+  }
+}
+
+/*
+ * Tablet: five labelled utility controls are wider than either side column of
+ * the centred grid at 768-1023 px, so the labels would overlap the wordmark.
+ * The cluster is icon-only here, exactly as on phone, and the labels return
+ * with the large header at 1024 px where the columns have room for them.
+ */
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .app-utility__label {
+    display: none;
+  }
+}
+
+/* Small phones: keep the row intact by trading 2 px of control width for
+   wordmark width. Still one row, still five controls, still 44 px tall. */
+@media (max-width: 359.98px) {
+  .app-utility__button,
+  .app-utility__button.app-utility__button--account {
+    width: 32px;
+    min-width: 32px;
+  }
+}
+
+@media (min-width: 768px) {
+  .app-header__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  }
+
+  .app-header__menu {
+    grid-column: 1;
+    justify-self: start;
   }
 
   .app-header__brand {
-    grid-area: brand;
+    grid-column: 2;
     justify-self: center;
   }
 
-  .app-header__wordmark--cream {
-    width: 136px;
-  }
-
-  /* The account avatar now lives in the top row: without it the phone has no
-     route to sign out once the sidebar Profile item is gone. */
-  .app-utility__button--account {
-    display: inline-flex;
+  .app-header__utilities {
+    grid-column: 3;
+    justify-self: end;
+    margin-inline-start: 0;
   }
 }
 
