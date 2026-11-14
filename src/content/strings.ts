@@ -126,6 +126,11 @@ export const ar = {
     searchLabel: 'بحث',
     searchOpenLabel: 'افتح البحث',
     accountLabel: 'الحساب',
+    accountMenuLabel: 'قائمة الحساب',
+    signInLabel: 'تسجيل الدخول',
+    signOutLabel: 'تسجيل الخروج',
+    signingOutLabel: 'جارٍ الخروج...',
+    accountError: 'تعذّر إتمام العملية. أعد المحاولة.',
     themeLabel: 'المظهر',
     themeToDark: 'المظهر الداكن',
     themeToLight: 'المظهر الفاتح',
@@ -142,6 +147,7 @@ export const ar = {
     utilitiesLabel: 'روابط مساعدة',
     helpLabel: 'المساعدة',
     guideLabel: 'الدليل',
+    supportLabel: 'الدعم',
     profileLabel: 'الملف الشخصي',
     notificationsLabel: 'الإشعارات',
   },
@@ -682,6 +688,15 @@ export const ar = {
     students: 'الطلاب',
     units: 'الوحدات',
     lessons: 'الدروس',
+    name: 'الصف',
+    subject: 'المادة',
+    grade: 'الصف الدراسي',
+    tests: 'الاختبارات',
+    status: 'الحالة',
+    tableCaption: 'قائمة صفوفك مع المادة والصف والطلاب والاختبارات والحالة.',
+    statusNoTests: 'لا اختبارات',
+    statusDraft: 'مسودات',
+    statusPublished: 'منشور',
     open: 'افتح الصف',
     detail: {
       back: 'كل الصفوف',
@@ -1059,6 +1074,8 @@ export const ar = {
     passwordLabel: 'كلمة المرور',
     passwordPlaceholder: '••••••••',
     submit: 'دخول',
+    signingIn: 'جارٍ الدخول...',
+    signInHint: 'يُتحقق من البيانات عبر خدمة الحسابات المتصلة.',
     status: 'تسجيل الدخول غير متاح حاليًا.',
     /**
      * Self-service account flows remain PROPOSED and NOT connected. The adapter
@@ -1131,6 +1148,47 @@ export const ar = {
       assistant: 'مساعد المعلم',
       parent: 'وليّ الأمر',
     } as Record<PreviewRoleId, string>,
+    /**
+     * Gendered role labels, used only when the session user carries
+     * `gender: 'female'` (PROPOSED `User.gender`). A null gender keeps the
+     * neutral label above.
+     */
+    rolesFemale: {
+      teacher: 'المعلمة',
+      student: 'الطالبة',
+      assistant: 'مساعدة المعلم',
+      parent: 'وليّة الأمر',
+    } as Record<PreviewRoleId, string>,
+  },
+  /**
+   * Support request — interface only. The support backend does not exist yet,
+   * so the screen never claims a request was delivered and never invents a
+   * contact channel. Replies arrive once the real backend is connected.
+   */
+  support: {
+    headTitle: `الدعم — ${B}`,
+    badge: 'الدعم',
+    title: 'طلب دعم',
+    lead: 'اكتب طلبك هنا. يصل الطلب إلى فريق الدعم بعد ربط الخدمة.',
+    note: 'الردود تصل بعد ربط خدمة الدعم الحقيقية. لا توجد خدمة متصلة في هذا الإصدار، ولن نعرض نجاحًا غير حقيقي.',
+    formLabel: 'نموذج طلب الدعم',
+    nameLabel: 'الاسم',
+    namePlaceholder: 'اسمك',
+    emailLabel: 'البريد الإلكتروني',
+    emailPlaceholder: 'name@example.com',
+    subjectLabel: 'الموضوع',
+    subjectPlaceholder: 'ما الذي تحتاج المساعدة فيه؟',
+    messageLabel: 'التفاصيل',
+    messagePlaceholder: 'اكتب تفاصيل طلبك هنا.',
+    submit: 'إرسال الطلب',
+    submitting: 'جارٍ الإرسال...',
+    unavailableTitle: 'لم يُرسل الطلب.',
+    unavailableBody:
+      'خدمة الدعم غير متصلة في هذا الإصدار. يبقى ما كتبته في النموذج، وتصل الردود بعد ربط الخدمة الحقيقية.',
+    acceptedTitle: 'تم استلام طلبك.',
+    acceptedBody: 'سيصلك الرد على البريد الذي أدخلته.',
+    errorTitle: 'تعذّر إرسال الطلب.',
+    errorBody: 'من جهتنا، لا من جهتك. أعد المحاولة بعد قليل.',
   },
   /**
    * Help Center — a role-scoped reference library. Every article is one task
@@ -1557,7 +1615,9 @@ export const ar = {
   },
   root: {
     notFound: 'الصفحة غير موجودة.',
-    notFoundBody: 'راجع التنقّل أعلاه، أو عد إلى زر الرجوع في المتصفح.',
+    notFoundBody:
+      'الرابط الذي فتحته غير موجود أو تغيّر. يمكنك العودة إلى صفحتك الرئيسية.',
+    notFoundHome: 'العودة إلى الصفحة الرئيسية',
     errorTitle: 'حدث خطأ غير متوقع.',
     errorBody: 'من جهتنا، لا من جهتك. أعد المحاولة بعد قليل.',
   },
@@ -1613,6 +1673,11 @@ export const en: Strings = {
     searchLabel: 'Search',
     searchOpenLabel: 'Open search',
     accountLabel: 'Account',
+    accountMenuLabel: 'Account menu',
+    signInLabel: 'Sign in',
+    signOutLabel: 'Sign out',
+    signingOutLabel: 'Signing out...',
+    accountError: 'We could not complete the request. Try again.',
     themeLabel: 'Theme',
     themeToDark: 'Dark theme',
     themeToLight: 'Light theme',
@@ -1628,6 +1693,7 @@ export const en: Strings = {
     utilitiesLabel: 'Helpful links',
     helpLabel: 'Help',
     guideLabel: 'Guide',
+    supportLabel: 'Support',
     profileLabel: 'Profile',
     notificationsLabel: 'Notifications',
   },
@@ -2131,6 +2197,15 @@ export const en: Strings = {
     students: 'Students',
     units: 'Units',
     lessons: 'Lessons',
+    name: 'Class',
+    subject: 'Subject',
+    grade: 'Grade',
+    tests: 'Tests',
+    status: 'Status',
+    tableCaption: 'Your classes with subject, grade, students, tests and status.',
+    statusNoTests: 'No tests',
+    statusDraft: 'Drafts',
+    statusPublished: 'Published',
     open: 'Open class',
     detail: {
       back: 'All classes',
@@ -2502,6 +2577,8 @@ export const en: Strings = {
     passwordLabel: 'Password',
     passwordPlaceholder: '••••••••',
     submit: 'Sign in',
+    signingIn: 'Signing in...',
+    signInHint: 'Credentials are checked by the connected accounts service.',
     status: 'Sign-in is not available yet.',
     unavailable:
       'The accounts service is not connected in this build, so the step was not performed.',
@@ -2569,6 +2646,41 @@ export const en: Strings = {
       assistant: 'Teacher Assistant',
       parent: 'Parents',
     },
+    rolesFemale: {
+      teacher: 'Teacher',
+      student: 'Student',
+      assistant: 'Teacher Assistant',
+      parent: 'Parents',
+    },
+  },
+  /**
+   * Support request — interface only. See the Arabic block for the intent.
+   */
+  support: {
+    headTitle: `Support — ${B}`,
+    badge: 'Support',
+    title: 'Request support',
+    lead: 'Write your request here. It reaches the support team once the service is connected.',
+    note: 'Replies arrive with the real support backend. No service is connected in this build, and no fake success is shown.',
+    formLabel: 'Support request form',
+    nameLabel: 'Name',
+    namePlaceholder: 'Your name',
+    emailLabel: 'Email',
+    emailPlaceholder: 'name@example.com',
+    subjectLabel: 'Subject',
+    subjectPlaceholder: 'What do you need help with?',
+    messageLabel: 'Details',
+    messagePlaceholder: 'Write the details of your request here.',
+    submit: 'Send request',
+    submitting: 'Sending...',
+    unavailableTitle: 'The request was not sent.',
+    unavailableBody:
+      'The support service is not connected in this build. What you wrote stays in the form, and replies arrive once the real service is connected.',
+    acceptedTitle: 'Your request was received.',
+    acceptedBody:
+      'A reply will arrive at the email address you entered.',
+    errorTitle: 'We could not send the request.',
+    errorBody: 'It is on our side, not yours. Try again shortly.',
   },
   /**
    * Help Center — see the Arabic block for the intent. Register: MSA (formal
@@ -2993,7 +3105,9 @@ export const en: Strings = {
   },
   root: {
     notFound: 'Page not found.',
-    notFoundBody: 'Check the navigation, or use the browser back button.',
+    notFoundBody:
+      'The link you opened does not exist or has moved. You can go back to your home screen.',
+    notFoundHome: 'Back to your home screen',
     errorTitle: 'Something unexpected happened.',
     errorBody: 'It is on our side, not yours. Try again shortly.',
   },
