@@ -7,6 +7,7 @@ import type {
 } from '~/api/types'
 import { EmptyNote } from '~/components/dashboard/EmptyNote'
 import { formatCount } from '~/components/dashboard/format'
+import { MetaSep } from '~/components/shared/MetaSep'
 import { SelectField } from '~/components/shared/SelectField'
 import { useLang, useStrings } from '~/shell/useStrings'
 import { sourceDraftIssue } from './builder'
@@ -252,9 +253,12 @@ export function StepChooseSource({
                               {ready
                                 ? strings.materialReady
                                 : strings.materialProcessing}
-                              {material.wordCount !== null
-                                ? ` · ${strings.materialWords(material.wordCount)}`
-                                : ''}
+                              {material.wordCount !== null ? (
+                                <>
+                                  <MetaSep />
+                                  {strings.materialWords(material.wordCount)}
+                                </>
+                              ) : null}
                             </span>
                           </label>
                         )
@@ -314,7 +318,8 @@ export function StepChooseSource({
                             {item.unit.title}
                           </span>
                           <span className="choice-card__meta">
-                            {item.unit.subjectName} ·{' '}
+                            {item.unit.subjectName}
+                            <MetaSep />
                             {strings.unitLessons(item.unit.lessonCount)}
                           </span>
                         </label>

@@ -123,6 +123,8 @@ export const ar = {
     langGlyphArabic: 'ع',
     assistantLabel: 'المحادثات',
     assistantOpenLabel: 'افتح المحادثات',
+    searchLabel: 'بحث',
+    searchOpenLabel: 'افتح البحث',
     accountLabel: 'الحساب',
     themeLabel: 'المظهر',
     themeToDark: 'المظهر الداكن',
@@ -141,6 +143,7 @@ export const ar = {
     helpLabel: 'المساعدة',
     guideLabel: 'الدليل',
     profileLabel: 'الملف الشخصي',
+    notificationsLabel: 'الإشعارات',
   },
   /** Nav item labels — teacher copy is MSA formal, student copy is Egyptian casual, parent copy is MSA formal. */
   nav: {
@@ -501,6 +504,32 @@ export const ar = {
     },
   },
   /**
+   * Global Mohsen popup — opened by the floating circle on every screen. Mock
+   * only: the adapter is a deterministic retriever over seeded material + fixed
+   * curriculum, not a language model, and refuses when it has no grounded answer.
+   */
+  mohsenAsk: {
+    fabLabel: `اسأل ${M}`,
+    openLabel: `افتح ${M}`,
+    closeLabel: `إغلاق ${M}`,
+    title: `اسأل ${M}`,
+    lead: `يجيب ${M} من المواد المرفوعة والمنهج المقرر فقط، وعندما لا يجد إجابة موثّقة يقول ذلك بدلًا من التخمين.`,
+    inputLabel: 'سؤالك',
+    placeholder: 'اكتب سؤالك هنا...',
+    ask: 'اسأل',
+    asking: 'جارٍ السؤال...',
+    emptyTitle: 'لم تسأل بعد',
+    empty: `اسأل ${M} عن أي شيء من موادك المرفوعة أو المنهج المقرر.`,
+    questionLabel: 'سؤالك',
+    answeredLabel: `إجابة ${M}`,
+    refusalLabel: `${M} لم يجد إجابة`,
+    notGroundedFallback:
+      'لا توجد إجابة موثّقة لديّ من المادة المرفوعة أو المنهج المقرر على هذا السؤال. لن أخمّن.',
+    groundingLabel: 'المصدر',
+    errorTitle: `${M} غير قادر على الإجابة الآن.`,
+    errorBody: 'أعد المحاولة بعد قليل.',
+  },
+  /**
    * Parent view (UI name "Parents") — display only. Every number shown here is
    * supplied by the backend; the frontend never computes a score.
    */
@@ -587,6 +616,57 @@ export const ar = {
       teacher: 'المعلم',
       assistant: 'مساعد المعلم',
     } as Record<'parent' | 'teacher' | 'assistant', string>,
+  },
+  /**
+   * Notifications — teacher-only in this batch, derived by the adapter from
+   * existing data. PROPOSED; there is no push or real-time transport.
+   */
+  notifications: {
+    headTitle: `الإشعارات — ${B}`,
+    badge: 'الإشعارات',
+    title: 'إشعاراتك',
+    lead: 'تسليمات الطلاب والاختبارات المنشورة والرسائل، مرتّبة من الأحدث.',
+    listHeading: 'كل الإشعارات',
+    loading: 'جارٍ تحميل الإشعارات...',
+    loadErrorTitle: 'تعذّر تحميل الإشعارات.',
+    loadErrorBody: 'من جهتنا، لا من جهتك. أعد المحاولة بعد قليل.',
+    emptyTitle: 'لا إشعارات بعد',
+    emptyBody: 'ستظهر هنا التسليمات والاختبارات المنشورة والرسائل الجديدة.',
+    roleTitle: 'الإشعارات غير متاحة لهذا الحساب.',
+    roleBody: 'تظهر الإشعارات لحساب المعلم في هذا الإصدار.',
+    dateFallback: 'تاريخ غير معروف',
+    open: 'افتح',
+    kinds: {
+      submission: 'تسليم',
+      published_test: 'نشر اختبار',
+      message: 'رسالة',
+    } as Record<'submission' | 'published_test' | 'message', string>,
+  },
+  /** Global in-app search — teacher-only in this batch, PROPOSED. */
+  search: {
+    headTitle: `البحث — ${B}`,
+    badge: 'البحث',
+    title: 'البحث',
+    lead: 'ابحث في اختباراتك وموادك وأسئلتك من مكان واحد.',
+    inputLabel: 'كلمة البحث',
+    placeholder: 'اكتب كلمة للبحث...',
+    submit: 'ابحث',
+    promptTitle: 'ابدأ البحث',
+    promptBody: 'اكتب كلمة لتظهر النتائج من اختباراتك وموادك وأسئلتك.',
+    loading: 'جارٍ البحث...',
+    loadErrorTitle: 'تعذّر إجراء البحث.',
+    loadErrorBody: 'من جهتنا، لا من جهتك. أعد المحاولة بعد قليل.',
+    emptyTitle: 'لا نتائج',
+    emptyBody: (query: string) => `لا نتائج مطابقة لـ«${query}».`,
+    resultsLabel: 'النتائج',
+    roleTitle: 'البحث غير متاح لهذا الحساب.',
+    roleBody: 'يشمل البحث اختبارات المعلم ومواده وأسئلته في هذا الإصدار.',
+    open: 'افتح',
+    kinds: {
+      test: 'اختبار',
+      material: 'مادة',
+      question: 'سؤال',
+    } as Record<'test' | 'material' | 'question', string>,
   },
   /** Teacher classes list + detail — frontend-finish. Teacher register: MSA. */
   classes: {
@@ -907,6 +987,39 @@ export const ar = {
     emptyBody: 'لما تبدأ وحدات صفوفك، هيظهر تقدّمك هنا.',
     barLabel: (name: string) => `تقدّمك في ${name}`,
   },
+  /**
+   * Student home — the student landing page (`/` redirects here for students).
+   * Egyptian register, like the rest of the student screens.
+   */
+  studentHome: {
+    headTitle: `صفحتي — ${B}`,
+    badge: 'صفحتي',
+    title: 'صفحتك في مكان واحد',
+    lead: 'شوف تقدّمك في المنهج وآخر اختباراتك، وابدأ اللي بعده من هنا.',
+    greeting: (name: string) => `أهلًا يا ${name}!`,
+    loading: 'بنحمّل صفحتك...',
+    loadErrorTitle: 'مش قادرين نحمّل صفحتك.',
+    loadErrorBody: 'المشكلة من جهتنا مش من جهتك. جرّب تاني بعد شوية.',
+    noSessionTitle: 'مفيش جلسة طالب.',
+    noSessionBody: 'لازم تسجّل دخول الطالب عشان تشوف صفحتك.',
+    progressHeading: 'تقدّمك',
+    overallLabel: 'التقدّم الكلي',
+    classLabel: 'الصف الدراسي',
+    unitsLabel: 'الوحدات',
+    lastActive: 'آخر نشاط',
+    noActivity: 'مفيش نشاط مسجّل',
+    unitsEmpty: 'لسه مفيش وحدات متاحة.',
+    openLessons: 'افتح دروسك',
+    attemptsHeading: 'اختباراتك الأخيرة',
+    attemptsEmpty: 'لسه ما بدأتش أي اختبار.',
+    openTests: 'افتح اختباراتك',
+    questionsAnswered: (answered: string, total: string) =>
+      `${answered} من ${total}`,
+    statusInProgress: 'قيد الحل',
+    statusSubmitted: 'تم التسليم',
+    answeredLabel: 'الأسئلة',
+    openAttempt: 'افتح',
+  },
   /** Teacher Assistant — display only what the backend granted. */
   assistant: {
     headTitle: `مساحة مساعد المعلم — ${B}`,
@@ -947,6 +1060,49 @@ export const ar = {
     passwordPlaceholder: '••••••••',
     submit: 'دخول',
     status: 'تسجيل الدخول غير متاح حاليًا.',
+    /**
+     * Self-service account flows remain PROPOSED and NOT connected. The adapter
+     * always reports the accounts backend as unavailable, so these screens say
+     * so plainly and never fake success.
+     */
+    unavailable: 'خدمة الحسابات غير متصلة في هذا الإصدار، فلم تُنفَّذ العملية.',
+    accepted: 'تم استلام طلبك.',
+    requestErrorTitle: 'تعذّر إتمام الطلب.',
+    requestErrorBody: 'من جهتنا، لا من جهتك. أعد المحاولة بعد قليل.',
+    linksHeading: 'خيارات أخرى',
+    signUpLink: 'أنشئ حسابًا جديدًا',
+    forgotLink: 'نسيت كلمة المرور؟',
+    backToSignIn: 'العودة لتسجيل الدخول',
+    signUp: {
+      headTitle: `إنشاء حساب — ${B}`,
+      badge: 'حساب جديد',
+      title: 'إنشاء حساب',
+      lead: 'أنشئ حسابًا للوصول إلى المنصة. هذه الخطوة غير متصلة بعد.',
+      nameLabel: 'الاسم الكامل',
+      namePlaceholder: 'مثال: منى عبد الرحمن',
+      submit: 'إنشاء الحساب',
+      submitting: 'جارٍ الإنشاء...',
+    },
+    forgot: {
+      headTitle: `استعادة كلمة المرور — ${B}`,
+      badge: 'استعادة كلمة المرور',
+      title: 'استعادة كلمة المرور',
+      lead: 'أدخل بريدك لتستلم رابط إعادة التعيين. هذه الخطوة غير متصلة بعد.',
+      submit: 'أرسل رابط الاستعادة',
+      submitting: 'جارٍ الإرسال...',
+    },
+    reset: {
+      headTitle: `تعيين كلمة مرور جديدة — ${B}`,
+      badge: 'كلمة مرور جديدة',
+      title: 'تعيين كلمة مرور جديدة',
+      lead: 'اختر كلمة مرور جديدة لحسابك. هذه الخطوة غير متصلة بعد.',
+      confirmLabel: 'تأكيد كلمة المرور',
+      submit: 'تعيين كلمة المرور',
+      submitting: 'جارٍ التعيين...',
+      missingTokenTitle: 'رابط غير صالح.',
+      missingTokenBody: 'افتح رابط الاستعادة من بريدك مرة أخرى.',
+      mismatch: 'كلمتا المرور غير متطابقتين.',
+    },
   },
   /** Profile / settings — session display + UI settings. */
   profile: {
@@ -1051,7 +1207,7 @@ export const ar = {
       'teacher-create-test': {
         category: 'teacher',
         title: 'أنشئ اختبارًا وانشره',
-        body: `منشئ الاختبارات أربع خطوات: يصوغ ${M}، مساعد ذكاء اصطناعي، الأسئلة من مصدرك، ثم تنتهي بالنشر إلى الصف.`,
+        body: `منشئ الاختبارات أربع خطوات: يصوغ ${M}، مساعد ذكاء اصطناعي، الأسئلة من مصدرك، ثم تنتهي بالنشر إلى الصف المحدد.`,
         steps: [
           'افتح الاختبارات وابدأ اختبارًا جديدًا.',
           'اختر الصف ومصدر الأسئلة، ثم اطلب صياغة الأسئلة.',
@@ -1454,6 +1610,8 @@ export const en: Strings = {
     langGlyphArabic: 'ع',
     assistantLabel: 'Messages',
     assistantOpenLabel: 'Open messages',
+    searchLabel: 'Search',
+    searchOpenLabel: 'Open search',
     accountLabel: 'Account',
     themeLabel: 'Theme',
     themeToDark: 'Dark theme',
@@ -1471,6 +1629,7 @@ export const en: Strings = {
     helpLabel: 'Help',
     guideLabel: 'Guide',
     profileLabel: 'Profile',
+    notificationsLabel: 'Notifications',
   },
   nav: {
     'teacher-dashboard': 'Teacher dashboard',
@@ -1806,6 +1965,27 @@ export const en: Strings = {
       errorBody: 'Try again shortly.',
     },
   },
+  mohsenAsk: {
+    fabLabel: `Ask ${M}`,
+    openLabel: `Open ${M}`,
+    closeLabel: `Close ${M}`,
+    title: `Ask ${M}`,
+    lead: `${M} answers from uploaded material and the fixed curriculum only, and when he has no documented answer he says so instead of guessing.`,
+    inputLabel: 'Your question',
+    placeholder: 'Write your question here...',
+    ask: 'Ask',
+    asking: 'Asking...',
+    emptyTitle: 'You have not asked anything yet',
+    empty: `Ask ${M} about anything in your uploaded material or the fixed curriculum.`,
+    questionLabel: 'Your question',
+    answeredLabel: `${M}'s answer`,
+    refusalLabel: `${M} found no answer`,
+    notGroundedFallback:
+      'I have no documented answer from the uploaded material or the fixed curriculum for this question. I will not guess.',
+    groundingLabel: 'Source',
+    errorTitle: `${M} cannot answer right now.`,
+    errorBody: 'Try again shortly.',
+  },
   parent: {
     headTitle: `Parents — ${B}`,
     badge: 'Parent',
@@ -1885,6 +2065,56 @@ export const en: Strings = {
       parent: 'Parent',
       teacher: 'Teacher',
       assistant: 'Teacher Assistant',
+    },
+  },
+  notifications: {
+    headTitle: `Notifications — ${B}`,
+    badge: 'Notifications',
+    title: 'Your notifications',
+    lead: 'Student submissions, published tests and messages, newest first.',
+    listHeading: 'All notifications',
+    loading: 'Loading notifications...',
+    loadErrorTitle: 'We could not load the notifications.',
+    loadErrorBody: 'It is on our side, not yours. Try again shortly.',
+    emptyTitle: 'No notifications yet',
+    emptyBody:
+      'Submissions, published tests and new messages will appear here.',
+    roleTitle: 'Notifications are not available for this account.',
+    roleBody:
+      'Notifications are shown for the teacher account in this build.',
+    dateFallback: 'Date unavailable',
+    open: 'Open',
+    kinds: {
+      submission: 'Submission',
+      published_test: 'Test published',
+      message: 'Message',
+    },
+  },
+  search: {
+    headTitle: `Search — ${B}`,
+    badge: 'Search',
+    title: 'Search',
+    lead: 'Search your tests, materials and questions in one place.',
+    inputLabel: 'Search term',
+    placeholder: 'Type a word to search...',
+    submit: 'Search',
+    promptTitle: 'Start searching',
+    promptBody:
+      'Type a word to see matches from your tests, materials and questions.',
+    loading: 'Searching...',
+    loadErrorTitle: 'We could not run the search.',
+    loadErrorBody: 'It is on our side, not yours. Try again shortly.',
+    emptyTitle: 'No results',
+    emptyBody: (query: string) => `No results match “${query}”.`,
+    resultsLabel: 'Results',
+    roleTitle: 'Search is not available for this account.',
+    roleBody:
+      'Search covers the teacher’s tests, materials and questions in this build.',
+    open: 'Open',
+    kinds: {
+      test: 'Test',
+      material: 'Material',
+      question: 'Question',
     },
   },
   classes: {
@@ -2205,6 +2435,35 @@ export const en: Strings = {
     emptyBody: 'Once you start your class units, your progress appears here.',
     barLabel: (name: string) => `Your progress in ${name}`,
   },
+  studentHome: {
+    headTitle: `My page — ${B}`,
+    badge: 'My page',
+    title: 'Your page in one place',
+    lead: 'See your progress through the curriculum and your latest tests, then start the next step from here.',
+    greeting: (name: string) => `Hello, ${name}!`,
+    loading: 'Loading your page...',
+    loadErrorTitle: 'We could not load your page.',
+    loadErrorBody: 'The problem is on our side, not yours. Try again shortly.',
+    noSessionTitle: 'No student session.',
+    noSessionBody: 'Sign in as a student to see your page.',
+    progressHeading: 'Your progress',
+    overallLabel: 'Overall progress',
+    classLabel: 'Grade',
+    unitsLabel: 'Units',
+    lastActive: 'Last active',
+    noActivity: 'No activity recorded',
+    unitsEmpty: 'No units are available yet.',
+    openLessons: 'Open your lessons',
+    attemptsHeading: 'Your latest tests',
+    attemptsEmpty: 'You have not started a test yet.',
+    openTests: 'Open your tests',
+    questionsAnswered: (answered: string, total: string) =>
+      `${answered} of ${total}`,
+    statusInProgress: 'In progress',
+    statusSubmitted: 'Submitted',
+    answeredLabel: 'Questions',
+    openAttempt: 'Open',
+  },
   assistant: {
     headTitle: `Teacher Assistant area — ${B}`,
     badge: 'Teacher Assistant',
@@ -2244,6 +2503,45 @@ export const en: Strings = {
     passwordPlaceholder: '••••••••',
     submit: 'Sign in',
     status: 'Sign-in is not available yet.',
+    unavailable:
+      'The accounts service is not connected in this build, so the step was not performed.',
+    accepted: 'Your request was received.',
+    requestErrorTitle: 'We could not complete the request.',
+    requestErrorBody: 'It is on our side, not yours. Try again shortly.',
+    linksHeading: 'Other options',
+    signUpLink: 'Create a new account',
+    forgotLink: 'Forgot your password?',
+    backToSignIn: 'Back to sign in',
+    signUp: {
+      headTitle: `Create account — ${B}`,
+      badge: 'New account',
+      title: 'Create an account',
+      lead: 'Create an account to reach the platform. This step is not connected yet.',
+      nameLabel: 'Full name',
+      namePlaceholder: 'Example: Mona Abdelrahman',
+      submit: 'Create account',
+      submitting: 'Creating...',
+    },
+    forgot: {
+      headTitle: `Reset password — ${B}`,
+      badge: 'Reset password',
+      title: 'Reset your password',
+      lead: 'Enter your email to receive a reset link. This step is not connected yet.',
+      submit: 'Send reset link',
+      submitting: 'Sending...',
+    },
+    reset: {
+      headTitle: `Set a new password — ${B}`,
+      badge: 'New password',
+      title: 'Set a new password',
+      lead: 'Choose a new password for your account. This step is not connected yet.',
+      confirmLabel: 'Confirm password',
+      submit: 'Set password',
+      submitting: 'Setting...',
+      missingTokenTitle: 'Invalid link.',
+      missingTokenBody: 'Open the reset link from your email again.',
+      mismatch: 'The two passwords do not match.',
+    },
   },
   profile: {
     headTitle: `Profile and settings — ${B}`,
@@ -2346,7 +2644,7 @@ export const en: Strings = {
       'teacher-create-test': {
         category: 'teacher',
         title: 'Create a test and publish it',
-        body: `${M}, an AI assistant, drafts the questions from your source. The test builder has four steps and ends by publishing to the class.`,
+        body: `${M}, an AI assistant, drafts the questions from your source. The test builder has four steps and ends by publishing to the selected class.`,
         steps: [
           'Open Tests and start a new test.',
           'Choose the class and the question source, then ask for the questions.',

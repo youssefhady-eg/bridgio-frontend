@@ -150,22 +150,6 @@ body {
   color: var(--bridgio-maroon);
 }
 
-/* Small brand-red tick on the active item — accent, never a status. Sits at
-   the inline start, vertically centred so the 16 px tile radius never clips it
-   (it clipped at the corner before), and mirrors with the writing direction
-   instead of jumping to the trailing edge. */
-.app-sidebar__link.is-active::after {
-  content: '';
-  position: absolute;
-  inset-inline-start: var(--space-1);
-  top: 50%;
-  transform: translateY(-50%);
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--bridgio-red);
-}
-
 .app-sidebar__note {
   margin: var(--space-4) var(--space-1) 0;
   padding: var(--space-3);
@@ -270,14 +254,6 @@ h1 {
   background: var(--tint-red);
   color: var(--bridgio-maroon);
   font-weight: 700;
-}
-
-.app-shell__badge::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--bridgio-red);
 }
 
 .dashboard__hero,

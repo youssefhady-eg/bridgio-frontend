@@ -21,6 +21,7 @@ import {
 import { QuestionCard } from '~/components/builder/QuestionCard'
 import { removeQuestion, replaceQuestion, type QuestionDraft } from '~/components/builder/builder'
 import { MetaList } from '~/components/shared/MetaList'
+import { MetaPair } from '~/components/shared/MetaPair'
 import { PageHero } from '~/components/shared/PageHero'
 import { usePreviewRole } from '~/shell/usePreviewRole'
 import { useLang, useStrings } from '~/shell/useStrings'
@@ -259,8 +260,9 @@ function ResultsPanel({ testId }: { testId: string }) {
                     )}
                   </p>
                   <p className="row-meta">
-                    {copy.submittedAtLabel}:{' '}
-                    {formatDate(attempt.submittedAt, copy.notSubmitted, lang)}
+                    <MetaPair label={copy.submittedAtLabel}>
+                      {formatDate(attempt.submittedAt, copy.notSubmitted, lang)}
+                    </MetaPair>
                   </p>
                 </div>
                 <p className="attempt-score">

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Question } from '~/api/types'
 import { StatusChip } from '~/components/dashboard/StatusChip'
 import { formatCount } from '~/components/dashboard/format'
+import { MetaPair } from '~/components/shared/MetaPair'
 import { useLang, useStrings } from '~/shell/useStrings'
 import {
   correctIndexFor,
@@ -273,8 +274,9 @@ export function QuestionCard({
             ))}
           </ol>
           <p className="question-card__correct">
-            {strings.correctLabel}:{' '}
-            <strong>{correctOption?.text ?? strings.correctNone}</strong>
+            <MetaPair label={strings.correctLabel}>
+              <strong>{correctOption?.text ?? strings.correctNone}</strong>
+            </MetaPair>
           </p>
           <GroundingList
             grounding={question.grounding}

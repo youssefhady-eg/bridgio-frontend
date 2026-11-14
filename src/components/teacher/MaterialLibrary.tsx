@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { Fragment, useState, type ReactNode } from 'react'
 import { api } from '~/api'
 import { isApiError } from '~/api/errors'
 import { queryKeys } from '~/api/query-keys'
@@ -21,10 +21,10 @@ import { EmptyNote } from '~/components/dashboard/EmptyNote'
 import { StatusChip, type StatusTone } from '~/components/dashboard/StatusChip'
 import { formatDate } from '~/components/dashboard/format'
 import type { IconName } from '~/components/dashboard/icons'
+import { MetaSep } from '~/components/shared/MetaSep'
 import { PageHero } from '~/components/shared/PageHero'
 import { SelectField } from '~/components/shared/SelectField'
 import { useLang, useStrings } from '~/shell/useStrings'
-import type { ReactNode } from 'react'
 
 /**
  * Teacher material library — the teacher's text materials and links, with
@@ -479,7 +479,14 @@ function MaterialRow({
           label={statusLabels[material.status]}
         />
       </div>
-      <p className="row-meta">{meta.join(' · ')}</p>
+      <p className="row-meta">
+        {meta.map((item, index) => (
+          <Fragment key={`${item}:${index}`}>
+            {index > 0 ? <MetaSep /> : null}
+            {item}
+          </Fragment>
+        ))}
+      </p>
 
       <div className="builder-actions">
         <button

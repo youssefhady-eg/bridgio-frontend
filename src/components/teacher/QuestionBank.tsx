@@ -8,6 +8,7 @@ import {
 import { QuestionCard } from '~/components/builder/QuestionCard'
 import { EmptyNote } from '~/components/dashboard/EmptyNote'
 import { StatusChip } from '~/components/dashboard/StatusChip'
+import { MetaSep } from '~/components/shared/MetaSep'
 import { PageHero } from '~/components/shared/PageHero'
 import { SelectField } from '~/components/shared/SelectField'
 import { usePreviewRole } from '~/shell/usePreviewRole'
@@ -140,11 +141,15 @@ function QuestionBankBody({ teacherId }: { teacherId: string }) {
               </label>
 
               <p className="filter-bar__summary" role="status">
-                {filtering
-                  ? copy.matchesCount(filteredTotals.questions)
-                  : `${copy.testsCount(totals.tests)} · ${copy.questionsCount(
-                      totals.questions,
-                    )}`}
+                {filtering ? (
+                  copy.matchesCount(filteredTotals.questions)
+                ) : (
+                  <>
+                    {copy.testsCount(totals.tests)}
+                    <MetaSep />
+                    {copy.questionsCount(totals.questions)}
+                  </>
+                )}
               </p>
 
               {filtering ? (

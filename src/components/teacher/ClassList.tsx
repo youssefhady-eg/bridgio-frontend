@@ -6,6 +6,7 @@ import {
 } from '~/api/queries'
 import { EmptyNote } from '~/components/dashboard/EmptyNote'
 import { formatCount } from '~/components/dashboard/format'
+import { MetaSep } from '~/components/shared/MetaSep'
 import { PageHero } from '~/components/shared/PageHero'
 import { usePreviewRole } from '~/shell/usePreviewRole'
 import { useLang, useStrings } from '~/shell/useStrings'
@@ -114,7 +115,9 @@ export function ClassList() {
               <li className="class-card" key={classroom.id}>
                 <h3>{classroom.name}</h3>
                 <p className="row-meta">
-                  {classroom.subjectName} · {classroom.gradeLevel}
+                  {classroom.subjectName}
+                  <MetaSep />
+                  {classroom.gradeLevel}
                 </p>
                 <dl className="class-card__stats">
                   <div>

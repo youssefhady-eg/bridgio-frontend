@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
+import type { ReactNode } from 'react'
 import {
   classroomDetailQueryOptions,
   classroomStudentsQueryOptions,
@@ -13,6 +14,8 @@ import { ProgressBar } from '~/components/dashboard/ProgressBar'
 import { StatusChip } from '~/components/dashboard/StatusChip'
 import { formatCount, formatDate, formatPercent } from '~/components/dashboard/format'
 import { MetaList } from '~/components/shared/MetaList'
+import { MetaPair } from '~/components/shared/MetaPair'
+import { MetaSep } from '~/components/shared/MetaSep'
 import { PageHero } from '~/components/shared/PageHero'
 import { usePreviewRole } from '~/shell/usePreviewRole'
 import { useLang, useStrings } from '~/shell/useStrings'
@@ -79,7 +82,13 @@ export function ClassDetail({ classId }: { classId: string }) {
     <Frame
       title={classroom.name}
       lead={classroom.description ?? undefined}
-      greeting={`${classroom.subjectName} · ${classroom.gradeLevel}`}
+      greeting={
+        <>
+          {classroom.subjectName}
+          <MetaSep />
+          {classroom.gradeLevel}
+        </>
+      }
     >
       <MetaList
         items={[
@@ -204,8 +213,9 @@ export function ClassDetail({ classId }: { classId: string }) {
                             }
                           />
                           <p className="row-meta">
-                            {strings.testDetail.metaQuestions}:{' '}
-                            {formatCount(test.questionCount, lang)}
+                            <MetaPair label={strings.testDetail.metaQuestions}>
+                              {formatCount(test.questionCount, lang)}
+                            </MetaPair>
                           </p>
                         </div>
                       </li>
@@ -274,12 +284,13 @@ export function ClassDetail({ classId }: { classId: string }) {
                           valueText={formatPercent(entry.progressPercent, lang)}
                         />
                         <p className="row-meta">
-                          {strings.students.lastActive}:{' '}
-                          {formatDate(
-                            entry.lastActiveAt,
-                            strings.students.noActivity,
-                            lang,
-                          )}
+                          <MetaPair label={strings.students.lastActive}>
+                            {formatDate(
+                              entry.lastActiveAt,
+                              strings.students.noActivity,
+                              lang,
+                            )}
+                          </MetaPair>
                         </p>
                       </div>
                     </li>
@@ -302,8 +313,8 @@ function Frame({
 }: {
   title: string
   lead?: string
-  greeting?: string
-  children: React.ReactNode
+  greeting?: ReactNode
+  children: ReactNode
 }) {
   const strings = useStrings()
   const role = usePreviewRole()

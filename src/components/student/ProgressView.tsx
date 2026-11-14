@@ -4,6 +4,7 @@ import { EmptyNote } from '~/components/dashboard/EmptyNote'
 import { ProgressBar } from '~/components/dashboard/ProgressBar'
 import { formatCount, formatDate, formatPercent } from '~/components/dashboard/format'
 import { MetaList } from '~/components/shared/MetaList'
+import { MetaPair } from '~/components/shared/MetaPair'
 import { PageHero } from '~/components/shared/PageHero'
 import { useLang, useStrings } from '~/shell/useStrings'
 
@@ -125,8 +126,9 @@ export function ProgressView() {
                   valueText={formatPercent(entry.progressPercent, lang)}
                 />
                 <p className="row-meta">
-                  {copy.lessonsCompleted}:{' '}
-                  {formatCount(entry.lessonsCompleted, lang)}
+                  <MetaPair label={copy.lessonsCompleted}>
+                    {formatCount(entry.lessonsCompleted, lang)}
+                  </MetaPair>
                 </p>
               </li>
             ))}

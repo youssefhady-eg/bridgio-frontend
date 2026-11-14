@@ -9,6 +9,8 @@ import type { StudentProgress } from '~/api/types'
 import { EmptyNote } from '~/components/dashboard/EmptyNote'
 import { ProgressBar } from '~/components/dashboard/ProgressBar'
 import { formatCount, formatPercent } from '~/components/dashboard/format'
+import { MetaPair } from '~/components/shared/MetaPair'
+import { MetaSep } from '~/components/shared/MetaSep'
 import { PageHero } from '~/components/shared/PageHero'
 import { useLang, useStrings } from '~/shell/useStrings'
 
@@ -159,9 +161,11 @@ export function Lessons() {
                     valueText={formatPercent(unit.progressPercent, lang)}
                   />
                   <p className="row-meta">
-                    {copy.lessonsCount(unit.unit.lessonCount)} ·{' '}
-                    {copy.completedLabel}:{' '}
-                    {formatCount(unit.lessonsCompleted, lang)}
+                    {copy.lessonsCount(unit.unit.lessonCount)}
+                    <MetaSep />
+                    <MetaPair label={copy.completedLabel}>
+                      {formatCount(unit.lessonsCompleted, lang)}
+                    </MetaPair>
                   </p>
                 </li>
               ))}
