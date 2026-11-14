@@ -8,6 +8,16 @@
 
 `main` was inspected directly (not the previous delivery note): items 1–4 were **missing or partial** and are implemented here. None of the owner's locked decisions was reopened: Thmanyah is untouched, Support invents no contact channel and no success, and motion lives in tokens.
 
+### Correction 2026-11-14 — header alignment (item 2)
+
+The owner corrected item 2 after the first delivery: the wordmark was never meant to be centred on mobile, and the phone header had to return to a single row. The corrected state is what ships on this branch (fix commit `530319e`).
+
+- **Phone (≤767.98 px):** one flex row, as on `main` — menu, wordmark at the inline-start, utilities. The two-row grid is removed. The account avatar stays visible (`.app-utility__button--account { display: inline-flex }`); it is the only route to sign out now that the rail's Profile item is gone.
+- **Desktop (≥768 px):** `.app-header__inner` is `grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr)`, with the menu in column 1 (inline-start), the brand in column 2 and the utilities in column 3 (`justify-self: end`, auto margin removed). The two equal flexible columns put the brand at the exact horizontal centre of the header content width; explicit column assignments keep it centred when the menu is removed at ≥1024 px.
+- **Unchanged:** desktop bar height (76 px, 74 px content + 2 px rule), wordmark widths (148 px at 768–1023, 136 px at ≥1024), artwork and fills, and the phone bar's 60 px minimum.
+- **Phone width fit:** `main` carried three phone utilities; the finished header carries five (language, theme, search, chat, account). A 136 px wordmark plus five 44 px-tall controls plus the 44 px menu cannot share 390 px at `main`'s 16 px edge padding, so the phone row uses 8 px edge padding, 34 × 44 px icon-only controls and 4 px gaps. The wordmark then measures 136 px at a true 390 px viewport (126 px in the 380 px screenshot viewport, where the desktop scrollbar takes 10 px) and the row has no horizontal overflow. The wordmark's own width is not redefined.
+- **Tablet width fit:** at 768–1023 px five labelled controls are wider than either side column of the centred grid, so the utilities are icon-only in that range and their labels return at ≥1024 px. Measured gap between the brand and the utilities at 768 px: 30 px; no overlap at any width from 320 to 1920.
+
 ---
 
 ## 1. Items 1–4: what `main` actually had
@@ -15,7 +25,7 @@
 | # | Item | State in `main` (`ec831fc`) | What this branch adds |
 | --- | --- | --- | --- |
 | 1 | Branded scrollbars app-wide | No scrollbar rule existed in any stylesheet (`git grep scrollbar ec831fc -- src/styles` was empty); Chromium drew its default bar. | `followup.css` §1: thin bar, transparent track, maroon thumb (cream in dark theme), 10 px, 2 px paper border, pill radius, red thumb on hover. Applied to `html` and `*` so every scroll container is covered. |
-| 2 | Centred wordmark in the phone dark band | The `<768 px` band was a single flex row (menu + 136 px cream wordmark + utilities), so the wordmark sat off-centre and the utilities crowded it. | The band becomes a two-row grid: menu and utilities on row 1, the 136 px cream wordmark centred on row 2. One-row true centring is geometrically impossible at 375 px content width (136 + 44 + 4×44 + gaps). |
+| 2 | Centred wordmark in the desktop header | The `<768 px` band was a single flex row, and the ≥768 px row put the wordmark straight after the menu at the inline-start. | The phone keeps that single row (corrected 2026-11-14: no mobile centring, account avatar visible). From 768 px the inner bar is a three-column grid — menu inline-start, brand centre, utilities inline-end — so the wordmark sits at the exact centre of the header content width (measured 0.00 px offset at 768, 1024 and 1920, AR and EN). See the correction section above. |
 | 3 | Classes as a table | `ClassList` rendered a `class-grid` of cards; no table, no scoreboard columns. | A real table: name, subject, grade, students, tests, status, action. The name and the action both link to the same class detail screen; the detail screen is untouched. Status is derived from the class's own tests (no tests → "No tests", any draft → "Drafts", all published → "Published"). No sorting. |
 | 4 | Materials detail opens as a card | The expanded `materials.get` block was already inline in its row, but it was an unstyled text block, not a card. | The same expansion is now a framed card (cream, hairline border, radius) with the detail animation. The library stays a list, and the delete-confirmation block is unchanged. |
 
@@ -105,7 +115,7 @@ The follow-up adds one test file (`src/content/roles.test.ts`, three cases: fema
 
 Runtime checks (dev server, Chromium, 1920 / 1440 / 390):
 
-- 390 px wordmark measured at 136 × 49.1 px, centre 195.2 px in a 390 px viewport (195 px is exact centre) in both AR and EN.
+- Header: the 390 px phone bar is one row (five controls, wordmark, menu) with no horizontal overflow (document width = viewport width); the desktop wordmark centre equals the header content centre exactly (0.00 px offset) at 768, 1024, 1280 and 1920, AR and EN; the ≥1024 px bar stays 76 px tall with the 136 px wordmark.
 - Classes table: document width 390 px, no page-level horizontal overflow; the table itself scrolls inside its wrapper (864 px content in a 355 px wrapper) with the branded scrollbar.
 - Support: empty form keeps the button disabled; a filled form shows the pending label and then the "request was not sent" state; the text stays in the fields.
 - Sign out lands on `/sign-in`; the signed-out account menu shows Sign in; signing in as the teacher lands on the teacher dashboard; an unknown email shows the adapter message.
@@ -120,7 +130,7 @@ All under `docs/screenshots/`. Each pair of `-rest` / `-pressed` images uses the
 | Item | Files |
 | --- | --- |
 | 1. Scrollbars (chat, RTL) | `followup-scrollbar-chat-1920-ar-dark.png`, `followup-chat-popup-1920-ar-dark.png` |
-| 2. Phone wordmark | `followup-wordmark-390-ar-light.png`, `followup-wordmark-390-en-dark.png` |
+| 2. Header (single-row phone, centred desktop wordmark) | `followup-wordmark-390-ar-light.png`, `followup-wordmark-390-en-dark.png`, `followup-wordmark-1920-ar-light.png`, `followup-wordmark-1920-en-light.png`, `followup-wordmark-1024-ar-light.png`, `followup-wordmark-1024-en-light.png` |
 | 3. Classes table | `followup-classes-table-1920-ar-light.png`, `followup-classes-table-390-ar-light.png`, `followup-classes-table-1920-en-dark.png`, `followup-classes-table-390-en-dark.png` |
 | 4. Materials card | `followup-material-card-1920-ar-light.png`, `followup-material-card-390-en-light.png` |
 | 5. Pressed states | `followup-pressed-primary-rest.png` / `-pressed.png`, `followup-pressed-nav-rest.png` / `-pressed.png`, `followup-pressed-fab-rest.png` / `-pressed.png`, `followup-pressed-quick-rest.png` / `-pressed.png` |
