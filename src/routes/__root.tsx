@@ -9,6 +9,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { AppHeader } from '~/components/AppHeader'
 import { AppSidebar } from '~/components/AppSidebar'
 import { ChatPopup } from '~/components/chat/ChatPopup'
+import { MohsenFab } from '~/components/mohsen/MohsenFab'
 import {
   defaultLang,
   dirFor,
@@ -22,6 +23,7 @@ import { useTheme } from '~/shell/useTheme'
 import { useLang, useStrings, stringsFor } from '~/shell/useStrings'
 import { useSidebarCollapsed } from '~/shell/useSidebarCollapsed'
 import appCss from '~/styles/app.css?url'
+import batch5Css from '~/styles/batch5.css?url'
 import finishCss from '~/styles/finish.css?url'
 import fontsCss from '~/styles/fonts.css?url'
 import polishCss from '~/styles/polish.css?url'
@@ -87,6 +89,7 @@ export const Route = createRootRouteWithContext<{
         { rel: 'stylesheet', href: appCss },
         { rel: 'stylesheet', href: polishCss },
         { rel: 'stylesheet', href: finishCss },
+        { rel: 'stylesheet', href: batch5Css },
       ],
     }
   },
@@ -218,6 +221,7 @@ function ShellDocument({ children }: Readonly<{ children: ReactNode }>) {
           </div>
         </div>
         <ChatPopup open={chatOpen} onClose={() => setChatOpen(false)} />
+        <MohsenFab />
         <Scripts />
       </body>
     </html>
