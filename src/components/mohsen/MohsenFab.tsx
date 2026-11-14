@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { sessionQueryOptions } from '~/api/queries'
-import { AppIcon } from '~/components/AppIcon'
 import { MohsenAskDialog } from '~/components/mohsen/MohsenAskDialog'
 import { useStrings } from '~/shell/useStrings'
 
@@ -29,10 +28,14 @@ export function MohsenFab() {
         aria-expanded={open}
         title={strings.fabLabel}
       >
-        <AppIcon name="spark" size={24} />
-        <span className="mohsen-fab__label" aria-hidden="true">
-          {strings.fabLabel}
-        </span>
+        <img
+          className="mohsen-fab__mascot"
+          src="/brand/mohsen-fab.png"
+          alt=""
+          width={52}
+          height={52}
+          decoding="async"
+        />
       </button>
       <MohsenAskDialog
         open={open}

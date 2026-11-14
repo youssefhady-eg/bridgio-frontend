@@ -4,7 +4,7 @@ import {
   Modal,
   ModalOverlay,
 } from 'react-aria-components'
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { api } from '~/api'
 import type { GroundingScope, MohsenAnswer, UserId } from '~/api/types'
 import { GroundingList } from '~/components/builder/GroundingList'
@@ -49,6 +49,24 @@ export function MohsenAskDialog({
     materialIds: [],
     unitId: null,
   }
+
+  // First Escape closes the popup even while focus is in the question field.
+  // The capture listener runs before react-aria's own dismissal handling, so
+  // the key is never swallowed by the input.
+  useEffect(() => {
+    if (!open) return
+
+    function onKeyDown(event: globalThis.KeyboardEvent) {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        event.stopPropagation()
+        onClose()
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown, true)
+    return () => document.removeEventListener('keydown', onKeyDown, true)
+  }, [open, onClose])
 
   const askMutation = useMutation({
     mutationFn: (input: { key: string; question: string }) =>
@@ -120,6 +138,7 @@ export function MohsenAskDialog({
                 placeholder={strings.placeholder}
                 onChange={(event) => setDraft(event.target.value)}
                 autoComplete="off"
+                autoFocus
               />
               <button
                 type="submit"
