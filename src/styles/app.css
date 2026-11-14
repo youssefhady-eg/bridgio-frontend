@@ -187,6 +187,12 @@ summary:focus-visible,
 .app-header__brand {
   display: flex;
   align-items: center;
+  border-radius: var(--radius-pill);
+}
+
+/* Phone dark band: the brand link needs the on-dark ring, like the menu. */
+.app-header__brand:focus-visible {
+  outline-color: var(--focus-ring-color-on-dark);
 }
 
 /* Brand artwork slot — exactly one wordmark visible per breakpoint/theme. */
@@ -281,6 +287,10 @@ summary:focus-visible,
   }
 
   .app-header__menu:focus-visible {
+    outline-color: var(--focus-ring-color);
+  }
+
+  .app-header__brand:focus-visible {
     outline-color: var(--focus-ring-color);
   }
 
@@ -957,9 +967,12 @@ h3 + .row-meta {
   font-weight: 600;
 }
 
+/* The percent is a value, not caption text: body size with an explicit 700 so
+   it does not lean on the fallback chain through `bolder`. */
 .progress-row__labels strong {
   color: var(--text-primary);
-  font-size: var(--font-body-small-size);
+  font-size: var(--font-body-size);
+  font-weight: 700;
 }
 
 .progress-row__detail .row-meta + .row-meta {
@@ -1154,17 +1167,25 @@ h3 + .row-meta {
   border-color: var(--bridgio-cream);
 }
 
+.builder-step.is-active .builder-step__label {
+  font-weight: 700;
+}
+
 .builder-step.is-done .builder-step__button {
   border-color: var(--bridgio-maroon);
   color: var(--text-primary);
 }
 
+/* Future (inactive) steps stay readable: --text-secondary (6.90:1 light /
+   7.03:1 dark) instead of the disabled 40% alpha. The active step keeps its
+   filled maroon pill and a heavier label, and done steps keep the check icon,
+   so current vs upcoming is not distinguished by text colour alone. */
 .builder-step:not(.is-active) .builder-step__button:disabled {
   background:
     linear-gradient(var(--disabled-overlay), var(--disabled-overlay)),
     var(--bridgio-paper);
   border-color: var(--border);
-  color: var(--disabled-text);
+  color: var(--text-secondary);
   cursor: not-allowed;
 }
 
@@ -1263,6 +1284,84 @@ h3 + .row-meta {
 
 .input--narrow {
   max-width: 8rem;
+}
+
+/* Batch 4: a text/search field is a readable field, not a full-row banner.
+   The narrow number field keeps its own 8rem cap; textareas are untouched. */
+input.input[type='text']:not(.input--narrow),
+input.input[type='search'] {
+  max-width: 32rem;
+}
+
+/* Batch 4: design-system select — native arrow removed, Lucide chevron pinned
+   to the inline-end side so RTL and LTR both clear the text padding. */
+.select-field {
+  position: relative;
+  display: block;
+  min-width: 0;
+}
+
+.select-field > select.input {
+  width: 100%;
+  appearance: none;
+  padding-inline-end: calc(var(--space-3) + 1.5rem);
+}
+
+.select-field__chevron {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-end: var(--space-3);
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  pointer-events: none;
+}
+
+/* Batch 4: React Aria NumberField — the native spinner is gone; the stepper
+   uses two 44 px Lucide buttons in token colours. */
+.number-field {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.number-field__input {
+  text-align: center;
+}
+
+.number-field__input::-webkit-outer-spin-button,
+.number-field__input::-webkit-inner-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+.number-field__buttons {
+  display: inline-flex;
+  flex: none;
+  gap: var(--space-2);
+}
+
+.number-field__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  padding: 0;
+  background: var(--bridgio-paper);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-input);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.number-field__button:hover {
+  background: var(--hover-bg);
+}
+
+.number-field__button[data-disabled] {
+  color: var(--disabled-text);
+  cursor: not-allowed;
 }
 
 /* Source / material / unit choices */

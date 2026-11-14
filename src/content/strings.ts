@@ -111,7 +111,7 @@ export const ar = {
   header: {
     navLabel: 'التنقّل الرئيس',
     lockupAlt: `شعار ${B} الكامل (الشخصية والاسم معًا).`,
-    wordmarkAlt: `اسم ${B} النصي المعتمد.`,
+    wordmarkAlt: brand.wordmarkText,
     skipToMain: 'تخطَّ إلى المحتوى',
     menuLabel: 'افتح قائمة التنقّل',
     menuCloseLabel: 'إغلاق القائمة',
@@ -144,7 +144,7 @@ export const ar = {
   },
   /** Nav item labels — teacher copy is MSA formal, student copy is Egyptian casual, parent copy is MSA formal. */
   nav: {
-    'teacher-dashboard': 'لوحة التحكم',
+    'teacher-dashboard': 'لوحة المعلم',
     'teacher-classes': 'صفوفي',
     'teacher-tests': 'الاختبارات',
     'teacher-question-bank': 'بنك الأسئلة',
@@ -185,7 +185,7 @@ export const ar = {
     },
     activity: {
       heading: 'آخر النشاط',
-      lead: 'أحدث الاختبارات التي عملت عليها، الأحدث أولًا.',
+      lead: 'أحدث الاختبارات المنشورة، الأحدث أولًا.',
       emptyTitle: 'لا نشاط بعد',
       emptyBody: 'سيظهر هنا آخر ما عملت عليه من اختبارات.',
     },
@@ -310,12 +310,14 @@ export const ar = {
     draft: {
       heading: `يصوغ ${M} الأسئلة`,
       lead:
-        `يصوغ ${M} الأسئلة من المصدر المحدد فقط: مادتك أو وحدة المنهج. يظهر المصدر مع كل سؤال، ولا يصوغ سؤالًا بلا مصدر.`,
+        `يصوغ ${M}، مساعد ذكاء اصطناعي، الأسئلة من المصدر المحدد فقط: مادتك أو وحدة المنهج. يظهر المصدر مع كل سؤال، ولا يصوغ سؤالًا بلا مصدر.`,
       focusLabel: `توجيه اختياري ل${M}`,
       focusPlaceholder: 'مثال: ركّز على قاعدة الضرب',
       countLabel: 'عدد الأسئلة المطلوبة',
       countHint:
         `من ١ إلى ١٠. قد يعيد ${M} عددًا أقل إذا لم يجد ما يكفي في المصدر.`,
+      countIncrease: 'زيادة عدد الأسئلة',
+      countDecrease: 'إنقاص عدد الأسئلة',
       sourceLabel: 'المصدر',
       request: `اطلب من ${M} الصياغة`,
       requestMore: 'أضف أسئلة أخرى',
@@ -481,7 +483,7 @@ export const ar = {
     mohsen: {
       heading: `اسأل ${M}`,
       lead:
-        `${M} بيجاوب من مادة الاختبار بس، ولو مش لاقي إجابة بيقولك إنه مش عارف بدل ما يخمّن.`,
+        `${M} مساعد ذكاء اصطناعي بيجاوب من مادة الاختبار بس، ولو مش لاقي إجابة بيقولك إنه مش عارف بدل ما يخمّن.`,
       inputLabel: 'سؤالك',
       placeholder: 'اكتب سؤالك هنا...',
       ask: 'اسأل',
@@ -671,7 +673,6 @@ export const ar = {
     notFoundTitle: 'الاختبار غير موجود.',
     notFoundBody: 'ربما حُذف الاختبار أو أن الرابط غير صحيح.',
     back: 'كل الاختبارات',
-    metaClass: 'الصف',
     metaSource: 'المصدر',
     metaQuestions: 'عدد الأسئلة',
     metaUpdated: 'آخر تعديل',
@@ -928,7 +929,7 @@ export const ar = {
     sessionName: 'الاسم',
     sessionRole: 'الدور',
     capability: {
-      dashboard: 'لوحة التحكم',
+      dashboard: 'لوحة المعلم',
       classes: 'الصفوف',
       tests: 'الاختبارات',
       students: 'الطلاب',
@@ -961,15 +962,13 @@ export const ar = {
     sessionRole: 'الدور',
     sessionEmail: 'البريد الإلكتروني',
     noSession: 'لا توجد جلسة معروضة.',
-    accountHeading: 'بيانات الحساب',
     accountNote:
       'بيانات الحساب تأتي من الجلسة، ولا يمكن تعديلها من هذه الشاشة.',
-    accountSignIn: 'افتح صفحة تسجيل الدخول',
     settingsHeading: 'إعدادات الواجهة',
     languageLabel: 'اللغة',
     themeLabel: 'المظهر',
-    themeLight: 'فاتح',
-    themeDark: 'داكن',
+    themeLight: 'التبديل إلى المظهر الفاتح',
+    themeDark: 'التبديل إلى المظهر الداكن',
     roles: {
       teacher: 'المعلم',
       student: 'الطالب',
@@ -1052,7 +1051,7 @@ export const ar = {
       'teacher-create-test': {
         category: 'teacher',
         title: 'أنشئ اختبارًا وانشره',
-        body: 'منشئ الاختبارات أربع خطوات، تنتهي بالنشر إلى الصف.',
+        body: `منشئ الاختبارات أربع خطوات: يصوغ ${M}، مساعد ذكاء اصطناعي، الأسئلة من مصدرك، ثم تنتهي بالنشر إلى الصف.`,
         steps: [
           'افتح الاختبارات وابدأ اختبارًا جديدًا.',
           'اختر الصف ومصدر الأسئلة، ثم اطلب صياغة الأسئلة.',
@@ -1296,7 +1295,7 @@ export const ar = {
         },
         {
           title: 'أنشئ اختبارًا',
-          body: 'ابدأ اختبارًا جديدًا، واختر الصف ومصدر الأسئلة، ثم اطلب صياغة الأسئلة.',
+          body: `ابدأ اختبارًا جديدًا، واختر الصف ومصدر الأسئلة، ثم اطلب من ${M}، مساعد ذكاء اصطناعي، صياغة الأسئلة.`,
           link: 'teacherTests',
         },
         {
@@ -1443,7 +1442,7 @@ export const en: Strings = {
   header: {
     navLabel: 'Primary navigation',
     lockupAlt: `${B} full lockup (character and name).`,
-    wordmarkAlt: `${B} adopted wordmark.`,
+    wordmarkAlt: brand.wordmarkText,
     skipToMain: 'Skip to content',
     menuLabel: 'Open navigation menu',
     menuCloseLabel: 'Close menu',
@@ -1474,7 +1473,7 @@ export const en: Strings = {
     profileLabel: 'Profile',
   },
   nav: {
-    'teacher-dashboard': 'Dashboard',
+    'teacher-dashboard': 'Teacher dashboard',
     'teacher-classes': 'My Classes',
     'teacher-tests': 'Tests',
     'teacher-question-bank': 'Question bank',
@@ -1500,7 +1499,7 @@ export const en: Strings = {
     },
     activity: {
       heading: 'Recent activity',
-      lead: 'The tests you worked on most recently, newest first.',
+      lead: 'Your most recently published tests, newest first.',
       emptyTitle: 'No activity yet',
       emptyBody: 'Your latest test work will appear here.',
     },
@@ -1622,11 +1621,13 @@ export const en: Strings = {
     },
     draft: {
       heading: `${M} drafts the questions`,
-      lead: `${M} drafts questions from the chosen source only: your material or the curriculum unit. The source appears with every question, and ${M} never drafts a question without a source.`,
+      lead: `${M}, an AI assistant, drafts questions from the chosen source only: your material or the curriculum unit. The source appears with every question, and ${M} never drafts a question without a source.`,
       focusLabel: `Optional guidance for ${M}`,
       focusPlaceholder: 'For example: focus on the product rule',
       countLabel: 'Number of questions requested',
       countHint: `From 1 to 10. ${M} may return fewer if the source does not contain enough.`,
+      countIncrease: 'Increase the number of questions',
+      countDecrease: 'Decrease the number of questions',
       sourceLabel: 'Source',
       request: `Ask ${M} to draft`,
       requestMore: 'Add more questions',
@@ -1788,7 +1789,7 @@ export const en: Strings = {
     },
     mohsen: {
       heading: `Ask ${M}`,
-      lead: `${M} answers from the test material only, and if the answer is not found, says so instead of guessing.`,
+      lead: `${M} is an AI assistant that answers from the test material only. If he cannot find an answer, he says so instead of guessing.`,
       inputLabel: 'Your question',
       placeholder: 'Write your question here...',
       ask: 'Ask',
@@ -1969,7 +1970,6 @@ export const en: Strings = {
     notFoundTitle: 'Test not found.',
     notFoundBody: 'The test may have been removed, or the link is incorrect.',
     back: 'All tests',
-    metaClass: 'Class',
     metaSource: 'Source',
     metaQuestions: 'Number of questions',
     metaUpdated: 'Updated',
@@ -2227,7 +2227,7 @@ export const en: Strings = {
     sessionName: 'Name',
     sessionRole: 'Role',
     capability: {
-      dashboard: 'Dashboard',
+      dashboard: 'Teacher dashboard',
       classes: 'Classes',
       tests: 'Tests',
       students: 'Students',
@@ -2258,15 +2258,13 @@ export const en: Strings = {
     sessionRole: 'Role',
     sessionEmail: 'Email',
     noSession: 'No session is shown.',
-    accountHeading: 'Account data',
     accountNote:
       'Account details come from the session and cannot be edited on this screen.',
-    accountSignIn: 'Open the sign-in page',
     settingsHeading: 'UI settings',
     languageLabel: 'Language',
     themeLabel: 'Theme',
-    themeLight: 'Light',
-    themeDark: 'Dark',
+    themeLight: 'Switch to light theme',
+    themeDark: 'Switch to dark theme',
     roles: {
       teacher: 'Teacher',
       student: 'Student',
@@ -2348,7 +2346,7 @@ export const en: Strings = {
       'teacher-create-test': {
         category: 'teacher',
         title: 'Create a test and publish it',
-        body: 'The test builder has four steps and ends by publishing to the class.',
+        body: `${M}, an AI assistant, drafts the questions from your source. The test builder has four steps and ends by publishing to the class.`,
         steps: [
           'Open Tests and start a new test.',
           'Choose the class and the question source, then ask for the questions.',
@@ -2591,7 +2589,7 @@ export const en: Strings = {
         },
         {
           title: 'Create a test',
-          body: 'Start a new test, choose the class and the question source, then ask for the questions.',
+          body: `Start a new test, choose the class and the question source, then ask ${M}, an AI assistant, to draft the questions.`,
           link: 'teacherTests',
         },
         {

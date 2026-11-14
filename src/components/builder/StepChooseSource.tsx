@@ -7,6 +7,7 @@ import type {
 } from '~/api/types'
 import { EmptyNote } from '~/components/dashboard/EmptyNote'
 import { formatCount } from '~/components/dashboard/format'
+import { SelectField } from '~/components/shared/SelectField'
 import { useLang, useStrings } from '~/shell/useStrings'
 import { sourceDraftIssue } from './builder'
 
@@ -141,19 +142,21 @@ export function StepChooseSource({
               <label className="field__label" htmlFor="builder-class">
                 {strings.classLabel}
               </label>
-              <select
-                id="builder-class"
-                className="input"
-                value={classroomId}
-                onChange={(event) => onClassroomChange(event.target.value)}
-              >
-                <option value="">{strings.classPlaceholder}</option>
-                {classes.map((classroom) => (
-                  <option key={classroom.id} value={classroom.id}>
-                    {classroom.name} — {classroom.subjectName}
-                  </option>
-                ))}
-              </select>
+              <SelectField>
+                <select
+                  id="builder-class"
+                  className="input"
+                  value={classroomId}
+                  onChange={(event) => onClassroomChange(event.target.value)}
+                >
+                  <option value="">{strings.classPlaceholder}</option>
+                  {classes.map((classroom) => (
+                    <option key={classroom.id} value={classroom.id}>
+                      {classroom.name} — {classroom.subjectName}
+                    </option>
+                  ))}
+                </select>
+              </SelectField>
             </div>
           ) : null}
 

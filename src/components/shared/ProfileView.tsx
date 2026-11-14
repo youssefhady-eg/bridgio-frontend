@@ -1,11 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
-import { Link, useRouterState } from '@tanstack/react-router'
+import { useRouterState } from '@tanstack/react-router'
 import { sessionQueryOptions } from '~/api/queries'
 import { EmptyNote } from '~/components/dashboard/EmptyNote'
 import { MetaList } from '~/components/shared/MetaList'
 import { PageHero } from '~/components/shared/PageHero'
 import { hrefWithLang } from '~/shell/lang'
-import { usePreviewRole } from '~/shell/usePreviewRole'
 import { useTheme } from '~/shell/useTheme'
 import { useLang, useStrings } from '~/shell/useStrings'
 
@@ -14,15 +13,14 @@ import { useLang, useStrings } from '~/shell/useStrings'
  * (language and colour theme).
  *
  * Account data is owned by Mentingo, so there is no edit form here: the screen
- * shows the current session and links to the informational sign-in page. The
- * language and theme controls are the same settings as the header, so the
+ * shows the current session and states that the data comes from the session.
+ * The language and theme controls are the same settings as the header, so the
  * choices stay consistent across screens.
  */
 export function ProfileView() {
   const strings = useStrings()
   const copy = strings.profile
   const lang = useLang()
-  const role = usePreviewRole()
   const { theme, toggle } = useTheme()
   const { pathname, href } = useRouterState({ select: (state) => state.location })
   const searchStr = href.slice(pathname.length).split('#')[0] ?? ''
@@ -71,27 +69,9 @@ export function ProfileView() {
               { label: copy.sessionEmail, value: session.user.email },
             ]}
           />
+          <p className="field__hint">{copy.accountNote}</p>
         </section>
       )}
-
-      <section className="dashboard__section">
-        <h2>{copy.accountHeading}</h2>
-        <EmptyNote
-          icon="alert"
-          title={copy.accountHeading}
-          body={copy.accountNote}
-        />
-        <p className="finish-actions">
-          <Link
-            to="/sign-in"
-            search={{ as: role, lang }}
-            className="button button--secondary button--small"
-            preload={false}
-          >
-            {copy.accountSignIn}
-          </Link>
-        </p>
-      </section>
 
       <section className="dashboard__section">
         <h2>{copy.settingsHeading}</h2>

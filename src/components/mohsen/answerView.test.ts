@@ -7,7 +7,7 @@ const ref = {
   materialId: 'mat_1',
   unitId: 'unit_1',
   label: 'مذكرة التفاضل',
-  excerpt: 'مشتقة الدالة x^n هي n·x^(n−1).',
+  excerpt: 'مشتقة الدالة xⁿ هي n·xⁿ⁻¹.',
 }
 
 describe('answerView — grounded answers only', () => {

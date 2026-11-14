@@ -97,22 +97,25 @@ export function TestDetail({ testId }: { testId: string }) {
         </div>
       }
     >
+      {/* The class already sits next to the status chip in the hero, so it is
+          not repeated here. One date row: the publish date once published, the
+          last-edit date while the test is still a draft. */}
       <MetaList
         items={[
-          { label: copy.metaClass, value: test.classroomName },
           { label: copy.metaSource, value: test.source.label },
           {
             label: copy.metaQuestions,
             value: formatCount(test.questionCount, lang),
           },
-          {
-            label: copy.metaUpdated,
-            value: formatDate(test.updatedAt, copy.unknownDate, lang),
-          },
-          {
-            label: copy.metaPublished,
-            value: formatDate(test.publishedAt, copy.unknownDate, lang),
-          },
+          published
+            ? {
+                label: copy.metaPublished,
+                value: formatDate(test.publishedAt, copy.unknownDate, lang),
+              }
+            : {
+                label: copy.metaUpdated,
+                value: formatDate(test.updatedAt, copy.unknownDate, lang),
+              },
         ]}
       />
 
@@ -207,9 +210,22 @@ function ResultsPanel({ testId }: { testId: string }) {
           body={copy.resultsErrorBody}
         />
       ) : resultsQuery.isPending ? (
-        <p className="loading-note" role="status">
-          {copy.resultsLoading}
-        </p>
+        <>
+          {/* Static skeleton in the results panel's shape — no animation. The
+              loading text stays the accessible status for screen readers. */}
+          <div className="results-skeleton" aria-hidden="true">
+            {[0, 1, 2].map((row) => (
+              <div className="results-skeleton__row" key={row}>
+                <span className="results-skeleton__line results-skeleton__line--title" />
+                <span className="results-skeleton__line" />
+                <span className="results-skeleton__line results-skeleton__line--short" />
+              </div>
+            ))}
+          </div>
+          <p className="visually-hidden" role="status">
+            {copy.resultsLoading}
+          </p>
+        </>
       ) : resultsQuery.data.length === 0 ? (
         <EmptyNote
           icon="chart"

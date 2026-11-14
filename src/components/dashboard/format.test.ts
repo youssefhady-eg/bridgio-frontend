@@ -6,6 +6,7 @@ import {
   formatDate,
   formatPercent,
   isDashboardEmpty,
+  splitDashboardTests,
 } from './format'
 
 const emptyLists = {
@@ -36,6 +37,46 @@ describe('dashboard format helpers', () => {
     expect(formatted).toMatch(/2026|٢٠٢٦/)
     expect(formatDate(null, 'لا نشاط')).toBe('لا نشاط')
     expect(formatDate('not-a-date', 'لا نشاط')).toBe('لا نشاط')
+  })
+
+  it('splits dashboard tests so no test is in both lists', () => {
+    const summary = (
+      id: string,
+      status: TeacherDashboard['recentTests'][number]['status'],
+      updatedAt: string,
+    ) => ({
+      id,
+      title: id,
+      classroomId: 'class_math',
+      classroomName: 'Class',
+      status,
+      questionCount: 2,
+      updatedAt,
+      publishedAt: status === 'published' ? updatedAt : null,
+    })
+
+    const { attention, activity } = splitDashboardTests([
+      summary('draft-old', 'draft', '2026-11-01T00:00:00.000Z'),
+      summary('published-old', 'published', '2026-11-02T00:00:00.000Z'),
+      summary('draft-new', 'draft', '2026-11-03T00:00:00.000Z'),
+      summary('published-new', 'published', '2026-11-04T00:00:00.000Z'),
+    ])
+
+    expect(attention.map((item) => item.id)).toEqual([
+      'draft-new',
+      'draft-old',
+    ])
+    expect(activity.map((item) => item.id)).toEqual([
+      'published-new',
+      'published-old',
+    ])
+    expect(attention.every((item) => item.status !== 'published')).toBe(true)
+    expect(activity.every((item) => item.status === 'published')).toBe(true)
+    expect(
+      attention.filter((item) =>
+        activity.some((other) => other.id === item.id),
+      ),
+    ).toEqual([])
   })
 
   it('detects the page-level empty dashboard only when all three lists are empty', () => {

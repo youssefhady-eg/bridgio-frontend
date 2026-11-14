@@ -733,3 +733,40 @@
     display: none;
   }
 }
+
+/* ---- Results loading skeleton (Batch 4) ---------------------------------- */
+/*
+ * Static placeholder in the results panel's shape: three rows in token colours,
+ * no animation. The loading text is still announced through a visually-hidden
+ * role="status", so the skeleton itself is aria-hidden.
+ */
+
+.results-skeleton {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.results-skeleton__row {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background: var(--bridgio-paper);
+  border: var(--outline-card) solid var(--card-border);
+  border-radius: var(--radius-card);
+}
+
+.results-skeleton__line {
+  width: 100%;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  background: var(--tint-cream-deep);
+}
+
+.results-skeleton__line--title {
+  width: 38%;
+  height: 14px;
+}
+
+.results-skeleton__line--short {
+  width: 62%;
+}

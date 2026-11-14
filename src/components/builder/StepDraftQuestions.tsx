@@ -1,3 +1,12 @@
+import { ChevronDown, ChevronUp } from 'lucide-react'
+import {
+  Button,
+  Group,
+  Input,
+  Label,
+  NumberField,
+  Text,
+} from 'react-aria-components'
 import type { DraftQuestionsResult, Test } from '~/api/types'
 import { EmptyNote } from '~/components/dashboard/EmptyNote'
 import { formatCount } from '~/components/dashboard/format'
@@ -71,24 +80,45 @@ export function StepDraftQuestions({
           />
         </div>
 
-        <div className="field">
-          <label className="field__label" htmlFor="builder-count">
-            {strings.countLabel}
-          </label>
-          <input
-            id="builder-count"
-            className="input input--narrow"
-            type="number"
-            min={1}
-            max={10}
-            inputMode="numeric"
-            value={count}
-            onChange={(event) =>
-              onCountChange(Number.parseInt(event.target.value, 10) || 1)
-            }
-          />
-          <p className="field__hint">{strings.countHint}</p>
-        </div>
+        {/* React Aria NumberField replaces the native `type="number"` input, so
+            Chrome's unstyled spinner never appears. Buttons are 44 px targets
+            and the input keeps the narrow field width. Out-of-range or empty
+            input falls back to 1. */}
+        <NumberField
+          className="field"
+          minValue={1}
+          maxValue={10}
+          value={count}
+          onChange={(value) =>
+            onCountChange(
+              Number.isNaN(value) ? 1 : Math.min(10, Math.max(1, value)),
+            )
+          }
+        >
+          <Label className="field__label">{strings.countLabel}</Label>
+          <Group className="number-field">
+            <Input className="input input--narrow number-field__input" />
+            <div className="number-field__buttons">
+              <Button
+                slot="increment"
+                className="number-field__button"
+                aria-label={strings.countIncrease}
+              >
+                <ChevronUp size={16} strokeWidth={1.8} aria-hidden="true" />
+              </Button>
+              <Button
+                slot="decrement"
+                className="number-field__button"
+                aria-label={strings.countDecrease}
+              >
+                <ChevronDown size={16} strokeWidth={1.8} aria-hidden="true" />
+              </Button>
+            </div>
+          </Group>
+          <Text slot="description" className="field__hint">
+            {strings.countHint}
+          </Text>
+        </NumberField>
 
         {error ? (
           <EmptyNote
