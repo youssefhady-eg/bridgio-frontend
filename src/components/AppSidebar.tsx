@@ -90,6 +90,16 @@ export function AppSidebar({
   }
 
   const utilityLinks = [
+    ...(role === 'teacher'
+      ? [
+          {
+            id: 'notifications',
+            to: '/notifications',
+            label: strings.sidebar.notificationsLabel,
+            icon: 'notifications',
+          } as const,
+        ]
+      : []),
     { id: 'help', to: '/help', label: strings.sidebar.helpLabel, icon: 'help' },
     {
       id: 'guide',

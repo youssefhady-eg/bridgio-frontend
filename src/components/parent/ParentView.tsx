@@ -11,6 +11,7 @@ import { EmptyNote } from '~/components/dashboard/EmptyNote'
 import { ProgressBar } from '~/components/dashboard/ProgressBar'
 import { StatusChip, type StatusTone } from '~/components/dashboard/StatusChip'
 import { formatCount, formatDate, formatPercent } from '~/components/dashboard/format'
+import { MetaPair } from '~/components/shared/MetaPair'
 import { useLang, useStrings } from '~/shell/useStrings'
 
 /**
@@ -216,8 +217,9 @@ export function ParentView({ section }: { section: ParentSection }) {
                     valueText={formatPercent(unit.progressPercent, lang)}
                   />
                   <p className="row-meta">
-                    {copy.progress.lessonsCompleted}:{' '}
-                    {formatCount(unit.lessonsCompleted, lang)}
+                    <MetaPair label={copy.progress.lessonsCompleted}>
+                      {formatCount(unit.lessonsCompleted, lang)}
+                    </MetaPair>
                   </p>
                 </li>
               ))}
@@ -302,8 +304,13 @@ export function ParentView({ section }: { section: ParentSection }) {
                       <h3>{result.testTitle}</h3>
                       <p className="row-meta">{result.classroomName}</p>
                       <p className="row-meta">
-                        {copy.results.submittedAt}:{' '}
-                        {formatDate(result.submittedAt, copy.results.unanswered, lang)}
+                        <MetaPair label={copy.results.submittedAt}>
+                          {formatDate(
+                            result.submittedAt,
+                            copy.results.unanswered,
+                            lang,
+                          )}
+                        </MetaPair>
                       </p>
                     </div>
                     <div className="test-row__aside">

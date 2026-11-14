@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
+import { Fragment, type ReactNode } from 'react'
 import {
   sessionQueryOptions,
   studentProfileQueryOptions,
@@ -11,6 +12,8 @@ import { EmptyNote } from '~/components/dashboard/EmptyNote'
 import { ProgressBar } from '~/components/dashboard/ProgressBar'
 import { formatCount, formatDate, formatPercent } from '~/components/dashboard/format'
 import { MetaList } from '~/components/shared/MetaList'
+import { MetaPair } from '~/components/shared/MetaPair'
+import { MetaSep } from '~/components/shared/MetaSep'
 import { PageHero } from '~/components/shared/PageHero'
 import { usePreviewRole } from '~/shell/usePreviewRole'
 import { useLang, useStrings } from '~/shell/useStrings'
@@ -92,9 +95,13 @@ export function StudentDetail({ studentId }: { studentId: string }) {
     <Frame
       title={profile.user.displayName}
       greeting={
-        classNames.length > 0
-          ? `${copy.classLabel}: ${classNames.join(' · ')}`
-          : profile.gradeLevel
+        classNames.length > 0 ? (
+          <MetaPair label={copy.classLabel}>
+            {separatedClassNames(classNames)}
+          </MetaPair>
+        ) : (
+          profile.gradeLevel
+        )
       }
     >
       <MetaList
@@ -106,7 +113,9 @@ export function StudentDetail({ studentId }: { studentId: string }) {
           {
             label: copy.classLabel,
             value:
-              classNames.length > 0 ? classNames.join(' · ') : profile.gradeLevel,
+              classNames.length > 0
+                ? separatedClassNames(classNames)
+                : profile.gradeLevel,
           },
           {
             label: copy.lastActive,
@@ -148,8 +157,9 @@ export function StudentDetail({ studentId }: { studentId: string }) {
                   valueText={formatPercent(entry.progressPercent, lang)}
                 />
                 <p className="row-meta">
-                  {copy.lessonsCompleted}:{' '}
-                  {formatCount(entry.lessonsCompleted, lang)}
+                  <MetaPair label={copy.lessonsCompleted}>
+                    {formatCount(entry.lessonsCompleted, lang)}
+                  </MetaPair>
                 </p>
               </li>
             ))}
@@ -166,8 +176,8 @@ function Frame({
   children,
 }: {
   title: string
-  greeting?: string
-  children: React.ReactNode
+  greeting?: ReactNode
+  children: ReactNode
 }) {
   const strings = useStrings()
   const role = usePreviewRole()
@@ -192,4 +202,18 @@ function Frame({
       {children}
     </div>
   )
+}
+
+/**
+ * Class names interleaved with a middle-dot element. The dot used to come from
+ * `classNames.join(' · ')`, where the surrounding spaces can collapse at a
+ * text-node boundary in RTL.
+ */
+function separatedClassNames(classNames: readonly string[]): ReactNode {
+  return classNames.map((name, index) => (
+    <Fragment key={`${name}:${index}`}>
+      {index > 0 ? <MetaSep /> : null}
+      {name}
+    </Fragment>
+  ))
 }

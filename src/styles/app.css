@@ -562,8 +562,8 @@ summary:focus-visible,
    purpose: the dashboard lists are not inside that container, and an
    unscoped anchor falls back to the browser's blue + underline.
    Owner decision 2026-11-13: no underline at rest. Maroon ink + semibold keep
-   the link distinct from body text; the underline returns on hover and on
-   keyboard focus, together with the hover wash and the global focus ring. */
+   the link distinct from body text; hover and keyboard focus use the hover wash
+   plus the global focus ring, with no underline. */
 .screen-link {
   color: var(--bridgio-maroon);
   font-weight: 600;
@@ -575,9 +575,6 @@ summary:focus-visible,
   /* Hover is an affordance, not an error state: use the proposed maroon
      hover wash, never the wine error colour. */
   background: var(--hover-bg);
-  text-decoration: underline;
-  text-decoration-thickness: 1.5px;
-  text-underline-offset: 3px;
 }
 
 .app-list--links li {
@@ -930,7 +927,7 @@ h3 + .row-meta {
 
 .status-chip--success {
   background: var(--bridgio-paper);
-  border-color: var(--bridgio-success);
+  border-color: transparent;
   color: var(--bridgio-success);
 }
 

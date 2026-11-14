@@ -3,6 +3,8 @@ import { Link } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 import { sessionQueryOptions, teacherDashboardQueryOptions } from '~/api/queries'
 import type { TestSummary } from '~/api/types'
+import { MetaPair } from '~/components/shared/MetaPair'
+import { MetaSep } from '~/components/shared/MetaSep'
 import { usePreviewRole } from '~/shell/usePreviewRole'
 import { useLang, useStrings } from '~/shell/useStrings'
 import { EmptyNote } from './EmptyNote'
@@ -251,17 +253,21 @@ export function TeacherDashboard() {
                               )}
                             />
                             <p className="row-meta">
-                              {strings.progress.unitsCompleted}:{' '}
-                              {formatCount(row.completedUnits, lang)} /{' '}
-                              {formatCount(row.totalUnits, lang)}
+                              <MetaPair
+                                label={strings.progress.unitsCompleted}
+                              >
+                                {formatCount(row.completedUnits, lang)} /{' '}
+                                {formatCount(row.totalUnits, lang)}
+                              </MetaPair>
                             </p>
                             <p className="row-meta">
-                              {strings.progress.lastActive}:{' '}
-                              {formatDate(
-                                row.lastActiveAt,
-                                strings.progress.noActivity,
-                                lang,
-                              )}
+                              <MetaPair label={strings.progress.lastActive}>
+                                {formatDate(
+                                  row.lastActiveAt,
+                                  strings.progress.noActivity,
+                                  lang,
+                                )}
+                              </MetaPair>
                             </p>
                           </div>
                         </li>
@@ -292,7 +298,9 @@ export function TeacherDashboard() {
                       <li className="class-card" key={classroom.id}>
                         <h3>{classroom.name}</h3>
                         <p className="row-meta">
-                          {classroom.subjectName} · {classroom.gradeLevel}
+                          {classroom.subjectName}
+                          <MetaSep />
+                          {classroom.gradeLevel}
                         </p>
                         <dl className="class-card__stats">
                           <div>
@@ -461,8 +469,9 @@ function TestRow({ test }: { test: TestSummary }) {
           {strings.tests.questionsCount(test.questionCount)}
         </p>
         <p className="row-meta">
-          {strings.tests.updated}:{' '}
-          {formatDate(test.updatedAt, strings.tests.unknownDate, lang)}
+          <MetaPair label={strings.tests.updated}>
+            {formatDate(test.updatedAt, strings.tests.unknownDate, lang)}
+          </MetaPair>
         </p>
       </div>
     </li>

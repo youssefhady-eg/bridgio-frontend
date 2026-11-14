@@ -11,14 +11,20 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AssistantRouteImport } from './routes/assistant'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as GuideRouteImport } from './routes/guide'
 import { Route as HelpRouteImport } from './routes/help'
+import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SearchRouteImport } from './routes/search'
 import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as ParentMessagesRouteImport } from './routes/parent.messages'
 import { Route as ParentProgressRouteImport } from './routes/parent.progress'
 import { Route as ParentResultsRouteImport } from './routes/parent.results'
 import { Route as ParentTestsRouteImport } from './routes/parent.tests'
+import { Route as StudentHomeRouteImport } from './routes/student.home'
 import { Route as StudentLessonsRouteImport } from './routes/student.lessons'
 import { Route as StudentProgressRouteImport } from './routes/student.progress'
 import { Route as StudentTestsRouteImport } from './routes/student.tests'
@@ -47,6 +53,11 @@ const AssistantRoute = AssistantRouteImport.update({
   path: '/assistant',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GuideRoute = GuideRouteImport.update({
   id: '/guide',
   path: '/guide',
@@ -57,14 +68,34 @@ const HelpRoute = HelpRouteImport.update({
   path: '/help',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignInRoute = SignInRouteImport.update({
   id: '/sign-in',
   path: '/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignUpRoute = SignUpRouteImport.update({
+  id: '/sign-up',
+  path: '/sign-up',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ParentMessagesRoute = ParentMessagesRouteImport.update({
@@ -85,6 +116,11 @@ const ParentResultsRoute = ParentResultsRouteImport.update({
 const ParentTestsRoute = ParentTestsRouteImport.update({
   id: '/parent/tests',
   path: '/parent/tests',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudentHomeRoute = StudentHomeRouteImport.update({
+  id: '/student/home',
+  path: '/student/home',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StudentLessonsRoute = StudentLessonsRouteImport.update({
@@ -178,14 +214,20 @@ const StudentTestsTestIdResultsRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/assistant': typeof AssistantRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/guide': typeof GuideRoute
   '/help': typeof HelpRoute
+  '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/search': typeof SearchRoute
   '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRoute
   '/parent/messages': typeof ParentMessagesRoute
   '/parent/progress': typeof ParentProgressRoute
   '/parent/results': typeof ParentResultsRoute
   '/parent/tests': typeof ParentTestsRoute
+  '/student/home': typeof StudentHomeRoute
   '/student/lessons': typeof StudentLessonsRoute
   '/student/progress': typeof StudentProgressRoute
   '/student/tests': typeof StudentTestsRouteWithChildren
@@ -207,14 +249,20 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/assistant': typeof AssistantRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/guide': typeof GuideRoute
   '/help': typeof HelpRoute
+  '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/search': typeof SearchRoute
   '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRoute
   '/parent/messages': typeof ParentMessagesRoute
   '/parent/progress': typeof ParentProgressRoute
   '/parent/results': typeof ParentResultsRoute
   '/parent/tests': typeof ParentTestsRoute
+  '/student/home': typeof StudentHomeRoute
   '/student/lessons': typeof StudentLessonsRoute
   '/student/progress': typeof StudentProgressRoute
   '/teacher/dashboard': typeof TeacherDashboardRoute
@@ -233,14 +281,20 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/assistant': typeof AssistantRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/guide': typeof GuideRoute
   '/help': typeof HelpRoute
+  '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/search': typeof SearchRoute
   '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRoute
   '/parent/messages': typeof ParentMessagesRoute
   '/parent/progress': typeof ParentProgressRoute
   '/parent/results': typeof ParentResultsRoute
   '/parent/tests': typeof ParentTestsRoute
+  '/student/home': typeof StudentHomeRoute
   '/student/lessons': typeof StudentLessonsRoute
   '/student/progress': typeof StudentProgressRoute
   '/student/tests': typeof StudentTestsRouteWithChildren
@@ -264,14 +318,20 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/assistant'
+    | '/forgot-password'
     | '/guide'
     | '/help'
+    | '/notifications'
     | '/profile'
+    | '/reset-password'
+    | '/search'
     | '/sign-in'
+    | '/sign-up'
     | '/parent/messages'
     | '/parent/progress'
     | '/parent/results'
     | '/parent/tests'
+    | '/student/home'
     | '/student/lessons'
     | '/student/progress'
     | '/student/tests'
@@ -293,14 +353,20 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/assistant'
+    | '/forgot-password'
     | '/guide'
     | '/help'
+    | '/notifications'
     | '/profile'
+    | '/reset-password'
+    | '/search'
     | '/sign-in'
+    | '/sign-up'
     | '/parent/messages'
     | '/parent/progress'
     | '/parent/results'
     | '/parent/tests'
+    | '/student/home'
     | '/student/lessons'
     | '/student/progress'
     | '/teacher/dashboard'
@@ -318,14 +384,20 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/assistant'
+    | '/forgot-password'
     | '/guide'
     | '/help'
+    | '/notifications'
     | '/profile'
+    | '/reset-password'
+    | '/search'
     | '/sign-in'
+    | '/sign-up'
     | '/parent/messages'
     | '/parent/progress'
     | '/parent/results'
     | '/parent/tests'
+    | '/student/home'
     | '/student/lessons'
     | '/student/progress'
     | '/student/tests'
@@ -348,14 +420,20 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AssistantRoute: typeof AssistantRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   GuideRoute: typeof GuideRoute
   HelpRoute: typeof HelpRoute
+  NotificationsRoute: typeof NotificationsRoute
   ProfileRoute: typeof ProfileRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
+  SearchRoute: typeof SearchRoute
   SignInRoute: typeof SignInRoute
+  SignUpRoute: typeof SignUpRoute
   ParentMessagesRoute: typeof ParentMessagesRoute
   ParentProgressRoute: typeof ParentProgressRoute
   ParentResultsRoute: typeof ParentResultsRoute
   ParentTestsRoute: typeof ParentTestsRoute
+  StudentHomeRoute: typeof StudentHomeRoute
   StudentLessonsRoute: typeof StudentLessonsRoute
   StudentProgressRoute: typeof StudentProgressRoute
   StudentTestsRoute: typeof StudentTestsRouteWithChildren
@@ -383,6 +461,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AssistantRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/guide': {
       id: '/guide'
       path: '/guide'
@@ -397,6 +482,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HelpRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile': {
       id: '/profile'
       path: '/profile'
@@ -404,11 +496,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sign-in': {
       id: '/sign-in'
       path: '/sign-in'
       fullPath: '/sign-in'
       preLoaderRoute: typeof SignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-up': {
+      id: '/sign-up'
+      path: '/sign-up'
+      fullPath: '/sign-up'
+      preLoaderRoute: typeof SignUpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/parent/messages': {
@@ -437,6 +550,13 @@ declare module '@tanstack/react-router' {
       path: '/parent/tests'
       fullPath: '/parent/tests'
       preLoaderRoute: typeof ParentTestsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/student/home': {
+      id: '/student/home'
+      path: '/student/home'
+      fullPath: '/student/home'
+      preLoaderRoute: typeof StudentHomeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/student/lessons': {
@@ -620,14 +740,20 @@ const TeacherTestsRouteWithChildren = TeacherTestsRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AssistantRoute: AssistantRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   GuideRoute: GuideRoute,
   HelpRoute: HelpRoute,
+  NotificationsRoute: NotificationsRoute,
   ProfileRoute: ProfileRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
+  SearchRoute: SearchRoute,
   SignInRoute: SignInRoute,
+  SignUpRoute: SignUpRoute,
   ParentMessagesRoute: ParentMessagesRoute,
   ParentProgressRoute: ParentProgressRoute,
   ParentResultsRoute: ParentResultsRoute,
   ParentTestsRoute: ParentTestsRoute,
+  StudentHomeRoute: StudentHomeRoute,
   StudentLessonsRoute: StudentLessonsRoute,
   StudentProgressRoute: StudentProgressRoute,
   StudentTestsRoute: StudentTestsRouteWithChildren,

@@ -23,6 +23,11 @@ const EXPECTED_METHODS = [
   'auth.getSession',
   'auth.signIn',
   'auth.signOut',
+  'auth.signUp',
+  'auth.requestPasswordReset',
+  'auth.resetPassword',
+  'notifications.listForUser',
+  'search.search',
   'teachers.getProfile',
   'teachers.getDashboard',
   'students.getProfile',
@@ -663,5 +668,106 @@ describe('mock adapter — errors', () => {
     const error = await api.tests.get({ testId: 'missing' }).catch((value) => value)
     expect(error).toBeInstanceOf(ApiError)
     expect(error).toMatchObject({ code: 'NOT_FOUND', status: 404 })
+  })
+})
+
+describe('mock adapter — notifications (Batch 5, PROPOSED)', () => {
+  it('derives teacher notifications from seeded submissions, published tests and messages', async () => {
+    const api = created()
+    const notifications = await api.notifications.listForUser({
+      userId: seedIds.teacher,
+    })
+    expect(notifications.length).toBeGreaterThan(0)
+    const kinds = new Set(notifications.map((row) => row.kind))
+    // Sara's submitted attempt on the teacher's integration test.
+    expect(kinds.has('submission')).toBe(true)
+    // The teacher's own published tests.
+    expect(kinds.has('published_test')).toBe(true)
+    // The assistant's seeded message in the teacher's thread.
+    expect(kinds.has('message')).toBe(true)
+    // Newest first.
+    const times = notifications.map((row) => row.occurredAt)
+    expect([...times].sort((a, b) => b.localeCompare(a))).toEqual(times)
+  })
+
+  it('returns an empty list for a non-teacher and refuses another user id', async () => {
+    const api = created()
+    await api.auth.signIn({
+      email: 'sara.student@bridgio.test',
+      password: 'demo',
+    })
+    expect(
+      await api.notifications.listForUser({ userId: seedIds.studentSara }),
+    ).toEqual([])
+    await expect(
+      api.notifications.listForUser({ userId: seedIds.teacher }),
+    ).rejects.toMatchObject({ code: 'FORBIDDEN' })
+  })
+})
+
+describe('mock adapter — search (Batch 5, PROPOSED)', () => {
+  it('matches the teacher’s own tests, materials and questions', async () => {
+    const api = created()
+    const byTitle = await api.search.search({ query: 'الاشتقاق' })
+    expect(byTitle.query).toBe('الاشتقاق')
+    expect(byTitle.results.some((row) => row.kind === 'test')).toBe(true)
+
+    const materials = await api.search.search({ query: 'مذكرة' })
+    expect(materials.results.length).toBeGreaterThan(0)
+    expect(materials.results.every((row) => row.kind === 'material')).toBe(true)
+
+    const questions = await api.search.search({ query: 'مشتقة' })
+    expect(questions.results.some((row) => row.kind === 'question')).toBe(true)
+  })
+
+  it('returns nothing for a blank query and an empty set for a non-teacher', async () => {
+    const api = created()
+    expect((await api.search.search({ query: '   ' })).results).toEqual([])
+    await api.auth.signIn({
+      email: 'sara.student@bridgio.test',
+      password: 'demo',
+    })
+    expect((await api.search.search({ query: 'الاشتقاق' })).results).toEqual([])
+  })
+
+  it('ignores Arabic diacritics and letter variants when matching', async () => {
+    const api = created()
+    const plain = await api.search.search({ query: 'التكامل' })
+    const withDiacritic = await api.search.search({ query: 'التكامُل' })
+    expect(withDiacritic.results.map((row) => row.id)).toEqual(
+      plain.results.map((row) => row.id),
+    )
+  })
+})
+
+describe('mock adapter — accounts flows (Batch 5, PROPOSED, not connected)', () => {
+  it('always reports the accounts backend as unavailable, never faking success', async () => {
+    const api = created()
+    expect(
+      await api.auth.signUp({
+        fullName: 'طالب جديد',
+        email: 'new@bridgio.test',
+        password: 'secret',
+      }),
+    ).toEqual({ status: 'unavailable', reason: 'accounts_backend_missing' })
+    expect(
+      await api.auth.requestPasswordReset({ email: 'new@bridgio.test' }),
+    ).toEqual({ status: 'unavailable', reason: 'accounts_backend_missing' })
+    expect(
+      await api.auth.resetPassword({ token: 'tok', password: 'secret' }),
+    ).toEqual({ status: 'unavailable', reason: 'accounts_backend_missing' })
+  })
+
+  it('still validates empty input honestly', async () => {
+    const api = created()
+    await expect(
+      api.auth.signUp({ fullName: '', email: '', password: '' }),
+    ).rejects.toMatchObject({ code: 'VALIDATION' })
+    await expect(
+      api.auth.requestPasswordReset({ email: '' }),
+    ).rejects.toMatchObject({ code: 'VALIDATION' })
+    await expect(
+      api.auth.resetPassword({ token: '', password: '' }),
+    ).rejects.toMatchObject({ code: 'VALIDATION' })
   })
 })

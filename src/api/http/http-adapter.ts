@@ -1,6 +1,7 @@
 import type { BridgioApi } from '../contract'
 import type {
   AdapterInfo,
+  AccountsResult,
   AskMohsenInput,
   Attempt,
   AttemptSummary,
@@ -14,19 +15,26 @@ import type {
   CurriculumUnit,
   DraftQuestionsInput,
   DraftQuestionsResult,
+  ListNotificationsInput,
   Material,
   Message,
   MessageThread,
   MohsenAnswer,
+  Notification,
   ParentOverview,
   ParentProfile,
   Question,
   ReorderQuestionsInput,
+  RequestPasswordResetInput,
+  ResetPasswordInput,
   SaveAnswerInput,
+  SearchInput,
+  SearchResults,
   SendMessageInput,
   SendMessageResult,
   Session,
   SignInInput,
+  SignUpInput,
   StartAttemptInput,
   StudentProfile,
   StudentProgress,
@@ -95,6 +103,27 @@ export function createHttpApi(options: HttpApiOptions): BridgioApi {
           method: 'POST',
           path: endpoints.auth.signOut,
         }),
+      // PROPOSED (Batch 5) — not connected. The accounts backend is absent; the
+      // real endpoints must return the `unavailable` result, never a fake
+      // `accepted`, until Mentingo auth is wired.
+      signUp: (input: SignUpInput) =>
+        client.request<AccountsResult>({
+          method: 'POST',
+          path: endpoints.auth.signUp,
+          body: input,
+        }),
+      requestPasswordReset: (input: RequestPasswordResetInput) =>
+        client.request<AccountsResult>({
+          method: 'POST',
+          path: endpoints.auth.requestPasswordReset,
+          body: input,
+        }),
+      resetPassword: (input: ResetPasswordInput) =>
+        client.request<AccountsResult>({
+          method: 'POST',
+          path: endpoints.auth.resetPassword,
+          body: input,
+        }),
     },
 
     teachers: {
@@ -161,6 +190,30 @@ export function createHttpApi(options: HttpApiOptions): BridgioApi {
           method: 'POST',
           path: endpoints.messages.messages(input.threadId),
           body: { body: input.body },
+        }),
+    },
+
+    notifications: {
+      // PROPOSED (Batch 5) — teacher-only in the mock; the real backend owns
+      // the visibility rule.
+      listForUser: (input: ListNotificationsInput) =>
+        client.request<Notification[]>({
+          method: 'GET',
+          path: endpoints.notifications.forUser(input.userId),
+        }),
+    },
+
+    search: {
+      // PROPOSED (Batch 5) — the backend performs the match and returns the
+      // caller's own visible results only.
+      search: (input: SearchInput) =>
+        client.request<SearchResults>({
+          method: 'GET',
+          path: endpoints.search.query,
+          query: {
+            q: input.query,
+            limit: input.limit === undefined ? undefined : String(input.limit),
+          },
         }),
     },
 

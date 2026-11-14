@@ -8,6 +8,7 @@ import type { StudentProgressSnapshot } from '~/api/types'
 import { EmptyNote } from '~/components/dashboard/EmptyNote'
 import { ProgressBar } from '~/components/dashboard/ProgressBar'
 import { formatCount, formatDate, formatPercent } from '~/components/dashboard/format'
+import { MetaPair } from '~/components/shared/MetaPair'
 import { PageHero } from '~/components/shared/PageHero'
 import { usePreviewRole } from '~/shell/usePreviewRole'
 import { useLang, useStrings } from '~/shell/useStrings'
@@ -138,8 +139,9 @@ export function StudentList() {
                       valueText={formatPercent(entry.progressPercent, lang)}
                     />
                     <p className="row-meta">
-                      {copy.lastActive}:{' '}
-                      {formatDate(entry.lastActiveAt, copy.noActivity, lang)}
+                      <MetaPair label={copy.lastActive}>
+                        {formatDate(entry.lastActiveAt, copy.noActivity, lang)}
+                      </MetaPair>
                     </p>
                   </div>
                 </li>

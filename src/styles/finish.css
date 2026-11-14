@@ -19,6 +19,8 @@
   align-items: center;
   min-height: var(--touch-target);
   margin-block-end: var(--space-2);
+  padding-inline: var(--space-2);
+  border-radius: var(--radius-input);
   color: var(--bridgio-maroon);
   font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
   font-size: var(--font-body-small-size);
@@ -27,9 +29,7 @@
 }
 
 .page-back:hover {
-  text-decoration: underline;
-  text-decoration-thickness: 1.5px;
-  text-underline-offset: 3px;
+  background: var(--hover-bg);
 }
 
 /* ---- Two-column detail layout (main reading column + side column) -------- */
@@ -282,6 +282,13 @@
   gap: var(--space-3);
 }
 
+/* Hero rhythm: when a PageHero ends with a footer row instead of a lead, give
+   it the same top gap as `.dashboard__lead` so the chip row never butts against
+   the heading. */
+.dashboard__hero > .finish-row {
+  margin-block-start: var(--space-3);
+}
+
 .finish-actions {
   display: flex;
   flex-wrap: wrap;
@@ -488,6 +495,8 @@
 
 .help-index__category {
   display: inline-block;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-input);
   color: var(--bridgio-maroon);
   font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
   font-size: var(--font-caption-size);
@@ -496,7 +505,7 @@
 }
 
 .help-index__category:hover {
-  text-decoration: underline;
+  background: var(--hover-bg);
 }
 
 .help-index__articles {
@@ -769,4 +778,35 @@
 
 .results-skeleton__line--short {
   width: 62%;
+}
+
+/* ---- Batch 5: meta pairs and separators ---------------------------------- */
+/*
+ * A "label: value" pair is two items with a token gap, never one text run: the
+ * JSX space between a label and a value collapses at the text-node boundary in
+ * RTL, so the two would read as one word. The colon belongs to the label item,
+ * which keeps it attached in both directions.
+ */
+.meta-pair {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.meta-pair__label {
+  flex: none;
+}
+
+.meta-pair__value {
+  min-width: 0;
+}
+
+/* A middle dot gets its own element with token margins, so it cannot merge
+   with the words either side of it under RTL bidi. */
+.meta-sep {
+  display: inline-block;
+  flex: none;
+  margin-inline: var(--space-2);
 }

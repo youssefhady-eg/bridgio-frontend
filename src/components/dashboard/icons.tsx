@@ -1,12 +1,15 @@
 import {
+  Bell,
   BookOpen,
   ChartColumn,
   CircleCheck,
   ClipboardList,
   Clock,
   FilePenLine,
+  MessageSquare,
   PanelsTopLeft,
   Pencil,
+  Search,
   Sparkles,
   TriangleAlert,
   Users,
@@ -36,6 +39,9 @@ export type IconName =
   | 'alert'
   | 'clock'
   | 'spark'
+  | 'message'
+  | 'notifications'
+  | 'search'
 
 const icons: Record<IconName, LucideIcon> = {
   classes: PanelsTopLeft,
@@ -49,6 +55,9 @@ const icons: Record<IconName, LucideIcon> = {
   alert: TriangleAlert,
   clock: Clock,
   spark: Sparkles,
+  message: MessageSquare,
+  notifications: Bell,
+  search: Search,
 }
 
 interface IconProps {

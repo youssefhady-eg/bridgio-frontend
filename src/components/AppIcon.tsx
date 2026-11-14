@@ -1,5 +1,6 @@
 import type { SVGProps } from 'react'
 import {
+  Bell,
   ChartColumn,
   ChevronLeft,
   ChevronRight,
@@ -16,7 +17,9 @@ import {
   MessagesSquare,
   Moon,
   PanelsTopLeft,
+  Search,
   ShieldCheck,
+  Sparkles,
   Sun,
   User,
   Users,
@@ -53,6 +56,9 @@ export type AppIconName =
   | 'progress'
   | 'results'
   | 'messages'
+  | 'notifications'
+  | 'search'
+  | 'spark'
   | 'help'
   | 'guide'
   | 'sun'
@@ -81,6 +87,9 @@ const icons: Record<AppIconName, LucideIcon> = {
   progress: ChartColumn,
   results: ShieldCheck,
   messages: MessagesSquare,
+  notifications: Bell,
+  search: Search,
+  spark: Sparkles,
   help: FileQuestion,
   guide: Compass,
   sun: Sun,

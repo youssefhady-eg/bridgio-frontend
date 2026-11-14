@@ -306,3 +306,29 @@ export const threadMessagesQueryOptions = (threadId: string) =>
     queryFn: () => api.messages.listMessages({ threadId }),
     staleTime: 0,
   })
+
+/**
+ * Notifications — `notifications.listForUser`, a PROPOSED Batch 5 method the
+ * contract did not have before. TEACHER-ONLY: the screen and its sidebar entry
+ * are shown to the teacher role and the mock returns an empty list for any
+ * other role.
+ */
+export const notificationsQueryOptions = (userId: UserId) =>
+  queryOptions({
+    queryKey: queryKeys.notifications.forUser(userId),
+    queryFn: () => api.notifications.listForUser({ userId }),
+    staleTime: 0,
+  })
+
+/**
+ * Global in-app search — `search.search`, a PROPOSED Batch 5 method. The query
+ * is disabled until it has non-whitespace content, so the screen never fires a
+ * search for an empty box. TEACHER-ONLY in the mock.
+ */
+export const searchQueryOptions = (query: string) =>
+  queryOptions({
+    queryKey: queryKeys.search.results(query),
+    queryFn: () => api.search.search({ query }),
+    enabled: query.trim().length > 0,
+    staleTime: 0,
+  })

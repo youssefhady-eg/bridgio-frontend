@@ -13,6 +13,10 @@ export const endpoints = {
     session: '/auth/session',
     signIn: '/auth/sign-in',
     signOut: '/auth/sign-out',
+    // PROPOSED (Batch 5) — accounts flows, owned by Mentingo; not connected.
+    signUp: '/auth/sign-up',
+    requestPasswordReset: '/auth/password-reset',
+    resetPassword: '/auth/password-reset/confirm',
   },
   teachers: {
     profile: (teacherId: string) => `/teachers/${encode(teacherId)}`,
@@ -40,6 +44,15 @@ export const endpoints = {
     threads: '/messages/threads',
     messages: (threadId: string) =>
       `/messages/threads/${encode(threadId)}/messages`,
+  },
+  notifications: {
+    // PROPOSED (Batch 5) — teacher-only in the mock.
+    forUser: (userId: string) =>
+      `/users/${encode(userId)}/notifications`,
+  },
+  search: {
+    // PROPOSED (Batch 5) — global in-app search, mock only.
+    query: '/search',
   },
   classrooms: {
     forTeacher: (teacherId: string) =>
