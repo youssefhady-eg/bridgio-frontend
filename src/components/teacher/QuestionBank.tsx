@@ -9,6 +9,7 @@ import { QuestionCard } from '~/components/builder/QuestionCard'
 import { EmptyNote } from '~/components/dashboard/EmptyNote'
 import { StatusChip } from '~/components/dashboard/StatusChip'
 import { PageHero } from '~/components/shared/PageHero'
+import { SelectField } from '~/components/shared/SelectField'
 import { usePreviewRole } from '~/shell/usePreviewRole'
 import { useLang, useStrings } from '~/shell/useStrings'
 import {
@@ -111,18 +112,20 @@ function QuestionBankBody({ teacherId }: { teacherId: string }) {
             <div className="filter-bar">
               <label className="filter-bar__field">
                 <span className="field__label">{copy.filterClass}</span>
-                <select
-                  className="input"
-                  value={classId}
-                  onChange={(event) => setClassId(event.target.value)}
-                >
-                  <option value="all">{copy.allClasses}</option>
-                  {classes.map((classroom) => (
-                    <option key={classroom.id} value={classroom.id}>
-                      {classroom.name}
-                    </option>
-                  ))}
-                </select>
+                <SelectField>
+                  <select
+                    className="input"
+                    value={classId}
+                    onChange={(event) => setClassId(event.target.value)}
+                  >
+                    <option value="all">{copy.allClasses}</option>
+                    {classes.map((classroom) => (
+                      <option key={classroom.id} value={classroom.id}>
+                        {classroom.name}
+                      </option>
+                    ))}
+                  </select>
+                </SelectField>
               </label>
 
               <label className="filter-bar__field filter-bar__field--grow">

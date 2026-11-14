@@ -22,6 +22,7 @@ import { StatusChip, type StatusTone } from '~/components/dashboard/StatusChip'
 import { formatDate } from '~/components/dashboard/format'
 import type { IconName } from '~/components/dashboard/icons'
 import { PageHero } from '~/components/shared/PageHero'
+import { SelectField } from '~/components/shared/SelectField'
 import { useLang, useStrings } from '~/shell/useStrings'
 import type { ReactNode } from 'react'
 
@@ -125,18 +126,20 @@ function MaterialLibraryBody({ teacherId }: { teacherId: UserId }) {
             <div className="filter-bar" aria-label={copy.filtersLabel}>
               <label className="filter-bar__field">
                 <span className="field__label">{copy.filterClass}</span>
-                <select
-                  className="input"
-                  value={classId}
-                  onChange={(event) => setClassId(event.target.value)}
-                >
-                  <option value="all">{copy.allClasses}</option>
-                  {data.classrooms.map((classroom) => (
-                    <option key={classroom.id} value={classroom.id}>
-                      {classroom.name}
-                    </option>
-                  ))}
-                </select>
+                <SelectField>
+                  <select
+                    className="input"
+                    value={classId}
+                    onChange={(event) => setClassId(event.target.value)}
+                  >
+                    <option value="all">{copy.allClasses}</option>
+                    {data.classrooms.map((classroom) => (
+                      <option key={classroom.id} value={classroom.id}>
+                        {classroom.name}
+                      </option>
+                    ))}
+                  </select>
+                </SelectField>
               </label>
               {classId !== 'all' ? (
                 <button
@@ -255,60 +258,66 @@ function AddMaterialForm({
         <div className="material-form__row">
           <label className="field">
             <span className="field__label">{copy.classLabel}</span>
-            <select
-              className="input"
-              value={classId}
-              required
-              onChange={(event) => {
-                setClassId(event.target.value)
-                setUnitId('')
-                setCreatedTitle(null)
-              }}
-            >
-              <option value="" disabled>
-                {copy.classPlaceholder}
-              </option>
-              {classrooms.map((classroom) => (
-                <option key={classroom.id} value={classroom.id}>
-                  {classroom.name}
+            <SelectField>
+              <select
+                className="input"
+                value={classId}
+                required
+                onChange={(event) => {
+                  setClassId(event.target.value)
+                  setUnitId('')
+                  setCreatedTitle(null)
+                }}
+              >
+                <option value="" disabled>
+                  {copy.classPlaceholder}
                 </option>
-              ))}
-            </select>
+                {classrooms.map((classroom) => (
+                  <option key={classroom.id} value={classroom.id}>
+                    {classroom.name}
+                  </option>
+                ))}
+              </select>
+            </SelectField>
           </label>
 
           <label className="field">
             <span className="field__label">{copy.unitLabel}</span>
-            <select
-              className="input"
-              value={unitId}
-              disabled={classId === '' || units.length === 0}
-              onChange={(event) => {
-                setUnitId(event.target.value)
-                setCreatedTitle(null)
-              }}
-            >
-              <option value="">{copy.noUnit}</option>
-              {units.map((unit) => (
-                <option key={unit.id} value={unit.id}>
-                  {unit.title}
-                </option>
-              ))}
-            </select>
+            <SelectField>
+              <select
+                className="input"
+                value={unitId}
+                disabled={classId === '' || units.length === 0}
+                onChange={(event) => {
+                  setUnitId(event.target.value)
+                  setCreatedTitle(null)
+                }}
+              >
+                <option value="">{copy.noUnit}</option>
+                {units.map((unit) => (
+                  <option key={unit.id} value={unit.id}>
+                    {unit.title}
+                  </option>
+                ))}
+              </select>
+            </SelectField>
           </label>
 
           <label className="field">
             <span className="field__label">{copy.kindLabel}</span>
-            <select
-              className="input"
-              value={kind}
-              onChange={(event) => {
-                setKind(event.target.value === 'link' ? 'link' : 'text')
-                setCreatedTitle(null)
-              }}
-            >
-              <option value="text">{copy.kindText}</option>
-              <option value="link">{copy.kindLink}</option>
-            </select>
+            <SelectField>
+              <select
+                className="input"
+                value={kind}
+                onChange={(event) => {
+                  setKind(event.target.value === 'link' ? 'link' : 'text')
+                  setCreatedTitle(null)
+                }}
+              >
+                <option value="text">{copy.kindText}</option>
+                <option value="link">{copy.kindLink}</option>
+              </select>
+            </SelectField>
           </label>
         </div>
 
