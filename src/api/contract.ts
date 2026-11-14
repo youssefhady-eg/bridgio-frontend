@@ -44,6 +44,8 @@ import type {
   StudentQuestion,
   SubjectId,
   SubmitAttemptInput,
+  SupportRequestInput,
+  SupportResult,
   TeacherDashboard,
   TeacherProfile,
   Test,
@@ -303,6 +305,16 @@ export interface BridgioApi {
     ask(input: AskMohsenInput): Promise<MohsenAnswer>
     /** PROPOSED — step 2 of the builder; grounded question drafts. */
     draftQuestions(input: DraftQuestionsInput): Promise<DraftQuestionsResult>
+  }
+
+  /**
+   * PROPOSED — NEW in the Batch 5 follow-up. A support request form, owned by
+   * the support backend. NOT connected: the mock always answers
+   * `{ status: 'unavailable' }`, and the UI never shows a fake successful send
+   * or invents a contact address. Replying is a backend capability.
+   */
+  support: {
+    submitRequest(input: SupportRequestInput): Promise<SupportResult>
   }
 
   system: {

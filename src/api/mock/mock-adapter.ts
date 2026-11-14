@@ -45,6 +45,8 @@ import type {
   StudentQuestion,
   StudentUnitProgress,
   SubmitAttemptInput,
+  SupportRequestInput,
+  SupportResult,
   TeacherDashboard,
   TeacherProfile,
   Test,
@@ -2055,6 +2057,31 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
           ]
 
           return { status: 'drafted', questions: created, grounding }
+        }),
+    },
+
+    /**
+     * PROPOSED — NEW in the Batch 5 follow-up. The support backend does not
+     * exist, so every valid request returns the defined `unavailable` result.
+     * The mock never pretends a request was delivered and never invents a
+     * contact address. Input is still validated so the form's error states are
+     * exercised honestly.
+     */
+    support: {
+      submitRequest: (input: SupportRequestInput) =>
+        respond<SupportResult>(() => {
+          if (
+            input.name.trim().length === 0 ||
+            input.email.trim().length === 0 ||
+            input.subject.trim().length === 0 ||
+            input.message.trim().length === 0
+          ) {
+            fail('VALIDATION', 'All support request fields are required.', 422)
+          }
+          return {
+            status: 'unavailable',
+            reason: 'support_backend_missing',
+          }
         }),
     },
 

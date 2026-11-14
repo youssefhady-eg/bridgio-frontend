@@ -1,6 +1,7 @@
 export * from './common'
 export * from './auth'
 export * from './accounts'
+export * from './support'
 export * from './notifications'
 export * from './search'
 export * from './rbac'

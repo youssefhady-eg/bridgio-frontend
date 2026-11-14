@@ -301,6 +301,7 @@ export function createSeedDatabase(options: {
       displayName: 'أ. منى عبد الرحمن',
       email: 'mona.teacher@bridgio.test',
       avatarUrl: null,
+      gender: 'female',
     },
     {
       id: seedIds.assistant,
@@ -308,6 +309,7 @@ export function createSeedDatabase(options: {
       displayName: 'هالة محمود — مساعدة المعلم',
       email: 'hala.assistant@bridgio.test',
       avatarUrl: null,
+      gender: null,
     },
     {
       id: seedIds.parent,
@@ -315,6 +317,7 @@ export function createSeedDatabase(options: {
       displayName: 'أ. عادل حسن — ولي أمر',
       email: 'adel.parent@bridgio.test',
       avatarUrl: null,
+      gender: null,
     },
     {
       id: seedIds.studentSara,
@@ -322,6 +325,7 @@ export function createSeedDatabase(options: {
       displayName: 'سارة محمد',
       email: 'sara.student@bridgio.test',
       avatarUrl: null,
+      gender: null,
     },
     {
       id: seedIds.studentOmar,
@@ -329,6 +333,7 @@ export function createSeedDatabase(options: {
       displayName: 'عمر خالد',
       email: 'omar.student@bridgio.test',
       avatarUrl: null,
+      gender: null,
     },
     {
       id: seedIds.studentYoussef,
@@ -336,6 +341,7 @@ export function createSeedDatabase(options: {
       displayName: 'يوسف علي',
       email: 'youssef.student@bridgio.test',
       avatarUrl: null,
+      gender: null,
     },
   ]
 

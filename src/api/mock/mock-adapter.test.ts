@@ -69,6 +69,7 @@ const EXPECTED_METHODS = [
   'messages.listThreads',
   'messages.listMessages',
   'messages.sendMessage',
+  'support.submitRequest',
   'system.getInfo',
 ].sort()
 
