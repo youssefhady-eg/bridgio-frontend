@@ -130,7 +130,7 @@ export const mockQuestionBank: Record<string, MockQuestionBankItem[]> = {
       prompt: 'ما مشتقة الدالة f(x) = x²؟',
       options: ['2x', 'x', 'x³', '2'],
       correctIndex: 0,
-      excerpt: 'مشتقة الدالة x^n هي n·x^(n−1).',
+      excerpt: 'مشتقة الدالة xⁿ هي n·xⁿ⁻¹.',
     },
     {
       prompt: 'ما مشتقة أي دالة ثابتة؟',
@@ -167,10 +167,10 @@ export const mockQuestionBank: Record<string, MockQuestionBankItem[]> = {
       excerpt: 'المشتقة تقيس معدل التغير اللحظي للدالة.',
     },
     {
-      prompt: 'ما مشتقة x^n؟',
-      options: ['n·x^(n−1)', 'x^(n+1)', 'n·x^n'],
+      prompt: 'ما مشتقة xⁿ؟',
+      options: ['n·xⁿ⁻¹', 'xⁿ⁺¹', 'n·xⁿ'],
       correctIndex: 0,
-      excerpt: 'مشتقة الدالة x^n هي n·x^(n−1).',
+      excerpt: 'مشتقة الدالة xⁿ هي n·xⁿ⁻¹.',
     },
   ],
   [`unit:${seedIds.unitIntegration}`]: [
@@ -185,14 +185,14 @@ export const mockQuestionBank: Record<string, MockQuestionBankItem[]> = {
       excerpt: 'التكامل هو العملية العكسية للاشتقاق.',
     },
     {
-      prompt: 'ما تكامل x^n بالنسبة لـ x؟',
+      prompt: 'ما تكامل xⁿ بالنسبة لـ x؟',
       options: [
-        'x^(n+1)/(n+1) + C',
-        'n·x^(n−1) + C',
-        'x^n + C',
+        'xⁿ⁺¹/(n+1) + C',
+        'n·xⁿ⁻¹ + C',
+        'xⁿ + C',
       ],
       correctIndex: 0,
-      excerpt: 'تكامل x^n هو x^(n+1)/(n+1) + C.',
+      excerpt: 'تكامل xⁿ هو xⁿ⁺¹/(n+1) + C.',
     },
   ],
   [`unit:${seedIds.unitMotion}`]: [
@@ -379,7 +379,7 @@ export function createSeedDatabase(options: {
       subjectName: 'الرياضيات',
       title: 'التفاضل: المشتقات',
       description:
-        'تعريف المشتقة وقواعد الاشتقاق وتطبيقاتها. المشتقة تقيس معدل التغير اللحظي للدالة. مشتقة الدالة x^n هي n·x^(n−1). مشتقة أي دالة ثابتة تساوي صفرًا. عند اشتقاق حاصل ضرب دالتين نستخدم قاعدة الضرب.',
+        'تعريف المشتقة وقواعد الاشتقاق وتطبيقاتها. المشتقة تقيس معدل التغير اللحظي للدالة. مشتقة الدالة xⁿ هي n·xⁿ⁻¹. مشتقة أي دالة ثابتة تساوي صفرًا. عند اشتقاق حاصل ضرب دالتين نستخدم قاعدة الضرب.',
       order: 1,
       lessonCount: 4,
     },
@@ -389,7 +389,7 @@ export function createSeedDatabase(options: {
       subjectName: 'الرياضيات',
       title: 'التكامل',
       description:
-        'التكامل هو العملية العكسية للاشتقاق. تكامل x^n هو x^(n+1)/(n+1) + C. التكامل المحدد يحسب المساحة تحت المنحنى.',
+        'التكامل هو العملية العكسية للاشتقاق. تكامل xⁿ هو xⁿ⁺¹/(n+1) + C. التكامل المحدد يحسب المساحة تحت المنحنى.',
       order: 2,
       lessonCount: 3,
     },
@@ -460,7 +460,7 @@ export function createSeedDatabase(options: {
       kind: 'text',
       status: 'ready',
       textContent:
-        'المشتقة تقيس معدل التغير اللحظي للدالة. مشتقة الدالة x^n هي n·x^(n−1). مشتقة أي دالة ثابتة تساوي صفرًا. عند اشتقاق حاصل ضرب دالتين نستخدم قاعدة الضرب: (f·g)′ = f′·g + f·g′. عند اشتقاق خارج قسمة دالتين نستخدم قاعدة القسمة. المشتقة الثانية هي مشتقة المشتقة الأولى.',
+        'المشتقة تقيس معدل التغير اللحظي للدالة. مشتقة الدالة xⁿ هي n·xⁿ⁻¹. مشتقة أي دالة ثابتة تساوي صفرًا. عند اشتقاق حاصل ضرب دالتين نستخدم قاعدة الضرب: (f·g)′ = f′·g + f·g′. عند اشتقاق خارج قسمة دالتين نستخدم قاعدة القسمة. المشتقة الثانية هي مشتقة المشتقة الأولى.',
       sourceUrl: null,
       wordCount: 43,
       createdAt,
@@ -558,7 +558,7 @@ export function createSeedDatabase(options: {
       materialId: seedIds.materialDerivatives,
       unitId: seedIds.unitDerivatives,
       label: 'مذكرة التفاضل — قواعد الاشتقاق',
-      excerpt: 'مشتقة الدالة x^n هي n·x^(n−1).',
+      excerpt: 'مشتقة الدالة xⁿ هي n·xⁿ⁻¹.',
     },
   ]
 
@@ -654,8 +654,8 @@ export function createSeedDatabase(options: {
       id: 'q_integ_2',
       testId: seedIds.testIntegration,
       order: 2,
-      prompt: 'ما تكامل x^n بالنسبة لـ x؟',
-      options: ['x^(n+1)/(n+1) + C', 'n·x^(n−1) + C', 'x^n + C'],
+      prompt: 'ما تكامل xⁿ بالنسبة لـ x؟',
+      options: ['xⁿ⁺¹/(n+1) + C', 'n·xⁿ⁻¹ + C', 'xⁿ + C'],
       correctIndex: 0,
       grounding: [
         {
@@ -663,7 +663,7 @@ export function createSeedDatabase(options: {
           materialId: null,
           unitId: seedIds.unitIntegration,
           label: 'التكامل',
-          excerpt: 'تكامل x^n هو x^(n+1)/(n+1) + C.',
+          excerpt: 'تكامل xⁿ هو xⁿ⁺¹/(n+1) + C.',
         },
       ],
       origin: 'mohsen',

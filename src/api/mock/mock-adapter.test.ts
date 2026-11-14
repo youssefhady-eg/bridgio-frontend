@@ -355,7 +355,7 @@ describe('mock adapter — Mohsen grounding', () => {
   it('answers only from material and always shows grounding', async () => {
     const api = created()
     const answer = await api.mohsen.ask({
-      question: 'ما مشتقة الدالة x^n؟',
+      question: 'ما مشتقة الدالة xⁿ؟',
       askedBy: seedIds.teacher,
       scope: {
         classroomId: seedIds.classMath,
@@ -388,7 +388,7 @@ describe('mock adapter — Mohsen grounding', () => {
   it('never returns an answered result without usable grounding', async () => {
     const api = created()
     const questions = [
-      'ما مشتقة الدالة x^n؟',
+      'ما مشتقة الدالة xⁿ؟',
       'ما الذي تقيسه المشتقة؟',
       'ما العلاقة بين التكامل والاشتقاق؟',
       'ما هي عاصمة فرنسا؟',
