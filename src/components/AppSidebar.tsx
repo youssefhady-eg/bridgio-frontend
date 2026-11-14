@@ -108,10 +108,10 @@ export function AppSidebar({
       icon: 'guide',
     },
     {
-      id: 'profile',
-      to: '/profile',
-      label: strings.sidebar.profileLabel,
-      icon: 'user',
+      id: 'support',
+      to: '/support',
+      label: strings.sidebar.supportLabel,
+      icon: 'support',
     },
   ] as const
 

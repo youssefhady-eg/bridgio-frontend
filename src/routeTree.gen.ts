@@ -20,6 +20,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as SignUpRouteImport } from './routes/sign-up'
+import { Route as SupportRouteImport } from './routes/support'
 import { Route as ParentMessagesRouteImport } from './routes/parent.messages'
 import { Route as ParentProgressRouteImport } from './routes/parent.progress'
 import { Route as ParentResultsRouteImport } from './routes/parent.results'
@@ -96,6 +97,11 @@ const SignInRoute = SignInRouteImport.update({
 const SignUpRoute = SignUpRouteImport.update({
   id: '/sign-up',
   path: '/sign-up',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SupportRoute = SupportRouteImport.update({
+  id: '/support',
+  path: '/support',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ParentMessagesRoute = ParentMessagesRouteImport.update({
@@ -223,6 +229,7 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/support': typeof SupportRoute
   '/parent/messages': typeof ParentMessagesRoute
   '/parent/progress': typeof ParentProgressRoute
   '/parent/results': typeof ParentResultsRoute
@@ -258,6 +265,7 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/support': typeof SupportRoute
   '/parent/messages': typeof ParentMessagesRoute
   '/parent/progress': typeof ParentProgressRoute
   '/parent/results': typeof ParentResultsRoute
@@ -290,6 +298,7 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/support': typeof SupportRoute
   '/parent/messages': typeof ParentMessagesRoute
   '/parent/progress': typeof ParentProgressRoute
   '/parent/results': typeof ParentResultsRoute
@@ -327,6 +336,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/sign-in'
     | '/sign-up'
+    | '/support'
     | '/parent/messages'
     | '/parent/progress'
     | '/parent/results'
@@ -362,6 +372,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/sign-in'
     | '/sign-up'
+    | '/support'
     | '/parent/messages'
     | '/parent/progress'
     | '/parent/results'
@@ -393,6 +404,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/sign-in'
     | '/sign-up'
+    | '/support'
     | '/parent/messages'
     | '/parent/progress'
     | '/parent/results'
@@ -429,6 +441,7 @@ export interface RootRouteChildren {
   SearchRoute: typeof SearchRoute
   SignInRoute: typeof SignInRoute
   SignUpRoute: typeof SignUpRoute
+  SupportRoute: typeof SupportRoute
   ParentMessagesRoute: typeof ParentMessagesRoute
   ParentProgressRoute: typeof ParentProgressRoute
   ParentResultsRoute: typeof ParentResultsRoute
@@ -522,6 +535,13 @@ declare module '@tanstack/react-router' {
       path: '/sign-up'
       fullPath: '/sign-up'
       preLoaderRoute: typeof SignUpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/support': {
+      id: '/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof SupportRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/parent/messages': {
@@ -749,6 +769,7 @@ const rootRouteChildren: RootRouteChildren = {
   SearchRoute: SearchRoute,
   SignInRoute: SignInRoute,
   SignUpRoute: SignUpRoute,
+  SupportRoute: SupportRoute,
   ParentMessagesRoute: ParentMessagesRoute,
   ParentProgressRoute: ParentProgressRoute,
   ParentResultsRoute: ParentResultsRoute,
