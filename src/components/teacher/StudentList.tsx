@@ -119,11 +119,11 @@ export function StudentList() {
                         className="screen-link"
                         preload={false}
                       >
-                        {entry.student.displayName}
+                        <bdi>{entry.student.displayName}</bdi>
                       </Link>
                     </h3>
                     <p className="row-meta">
-                      {copy.classLabel}: {entry.classroomName}
+                      {copy.classLabel}: <bdi>{entry.classroomName}</bdi>
                     </p>
                   </div>
                   <div className="progress-row__detail">

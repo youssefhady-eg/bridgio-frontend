@@ -86,9 +86,11 @@ export function ChatSurface({ active }: { active: boolean }) {
                   onClick={() => setActiveThreadId(thread.id)}
                   aria-current={thread.id === activeId ? 'true' : undefined}
                 >
-                  <span className="chat-thread__name">{thread.title}</span>
+                  <span className="chat-thread__name">
+                    <bdi>{thread.title}</bdi>
+                  </span>
                   <span className="chat-thread__role">
-                    {roleLabel(thread.participant.role)}
+                    <bdi>{roleLabel(thread.participant.role)}</bdi>
                   </span>
                 </button>
               </li>
@@ -118,9 +120,11 @@ export function ChatSurface({ active }: { active: boolean }) {
                 }`}
               >
                 <span className="chat-message__author">
-                  {message.fromMe
-                    ? strings.chat.youLabel
-                    : message.author.name || roleLabel(message.author.role)}
+                  <bdi>
+                    {message.fromMe
+                      ? strings.chat.youLabel
+                      : message.author.name || roleLabel(message.author.role)}
+                  </bdi>
                 </span>
                 <p className="chat-message__body" dir="auto">
                   {message.body}

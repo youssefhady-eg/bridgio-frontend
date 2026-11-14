@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useRouterState } from '@tanstack/react-router'
 import { sessionQueryOptions } from '~/api/queries'
+import { roleLabel } from '~/content/roles'
 import { EmptyNote } from '~/components/dashboard/EmptyNote'
 import { MetaList } from '~/components/shared/MetaList'
 import { PageHero } from '~/components/shared/PageHero'
@@ -64,7 +65,11 @@ export function ProfileView() {
               { label: copy.sessionName, value: session.user.displayName },
               {
                 label: copy.sessionRole,
-                value: copy.roles[session.user.role],
+                value: roleLabel(
+                  session.user,
+                  copy.roles,
+                  copy.rolesFemale,
+                ),
               },
               { label: copy.sessionEmail, value: session.user.email },
             ]}

@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { capabilitiesQueryOptions, sessionQueryOptions } from '~/api/queries'
 import type { NavCapability } from '~/api/types'
 import { AppIcon, type AppIconName } from '~/components/AppIcon'
+import { roleLabel } from '~/content/roles'
 import { EmptyNote } from '~/components/dashboard/EmptyNote'
 import { MetaList } from '~/components/shared/MetaList'
 import { PageHero } from '~/components/shared/PageHero'
@@ -155,7 +156,11 @@ export function AssistantView() {
                 { label: copy.sessionName, value: session.user.displayName },
                 {
                   label: copy.sessionRole,
-                  value: strings.profile.roles[session.user.role],
+                  value: roleLabel(
+                    session.user,
+                    strings.profile.roles,
+                    strings.profile.rolesFemale,
+                  ),
                 },
               ]}
             />

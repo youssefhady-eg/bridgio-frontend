@@ -18,7 +18,9 @@ export function MetaList({
       {items.map((item, index) => (
         <div key={`${item.label}:${index}`}>
           <dt>{item.label}</dt>
-          <dd>{item.value}</dd>
+          <dd>
+            <bdi>{item.value}</bdi>
+          </dd>
         </div>
       ))}
     </dl>
