@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import {
   sessionQueryOptions,
   teacherClassroomsQueryOptions,
+  teacherTestsQueryOptions,
 } from '~/api/queries'
 import { ClassList } from '~/components/teacher/ClassList'
 import { stringsFor } from '~/shell/useStrings'
@@ -25,9 +26,14 @@ export const Route = createFileRoute('/teacher/classes/')({
         sessionQueryOptions(),
       )
       if (session?.user.role === 'teacher') {
-        await context.queryClient.ensureQueryData(
-          teacherClassroomsQueryOptions(session.user.id),
-        )
+        await Promise.all([
+          context.queryClient.ensureQueryData(
+            teacherClassroomsQueryOptions(session.user.id),
+          ),
+          context.queryClient.ensureQueryData(
+            teacherTestsQueryOptions(session.user.id),
+          ),
+        ])
       }
     } catch {
       // Query status carries the failure to the screen's error state.

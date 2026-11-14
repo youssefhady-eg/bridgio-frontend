@@ -472,7 +472,9 @@ function MaterialRow({
   return (
     <article className="material-row">
       <div className="material-row__head">
-        <h3>{material.title}</h3>
+        <h3>
+          <bdi>{material.title}</bdi>
+        </h3>
         <StatusChip
           tone={statusTone}
           icon={statusIcon}
@@ -483,7 +485,7 @@ function MaterialRow({
         {meta.map((item, index) => (
           <Fragment key={`${item}:${index}`}>
             {index > 0 ? <MetaSep /> : null}
-            {item}
+            <bdi>{item}</bdi>
           </Fragment>
         ))}
       </p>
