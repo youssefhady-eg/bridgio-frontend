@@ -1250,11 +1250,11 @@ export const ar = {
       'start-tour': {
         category: 'gettingStarted',
         title: 'تعرّف على التنقّل',
-        body: 'كل شاشاتك تُفتح من القائمة الجانبية، ومساعدتك ودليلك وملفك الشخصي أسفلها.',
+        body: 'كل شاشاتك تُفتح من القائمة الجانبية، ومساعدتك ودليلك أسفلها، وملفك الشخصي من قائمة الحساب في الشريط العلوي.',
         steps: [
           'افتح القائمة الجانبية من زر القائمة على الهاتف، أو استخدمها ثابتة على الحاسوب.',
           'اختر الشاشة التي تريدها من القائمة.',
-          'استخدم روابط المساعدة والدليل والملف الشخصي أسفل القائمة.',
+          'استخدم روابط المساعدة والدليل أسفل القائمة، وافتح ملفك الشخصي من قائمة الحساب في الشريط العلوي.',
         ],
       },
       'start-language': {
@@ -1458,7 +1458,7 @@ export const ar = {
         title: 'راجع بيانات جلستك',
         body: 'يعرض الملف الشخصي بيانات الجلسة الحالية.',
         steps: [
-          'افتح الملف الشخصي من أسفل القائمة الجانبية.',
+          'افتح الملف الشخصي من قائمة الحساب في الشريط العلوي.',
           'راجع الاسم والدور والبريد في قسم الجلسة الحالية.',
           'بيانات الحساب تأتي من الجلسة، ولا تُعدَّل من هذه الشاشة.',
         ],
@@ -2750,11 +2750,11 @@ export const en: Strings = {
       'start-tour': {
         category: 'gettingStarted',
         title: 'Find your way around',
-        body: 'Every screen opens from the sidebar, with help, guide and profile below it.',
+        body: 'Every screen opens from the sidebar, with help and guide below it, and your profile in the account menu in the top bar.',
         steps: [
           'Open the sidebar from the menu button on a phone, or use it fixed on a computer.',
           'Choose the screen you want from the list.',
-          'Use the help, guide and profile links at the bottom of the sidebar.',
+          'Use the help and guide links at the bottom of the sidebar, and open your profile from the account menu in the top bar.',
         ],
       },
       'start-language': {
@@ -2958,7 +2958,7 @@ export const en: Strings = {
         title: 'Review your session details',
         body: 'The profile screen shows the current session details.',
         steps: [
-          'Open the profile from the bottom of the sidebar.',
+          'Open the profile from the account menu in the top bar.',
           'Review the name, role and email in the current session section.',
           'Account details come from the session and cannot be edited on this screen.',
         ],
