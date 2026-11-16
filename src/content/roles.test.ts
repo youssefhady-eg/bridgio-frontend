@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { ar, en } from './strings'
-import { dashboardLabel, roleLabel } from './roles'
+import { dashboardLabel, dashboardLinkLabel, roleLabel } from './roles'
 
 describe('gendered role label', () => {
   it('uses the female label for a female teacher', () => {
@@ -57,5 +57,32 @@ describe('gendered dashboard heading', () => {
         'Teacher dashboard',
       )
     }
+  })
+})
+
+describe('dashboard name inside a sentence', () => {
+  it('uses the female name for a female session user', () => {
+    expect(dashboardLinkLabel({ gender: 'female' }, ar.dashboard)).toBe(
+      'لوحة المعلمة',
+    )
+  })
+
+  it('uses the neutral teacher name for a non-female session user', () => {
+    for (const gender of [null, 'male'] as const) {
+      expect(dashboardLinkLabel({ gender }, ar.dashboard)).toBe('لوحة المعلم')
+    }
+  })
+
+  it('falls back to the neutral dashboard name with no session', () => {
+    expect(dashboardLinkLabel(null, ar.dashboard)).toBe('لوحة التحكم')
+  })
+
+  it('keeps English unchanged and falls back to the neutral name', () => {
+    for (const gender of ['female', 'male', null] as const) {
+      expect(dashboardLinkLabel({ gender }, en.dashboard)).toBe(
+        'Teacher dashboard',
+      )
+    }
+    expect(dashboardLinkLabel(null, en.dashboard)).toBe('Dashboard')
   })
 })

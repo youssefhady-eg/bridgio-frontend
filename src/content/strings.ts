@@ -192,6 +192,11 @@ export const ar = {
      * `gender: 'female'` (see `dashboardLabel`). A null gender keeps `title`.
      */
     titleFemale: 'لوحة المعلمة',
+    /**
+     * Neutral fallback used where no session supplies a gender — the Help link
+     * and the Guide step. The signed-in label comes from `dashboardLinkLabel`.
+     */
+    titleNeutral: 'لوحة التحكم',
     quickActions: {
       heading: 'إجراءات سريعة',
       createTest: 'أنشئ اختبارًا',
@@ -1231,7 +1236,7 @@ export const ar = {
     } as Record<HelpCategory, string>,
     links: {
       profile: 'الملف الشخصي والإعدادات',
-      teacherDashboard: 'لوحة المعلم',
+      teacherDashboard: 'لوحة التحكم',
       teacherClasses: 'صفوفي',
       teacherTests: 'الاختبارات',
       teacherQuestionBank: 'بنك الأسئلة',
@@ -1515,8 +1520,8 @@ export const ar = {
       lead: 'مسار أول اختبار: افتح الصف، أنشئ الاختبار، انشره، ثم راجع النتائج.',
       steps: [
         {
-          title: 'ابدأ من لوحة المعلم',
-          body: 'لوحة المعلم تجمع صفوفك وآخر اختباراتك وتقدّم الطلاب.',
+          title: 'ابدأ من {dashboard}',
+          body: '{dashboard} تجمع صفوفك وآخر اختباراتك وتقدّم الطلاب.',
           link: 'teacherDashboard',
         },
         {
@@ -1735,6 +1740,8 @@ export const en: Strings = {
     title: 'Teacher dashboard',
     // English has no grammatical gender here, so this mirrors `title`.
     titleFemale: 'Teacher dashboard',
+    // Neutral fallback when no session supplies a role label.
+    titleNeutral: 'Dashboard',
     quickActions: {
       heading: 'Quick actions',
       createTest: 'Create a test',
@@ -2731,7 +2738,7 @@ export const en: Strings = {
     },
     links: {
       profile: 'Profile and settings',
-      teacherDashboard: 'Teacher dashboard',
+      teacherDashboard: 'Dashboard',
       teacherClasses: 'My Classes',
       teacherTests: 'Tests',
       teacherQuestionBank: 'Question bank',
@@ -3014,8 +3021,8 @@ export const en: Strings = {
       lead: 'The path of a first test: open the class, create the test, publish it, then review the results.',
       steps: [
         {
-          title: 'Start from the teacher dashboard',
-          body: 'The teacher dashboard gathers your classes, recent tests and student progress.',
+          title: 'Start from the {dashboard}',
+          body: 'The {dashboard} gathers your classes, recent tests and student progress.',
           link: 'teacherDashboard',
         },
         {

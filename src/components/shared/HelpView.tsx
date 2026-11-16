@@ -1,4 +1,7 @@
+import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
+import { sessionQueryOptions } from '~/api/queries'
+import { dashboardLinkLabel } from '~/content/roles'
 import type { HelpCategory, HelpLinkId } from '~/content/strings'
 import { PageHero } from '~/components/shared/PageHero'
 import { linkRoutes, linkSearchRole } from '~/shell/help-links'
@@ -12,8 +15,10 @@ import { useLang, useStrings } from '~/shell/useStrings'
  * started, the role's own category, Account & settings and FAQ — and each
  * article is one task with short numbered steps and a link into the real
  * screen. The role comes from the same source as the sidebar nav
- * (`usePreviewRole`: the `?as` preview parameter, else the route area). No data
- * is fetched and no behaviour is claimed beyond what the screens do.
+ * (`usePreviewRole`: the `?as` preview parameter, else the route area). The
+ * session is read only to gender the teacher-dashboard link label, exactly as
+ * the dashboard heading and the sidebar do; no other data is fetched and no
+ * behaviour is claimed beyond what the screens do.
  */
 
 export function HelpView() {
@@ -21,6 +26,17 @@ export function HelpView() {
   const copy = strings.help
   const lang = useLang()
   const role = usePreviewRole()
+
+  const sessionQuery = useQuery(sessionQueryOptions())
+  const sessionUser = sessionQuery.data?.user ?? null
+
+  // The teacher-dashboard link reads the signed-in user's gender (female or
+  // neutral teacher name) and falls back to the neutral dashboard name with no
+  // session. Every other link keeps its role-neutral label.
+  const linkLabel = (link: HelpLinkId): string =>
+    link === 'teacherDashboard'
+      ? dashboardLinkLabel(sessionUser, strings.dashboard)
+      : copy.links[link]
 
   // Getting started, the current role's category, Account & settings, then FAQ.
   const scopedCategories: HelpCategory[] = [
@@ -135,7 +151,7 @@ export function HelpView() {
                         >
                           <span>{copy.open}</span>
                           <span className="help-article__link-target">
-                            {copy.links[link]}
+                            {linkLabel(link)}
                           </span>
                         </Link>
                       ) : null}

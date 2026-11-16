@@ -32,3 +32,18 @@ export function dashboardLabel(
 ): string {
   return user.gender === 'female' ? labels.titleFemale : labels.title
 }
+
+/**
+ * Dashboard name inside a sentence (the Help link label and the Guide step).
+ *
+ * When a session user is known the label follows their gender, exactly like
+ * `dashboardLabel` ("لوحة المعلمة" / "لوحة المعلم"); with no session it falls
+ * back to the neutral name ("لوحة التحكم"), so the page never guesses.
+ */
+export function dashboardLinkLabel(
+  user: Pick<User, 'gender'> | null,
+  labels: { title: string; titleFemale: string; titleNeutral: string },
+): string {
+  if (!user) return labels.titleNeutral
+  return user.gender === 'female' ? labels.titleFemale : labels.title
+}
