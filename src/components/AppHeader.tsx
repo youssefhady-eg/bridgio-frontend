@@ -34,6 +34,8 @@ interface AppHeaderProps {
   onOpenChat: () => void
   theme: Theme
   onToggleTheme: () => void
+  /** Desktop rail state, so the wordmark can follow the sidebar's edge. */
+  sidebarCollapsed: boolean
 }
 
 export function AppHeader({
@@ -41,6 +43,7 @@ export function AppHeader({
   onOpenChat,
   theme,
   onToggleTheme,
+  sidebarCollapsed,
 }: AppHeaderProps) {
   const { pathname, href } = useRouterState({ select: (state) => state.location })
   const searchStr = href.slice(pathname.length).split('#')[0] ?? ''
@@ -106,7 +109,11 @@ export function AppHeader({
   }, [accountOpen])
 
   return (
-    <header className="app-header">
+    <header
+      className={`app-header${
+        sidebarCollapsed ? ' app-header--sidebar-collapsed' : ''
+      }`}
+    >
       <div className="app-header__inner">
         <button
           type="button"

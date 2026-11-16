@@ -191,6 +191,7 @@ function AppShell() {
         onOpenChat={() => setChatOpen(true)}
         theme={theme}
         onToggleTheme={toggleTheme}
+        sidebarCollapsed={sidebarCollapsed}
       />
       <div
         className={`app-body${sidebarCollapsed ? ' app-body--collapsed' : ''}`}

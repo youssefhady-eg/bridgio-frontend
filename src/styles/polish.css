@@ -107,6 +107,16 @@ body {
     min-height: calc(var(--header-h) - var(--outline-sticker));
     padding-block: 0;
     padding-inline: 70px 32px;
+    transition: padding-inline-start 250ms ease;
+  }
+
+  /* Collapsed rail: the only alignment line left is the icon chip's
+     inline-start edge. The chip is 32 px and centred in the rail, so that edge
+     is rail / 2 − 16 px (16 px at the 1024 floor, 28 px at 1440 and above).
+     The clamp is the same collapsed track as the grid, so the wordmark keeps a
+     real sidebar line in both states. */
+  .app-header--sidebar-collapsed .app-header__inner {
+    padding-inline-start: calc(clamp(64px, 6.11vw, 88px) / 2 - 16px);
   }
 }
 
