@@ -1,6 +1,6 @@
 # BRIDGIO — Batch 5 Follow-up Delivery Note
 
-**Date:** 2026-11-14 (updated 2026-11-16 — see the live-gate, round-2 and round-3 corrections below)
+**Date:** 2026-11-14 (updated 2026-11-16 — see the live-gate, round-2, round-3 and round-4 corrections below)
 **Branch:** `feat/finish-frontend-followup`
 **Base:** `ec831fc` (`origin/main`, after the Batch 5 merge, PR #33)
 **Docs-first commit:** `95165db` — Muse's current `BRIDGIO-LIVE_RULES.md` copied into `docs/` before any code changed (byte-identical to the working copy Muse edited).
@@ -98,6 +98,8 @@ Old → new, both languages. Arabic is shown for completeness; none of it change
 
 The gender rule is unchanged: "لوحة المعلمة" appears only when the backend supplies `gender: 'female'`; a null or male gender keeps "لوحة المعلم". "Teacher dashboard" remains the H1 and document title.
 
+**Round 4 supersedes the rail part of the Dashboard row:** the sidebar label is now the neutral **لوحة التحكم** (Arabic) / **Dashboard** (English) for every gender. The gendered **لوحة المعلمة** / **لوحة المعلم** remains only in the dashboard `h1`, the document title and Help/Guide (`dashboardLabel` / `dashboardLinkLabel`).
+
 #### Round-3 measurements (dev server, Chromium)
 
 - **Theme row:** menu order is Profile / Theme / Sign out; the switch is off in light and on in dark; clicking it sets `data-theme="dark"`, writes `bridgio-theme=dark`, and a reload keeps dark. The header sun/moon control and the row stay in step.
@@ -105,6 +107,40 @@ The gender rule is unchanged: "لوحة المعلمة" appears only when the ba
 - **Popup:** 543.74 px at 1440 px = 32.00rem (viewport 1440, root 16.992 px).
 - **Labels:** at 1024 px the teacher, student and parent rails render zero wrapped labels in EN and AR; label size 15 px at 1024, 15.98 px at 1440, 16 px at 1920.
 - **Wordmark:** measured from the sidebar's inline-start edge — expanded 70 px (label column) at all widths; collapsed 16 px at 1024 and 28 px at 1440 / 1920, equal to the icon chip's edge in both directions.
+
+Round 4 supersedes two of the round-3 results: the rail dashboard label is now neutral in both languages (R4-2), and the wordmark is aligned by its **visible glyph** edge rather than its element edge (R4-6). The other round-3 outcomes stand.
+
+### Correction 2026-11-16 (round 4) — owner follow-up
+
+A fourth owner pass reopened six items: interface-settings spacing, the gender of the sidebar dashboard label, the header search's navigation, the header theme control, guest access on sign-in, and the wordmark alignment. All six land as one fix commit (`a4a1316`) because they share the header, the central strings file and `followup.css`; the delivery note and the round-4 screenshots are a second commit. The branch is still pushed only (no PR, no merge).
+
+**Docs first — deferred.** No updated `BRIDGIO-LIVE_RULES.md` from Muse was available on this machine in round 4, so there was no new byte-identical copy to commit before the code. The owner chose to proceed with the code and sync the rules file in a separate commit once the updated copy is supplied. The copy already under `docs/` (`95165db`, SHA-256 `2808E774…28DB`, 91,342 bytes) is untouched.
+
+| # | Round-4 finding | Fix | Commit |
+| --- | --- | --- | --- |
+| R4-1 | Interface-settings rows stretched: the fixed 7 rem label column left a large dead gap between the label and its control | `MetaList` takes an optional `className`; `/profile` passes `summary-list--settings`, which sets the label column to `max-content`, centres the label/control pair and caps the list at 34 rem. The shared `.summary-list` used by tests, classes and students is unchanged. | `a4a1316` |
+| R4-2 | Sidebar dashboard label followed the session gender | The rail uses one neutral label per language — Arabic **لوحة التحكم**, English **Dashboard**. Gender remains only in the dashboard `h1` and the document title (`dashboardLabel`); Help/Guide keep `dashboardLinkLabel`. `dashboardNavLabel`, `dashboard.navTitle` / `navTitleFemale` and their tests are removed, and the sidebar session query is enabled for the assistant only. | `a4a1316` |
+| R4-3 | Clicking the header search left the screen for `/search` | A new `HeaderSearch` opens an in-place dropdown over the same PROPOSED `search.search` seam. Selecting a result navigates; a "view all results" link opens `/search?q=` for the full list. It closes on an outside click, Escape (focus returns to the control) and any navigation, and caps at six inline results. No new API surface. | `a4a1316` |
+| R4-4 | Theme toggle still sat in the header | The header sun/moon control is removed. The account menu's Theme row (round 3) is now the only theme switch. The header keeps language, search, messages and account. | `a4a1316` |
+| R4-5 | Sign-in offered no guest path | "Continue as a guest" clears the mock session (`api.auth.signOut()`), sets the session query to null and lands on `/teacher/dashboard` with the real no-session state. No fake account and no credentials are created. | `a4a1316` |
+| R4-6 | Wordmark aligned by its element box, not the painted glyph | The artwork carries ~13.2 % empty space on its inline-start and ~1.4 % on its inline-end. `.app-header__brand` (not the `<img>`, which would shrink under `max-width: 100%`) takes a direction-aware negative `margin-inline-start` of that inset, scoped to ≥1024 px, so the *painted* edge lands on the nav label column (expanded, 70 px) and on the icon chip's inline-start edge (collapsed, 16 px at 1024, 28 px at 1440 / 1920). | `a4a1316` |
+
+#### Round-4 measurements (dev server, Chromium)
+
+- **Settings rows:** AR `26.06px 535.94px`, EN `58.45px 503.55px`; label→control gap **16 px** in both; `.summary-list--settings` width 578 px (cap 34 rem).
+- **Sidebar label:** the AR rail's first item reads **لوحة التحكم**, while the dashboard `h1` stays **لوحة المعلمة** and the document title is **لوحة المعلمة — Bridgio**. The EN rail's first item reads **Dashboard**.
+- **Inline search:** clicking the control leaves the URL unchanged (`/teacher/dashboard?as=teacher&lang=ar`); the panel lists **6** matching results and shows the "اعرض كل النتائج" / "View all results" link.
+- **Theme:** `.app-utility__button--theme` is absent; the account menu lists Profile / Theme / Sign out and the switch reads the live theme.
+- **Guest:** "الدخول كزائر" / "Continue as a guest" lands on `/teacher/dashboard?as=teacher&lang=…` with the "لا توجد جلسة معلم" / "No teacher session" state.
+- **Wordmark:** each cell is the visible glyph edge / the sidebar edge it must match (nav label column when expanded, icon chip when collapsed):
+
+  | Width | EN expanded | EN collapsed | AR expanded | AR collapsed |
+  | --- | --- | --- | --- | --- |
+  | 1024 | 70.0 / 70 | 16.0 / 15.6 | 944.3 / 943.6 | 998.3 / 998 |
+  | 1440 | 70.1 / 70 | 28.0 / 27.6 | 1360.5 / 1359.6 | 1402.5 / 1402 |
+  | 1920 | 70.0 / 70 | 28.1 / 27.6 | 1840.5 / 1839.6 | 1882.5 / 1882 |
+
+  The geometry is exact; the ~0.4–0.9 px residual is the difference between the 1 px alpha-scan threshold used to measure and the ~1.9 px geometric inset used in CSS, not a layout offset.
 
 ---
 
@@ -195,16 +231,16 @@ Seed accounts accept any non-empty password: `mona.teacher@bridgio.test` (teache
 
 | Gate | Result |
 | --- | --- |
-| `npm test` | **162 passed (162)**, 18 files |
+| `npm test` | **160 passed (160)**, 18 files |
 | `npm run typecheck` | **pass** (`tsc --noEmit`, no output) |
 | `npm run build` | **pass**, exit 0 (vite client + Nitro SSR, then `tsc --noEmit`) |
 
-The follow-up adds one test file (`src/content/roles.test.ts`: three `roleLabel` cases — female label, null keeps neutral, male keeps neutral — three `dashboardLabel` cases for the 2026-11-16 correction, and four `dashboardLinkLabel` cases for round 2 — female, non-female, no session, and English) and one mock-adapter expectation (`support.submitRequest` added to `EXPECTED_METHODS`). Batch 5 ended at 150; nothing was removed. Round 2 takes the count from 156 to 160. Round 3 adds two `dashboardNavLabel` cases (gendered Arabic, one-word English for every gender) and takes the count from 160 to 162.
+The follow-up adds one test file (`src/content/roles.test.ts`: three `roleLabel` cases — female label, null keeps neutral, male keeps neutral — three `dashboardLabel` cases for the 2026-11-16 correction, and four `dashboardLinkLabel` cases for round 2 — female, non-female, no session, and English) and one mock-adapter expectation (`support.submitRequest` added to `EXPECTED_METHODS`). Batch 5 ended at 150; nothing was removed. Round 2 takes the count from 156 to 160. Round 3 adds two `dashboardNavLabel` cases (gendered Arabic, one-word English for every gender) and takes the count from 160 to 162. Round 4 removes those two cases together with the `dashboardNavLabel` helper, returning the count to **160**; no other test changed.
 
 Runtime checks (dev server, Chromium, 1920 / 1440 / 390):
 
 - Header: the 390 px phone bar is one row (five controls, wordmark, menu) with no horizontal overflow (document width = viewport width); the ≥1024 px bar stays 76 px tall (64 px at 1024, 76 px at 1440+). Round 2 withdrew the desktop centring: the wordmark is at the inline-start and its inline-start edge equals the sidebar nav label column at 1024 / 1440 / 1920, AR and EN (both edges measured at the same x; the nav label column starts at 70 px because the header padding is fixed while the nav's internal paddings stay px).
-- Live-gate recheck (2026-11-16): at 390 px in AR and EN the five utility buttons sit inside the header content box (none clipped, avatar visible) and `scrollWidth == clientWidth`; the desktop wordmark offset is 0.00 px at 1024 and 1920 in both languages; the dashboard `h1` and document title read "لوحة المعلمة" for the female seed teacher; `/profile` and every teacher screen show "لوحة المعلمة" in the rail; `/support` renders the "قنوات التواصل" section with no channel connected; the Help account-session step reads "افتح الملف الشخصي من قائمة الحساب في الشريط العلوي."
+- Live-gate recheck (2026-11-16): at 390 px in AR and EN the five utility buttons sit inside the header content box (none clipped, avatar visible) and `scrollWidth == clientWidth`; the desktop wordmark offset is 0.00 px at 1024 and 1920 in both languages; the dashboard `h1` and document title read "لوحة المعلمة" for the female seed teacher; `/profile` and every teacher screen show "لوحة المعلمة" in the rail **(superseded in round 4: the rail now reads "لوحة التحكم")**; `/support` renders the "قنوات التواصل" section with no channel connected; the Help account-session step reads "افتح الملف الشخصي من قائمة الحساب في الشريط العلوي."
 - Classes table: document width 390 px, no page-level horizontal overflow; the table itself scrolls inside its wrapper (864 px content in a 355 px wrapper) with the branded scrollbar.
 - Support: empty form keeps the button disabled; a filled form shows the pending label and then the "request was not sent" state; the text stays in the fields.
 - Sign out lands on `/sign-in`; the signed-out account menu shows Sign in; signing in as the teacher lands on the teacher dashboard; an unknown email shows the adapter message.
@@ -217,6 +253,15 @@ Round-2 runtime checks (dev server, Chromium, 1024 / 1440 / 1920 / 390, AR and E
 - Auth isolation: `/sign-in`, `/sign-up`, `/forgot-password` and `/reset-password` each render `.auth-main` with no `.app-header`, `.app-sidebar`, `.mohsen-fab` or chat popup, and no horizontal overflow.
 - Mohsen: the button background is `rgb(255, 246, 232)` (paper, not red); `.mohsen-fab__mascot` is `/brand/mohsen-wave.svg` with `naturalWidth` 252; opening the popup shows `.mohsen-ask__avatar` on the paper with the same SVG.
 - Gendered Help/Guide (mock session = female teacher): the teacher Guide's first step title reads "ابدأ من لوحة المعلمة", its body names the same label, and its link target shows "لوحة المعلمة". With no session the label falls back to "لوحة التحكم".
+
+Round-4 runtime checks (dev server, Chromium, 1024 / 1440 / 1920; AR and EN unless noted):
+
+- Settings: `/profile`'s Interface rows are `max-content` label + flexible control, 16 px apart; the list is 578 px wide (AR and EN, light and dark).
+- Sidebar: the AR rail's first item is "لوحة التحكم" while the dashboard `h1` and document title stay "لوحة المعلمة"; the EN rail's first item is "Dashboard".
+- Inline search: clicking the header search keeps the URL unchanged; typing lists up to 6 results and a "view all results" link to `/search?q=`; Escape closes the panel and returns focus to the control; choosing a result navigates.
+- Header theme: the sun/moon button is gone; the account menu still exposes the Theme switch, and toggling it flips `data-theme` and persists `bridgio-theme`.
+- Guest: "Continue as a guest" lands on the teacher dashboard preview with no session and no invented account; signing in afterwards still works.
+- Wordmark: the visible glyph edge matches the sidebar edge at 1024 / 1440 / 1920 in AR and EN, expanded (nav label column, 70 px) and collapsed (icon chip, 16 / 28 px); figures in the round-4 table above.
 
 ---
 
@@ -250,6 +295,14 @@ All under `docs/screenshots/`. Each pair of `-rest` / `-pressed` images uses the
 | Round 3 — popup at 32rem (1440, EN) | `followup-r3-popup-32rem-1440-en.png` |
 | Round 3 — sidebar labels, one line at 1024 (AR + EN) | `followup-r3-sidebar-labels-1024-en.png`, `followup-r3-sidebar-labels-1024-ar.png` |
 | Round 3 — wordmark aligned to the collapsed rail (1024 / 1440 / 1920, AR + EN) | `followup-r3-wordmark-collapsed-1024-en.png`, `followup-r3-wordmark-collapsed-1024-ar.png`, `followup-r3-wordmark-collapsed-1440-en.png`, `followup-r3-wordmark-collapsed-1440-ar.png`, `followup-r3-wordmark-collapsed-1920-en.png`, `followup-r3-wordmark-collapsed-1920-ar.png` |
+| Round 4 — settings rows compact (light + dark, AR + EN) | `followup-r4-settings-ar-light-1920.png`, `followup-r4-settings-ar-dark-1920.png`, `followup-r4-settings-en-light-1920.png`, `followup-r4-settings-en-dark-1920.png` |
+| Round 4 — neutral AR sidebar label beside the gendered H1 | `followup-r4-sidebar-h1-ar-1920.png` |
+| Round 4 — inline header search with results (AR + EN) | `followup-r4-inline-search-ar.png`, `followup-r4-inline-search-en.png` |
+| Round 4 — header without the theme toggle (AR + EN, 1920) | `followup-r4-header-1920-en.png`, `followup-r4-header-1920-ar.png` |
+| Round 4 — account menu with the Theme row (AR + EN, 1920) | `followup-r4-account-menu-ar-1920.png`, `followup-r4-account-menu-en-1920.png` |
+| Round 4 — "Continue as a guest" on sign-in (AR + EN, 1920) | `followup-r4-signin-guest-ar-1920.png`, `followup-r4-signin-guest-en-1920.png` |
+| Round 4 — guest dashboard with no session (AR + EN, 1920) | `followup-r4-guest-dashboard-ar-1920.png`, `followup-r4-guest-dashboard-en-1920.png` |
+| Round 4 — wordmark visible-glyph alignment, expanded + collapsed (1024 / 1440 / 1920, AR + EN) | `followup-r4-wordmark-expanded-1024-en.png`, `followup-r4-wordmark-expanded-1024-ar.png`, `followup-r4-wordmark-collapsed-1024-en.png`, `followup-r4-wordmark-collapsed-1024-ar.png`, `followup-r4-wordmark-expanded-1440-en.png`, `followup-r4-wordmark-expanded-1440-ar.png`, `followup-r4-wordmark-collapsed-1440-en.png`, `followup-r4-wordmark-collapsed-1440-ar.png`, `followup-r4-wordmark-expanded-1920-en.png`, `followup-r4-wordmark-expanded-1920-ar.png`, `followup-r4-wordmark-collapsed-1920-en.png`, `followup-r4-wordmark-collapsed-1920-ar.png` |
 
 ---
 
