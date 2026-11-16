@@ -30,7 +30,7 @@ export function MohsenFab() {
       >
         <img
           className="mohsen-fab__mascot"
-          src="/brand/mohsen-wave.svg"
+          src="/brand/mohsen-waving.png"
           alt=""
           width={52}
           height={52}

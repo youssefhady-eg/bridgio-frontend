@@ -22,6 +22,10 @@
   --bridgio-red-accent: #f41920; /* logo artwork only, sparingly */
   --bridgio-cream: #f9ecd9; /* app background */
   --bridgio-paper: #fff6e8; /* surface */
+  /* Brand paper that stays cream in both themes. Used only where supplied
+     artwork must keep its dark outline legible (the Mohsen mascot), so it is
+     deliberately outside the dark-theme swap. */
+  --bridgio-paper-fixed: #fff6e8;
   --bridgio-maroon: #2c0706; /* ink / default text on cream */
   --bridgio-maroon-outline: #471e1b; /* logo outline dark */
   --bridgio-success: #1f7a57;

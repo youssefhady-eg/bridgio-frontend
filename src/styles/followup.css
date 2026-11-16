@@ -548,17 +548,24 @@ select.input {
 
 /* ---- 9b. Mohsen FAB: the mascot itself ---------------------------------- */
 /*
- * The circle contains the supplied Mohsen mascot (waving pose, cropped from
- * the 16-pose reactions sheet), not an icon or the wordmark. The image is
- * square and cropped to a circle with `object-fit: cover`. The artwork has a
- * transparent background, so both the floating button and the popup avatar sit
- * on the brand paper — never on a red or any other colour fill.
+ * The circle contains a supplied Mohsen mascot PNG (the waving pose), not an
+ * icon or the wordmark. The image is square and fitted inside a circle with
+ * `object-fit: contain` so no part of the character is cropped. The artwork
+ * has a transparent background, so both the floating button and the popup
+ * avatar sit on the fixed cream paper — never on the dark surface and never on
+ * a red or any other colour fill.
  */
 
 .mohsen-fab {
   overflow: hidden;
-  background: var(--bridgio-paper);
+  background: var(--bridgio-paper-fixed);
   border-color: var(--bridgio-maroon);
+}
+
+/* The shared press rule darkens to the maroon outline; the mascot keeps its
+   cream plate in both themes, so the press only dims it. */
+.mohsen-fab:active {
+  background: var(--bridgio-paper-fixed);
 }
 
 .mohsen-fab__mascot {
@@ -566,19 +573,19 @@ select.input {
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .mohsen-fab:hover:not(:active) {
-  background: var(--bridgio-paper);
+  background: var(--bridgio-paper-fixed);
   border-color: var(--bridgio-maroon-outline);
   transform: scale(1.04);
 }
 
 /* Desktop vw pass: the 52 px circle (44 px touch target + 8 px) at the 1440 px
    base, floored at the plain 44 px touch target on a small desktop. The popup
-   keeps its 32 rem design width (544 px at the 17 px desktop root), so the
-   middle term is 544 / 1440 = 37.78vw. */
+   is 32 rem at the 17 px desktop root (544 px), so the middle term is
+   544 / 1440 = 37.78vw; the 20 rem floor keeps it usable on a 1024 px laptop. */
 @media (min-width: 1024px) {
   .mohsen-fab {
     width: clamp(44px, 3.61vw, 52px);
@@ -592,6 +599,11 @@ select.input {
   .mohsen-ask__avatar {
     width: clamp(32px, 2.78vw, 40px);
     height: clamp(32px, 2.78vw, 40px);
+  }
+
+  .mohsen-ask__stage-art {
+    width: clamp(72px, 6.11vw, 88px);
+    height: clamp(72px, 6.11vw, 88px);
   }
 }
 

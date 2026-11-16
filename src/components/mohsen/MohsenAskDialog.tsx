@@ -100,6 +100,24 @@ export function MohsenAskDialog({
     askMutation.mutate({ key, question })
   }
 
+  // The popup's state picks the mascot pose; waving stays the default (and the
+  // header avatar), so a pose is used only where the state clearly calls for
+  // one: thinking while an answer is in flight, sleeping when idle, happy on
+  // an answer, confused when nothing was grounded.
+  const lastEntry = entries[entries.length - 1] ?? null
+  const mascotPose = askMutation.isPending
+    ? 'thinking'
+    : lastEntry === null
+      ? 'sleeping'
+      : lastEntry.failed
+        ? 'confused'
+        : lastEntry.answer === null
+          ? 'thinking'
+          : answerView(lastEntry.answer, strings.notGroundedFallback).status ===
+              'answered'
+            ? 'happy'
+            : 'confused'
+
   return (
     <ModalOverlay
       className="mohsen-ask"
@@ -115,7 +133,7 @@ export function MohsenAskDialog({
             <span className="mohsen-ask__avatar" aria-hidden="true">
               <img
                 className="mohsen-ask__avatar-img"
-                src="/brand/mohsen-wave.svg"
+                src="/brand/mohsen-waving.png"
                 alt=""
                 width={40}
                 height={40}
@@ -161,6 +179,16 @@ export function MohsenAskDialog({
           </form>
 
           <div className="mohsen-ask__thread">
+            <div className="mohsen-ask__stage" aria-hidden="true">
+              <img
+                className="mohsen-ask__stage-art"
+                src={`/brand/mohsen-${mascotPose}.png`}
+                alt=""
+                width={72}
+                height={72}
+                decoding="async"
+              />
+            </div>
             {entries.length === 0 ? (
               <EmptyNote
                 icon="spark"
