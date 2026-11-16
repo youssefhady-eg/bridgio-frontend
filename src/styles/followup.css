@@ -585,7 +585,7 @@ select.input {
 /* Desktop vw pass: the 52 px circle (44 px touch target + 8 px) at the 1440 px
    base, floored at the plain 44 px touch target on a small desktop. The popup
    is 32 rem at the 17 px desktop root (544 px), so the middle term is
-   544 / 1440 = 37.78vw; the 20 rem floor keeps it usable on a 1024 px laptop. */
+   544 / 1440 = 37.78vw; the 22 rem floor keeps it usable on a 1024 px laptop. */
 @media (min-width: 1024px) {
   .mohsen-fab {
     width: clamp(44px, 3.61vw, 52px);
@@ -593,7 +593,7 @@ select.input {
   }
 
   .mohsen-ask__panel {
-    width: min(clamp(20rem, 37.78vw, 32rem), calc(100vw - 2rem));
+    width: min(clamp(22rem, 37.78vw, 32rem), calc(100vw - 2rem));
   }
 
   .mohsen-ask__avatar {
