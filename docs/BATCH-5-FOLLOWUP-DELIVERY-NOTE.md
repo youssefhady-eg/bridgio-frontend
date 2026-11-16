@@ -1,6 +1,6 @@
 # BRIDGIO — Batch 5 Follow-up Delivery Note
 
-**Date:** 2026-11-14
+**Date:** 2026-11-14 (updated 2026-11-16 — see the live-gate correction below)
 **Branch:** `feat/finish-frontend-followup`
 **Base:** `ec831fc` (`origin/main`, after the Batch 5 merge, PR #33)
 **Docs-first commit:** `95165db` — Muse's current `BRIDGIO-LIVE_RULES.md` copied into `docs/` before any code changed (byte-identical to the working copy Muse edited).
@@ -17,6 +17,19 @@ The owner corrected item 2 after the first delivery: the wordmark was never mean
 - **Unchanged:** desktop bar height (76 px, 74 px content + 2 px rule), wordmark widths (148 px at 768–1023, 136 px at ≥1024), artwork and fills, and the phone bar's 60 px minimum.
 - **Phone width fit:** `main` carried three phone utilities; the finished header carries five (language, theme, search, chat, account). A 136 px wordmark plus five 44 px-tall controls plus the 44 px menu cannot share 390 px at `main`'s 16 px edge padding, so the phone row uses 8 px edge padding, 34 × 44 px icon-only controls and 4 px gaps. The wordmark then measures 136 px at a true 390 px viewport (126 px in the 380 px screenshot viewport, where the desktop scrollbar takes 10 px) and the row has no horizontal overflow. The wordmark's own width is not redefined.
 - **Tablet width fit:** at 768–1023 px five labelled controls are wider than either side column of the centred grid, so the utilities are icon-only in that range and their labels return at ≥1024 px. Measured gap between the brand and the utilities at 768 px: 30 px; no overlap at any width from 320 to 1920.
+
+### Correction 2026-11-16 — live-gate fixes
+
+The live gate on the follow-up branch found three fails and two new defects. All five are fixed on the same branch (`feat/finish-frontend-followup`), pushed only — no PR, no merge. The header follows the owner's 2026-11-14 correction: centring is desktop, never mobile.
+
+| # | Live-gate finding | Fix | Commit |
+| --- | --- | --- | --- |
+| 1a | Phone header was a two-row grid (owner correction) | `followup.css` §2 phone band is one flex row again, exactly as `main`: menu + wordmark at the inline-start + utilities. `.app-utility__button--account { display: inline-flex }` keeps the avatar visible (it is the only route to sign out). Wordmark size untouched. | `530319e` |
+| 1b | Desktop wordmark not centred | From 768 px `.app-header__inner` is `grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr)`; menu in column 1, brand in column 2 (`justify-self: center`), utilities in column 3 (`justify-self: end`, auto margin removed). 76 px bar and 136 px wordmark unchanged. | `530319e` |
+| 1c | Header clipped at 390 px (avatar off-screen, chat icon cut) | Phone row uses 8 px edge padding, 34 × 44 px icon-only controls and 4 px gaps. Measured at 390 px in AR and EN: five utilities, none clipped against the header content box, account avatar fully visible, no page-level horizontal overflow. | `530319e` |
+| 2 | Dashboard heading still the masculine string; `/profile` showed the masculine form beside "الدور: المعلمة" | `content/roles.ts#dashboardLabel` mirrors `roleLabel`: the heading (`h1`), the document title and the sidebar dashboard label all follow `user.gender`. `/profile` now shows "لوحة المعلمة" in the rail. A null (or male) gender keeps the existing string, so there is no regression. | `b3d4914` |
+| 3 | No contact-options area on `/support` | A "قنوات التواصل" section is added, rendered honestly for the missing backend: no channel is connected, and it states that replies arrive with the real service. No email, WhatsApp or phone number is invented. The form and its states are unchanged. | `94f393b` |
+| 4 | Help text pointed at the old sidebar Profile item | The account-session step and the two "find your way around" lines (ar + en) now point at the account menu in the top bar. Draft Arabic; owner reviews. | `aa5daa0` |
 
 ---
 
@@ -107,15 +120,16 @@ Seed accounts accept any non-empty password: `mona.teacher@bridgio.test` (teache
 
 | Gate | Result |
 | --- | --- |
-| `npm test` | **153 passed (153)**, 18 files |
+| `npm test` | **156 passed (156)**, 18 files |
 | `npm run typecheck` | **pass** (`tsc --noEmit`, no output) |
 | `npm run build` | **pass**, exit 0 (vite client + Nitro SSR, then `tsc --noEmit`) |
 
-The follow-up adds one test file (`src/content/roles.test.ts`, three cases: female label, null keeps neutral, male keeps neutral) and one mock-adapter expectation (`support.submitRequest` added to `EXPECTED_METHODS`). Batch 5 ended at 150; nothing was removed.
+The follow-up adds one test file (`src/content/roles.test.ts`: three `roleLabel` cases — female label, null keeps neutral, male keeps neutral — and three `dashboardLabel` cases for the 2026-11-16 correction) and one mock-adapter expectation (`support.submitRequest` added to `EXPECTED_METHODS`). Batch 5 ended at 150; nothing was removed.
 
 Runtime checks (dev server, Chromium, 1920 / 1440 / 390):
 
 - Header: the 390 px phone bar is one row (five controls, wordmark, menu) with no horizontal overflow (document width = viewport width); the desktop wordmark centre equals the header content centre exactly (0.00 px offset) at 768, 1024, 1280 and 1920, AR and EN; the ≥1024 px bar stays 76 px tall with the 136 px wordmark.
+- Live-gate recheck (2026-11-16): at 390 px in AR and EN the five utility buttons sit inside the header content box (none clipped, avatar visible) and `scrollWidth == clientWidth`; the desktop wordmark offset is 0.00 px at 1024 and 1920 in both languages; the dashboard `h1` and document title read "لوحة المعلمة" for the female seed teacher; `/profile` and every teacher screen show "لوحة المعلمة" in the rail; `/support` renders the "قنوات التواصل" section with no channel connected; the Help account-session step reads "افتح الملف الشخصي من قائمة الحساب في الشريط العلوي."
 - Classes table: document width 390 px, no page-level horizontal overflow; the table itself scrolls inside its wrapper (864 px content in a 355 px wrapper) with the branded scrollbar.
 - Support: empty form keeps the button disabled; a filled form shows the pending label and then the "request was not sent" state; the text stays in the fields.
 - Sign out lands on `/sign-in`; the signed-out account menu shows Sign in; signing in as the teacher lands on the teacher dashboard; an unknown email shows the adapter message.
@@ -140,6 +154,7 @@ All under `docs/screenshots/`. Each pair of `-rest` / `-pressed` images uses the
 | 9. Support | `followup-support-form-1920-ar-light.png`, `followup-support-pending-1920-ar-light.png`, `followup-support-unavailable-1920-ar-light.png`, `followup-support-390-en-dark.png` |
 | 11–13. Account menu / sign-in | `followup-account-menu-1440-ar.png`, `followup-signin-error-1440-ar.png` |
 | 15. Not found | `followup-notfound-390-en-dark.png` |
+| Live-gate fixes (2026-11-16) | `followup-livegate-header-390-ar-light.png`, `followup-livegate-header-390-en-light.png`, `followup-livegate-header-1024-ar-light.png`, `followup-livegate-header-1024-en-light.png`, `followup-livegate-header-1920-ar-light.png`, `followup-livegate-header-1920-en-light.png`, `followup-livegate-dashboard-heading-1440-ar-light.png`, `followup-livegate-support-contact-1440-ar-light.png`, `followup-livegate-help-profile-text-1440-ar.png` |
 
 ---
 
