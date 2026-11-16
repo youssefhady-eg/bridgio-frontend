@@ -184,7 +184,14 @@ export const ar = {
   >,
   dashboard: {
     headTitle: `لوحة المعلم — ${B}`,
+    // Female document title; mirrors `titleFemale`.
+    headTitleFemale: `لوحة المعلمة — ${B}`,
     title: 'لوحة المعلم',
+    /**
+     * Female form of the heading, used only when the session user carries
+     * `gender: 'female'` (see `dashboardLabel`). A null gender keeps `title`.
+     */
+    titleFemale: 'لوحة المعلمة',
     quickActions: {
       heading: 'إجراءات سريعة',
       createTest: 'أنشئ اختبارًا',
@@ -1714,7 +1721,10 @@ export const en: Strings = {
   },
   dashboard: {
     headTitle: `Teacher dashboard — ${B}`,
+    headTitleFemale: `Teacher dashboard — ${B}`,
     title: 'Teacher dashboard',
+    // English has no grammatical gender here, so this mirrors `title`.
+    titleFemale: 'Teacher dashboard',
     quickActions: {
       heading: 'Quick actions',
       createTest: 'Create a test',

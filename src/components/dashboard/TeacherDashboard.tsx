@@ -7,6 +7,7 @@ import { MetaPair } from '~/components/shared/MetaPair'
 import { MetaSep } from '~/components/shared/MetaSep'
 import { usePreviewRole } from '~/shell/usePreviewRole'
 import { useLang, useStrings } from '~/shell/useStrings'
+import { dashboardLabel } from '~/content/roles'
 import { EmptyNote } from './EmptyNote'
 import { ProgressBar } from './ProgressBar'
 import { StatusChip } from './StatusChip'
@@ -42,6 +43,11 @@ export function TeacherDashboard() {
       ? sessionQuery.data.user.id
       : null
 
+  // The heading follows the signed-in user's gender, exactly as the profile
+  // role line does. A pending session keeps the neutral string.
+  const sessionUser = sessionQuery.data?.user
+  const heading = sessionUser ? dashboardLabel(sessionUser, strings) : strings.title
+
   const dashboardQuery = useQuery({
     ...teacherDashboardQueryOptions(teacherId ?? ''),
     enabled: teacherId !== null,
@@ -49,7 +55,7 @@ export function TeacherDashboard() {
 
   if (sessionQuery.isPending) {
     return (
-      <DashboardFrame>
+      <DashboardFrame title={heading}>
         <p className="loading-note" role="status">
           {strings.loading}
         </p>
@@ -59,7 +65,7 @@ export function TeacherDashboard() {
 
   if (sessionQuery.isError) {
     return (
-      <DashboardFrame>
+      <DashboardFrame title={heading}>
         <EmptyNote
           tone="error"
           title={strings.loadErrorTitle}
@@ -71,7 +77,7 @@ export function TeacherDashboard() {
 
   if (teacherId === null) {
     return (
-      <DashboardFrame>
+      <DashboardFrame title={heading}>
         <EmptyNote
           icon="alert"
           title={strings.noSessionTitle}
@@ -83,7 +89,7 @@ export function TeacherDashboard() {
 
   if (dashboardQuery.isPending) {
     return (
-      <DashboardFrame>
+      <DashboardFrame title={heading}>
         <p className="loading-note" role="status">
           {strings.loading}
         </p>
@@ -93,7 +99,7 @@ export function TeacherDashboard() {
 
   if (dashboardQuery.isError || !dashboardQuery.data) {
     return (
-      <DashboardFrame>
+      <DashboardFrame title={heading}>
         <EmptyNote
           tone="error"
           title={strings.loadErrorTitle}
@@ -115,7 +121,10 @@ export function TeacherDashboard() {
   )
 
   return (
-    <DashboardFrame greeting={strings.greeting(dashboard.teacher.displayName)}>
+    <DashboardFrame
+      title={heading}
+      greeting={strings.greeting(dashboard.teacher.displayName)}
+    >
       <QuickActions />
 
       {isDashboardEmpty(dashboard) ? (
@@ -395,9 +404,11 @@ function QuickActions() {
 }
 
 function DashboardFrame({
+  title,
   greeting,
   children,
 }: {
+  title: string
   greeting?: string
   children: ReactNode
 }) {
@@ -405,7 +416,7 @@ function DashboardFrame({
   return (
     <div className="dashboard">
       <header className="dashboard__hero">
-        <h1>{strings.title}</h1>
+        <h1>{title}</h1>
         <p className="dashboard__lead">{strings.lead}</p>
         {greeting ? <p className="dashboard__greeting">{greeting}</p> : null}
       </header>

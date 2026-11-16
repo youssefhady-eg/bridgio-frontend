@@ -17,3 +17,18 @@ export function roleLabel(
 ): string {
   return user.gender === 'female' ? femaleLabels[user.role] : labels[user.role]
 }
+
+/**
+ * Dashboard heading for the signed-in user ("لوحة المعلمة" / "لوحة المعلم").
+ *
+ * Same rule as `roleLabel`: the female form is used only when the backend
+ * supplies `gender: 'female'`; a null (or male) gender keeps the existing
+ * string, so the UI never guesses a gender. English has no grammatical gender
+ * here, so both forms are identical there.
+ */
+export function dashboardLabel(
+  user: Pick<User, 'gender'>,
+  labels: { title: string; titleFemale: string },
+): string {
+  return user.gender === 'female' ? labels.titleFemale : labels.title
+}

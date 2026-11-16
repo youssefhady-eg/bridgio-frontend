@@ -4,6 +4,8 @@ import { capabilitiesQueryOptions, sessionQueryOptions } from '~/api/queries'
 import { AppIcon, navIconName } from '~/components/AppIcon'
 import { useEffect, useRef, useState } from 'react'
 import { assistantCapabilityOrder, navFor } from '~/shell/nav'
+import type { NavScreenId } from '~/shell/nav'
+import { dashboardLabel } from '~/content/roles'
 import { useFocusScope } from '~/shell/useFocusScope'
 import { usePreviewRole } from '~/shell/usePreviewRole'
 import { useLang, useStrings } from '~/shell/useStrings'
@@ -53,8 +55,12 @@ export function AppSidebar({
     return () => window.removeEventListener('hashchange', readAnchor)
   }, [])
 
-  // Only the assistant needs capabilities; the query stays disabled otherwise.
-  const sessionQuery = useQuery({ ...sessionQueryOptions(), enabled: role === 'assistant' })
+  // Only the assistant needs capabilities, and only the teacher/assistant
+  // dashboard is gendered, so the session query is enabled for those roles only.
+  const sessionQuery = useQuery({
+    ...sessionQueryOptions(),
+    enabled: role === 'assistant' || role === 'teacher',
+  })
   const sessionUser = sessionQuery.data?.user
   const assistantSession = role === 'assistant' && sessionUser?.role === 'assistant'
   const capabilitiesQuery = useQuery({
@@ -68,6 +74,19 @@ export function AppSidebar({
       : navFor(role)
 
   const showAssistantNote = role === 'assistant' && items.length === 0
+
+  // The teacher dashboard is the one nav label whose gender follows the session
+  // user (female / neutral form); every other label is role-neutral.
+  const dashboardHeading =
+    sessionUser && (sessionUser.role === 'teacher' || sessionUser.role === 'assistant')
+      ? dashboardLabel(sessionUser, strings.dashboard)
+      : null
+
+  function navLabel(id: NavScreenId): string {
+    return id === 'teacher-dashboard' && dashboardHeading
+      ? dashboardHeading
+      : strings.nav[id]
+  }
 
   // The assistant has a single granted-sections screen, so its items are
   // distinguished by the in-page anchor. With no anchor yet in the URL, the
@@ -150,7 +169,7 @@ export function AppSidebar({
                   hash={item.hash}
                   search={{ as: role, lang }}
                   className={`app-sidebar__link${active ? ' is-active' : ''}`}
-                  title={collapsed ? strings.nav[item.id] : undefined}
+                  title={collapsed ? navLabel(item.id) : undefined}
                   aria-current={active ? 'page' : undefined}
                   preload={false}
                   onClick={onClose}
@@ -159,7 +178,7 @@ export function AppSidebar({
                     <AppIcon name={navIconName(item.id)} size={22} strokeWidth={2} />
                   </span>
                   <span className="app-sidebar__label">
-                    {strings.nav[item.id]}
+                    {navLabel(item.id)}
                   </span>
                 </Link>
               </li>

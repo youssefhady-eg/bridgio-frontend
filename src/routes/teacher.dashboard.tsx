@@ -17,9 +17,25 @@ import { stringsFor } from '~/shell/useStrings'
  * swapping in the framework's default English error screen.
  */
 export const Route = createFileRoute('/teacher/dashboard')({
-  head: ({ match }) => ({
-    meta: [{ title: stringsFor(match.search.lang).dashboard.headTitle }],
-  }),
+  head: ({ match }) => {
+    const copy = stringsFor(match.search.lang).dashboard
+    // The loader returns the session gender so the document title follows the
+    // same rule as the heading. The head context types the loader data loosely,
+    // so it is narrowed here.
+    const loaderData = match.loaderData as
+      | { gender?: 'male' | 'female' | null }
+      | undefined
+    return {
+      meta: [
+        {
+          title:
+            loaderData?.gender === 'female'
+              ? copy.headTitleFemale
+              : copy.headTitle,
+        },
+      ],
+    }
+  },
   loader: async ({ context }) => {
     try {
       const session = await context.queryClient.ensureQueryData(
@@ -30,8 +46,10 @@ export const Route = createFileRoute('/teacher/dashboard')({
           teacherDashboardQueryOptions(session.user.id),
         )
       }
+      return { gender: session?.user.gender ?? null }
     } catch {
       // Query status carries the failure to the screen's error state.
+      return { gender: null }
     }
   },
   component: TeacherDashboard,

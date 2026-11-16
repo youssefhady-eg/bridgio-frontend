@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { capabilitiesQueryOptions, sessionQueryOptions } from '~/api/queries'
 import type { NavCapability } from '~/api/types'
 import { AppIcon, type AppIconName } from '~/components/AppIcon'
-import { roleLabel } from '~/content/roles'
+import { dashboardLabel, roleLabel } from '~/content/roles'
 import { EmptyNote } from '~/components/dashboard/EmptyNote'
 import { MetaList } from '~/components/shared/MetaList'
 import { PageHero } from '~/components/shared/PageHero'
@@ -127,7 +127,11 @@ export function AssistantView() {
                   <AppIcon name={capabilityIcon[capability]} size={22} />
                 </span>
                 <span className="capability-item__text">
-                  <strong>{copy.capability[capability]}</strong>
+                  <strong>
+                    {capability === 'dashboard'
+                      ? dashboardLabel(session.user, strings.dashboard)
+                      : copy.capability[capability]}
+                  </strong>
                 </span>
               </li>
             ))}
