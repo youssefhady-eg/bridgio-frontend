@@ -460,7 +460,7 @@ summary:focus-visible,
 /* Desktop: the sidebar is a fixed column beside the content. */
 @media (min-width: 1024px) {
   .app-body {
-    grid-template-columns: 272px minmax(0, 1fr);
+    grid-template-columns: clamp(200px, 18.89vw, 272px) minmax(0, 1fr);
   }
 
   .app-sidebar {
@@ -468,7 +468,19 @@ summary:focus-visible,
     top: 0;
     align-self: start;
     height: 100dvh;
+    /* The sidebar box never scrolls: the nav scrolls inside it and the foot
+       (with the collapse toggle) stays pinned to the bottom edge. */
+    overflow: hidden;
+  }
+
+  .app-sidebar__nav {
+    flex: 1 1 auto;
+    min-height: 0;
     overflow-y: auto;
+  }
+
+  .app-sidebar__foot {
+    flex: 0 0 auto;
   }
 
   .app-sidebar__head {
@@ -2791,7 +2803,7 @@ h3 + .summary-list {
   /* Folded: an icon rail. Labels stay in the DOM (visually hidden) so every
      control keeps its accessible name. */
   .app-body--collapsed {
-    grid-template-columns: 88px minmax(0, 1fr);
+    grid-template-columns: clamp(64px, 6.11vw, 88px) minmax(0, 1fr);
   }
 
   .app-sidebar.is-collapsed .app-sidebar__label {
