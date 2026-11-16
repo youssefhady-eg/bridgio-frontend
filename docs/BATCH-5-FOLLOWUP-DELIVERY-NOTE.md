@@ -1,6 +1,6 @@
 # BRIDGIO — Batch 5 Follow-up Delivery Note
 
-**Date:** 2026-11-14 (updated 2026-11-16 — see the live-gate and round-2 corrections below)
+**Date:** 2026-11-14 (updated 2026-11-16 — see the live-gate, round-2 and round-3 corrections below)
 **Branch:** `feat/finish-frontend-followup`
 **Base:** `ec831fc` (`origin/main`, after the Batch 5 merge, PR #33)
 **Docs-first commit:** `95165db` — Muse's current `BRIDGIO-LIVE_RULES.md` copied into `docs/` before any code changed (byte-identical to the working copy Muse edited).
@@ -40,7 +40,7 @@ A second owner pass on the same branch reopened the header, the sidebar, the acc
 | R1 | Desktop wordmark still centred (owner withdrew the 2026-11-14 centring) | One flex row at every width again: the wordmark at the inline-start, the utilities pushed to the inline-end. `.app-header__inner` loses `max-width: 90rem; margin: 0 auto`, so the header spans the same box as the app body below it, and its inline-start padding is 70 px (12 nav pad + 14 link pad + 32 icon chip + 12 gap) — the wordmark's inline-start edge lines up with the sidebar nav **label** column at 1024 / 1440 / 1920, AR and EN. The phone keeps its single row and the 390 px fit. | `56871e2` |
 | R2 | Sidebar widths fixed in px; the collapse toggle could scroll away | Expanded column and sidebar are `clamp(200px, 18.89vw, 272px)`; the collapsed rail is `clamp(64px, 6.11vw, 88px)` — the design values at the 1440 px base, floored so neither rail disappears on a small desktop. The sidebar box no longer scrolls: the nav is the scroll container and the foot, with the toggle, is pinned to the bottom edge (verified with a nav taller than the viewport). The 250 ms collapse animation is unchanged. | `7a97fea` |
 | R3 | Account screens rendered inside the app shell | `/sign-in`, `/sign-up`, `/forgot-password` and `/reset-password` render outside the shell — no header, sidebar, chat popup or Mohsen button — as one centred `.auth-main` column on the cream background. Sign-in mock behaviour is unchanged. | `c49fca5` |
-| R4 | Mohsen sat on a red fill and reused a raster asset | The button and the new popup header avatar use `public/brand/mohsen-wave.svg`, the transparent waving pose. Both sit on the brand paper, never on red; `public/brand/mohsen-fab.png` is removed. Escape still closes the popup on the first press. | `5643923` |
+| R4 | Mohsen sat on a red fill and reused a raster asset | The button and the new popup header avatar use `public/brand/mohsen-wave.svg`, the transparent waving pose. Both sit on the brand paper, never on red; `public/brand/mohsen-fab.png` is removed. Escape still closes the popup on the first press. **(Superseded in round 3 by the supplied PNG set and a fixed cream plate — see R3-2.)** | `5643923` |
 | R5 | Desktop px values did not scale | A vw/clamp pass over the ≥ 1024 px values (table below): each desktop size becomes `clamp(min, Xvw, design)` with `X = design / 1440 * 100`. Covers the type scale, the header height, the wordmark, the sidebar and the Mohsen button/popup/avatar. Mobile < 768 px values are untouched; hairlines and shadows stay px. | `d393e79` (+ `56871e2`, `7a97fea`, `5643923`) |
 | R6 | Help/Guide named the dashboard with the masculine string | The Help link and the teacher Guide step now use the new `dashboardLinkLabel`, which follows the session gender ("لوحة المعلمة" / "لوحة المعلم") and falls back to the neutral "لوحة التحكم" ("Dashboard") when there is no session. The heading, document title and rail keep `dashboardLabel`. | `eaaff2d` |
 
@@ -68,7 +68,43 @@ Every value is the design value at the 1440 px base, so `X = value / 1440 * 100`
 
 #### Sidebar 200 px floor and label wrap
 
-The owner's explicit 200 px minimum is kept rather than raised. Below roughly 1240 px the longer English labels ("Teacher dashboard", "Question bank", "Material library") wrap to two lines; the rows keep a locked `min-height: 48px` and the sidebar stays `overflow: hidden` with the nav scrolling, so nothing clips. Widening the floor (or shortening the labels) is left to the owner.
+The owner's explicit 200 px minimum is kept rather than raised. Below roughly 1240 px the longer English labels used to wrap to two lines; **round 3 shortened the four that did** (label table in the round-3 section), so every label now holds one line at 1024 px in both languages. The rows keep a locked `min-height: 48px` and the sidebar stays `overflow: hidden` with the nav scrolling, so nothing clips.
+
+### Correction 2026-11-16 (round 3) — owner follow-up
+
+A third owner pass asked for six corrections on the same branch: the theme switch inside the account menu, a dark-mode-legible Mohsen, a slightly larger popup, shorter English sidebar labels, a wordmark aligned to the collapsed rail, and one step smaller sidebar type. Each landed as its own fix commit; the branch is still pushed only (no PR, no merge).
+
+**Docs first.** `docs/BRIDGIO-LIVE_RULES.md` is byte-identical to Muse's current copy at `Projects\bridgio-frontend\docs\BRIDGIO-LIVE_RULES.md` (SHA-256 `2808E774EDB287103CBBC480BF88E656895D889C6E63B6253E91EB0A2BEA28DB`, 91,342 bytes), so there was no delta to commit in round 3. The file is untouched.
+
+| # | Round-3 finding | Fix | Commit |
+| --- | --- | --- | --- |
+| R3-1 | Theme switch only in the header | The account menu (header avatar) gains a **Theme** row between Profile and Sign out. It reads and writes the same `useTheme` state as the header sun/moon control, so either control moves both, and the choice still persists in `bridgio-theme`. The row is a `menuitemcheckbox` with `aria-checked`, and its small switch shows the live theme (off = light, on = dark). The header toggle stays. | `8ffa833` |
+| R3-2 | Mohsen was invisible in dark mode | Muse's prepared assets (the cleaner v2 pass of `chatgpt-mohsen-pack.zip`) are now in `public/brand/`: transparent 512 × 512 `mohsen-waving.png` on the floating button and the popup header, plus `mohsen-thinking.png` (answer in flight), `mohsen-sleeping.png` (idle), `mohsen-happy.png` (answered) and `mohsen-confused.png` (no result) as the popup's state art; waving remains the fallback. No re-crop from the sheet and no edit to the artwork. The button circle, popup avatar and state plate use the new `--bridgio-paper-fixed` token — the brand paper, deliberately **outside** the dark-theme swap — so the cream disc and the dark outline stay in both themes; pressing no longer darkens the circle. `object-fit: contain` keeps the character uncropped at 40 / 52 / 72–88 px. | `9b6b108` |
+| R3-3 | Popup slightly bigger | The desktop panel floor rises 20rem → 22rem and the design width stays 32rem: `min(clamp(22rem, 37.78vw, 32rem), calc(100vw - 2rem))`. The middle term stays 37.78vw rather than 35.56vw because this app's desktop root is 17 px: 32rem = 544 px, and 544 / 1440 = 37.78vw. 35.56vw equals 32rem only at a 16 px root and would have shrunk the panel to 512 px at 1440 px. Measured at 1440 px: **543.74 px = 32.00rem**. | `c73f287` |
+| R3-4 | English sidebar labels wrapped at the 200 px floor | Shortened the four labels that wrapped; Arabic already fitted and is unchanged (table below). The dashboard rail label now comes from `dashboard.navTitle` / `navTitleFemale` through `dashboardNavLabel`, so the sidebar says "Dashboard" while the page heading, document title and Help/Guide keep "Teacher dashboard". | `e0c3b31` |
+| R3-5 | Wordmark aligned only in the expanded sidebar | Expanded keeps the 70 px label column. Collapsed now aligns to the icon chip's inline-start edge — the only lit line in the rail — which is `rail / 2 − 16 px`: 16 px at 1024, 28 px at 1440 / 1920. `AppShell` passes the rail state to the header (`app-header--sidebar-collapsed`), and the padding animates with the rail's 250 ms transition. Measured on the chip edge in AR and EN at all three widths. | `9d1f888` |
+| R3-6 | Sidebar type one step smaller | The desktop nav rows move from `--font-body-size` (16 / 16.99 / 17 px) to `--font-label-size` (15 / 15.98 / 16 px): −1 px at the minimum, design and maximum, and the same size as the pinned collapse toggle. The utility rows take the same size instead of inheriting body copy. | `bc0acf2` |
+
+#### Round-3 label changes (owner review)
+
+Old → new, both languages. Arabic is shown for completeness; none of it changed.
+
+| Nav item | English before | English after | Arabic before | Arabic after |
+| --- | --- | --- | --- | --- |
+| Dashboard (teacher) | Teacher dashboard | **Dashboard** | لوحة المعلم / لوحة المعلمة | لوحة المعلم / لوحة المعلمة *(unchanged)* |
+| Question bank | Question bank | **Questions** | بنك الأسئلة | بنك الأسئلة *(unchanged)* |
+| Material library | Material library | **Materials** | مكتبة المواد | مكتبة المواد *(unchanged)* |
+| Parent → progress | Child's Progress | **Progress** | تقدّم الابن | تقدّم الابن *(unchanged)* |
+
+The gender rule is unchanged: "لوحة المعلمة" appears only when the backend supplies `gender: 'female'`; a null or male gender keeps "لوحة المعلم". "Teacher dashboard" remains the H1 and document title.
+
+#### Round-3 measurements (dev server, Chromium)
+
+- **Theme row:** menu order is Profile / Theme / Sign out; the switch is off in light and on in dark; clicking it sets `data-theme="dark"`, writes `bridgio-theme=dark`, and a reload keeps dark. The header sun/moon control and the row stay in step.
+- **Mohsen:** button background `rgb(255, 246, 232)` in light **and** dark; popup avatar and state plate the same; button `src=/brand/mohsen-waving.png`, popup header the same, state plate `mohsen-sleeping.png` when idle. Both images `object-fit: contain`.
+- **Popup:** 543.74 px at 1440 px = 32.00rem (viewport 1440, root 16.992 px).
+- **Labels:** at 1024 px the teacher, student and parent rails render zero wrapped labels in EN and AR; label size 15 px at 1024, 15.98 px at 1440, 16 px at 1920.
+- **Wordmark:** measured from the sidebar's inline-start edge — expanded 70 px (label column) at all widths; collapsed 16 px at 1024 and 28 px at 1440 / 1920, equal to the icon chip's edge in both directions.
 
 ---
 
@@ -159,11 +195,11 @@ Seed accounts accept any non-empty password: `mona.teacher@bridgio.test` (teache
 
 | Gate | Result |
 | --- | --- |
-| `npm test` | **160 passed (160)**, 18 files |
+| `npm test` | **162 passed (162)**, 18 files |
 | `npm run typecheck` | **pass** (`tsc --noEmit`, no output) |
 | `npm run build` | **pass**, exit 0 (vite client + Nitro SSR, then `tsc --noEmit`) |
 
-The follow-up adds one test file (`src/content/roles.test.ts`: three `roleLabel` cases — female label, null keeps neutral, male keeps neutral — three `dashboardLabel` cases for the 2026-11-16 correction, and four `dashboardLinkLabel` cases for round 2 — female, non-female, no session, and English) and one mock-adapter expectation (`support.submitRequest` added to `EXPECTED_METHODS`). Batch 5 ended at 150; nothing was removed. Round 2 takes the count from 156 to 160.
+The follow-up adds one test file (`src/content/roles.test.ts`: three `roleLabel` cases — female label, null keeps neutral, male keeps neutral — three `dashboardLabel` cases for the 2026-11-16 correction, and four `dashboardLinkLabel` cases for round 2 — female, non-female, no session, and English) and one mock-adapter expectation (`support.submitRequest` added to `EXPECTED_METHODS`). Batch 5 ended at 150; nothing was removed. Round 2 takes the count from 156 to 160. Round 3 adds two `dashboardNavLabel` cases (gendered Arabic, one-word English for every gender) and takes the count from 160 to 162.
 
 Runtime checks (dev server, Chromium, 1920 / 1440 / 390):
 
@@ -208,6 +244,12 @@ All under `docs/screenshots/`. Each pair of `-rest` / `-pressed` images uses the
 | Round 2 — vw scaling (1024 vs 1920) | `followup-r2-scale-1024-en.png`, `followup-r2-scale-1920-en.png` |
 | Round 2 — isolated sign-in (1440, AR + EN) | `followup-r2-signin-1440-en.png`, `followup-r2-signin-1440-ar.png` |
 | Round 2 — Mohsen button and popup mascot | `followup-r2-mohsen-fab-1440-en.png`, `followup-r2-mohsen-popup-1440-en.png` |
+| Round 3 — account menu theme row (light + dark) | `followup-r3-account-menu-theme-light-1440.png`, `followup-r3-account-menu-theme-dark-1440.png` |
+| Round 3 — Mohsen button (light + dark) | `followup-r3-mohsen-fab-light-1440.png`, `followup-r3-mohsen-fab-dark-1440.png` |
+| Round 3 — Mohsen popup and mascot (light + dark) | `followup-r3-mohsen-popup-light-1440.png`, `followup-r3-mohsen-popup-dark-1440.png` |
+| Round 3 — popup at 32rem (1440, EN) | `followup-r3-popup-32rem-1440-en.png` |
+| Round 3 — sidebar labels, one line at 1024 (AR + EN) | `followup-r3-sidebar-labels-1024-en.png`, `followup-r3-sidebar-labels-1024-ar.png` |
+| Round 3 — wordmark aligned to the collapsed rail (1024 / 1440 / 1920, AR + EN) | `followup-r3-wordmark-collapsed-1024-en.png`, `followup-r3-wordmark-collapsed-1024-ar.png`, `followup-r3-wordmark-collapsed-1440-en.png`, `followup-r3-wordmark-collapsed-1440-ar.png`, `followup-r3-wordmark-collapsed-1920-en.png`, `followup-r3-wordmark-collapsed-1920-ar.png` |
 
 ---
 
