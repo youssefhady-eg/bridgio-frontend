@@ -251,6 +251,26 @@ export function AppHeader({
                       <AppIcon name="user" size={18} />
                       {strings.sidebar.profileLabel}
                     </Link>
+                    {/* Same theme state as the header sun/moon control: the
+                        row toggles it and the switch position reports it. */}
+                    <button
+                      type="button"
+                      className="account-menu__item account-menu__item--theme"
+                      role="menuitemcheckbox"
+                      aria-checked={theme === 'dark'}
+                      onClick={onToggleTheme}
+                    >
+                      <AppIcon
+                        name={theme === 'dark' ? 'sun' : 'moon'}
+                        size={18}
+                      />
+                      <span className="account-menu__item-label">
+                        {strings.header.themeLabel}
+                      </span>
+                      <span className="account-menu__switch" aria-hidden="true">
+                        <span className="account-menu__switch-thumb" />
+                      </span>
+                    </button>
                     <button
                       type="button"
                       className="account-menu__item"

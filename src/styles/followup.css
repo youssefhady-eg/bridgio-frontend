@@ -447,6 +447,48 @@ select.input {
   cursor: not-allowed;
 }
 
+/* Theme row: the label fills the row and a small switch reports the live
+   theme. The on/off colours come from the swapped token pair, so the switch
+   reads correctly in both themes without a second palette. */
+.account-menu__item-label {
+  flex: 1;
+}
+
+.account-menu__switch {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  width: 34px;
+  height: 20px;
+  padding: 2px;
+  background: var(--disabled-overlay);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-ease-standard),
+    border-color var(--motion-duration-fast) var(--motion-ease-standard);
+}
+
+.account-menu__switch-thumb {
+  width: 14px;
+  height: 14px;
+  background: var(--bridgio-maroon);
+  border-radius: 50%;
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-ease-standard),
+    margin-inline-start var(--motion-duration-fast) var(--motion-ease-standard);
+}
+
+.account-menu__item--theme[aria-checked='true'] .account-menu__switch {
+  background: var(--bridgio-maroon);
+  border-color: var(--bridgio-maroon);
+}
+
+.account-menu__item--theme[aria-checked='true'] .account-menu__switch-thumb {
+  margin-inline-start: auto;
+  background: var(--bridgio-cream);
+}
+
 .account-menu__error {
   margin: var(--space-1) var(--space-2) var(--space-2);
   color: var(--bridgio-error);
