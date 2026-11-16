@@ -2677,7 +2677,9 @@ h3 + .summary-list {
   .app-sidebar__link {
     min-height: 48px;
     padding: var(--space-3) var(--space-4);
-    font-size: var(--font-body-size);
+    /* Owners round 3: one step smaller than body copy (15–16 px, −1 px across
+       the clamp) so every label holds one line at the 200 px rail floor. */
+    font-size: var(--font-label-size);
   }
 
   /* Class cards: stats spread across the card, not bunched at one edge. */
