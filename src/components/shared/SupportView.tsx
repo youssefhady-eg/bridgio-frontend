@@ -152,6 +152,21 @@ export function SupportView() {
           />
         ) : null}
       </div>
+
+      <section
+        className="dashboard__section"
+        aria-labelledby="support-contact-heading"
+      >
+        <div className="section-head">
+          <h2 id="support-contact-heading">{copy.contactHeading}</h2>
+        </div>
+        <p className="section-lead">{copy.contactLead}</p>
+        <EmptyNote
+          icon="alert"
+          title={copy.contactEmptyTitle}
+          body={copy.contactEmptyBody}
+        />
+      </section>
     </div>
   )
 }

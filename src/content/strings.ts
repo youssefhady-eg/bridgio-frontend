@@ -1179,6 +1179,16 @@ export const ar = {
     lead: 'اكتب طلبك هنا. يصل الطلب إلى فريق الدعم بعد ربط الخدمة.',
     note: 'الردود تصل بعد ربط خدمة الدعم الحقيقية. لا توجد خدمة متصلة في هذا الإصدار، ولن نعرض نجاحًا غير حقيقي.',
     formLabel: 'نموذج طلب الدعم',
+    /**
+     * Contact options — the section that will hold the channels once the
+     * support backend exists. No channel is connected in this build, and no
+     * email, WhatsApp or phone number is invented.
+     */
+    contactHeading: 'قنوات التواصل',
+    contactLead: 'تُعرض هنا قنوات التواصل مع فريق الدعم.',
+    contactEmptyTitle: 'لا توجد قناة متصلة',
+    contactEmptyBody:
+      'لم تُربط خدمة الدعم بعد، فلا تتوفّر أي قناة تواصل في هذا الإصدار. تصل الردود بعد ربط الخدمة الحقيقية.',
     nameLabel: 'الاسم',
     namePlaceholder: 'اسمك',
     emailLabel: 'البريد الإلكتروني',
@@ -2673,6 +2683,12 @@ export const en: Strings = {
     lead: 'Write your request here. It reaches the support team once the service is connected.',
     note: 'Replies arrive with the real support backend. No service is connected in this build, and no fake success is shown.',
     formLabel: 'Support request form',
+    // Contact options — see the Arabic block. No channel is connected yet.
+    contactHeading: 'Contact options',
+    contactLead: 'The ways to reach the support team are listed here.',
+    contactEmptyTitle: 'No channel connected',
+    contactEmptyBody:
+      'The support service is not connected yet, so no contact channel is available in this build. Replies arrive once the real service is connected.',
     nameLabel: 'Name',
     namePlaceholder: 'Your name',
     emailLabel: 'Email',
