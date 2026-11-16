@@ -49,18 +49,18 @@ html {
 
 /* ---- 2. Wordmark alignment in the header --------------------------------- */
 /*
- * Phone keeps the single-row bar from app.css: menu, wordmark and utilities in
- * one flex row, wordmark straight after the menu at the inline-start. The one
- * phone addition is the account avatar, which is now the only route to sign out
- * because the sidebar Profile item is gone.
+ * One header DOM, one flex row, at every width. The wordmark sits at the
+ * inline-start and the utilities are pushed to the inline-end by their auto
+ * margin. On a phone the menu button comes first, so the wordmark follows it;
+ * from 1024 px the menu is gone and the wordmark is the first item.
  *
- * From 768 px the bar becomes a three-column grid so the wordmark sits at the
- * horizontal centre of the header content width: the menu stays at the
- * inline-start, the utilities at the inline-end, and the two equal flexible
- * columns centre the auto-width brand column between them. Explicit column
- * assignments keep the brand in the middle column when the menu is removed at
- * 1024 px, and the utilities drop `margin-inline-start: auto` because the grid
- * already pins them to the inline-end edge.
+ * The header is full-width (no max-width, no auto margin): it spans the same
+ * box as the app body below it, so the wordmark's inline-start edge can line up
+ * with the sidebar's nav. The 2026-11-14 three-column centring at >= 768 px is
+ * withdrawn — the wordmark is never centred on desktop.
+ *
+ * The one phone addition is the account avatar, which is now the only route to
+ * sign out because the sidebar Profile item is gone.
  */
 
 @media (max-width: 767.98px) {
@@ -119,29 +119,6 @@ html {
   .app-utility__button.app-utility__button--account {
     width: 32px;
     min-width: 32px;
-  }
-}
-
-@media (min-width: 768px) {
-  .app-header__inner {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  }
-
-  .app-header__menu {
-    grid-column: 1;
-    justify-self: start;
-  }
-
-  .app-header__brand {
-    grid-column: 2;
-    justify-self: center;
-  }
-
-  .app-header__utilities {
-    grid-column: 3;
-    justify-self: end;
-    margin-inline-start: 0;
   }
 }
 

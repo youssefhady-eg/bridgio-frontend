@@ -27,8 +27,11 @@
   /* Full desktop header height, border included (box-sizing: border-box).
      Figma + Redesign shell lock: a 76 px bar with a 2 px bottom rule and a
      136 px clean wordmark vertically centred. The sticky sidebar offset uses
-     this so its foot meets the fold with the collapse toggle visible. */
-  --header-h: 76px;
+     this so its foot meets the fold with the collapse toggle visible.
+     Fluid: 76 px is the design value at the 1440 px base, so 76 / 1440 =
+     5.28vw. Below roughly 1210 px the 64 px minimum holds, so the bar never
+     gets shorter than a comfortable touch row. Consumed only at >= 1024 px. */
+  --header-h: clamp(64px, 5.28vw, 76px);
 }
 
 body {
@@ -95,10 +98,15 @@ body {
   /* 74 px content box + 2 px rule = the 76 px bar. The 136 px wordmark is
      49.1 px tall, so the flex row centres it with no vertical padding and the
      bar keeps --header-h in both themes. */
+  /* The header spans the same full-width box as the app body, so its
+     inline-start padding is what aligns the wordmark with the sidebar nav. The
+     nav label column starts at 12 px (nav inline padding) + 14 px (link inline
+     padding) + 32 px (icon chip) + 12 px (link gap) = 70 px; the wordmark's
+     inline-start edge sits on that same line at every desktop width. */
   .app-header__inner {
     min-height: calc(var(--header-h) - var(--outline-sticker));
     padding-block: 0;
-    padding-inline: 32px;
+    padding-inline: 70px 32px;
   }
 }
 

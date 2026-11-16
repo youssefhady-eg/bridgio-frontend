@@ -17,12 +17,12 @@ import { useLang, useStrings } from '~/shell/useStrings'
  * brand, the language toggle, the messages trigger and the account area.
  *
  * Three brand size states are unchanged (see app.css), one DOM, media queries:
- *  - â‰¥ 1024 px : large header â€” adopted wordmark, maroon fill, 136 px
- *    (the 200 px colour lockup is no longer rendered in the header; the asset
- *    stays in the repo for large/cover use)
- *   768â€“1023 : light small header â€” adopted wordmark, maroon fill, 148 px
- *   <768 px  : dark band â€” adopted wordmark, cream fill, 136 px, centred on its
- *              own row (followup.css)
+ *  - >= 1024 px : large header, adopted wordmark, maroon fill, fluid width
+ *    clamp(112px, 9.44vw, 136px) (the 200 px colour lockup is no longer rendered
+ *    in the header; the asset stays in the repo for large/cover use)
+ *   768-1023 : light small header, adopted wordmark, maroon fill, 148 px
+ *   <768 px  : dark band, adopted wordmark, cream fill, inline-start in the
+ *              single flex row (the desktop centring is withdrawn)
  *
  * The account control is the avatar only. It opens a small menu with Profile,
  * Sign out (through `auth.signOut`) when a session exists, or Sign in when it
