@@ -508,12 +508,14 @@ select.input {
 /*
  * The circle contains the supplied Mohsen mascot (waving pose, cropped from
  * the 16-pose reactions sheet), not an icon or the wordmark. The image is
- * square and cropped to a circle with `object-fit: cover`.
+ * square and cropped to a circle with `object-fit: cover`. The artwork has a
+ * transparent background, so both the floating button and the popup avatar sit
+ * on the brand paper — never on a red or any other colour fill.
  */
 
 .mohsen-fab {
   overflow: hidden;
-  background: var(--bridgio-red);
+  background: var(--bridgio-paper);
   border-color: var(--bridgio-maroon);
 }
 
@@ -526,9 +528,29 @@ select.input {
 }
 
 .mohsen-fab:hover:not(:active) {
-  background: var(--bridgio-red);
-  border-color: var(--bridgio-maroon);
+  background: var(--bridgio-paper);
+  border-color: var(--bridgio-maroon-outline);
   transform: scale(1.04);
+}
+
+/* Desktop vw pass: the 52 px circle (44 px touch target + 8 px) at the 1440 px
+   base, floored at the plain 44 px touch target on a small desktop. The popup
+   keeps its 32 rem design width (544 px at the 17 px desktop root), so the
+   middle term is 544 / 1440 = 37.78vw. */
+@media (min-width: 1024px) {
+  .mohsen-fab {
+    width: clamp(44px, 3.61vw, 52px);
+    height: clamp(44px, 3.61vw, 52px);
+  }
+
+  .mohsen-ask__panel {
+    width: min(clamp(20rem, 37.78vw, 32rem), calc(100vw - 2rem));
+  }
+
+  .mohsen-ask__avatar {
+    width: clamp(32px, 2.78vw, 40px);
+    height: clamp(32px, 2.78vw, 40px);
+  }
 }
 
 /* ---- 10. Reduced motion: no animation, no transition, no press scale ----- */

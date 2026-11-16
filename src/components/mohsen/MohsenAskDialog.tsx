@@ -112,6 +112,16 @@ export function MohsenAskDialog({
       <Modal className="mohsen-ask__panel">
         <Dialog className="mohsen-ask__dialog" aria-label={strings.title}>
           <header className="mohsen-ask__head">
+            <span className="mohsen-ask__avatar" aria-hidden="true">
+              <img
+                className="mohsen-ask__avatar-img"
+                src="/brand/mohsen-wave.svg"
+                alt=""
+                width={40}
+                height={40}
+                decoding="async"
+              />
+            </span>
             <h2 className="mohsen-ask__title">{strings.title}</h2>
             <button
               type="button"
