@@ -3,7 +3,6 @@ import { ar, en } from './strings'
 import {
   dashboardLabel,
   dashboardLinkLabel,
-  dashboardNavLabel,
   roleLabel,
 } from './roles'
 
@@ -89,22 +88,5 @@ describe('dashboard name inside a sentence', () => {
       )
     }
     expect(dashboardLinkLabel(null, en.dashboard)).toBe('Dashboard')
-  })
-})
-
-describe('short sidebar dashboard label', () => {
-  it('keeps the gendered Arabic label', () => {
-    expect(dashboardNavLabel({ gender: 'female' }, ar.dashboard)).toBe(
-      'لوحة المعلمة',
-    )
-    expect(dashboardNavLabel({ gender: null }, ar.dashboard)).toBe(
-      'لوحة المعلم',
-    )
-  })
-
-  it('uses the one-word English label for both genders', () => {
-    for (const gender of ['female', 'male', null] as const) {
-      expect(dashboardNavLabel({ gender }, en.dashboard)).toBe('Dashboard')
-    }
   })
 })

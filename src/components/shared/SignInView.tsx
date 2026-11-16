@@ -19,6 +19,10 @@ import { useLang, useStrings } from '~/shell/useStrings'
  * for the role the backend returned, and the session query is refreshed. On
  * failure the adapter's own error message is shown, never an invented one.
  *
+ * "Continue as a guest" is the other way in: it clears the mock session and
+ * drops the visitor on the dashboard preview with no signed-in user, so the
+ * guest state is real (no fake account) and can be left by signing in later.
+ *
  * The two self-service links still open screens that state the accounts
  * backend is not connected; they never fake a result.
  */
@@ -41,6 +45,23 @@ export function SignInView() {
         queryKey: sessionQueryOptions().queryKey,
       })
       navigateToRoleHome(session.user.role)
+    },
+  })
+
+  // "Continue as a guest": no account is invented and no credentials are sent.
+  // The mock session is cleared so the dashboard renders its no-session guest
+  // state, then the visitor lands on the teacher dashboard preview.
+  const guestMutation = useMutation({
+    mutationFn: () => api.auth.signOut(),
+    onSuccess: () => {
+      queryClient.setQueryData(sessionQueryOptions().queryKey, null)
+      void queryClient.invalidateQueries({
+        queryKey: sessionQueryOptions().queryKey,
+      })
+      void navigate({
+        to: '/teacher/dashboard',
+        search: { as: 'teacher', lang },
+      })
     },
   })
 
@@ -128,6 +149,18 @@ export function SignInView() {
       ) : null}
 
       <p className="field__hint">{copy.signInHint}</p>
+
+      <div className="signin-guest">
+        <button
+          type="button"
+          className="button button--secondary signin-guest__button"
+          disabled={guestMutation.isPending}
+          onClick={() => guestMutation.mutate()}
+        >
+          {copy.guestLabel}
+        </button>
+        <p className="field__hint">{copy.guestHint}</p>
+      </div>
 
       <nav className="auth-links" aria-label={copy.linksHeading}>
         <h2 className="auth-links__heading">{copy.linksHeading}</h2>

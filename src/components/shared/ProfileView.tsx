@@ -81,6 +81,7 @@ export function ProfileView() {
       <section className="dashboard__section">
         <h2>{copy.settingsHeading}</h2>
         <MetaList
+          className="summary-list--settings"
           items={[
             {
               label: copy.languageLabel,

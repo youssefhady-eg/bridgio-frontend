@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { api } from '~/api'
 import { sessionQueryOptions } from '~/api/queries'
 import { AppIcon } from '~/components/AppIcon'
+import { HeaderSearch } from '~/components/HeaderSearch'
 import { hrefWithLang } from '~/shell/lang'
 import { usePreviewRole } from '~/shell/usePreviewRole'
 import type { Theme } from '~/shell/theme-state'
@@ -13,8 +14,9 @@ import { useLang, useStrings } from '~/shell/useStrings'
  * Slim utility header â€” refinement branch.
  *
  * The header no longer carries the primary navigation (that is the sidebar's
- * job). It holds only utility controls: the menu button (phone only), the
- * brand, the language toggle, the messages trigger and the account area.
+ * job), nor the colour-theme switch (it lives in the account menu now). It
+ * holds only utility controls: the menu button (phone only), the brand, the
+ * language toggle, the inline search, the messages trigger and the account area.
  *
  * Three brand size states are unchanged (see app.css), one DOM, media queries:
  *  - >= 1024 px : large header, adopted wordmark, maroon fill, fluid width
@@ -179,37 +181,7 @@ export function AppHeader({
             </span>
           </a>
 
-          <button
-            type="button"
-            className="app-utility__button app-utility__button--theme"
-            onClick={onToggleTheme}
-            aria-label={`${strings.header.themeLabel}: ${
-              theme === 'dark'
-                ? strings.header.themeToLight
-                : strings.header.themeToDark
-            }`}
-            title={
-              theme === 'dark'
-                ? strings.header.themeToLight
-                : strings.header.themeToDark
-            }
-          >
-            <AppIcon name={theme === 'dark' ? 'sun' : 'moon'} size={20} />
-          </button>
-
-          <Link
-            to="/search"
-            search={{ as: role, lang, q: '' }}
-            className="app-utility__button"
-            aria-label={strings.header.searchOpenLabel}
-            title={strings.header.searchLabel}
-            preload={false}
-          >
-            <AppIcon name="search" size={20} />
-            <span className="app-utility__label">
-              {strings.header.searchLabel}
-            </span>
-          </Link>
+          <HeaderSearch />
 
           <button
             type="button"

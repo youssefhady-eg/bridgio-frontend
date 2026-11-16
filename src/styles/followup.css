@@ -676,3 +676,131 @@ select.input {
 .auth-main .dashboard {
   margin: 0;
 }
+
+/* ---- 12. Settings rows (Profile): label beside its control ---------------- */
+/*
+ * The shared `.summary-list` is a fixed 7 rem label column plus a flexible
+ * value column — right for a long value (an email, a test title) but wrong for
+ * the two Interface-settings rows, which hold a short label and a small
+ * control. At desktop width the fixed column leaves ~100 px of dead space
+ * between the label and its control. This modifier keeps the pair together;
+ * the shared list used by tests, classes and students is untouched.
+ */
+.summary-list--settings {
+  max-width: 34rem;
+}
+
+.summary-list--settings div {
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: center;
+}
+
+/* ---- 13. Inline header search -------------------------------------------- */
+/*
+ * The header search is a control, not a link: it opens a panel in place and
+ * never navigates to `/search` on its own. The panel is anchored to the
+ * control's inline-end edge (logical, so it mirrors in RTL) and drops below
+ * the header. It reuses the `/search` result markup for one consistent list.
+ */
+.header-search {
+  position: relative;
+  display: inline-flex;
+}
+
+.header-search__panel {
+  position: absolute;
+  inset-block-start: calc(100% + var(--space-2));
+  inset-inline-end: 0;
+  z-index: 60;
+  width: min(30rem, calc(100vw - 2 * var(--space-4)));
+  max-height: min(70vh, 34rem);
+  overflow-y: auto;
+  padding: var(--space-4);
+  background: var(--bridgio-paper);
+  border: var(--outline-sticker) solid var(--bridgio-maroon);
+  border-radius: var(--radius-card);
+  animation: bridgio-surface-in var(--motion-duration-base)
+    var(--motion-ease-emphasis);
+}
+
+.header-search__field {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+}
+
+.header-search__label {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+
+.header-search__close {
+  flex: none;
+}
+
+/* The panel has its own close control; drop the WebKit native clear so the
+   dropdown does not show two different "×" affordances side by side. */
+.header-search input[type='search']::-webkit-search-cancel-button,
+.header-search input[type='search']::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.header-search__note {
+  margin: var(--space-3) 0 0;
+  color: var(--text-secondary);
+  font-size: var(--font-body-small-size);
+}
+
+.header-search__note--error {
+  color: var(--bridgio-error);
+}
+
+.header-search__foot {
+  margin-block-start: var(--space-3);
+  padding-block-start: var(--space-3);
+  border-block-start: var(--outline-hairline) solid var(--border);
+}
+
+.search-results--inline {
+  margin-block-start: var(--space-3);
+}
+
+/* ---- 14. "Continue as a guest" (isolated sign-in page) ------------------- */
+
+.signin-guest {
+  display: grid;
+  gap: var(--space-2);
+  margin-block-start: var(--space-6);
+}
+
+.signin-guest__button {
+  justify-self: start;
+}
+
+/* ---- 15. Wordmark: align the visible glyph, not the element box ---------- */
+/*
+ * The header padding puts the wordmark's *element* edge on the sidebar's
+ * label column (70 px) when expanded and on the icon chip's inline-start edge
+ * when collapsed. The artwork itself is not flush with that box: inside the
+ * 720-unit viewBox the glyphs begin at x = 335.07 (95.07 units, ≈13.2 %, of
+ * empty space on the inline-start) and end at x = 949.93 (10.07 units, ≈1.4 %,
+ * on the inline-end). At the 136 px desktop width that is ~18 px of visible
+ * misalignment on the leading side, which is what still reads as "off".
+ *
+ * Pull the box in by its own inline-start whitespace so the *painted* edge
+ * lands on the sidebar line in both the expanded and the collapsed rail, at
+ * every desktop width. RTL flips which side is the inline-start, so the
+ * matching inset swaps: 13.2 % in LTR, 1.4 % in RTL. Scoped to the desktop
+ * header, where the element/line targets above are set.
+ */
+@media (min-width: 1024px) {
+  .app-header__brand {
+    margin-inline-start: calc(-0.13204 * clamp(112px, 9.44vw, 136px));
+  }
+
+  :root[dir='rtl'] .app-header__brand {
+    margin-inline-start: calc(-0.01399 * clamp(112px, 9.44vw, 136px));
+  }
+}

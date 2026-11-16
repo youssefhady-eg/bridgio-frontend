@@ -47,19 +47,3 @@ export function dashboardLinkLabel(
   if (!user) return labels.titleNeutral
   return user.gender === 'female' ? labels.titleFemale : labels.title
 }
-
-/**
- * Short sidebar label for the dashboard item.
- *
- * The rail is 200 px wide at its floor, so English uses the one-word
- * "Dashboard" while the page heading keeps the full role name. Arabic keeps
- * the gendered form, which already fits. Same gender rule as the helpers
- * above: the female form is used only when the backend supplies
- * `gender: 'female'`.
- */
-export function dashboardNavLabel(
-  user: Pick<User, 'gender'>,
-  labels: { navTitle: string; navTitleFemale: string },
-): string {
-  return user.gender === 'female' ? labels.navTitleFemale : labels.navTitle
-}

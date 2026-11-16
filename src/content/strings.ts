@@ -125,6 +125,7 @@ export const ar = {
     assistantOpenLabel: 'افتح المحادثات',
     searchLabel: 'بحث',
     searchOpenLabel: 'افتح البحث',
+    searchCloseLabel: 'إغلاق البحث',
     accountLabel: 'الحساب',
     accountMenuLabel: 'قائمة الحساب',
     signInLabel: 'تسجيل الدخول',
@@ -153,7 +154,9 @@ export const ar = {
   },
   /** Nav item labels — teacher copy is MSA formal, student copy is Egyptian casual, parent copy is MSA formal. */
   nav: {
-    'teacher-dashboard': 'لوحة المعلم',
+    // Neutral in the sidebar for both languages, so the rail never guesses a
+    // gender; the dashboard H1 and the document title stay gendered.
+    'teacher-dashboard': 'لوحة التحكم',
     'teacher-classes': 'صفوفي',
     'teacher-tests': 'الاختبارات',
     'teacher-question-bank': 'بنك الأسئلة',
@@ -197,13 +200,6 @@ export const ar = {
      * and the Guide step. The signed-in label comes from `dashboardLinkLabel`.
      */
     titleNeutral: 'لوحة التحكم',
-    /**
-     * Short sidebar form of the same name. Arabic already fits the 200 px rail
-     * at the gendered form, so this mirrors `title` / `titleFemale`; English
-     * uses the short "Dashboard" (see the en mirror).
-     */
-    navTitle: 'لوحة المعلم',
-    navTitleFemale: 'لوحة المعلمة',
     quickActions: {
       heading: 'إجراءات سريعة',
       createTest: 'أنشئ اختبارًا',
@@ -686,6 +682,7 @@ export const ar = {
     resultsLabel: 'النتائج',
     roleTitle: 'البحث غير متاح لهذا الحساب.',
     roleBody: 'يشمل البحث اختبارات المعلم ومواده وأسئلته في هذا الإصدار.',
+    viewAll: 'اعرض كل النتائج',
     open: 'افتح',
     kinds: {
       test: 'اختبار',
@@ -1095,6 +1092,8 @@ export const ar = {
     submit: 'دخول',
     signingIn: 'جارٍ الدخول...',
     signInHint: 'يُتحقق من البيانات عبر خدمة الحسابات المتصلة.',
+    guestLabel: 'الدخول كزائر',
+    guestHint: 'تصفّح المنصة دون تسجيل الدخول. يمكنك تسجيل الدخول في أي وقت.',
     status: 'تسجيل الدخول غير متاح حاليًا.',
     /**
      * Self-service account flows remain PROPOSED and NOT connected. The adapter
@@ -1701,6 +1700,7 @@ export const en: Strings = {
     assistantOpenLabel: 'Open messages',
     searchLabel: 'Search',
     searchOpenLabel: 'Open search',
+    searchCloseLabel: 'Close search',
     accountLabel: 'Account',
     accountMenuLabel: 'Account menu',
     signInLabel: 'Sign in',
@@ -1749,13 +1749,6 @@ export const en: Strings = {
     titleFemale: 'Teacher dashboard',
     // Neutral fallback when no session supplies a role label.
     titleNeutral: 'Dashboard',
-    /**
-     * Short sidebar form: "Teacher dashboard" wraps at the 200 px rail floor,
-     * so the nav uses the one-word label while the page heading keeps the
-     * full role name. English has no grammatical gender in this label.
-     */
-    navTitle: 'Dashboard',
-    navTitleFemale: 'Dashboard',
     quickActions: {
       heading: 'Quick actions',
       createTest: 'Create a test',
@@ -2217,6 +2210,7 @@ export const en: Strings = {
     roleTitle: 'Search is not available for this account.',
     roleBody:
       'Search covers the teacher’s tests, materials and questions in this build.',
+    viewAll: 'View all results',
     open: 'Open',
     kinds: {
       test: 'Test',
@@ -2620,6 +2614,9 @@ export const en: Strings = {
     submit: 'Sign in',
     signingIn: 'Signing in...',
     signInHint: 'Credentials are checked by the connected accounts service.',
+    guestLabel: 'Continue as a guest',
+    guestHint:
+      'Browse the platform without signing in. You can sign in at any time.',
     status: 'Sign-in is not available yet.',
     unavailable:
       'The accounts service is not connected in this build, so the step was not performed.',

@@ -5,7 +5,6 @@ import { AppIcon, navIconName } from '~/components/AppIcon'
 import { useEffect, useRef, useState } from 'react'
 import { assistantCapabilityOrder, navFor } from '~/shell/nav'
 import type { NavScreenId } from '~/shell/nav'
-import { dashboardNavLabel } from '~/content/roles'
 import { useFocusScope } from '~/shell/useFocusScope'
 import { usePreviewRole } from '~/shell/usePreviewRole'
 import { useLang, useStrings } from '~/shell/useStrings'
@@ -55,11 +54,11 @@ export function AppSidebar({
     return () => window.removeEventListener('hashchange', readAnchor)
   }, [])
 
-  // Only the assistant needs capabilities, and only the teacher/assistant
-  // dashboard is gendered, so the session query is enabled for those roles only.
+  // Only the assistant needs the session (to read the granted capabilities), so
+  // the query stays disabled for the fixed-menu roles.
   const sessionQuery = useQuery({
     ...sessionQueryOptions(),
-    enabled: role === 'assistant' || role === 'teacher',
+    enabled: role === 'assistant',
   })
   const sessionUser = sessionQuery.data?.user
   const assistantSession = role === 'assistant' && sessionUser?.role === 'assistant'
@@ -75,17 +74,11 @@ export function AppSidebar({
 
   const showAssistantNote = role === 'assistant' && items.length === 0
 
-  // The teacher dashboard is the one nav label whose gender follows the session
-  // user (female / neutral form); every other label is role-neutral.
-  const dashboardNav =
-    sessionUser && (sessionUser.role === 'teacher' || sessionUser.role === 'assistant')
-      ? dashboardNavLabel(sessionUser, strings.dashboard)
-      : null
-
+  // Every nav label is role-neutral, including the dashboard item: the sidebar
+  // uses one neutral name per language, and only the dashboard H1 and the
+  // document title follow the session user's gender.
   function navLabel(id: NavScreenId): string {
-    return id === 'teacher-dashboard' && dashboardNav
-      ? dashboardNav
-      : strings.nav[id]
+    return strings.nav[id]
   }
 
   // The assistant has a single granted-sections screen, so its items are
