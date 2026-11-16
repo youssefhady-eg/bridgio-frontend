@@ -5,6 +5,7 @@ import {
   Outlet,
   Scripts,
   createRootRouteWithContext,
+  useRouterState,
 } from '@tanstack/react-router'
 import { useEffect, useState, type ReactNode } from 'react'
 import { AppHeader } from '~/components/AppHeader'
@@ -138,19 +139,43 @@ function ErrorScreen() {
   )
 }
 
+/**
+ * Routes that render outside the app shell.
+ *
+ * The four account screens are standalone centred forms: no header, no sidebar,
+ * no chat popup and no Mohsen button. The document (`html`/`head`/`body`) and
+ * the language effects still wrap them, so direction, title and theme init
+ * behave exactly as everywhere else.
+ */
+const AUTH_ROUTE_PATHS = new Set([
+  '/sign-in',
+  '/sign-up',
+  '/forgot-password',
+  '/reset-password',
+])
+
 function RootComponent() {
+  const pathname = useRouterState({
+    select: (state) => state.location.pathname,
+  })
   return (
     <ShellDocument>
-      <main className="app-main" id="app-main">
-        <Outlet />
-      </main>
+      {AUTH_ROUTE_PATHS.has(pathname) ? <AuthLayout /> : <AppShell />}
     </ShellDocument>
   )
 }
 
-function ShellDocument({ children }: Readonly<{ children: ReactNode }>) {
-  const lang = useLang()
-  const dir = dirFor(lang)
+/** One auth screen, centred on its own — the shell chrome is never rendered. */
+function AuthLayout() {
+  return (
+    <main className="auth-main" id="app-main">
+      <Outlet />
+    </main>
+  )
+}
+
+/** The app shell: header, sidebar, content column, chat popup and Mohsen. */
+function AppShell() {
   const strings = useStrings()
 
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -158,6 +183,47 @@ function ShellDocument({ children }: Readonly<{ children: ReactNode }>) {
     useSidebarCollapsed()
   const { theme, toggle: toggleTheme } = useTheme()
   const [chatOpen, setChatOpen] = useState(false)
+
+  return (
+    <>
+      <AppHeader
+        onOpenSidebar={() => setSidebarOpen(true)}
+        onOpenChat={() => setChatOpen(true)}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
+      <div
+        className={`app-body${sidebarCollapsed ? ' app-body--collapsed' : ''}`}
+      >
+        <AppSidebar
+          open={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+          collapsed={sidebarCollapsed}
+          onToggleCollapsed={toggleSidebarCollapsed}
+        />
+        <button
+          type="button"
+          className={`sidebar-backdrop${sidebarOpen ? ' is-open' : ''}`}
+          aria-label={strings.header.menuCloseLabel}
+          tabIndex={sidebarOpen ? 0 : -1}
+          onClick={() => setSidebarOpen(false)}
+        />
+        <div className="app-content">
+          <main className="app-main" id="app-main">
+            <Outlet />
+          </main>
+        </div>
+      </div>
+      <ChatPopup open={chatOpen} onClose={() => setChatOpen(false)} />
+      <MohsenFab />
+    </>
+  )
+}
+
+function ShellDocument({ children }: Readonly<{ children: ReactNode }>) {
+  const lang = useLang()
+  const dir = dirFor(lang)
+  const strings = useStrings()
 
   // Reflect the active language on <html> and remember it for the next visit.
   useEffect(() => {
@@ -202,34 +268,7 @@ function ShellDocument({ children }: Readonly<{ children: ReactNode }>) {
         <a className="skip-link" href="#app-main">
           {strings.header.skipToMain}
         </a>
-        <AppHeader
-          onOpenSidebar={() => setSidebarOpen(true)}
-          onOpenChat={() => setChatOpen(true)}
-          theme={theme}
-          onToggleTheme={toggleTheme}
-        />
-        <div
-          className={`app-body${sidebarCollapsed ? ' app-body--collapsed' : ''}`}
-        >
-          <AppSidebar
-            open={sidebarOpen}
-            onClose={() => setSidebarOpen(false)}
-            collapsed={sidebarCollapsed}
-            onToggleCollapsed={toggleSidebarCollapsed}
-          />
-          <button
-            type="button"
-            className={`sidebar-backdrop${sidebarOpen ? ' is-open' : ''}`}
-            aria-label={strings.header.menuCloseLabel}
-            tabIndex={sidebarOpen ? 0 : -1}
-            onClick={() => setSidebarOpen(false)}
-          />
-          <div className="app-content">
-            {children}
-          </div>
-        </div>
-        <ChatPopup open={chatOpen} onClose={() => setChatOpen(false)} />
-        <MohsenFab />
+        {children}
         <Scripts />
       </body>
     </html>

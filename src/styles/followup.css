@@ -573,3 +573,30 @@ select.input {
     transition: none !important;
   }
 }
+
+/* ---- 11. Standalone auth pages (outside the app shell) ------------------- */
+/*
+ * The four account routes (`/sign-in`, `/sign-up`, `/forgot-password`,
+ * `/reset-password`) render without the header, sidebar, chat popup or Mohsen
+ * button. `.auth-main` is their only wrapper: it centres one form column in the
+ * viewport on the locked cream background. The form components themselves keep
+ * their own widths, so the column is only a comfortable reading measure.
+ */
+.auth-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: var(--space-8) var(--space-4);
+}
+
+.auth-main > * {
+  width: 100%;
+  max-width: 32rem;
+}
+
+/* The card-style account forms already centre their own content. */
+.auth-main .dashboard {
+  margin: 0;
+}
