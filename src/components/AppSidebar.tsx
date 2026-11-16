@@ -5,7 +5,7 @@ import { AppIcon, navIconName } from '~/components/AppIcon'
 import { useEffect, useRef, useState } from 'react'
 import { assistantCapabilityOrder, navFor } from '~/shell/nav'
 import type { NavScreenId } from '~/shell/nav'
-import { dashboardLabel } from '~/content/roles'
+import { dashboardNavLabel } from '~/content/roles'
 import { useFocusScope } from '~/shell/useFocusScope'
 import { usePreviewRole } from '~/shell/usePreviewRole'
 import { useLang, useStrings } from '~/shell/useStrings'
@@ -77,14 +77,14 @@ export function AppSidebar({
 
   // The teacher dashboard is the one nav label whose gender follows the session
   // user (female / neutral form); every other label is role-neutral.
-  const dashboardHeading =
+  const dashboardNav =
     sessionUser && (sessionUser.role === 'teacher' || sessionUser.role === 'assistant')
-      ? dashboardLabel(sessionUser, strings.dashboard)
+      ? dashboardNavLabel(sessionUser, strings.dashboard)
       : null
 
   function navLabel(id: NavScreenId): string {
-    return id === 'teacher-dashboard' && dashboardHeading
-      ? dashboardHeading
+    return id === 'teacher-dashboard' && dashboardNav
+      ? dashboardNav
       : strings.nav[id]
   }
 

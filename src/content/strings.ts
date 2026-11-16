@@ -197,6 +197,13 @@ export const ar = {
      * and the Guide step. The signed-in label comes from `dashboardLinkLabel`.
      */
     titleNeutral: 'لوحة التحكم',
+    /**
+     * Short sidebar form of the same name. Arabic already fits the 200 px rail
+     * at the gendered form, so this mirrors `title` / `titleFemale`; English
+     * uses the short "Dashboard" (see the en mirror).
+     */
+    navTitle: 'لوحة المعلم',
+    navTitleFemale: 'لوحة المعلمة',
     quickActions: {
       heading: 'إجراءات سريعة',
       createTest: 'أنشئ اختبارًا',
@@ -1720,16 +1727,16 @@ export const en: Strings = {
     notificationsLabel: 'Notifications',
   },
   nav: {
-    'teacher-dashboard': 'Teacher dashboard',
+    'teacher-dashboard': 'Dashboard',
     'teacher-classes': 'My Classes',
     'teacher-tests': 'Tests',
-    'teacher-question-bank': 'Question bank',
-    'teacher-materials': 'Material library',
+    'teacher-question-bank': 'Questions',
+    'teacher-materials': 'Materials',
     'teacher-students': 'Students',
     'student-tests': 'My Tests',
     'student-lessons': 'Lessons',
     'student-progress': 'My Progress',
-    'parent-progress': "Child's Progress",
+    'parent-progress': 'Progress',
     'parent-tests': 'Tests',
     'parent-results': 'Results',
     'parent-messages': 'Messages',
@@ -1742,6 +1749,13 @@ export const en: Strings = {
     titleFemale: 'Teacher dashboard',
     // Neutral fallback when no session supplies a role label.
     titleNeutral: 'Dashboard',
+    /**
+     * Short sidebar form: "Teacher dashboard" wraps at the 200 px rail floor,
+     * so the nav uses the one-word label while the page heading keeps the
+     * full role name. English has no grammatical gender in this label.
+     */
+    navTitle: 'Dashboard',
+    navTitleFemale: 'Dashboard',
     quickActions: {
       heading: 'Quick actions',
       createTest: 'Create a test',
