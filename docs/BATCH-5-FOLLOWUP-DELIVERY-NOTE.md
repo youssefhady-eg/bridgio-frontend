@@ -1,6 +1,6 @@
 # BRIDGIO — Batch 5 Follow-up Delivery Note
 
-**Date:** 2026-11-14 (updated 2026-11-17 — see the live-gate, round-2, round-3, round-4 and round-5 corrections below)
+**Date:** 2026-11-14 (updated 2026-11-17 — see the live-gate and round-2 … round-6 corrections below)
 **Branch:** `feat/finish-frontend-followup`
 **Base:** `ec831fc` (`origin/main`, after the Batch 5 merge, PR #33)
 **Docs-first commit:** `95165db` — Muse's current `BRIDGIO-LIVE_RULES.md` copied into `docs/` before any code changed (byte-identical to the working copy Muse edited).
@@ -220,6 +220,63 @@ The owner ran the live gate on this branch's preview, `bridgio-frontend-16bxe9fq
 - **Open for the owner:** the collapse is now instant. Round 5 withdrew the 250 ms `grid-template-columns` and header-padding transitions to remove the transient offset, so the rail snaps in one frame instead of animating. The owner needs to confirm that an instant snap is acceptable rather than ask for a corrected animation.
 - **Still open on the owner's console** (not covered by the live gate): an axe accessibility run, the 390 px overflow check, and a console-error check. The production live gate follows the owner's merge.
 
+### Correction 2026-11-17 (round 6) — owner follow-up
+
+The sixth owner pass reopened three things: the round-5 instant snap (the 250 ms fold must come back **with the wordmark on the line every frame**), one guest button that had to become a role choice with a real read-only preview, and the sign-in page's column, spacing and missing language/theme controls. All three land as one code commit; this note and the round-6 screenshots are a second commit. The branch is still pushed only (no PR, no merge).
+
+**Docs first — pending, not done.** No updated round-6 `BRIDGIO-LIVE_RULES.md` from Muse exists on this machine (the owner checkout holds the same round-5 file). The copy under `docs/` is untouched: SHA-256 `240F459B57BB847E5EB46E41D884C1F00B5C0AD2A8546104ADF614123DF7734A`, 111,001 bytes. The sync stays listed as pending until the new copy is supplied; it is **not** recorded as done.
+
+| # | Round-6 finding | Fix |
+| --- | --- | --- |
+| R6-1 | Round 5 removed the collapse animation; the owner wants the 250 ms fold back, with the wordmark glyph on the sidebar line in every frame | One registered custom property, `@property --rail-p` on `.app-shell`, is the only animated value (0 = expanded, 1 = folded, 250 ms `cubic-bezier(0.4, 0, 0.2, 1)`, same easing both ways). The grid track, header padding, icon-chip position and label position are all **derived** from it, so they cannot take different trajectories: `--rail-width = expanded − (expanded − collapsed) × p`; the chip gathers from 26 px to 70 px while `--rail-gather` runs (p ≤ 0.16), then rides the rail edge (`rail / 2 − 16 px`); `--nav-line` stays at 70 px until the gather ends, then follows the chip. Labels are out of flow and pinned to `--nav-line`, so shrinking the padding cannot drag them. No margin workaround, and no second transition. |
+| R6-2 | "Continue as a guest" gave one role and a no-session screen | The single button is replaced by a 2 × 2 role grid — Teacher, Student, Parent, Assistant — that clears the mock session and lands on `/teacher/dashboard`, `/student/home`, `/parent/progress` and `/assistant` with `?as=<role>`. Each landing is a labelled, read-only preview: the mock adapter borrows the matching seeded demo identity for **reads** when there is no session and `?as` is present (`viewerUser`, `requireViewerActor`, `requireViewerSelf`), while every write still goes through `currentUser()` and fails `UNAUTHENTICATED`. No session, account or identity is created. A shell banner names the preview role and says "Guest preview — demo data. Sign in to see your own." / "معاينة الزائر — بيانات تجريبية. سجّل الدخول لعرض بياناتك."; the account menu offers only Sign in. Screens outside the four landings keep their honest no-session state. No `BridgioApi` method was added. |
+| R6-3 | Sign-in column split between 32 rem and 28 rem, off-centre in RTL, buttons not spanning the form, links wrapping, and no language/theme controls | The page owns one `--auth-column: 32rem`; the hero, form, guest block and links all fill it (the form's inner `max-width: 28rem` was the cause of the off-centre look and is removed). Submit and the four guest buttons span the form width. Spacing is token-based with a larger gap before the guest block: hero→form 32 px, form→hint 24 px, hint→guest 32 px. The "Other options" links are one row, first and last flush with the form edges, in both directions. The hint uses normal secondary contrast, not muted. `AuthLayout` now carries `AuthControls`: the language link is built with `hrefWithLang` (the header's mechanism) and the theme switch reads the shared `theme-state` store through `useTheme` (the account-menu Theme row's state), so a change in one place moves the other. |
+
+#### Round-6 measurements (dev server, Chromium, `getBoundingClientRect`)
+
+Window 1920 × 1080, `devicePixelRatio` 1, root 17 px unless a row says otherwise. "Glyph" is the wordmark's painted inline-start edge relative to the sidebar edge; "nav-line" is the header's computed `padding-inline-start`; every figure is measured in the same frame.
+
+**Item 1 — collapse and expand, AR + EN.** The sample columns are 0 / ~60 / ~125 / ~250 ms after the click (actual elapsed 24–27 / 62–70 / 125–130 / 254–264 ms), then the settled state.
+
+| Width | Lang | Direction | Glyph / nav-line at 0 ms | ~60 ms | ~125 ms | ~250 ms | Settled |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1920 | EN | collapse | 70.00 / 70 | 70.00 / 70 | 66.88 / 66.88 | 28.36 / 28.36 | 28.00 / 28 |
+| 1920 | AR | collapse | 70.01 / 70 | 70.00 / 70 | 66.89 / 66.88 | 28.37 / 28.36 | 28.01 / 28 |
+| 1920 | EN | expand | 28.00 / 28 | 44.75 / 44.75 | 73.88 / 73.88 | 70.00 / 70 | 70.00 / 70 |
+| 1920 | AR | expand | 28.01 / 28 | 44.76 / 44.75 | 73.89 / 73.88 | 70.01 / 70 | 70.01 / 70 |
+| 1440 | EN / AR | collapse | 70.01 / 70 | 70.01 / 70 | 66.88 / 66.88 | 28.36 / 28.36 | 27.99 / 27.99 |
+| 1440 | EN / AR | expand | 27.99 / 27.99 | 44.74 / 44.74 | 73.88 / 73.88 | 70.01 / 70 | 70.01 / 70 |
+| 1024 | EN / AR | collapse | 70.01 / 70 | 70.00 / 70 | 66.88 / 66.88 | 16.37 / 16.37 | 16.01 / 16 |
+| 1024 | EN / AR | expand | 16.00 / 16 | 44.74 / 44.74 | 73.88 / 73.88 | 70.01 / 70 | 70.01 / 70 |
+
+The largest glyph-vs-nav-line difference in any sample is **0.01 px**; the settled difference is ≤ 0.01 px at every width and in both languages. Rail width: 272.00 px expanded and 88.00 px collapsed at 1440 / 1920; 200.00 / 64.00 px at 1024. Icon-chip inline-start edge: 26.00 px expanded; 27.98 px collapsed at 1440 / 1920 and 16.00 px at 1024 — the required 28 px / 16 px chip line. The built stylesheet keeps `@property --rail-p`, so the interpolation survives Vite/Lightning CSS.
+
+**Item 2 — guest roles.** Each row is one click on the sign-in picker, run in EN and AR.
+
+| Role | Landing | Seed data actually rendered | Account menu | Errors |
+| --- | --- | --- | --- | --- |
+| Teacher | `/teacher/dashboard?as=teacher` | 4 dashboard total cards, seeded classes and tests | Sign in only | none |
+| Student | `/student/home?as=student` | 2 seeded curriculum units | Sign in only | none |
+| Parent | `/parent/progress?as=parent` | 2 seeded child units | Sign in only | none |
+| Assistant | `/assistant?as=assistant` | 2 seeded capability items (dashboard, tests) | Sign in only | none |
+
+The banner reads "Guest preview · Teacher · Demo data. Sign in to see your own. · Sign in" in EN and "معاينة الزائر · المعلم · بيانات تجريبية. سجّل الدخول لعرض بياناتك. · تسجيل الدخول" in AR (role word follows the choice); `auth.getSession()` stays `null` throughout. Exit paths, all verified without a reload: guest → account-menu Sign in → `/sign-in?as=teacher&lang=en` with the picker; pick Student → `/student/home?as=student&lang=en` as a guest; real sign-in as the teacher → dashboard with no banner; Sign out → `/sign-in?as=teacher&lang=en`. **Baked-session note:** this build has `VITE_MOCK_SESSION=teacher`, so a full page load or a fresh navigation recreates the teacher session and the guest state ends (the banner disappears). Guest verification therefore used client-side navigation only; deployed previews that need stable guest checks must use `VITE_MOCK_SESSION=none`.
+
+**Item 3 — one column, centred, AR + EN × light + dark at 1920.**
+
+| Measure | EN light | EN dark | AR light | AR dark |
+| --- | --- | --- | --- | --- |
+| Auth column, hero, form, submit, guest grid, links row | 544 px each | 544 | 544 | 544 |
+| Centre of form / dashboard / viewport | 960 / 960 / 960 | 960 | 960 | 960 |
+| Hero→form / form→hint / hint→guest | 32 / 24 / 32 px | 32 / 24 / 32 | 32 / 24 / 32 | 32 / 24 / 32 |
+| Hint contrast | 6.63:1 | 8.43:1 | 6.63:1 | 8.43:1 |
+| Badge contrast | 14.91:1 | 11.45:1 | 14.91:1 | 11.45:1 |
+| Auth-controls contrast | 6.91:1 | 7.05:1 | 6.91:1 | 7.05:1 |
+
+The 32 rem column renders 544 px because the desktop root is 17 px, not 16; the old 28 rem form cap inside it (476 px at that root) is what left 68 px of dead space on one side. The links row's first and last links sit on the form edges in both directions. The dark-mode top "Sign in" pill and the hint text were read back at the contrast figures above (both AA). The language and theme controls were exercised by the four screenshots indexed in §8; the controls read the same URL language and the same persisted theme as the shell.
+
+**Screenshots.** The whole set is indexed in §8 under "Round 6": four sign-in captures (EN + AR × light + dark) and eight guest-preview captures (four roles × EN + AR), all 1920 px full page. The 390 px layout stays on the owner's console as agreed; nothing here estimates it.
+
 ---
 
 ## 1. Items 1–4: what `main` actually had
@@ -309,12 +366,13 @@ Seed accounts accept any non-empty password: `mona.teacher@bridgio.test` (teache
 
 | Gate | Result |
 | --- | --- |
-| `npm test` | **166 passed (166)**, 18 files |
+| `npm test` | **169 passed (169)**, 18 files |
 | `npm run typecheck` | **pass** (`tsc --noEmit`, no output) |
-| `npm run build` | **pass**, exit 0 (vite client + Nitro SSR, then `tsc --noEmit`) |
+| `npm run build` | **pass**, exit 0 (vite client + Nitro SSR, then `tsc --noEmit`); the built CSS keeps `@property --rail-p` |
 | Live gate (owner, branch preview `16bxe9fqy`, 2026-11-17) | **pass** — all six round-5 fixes and the earlier behaviour, at 1920, AR + EN, light + dark |
+| Round-6 local gate | **pass** — the figures and screenshots in the round-6 section above |
 
-The follow-up adds one test file (`src/content/roles.test.ts`: three `roleLabel` cases — female label, null keeps neutral, male keeps neutral — three `dashboardLabel` cases for the 2026-11-16 correction, and four `dashboardLinkLabel` cases for round 2 — female, non-female, no session, and English) and one mock-adapter expectation (`support.submitRequest` added to `EXPECTED_METHODS`). Batch 5 ended at 150; nothing was removed. Round 2 takes the count from 156 to 160. Round 3 adds two `dashboardNavLabel` cases (gendered Arabic, one-word English for every gender) and takes the count from 160 to 162. Round 4 removes those two cases together with the `dashboardNavLabel` helper, returning the count to **160**; no other test changed. Round 5 adds six `theme-state` cases — theme resolution when a stored choice and a pre-painted attribute disagree, the pre-paint fallback, the no-source default, and the shared store's toggle and subscriber contract — taking the count from 160 to **166**.
+The follow-up adds one test file (`src/content/roles.test.ts`: three `roleLabel` cases — female label, null keeps neutral, male keeps neutral — three `dashboardLabel` cases for the 2026-11-16 correction, and four `dashboardLinkLabel` cases for round 2 — female, non-female, no session, and English) and one mock-adapter expectation (`support.submitRequest` added to `EXPECTED_METHODS`). Batch 5 ended at 150; nothing was removed. Round 2 takes the count from 156 to 160. Round 3 adds two `dashboardNavLabel` cases (gendered Arabic, one-word English for every gender) and takes the count from 160 to 162. Round 4 removes those two cases together with the `dashboardNavLabel` helper, returning the count to **160**; no other test changed. Round 5 adds six `theme-state` cases — theme resolution when a stored choice and a pre-painted attribute disagree, the pre-paint fallback, the no-source default, and the shared store's toggle and subscriber contract — taking the count from 160 to **166**. Round 6 adds three guest-preview cases to `mock-adapter.test.ts` — seed reads for all four roles with no session, writes rejecting `UNAUTHENTICATED` while no session is created, and the real session staying authoritative over `?as` — taking the count from 166 to **169**. No existing test changed.
 
 Runtime checks (dev server, Chromium, 1920 / 1440 / 390):
 
@@ -352,6 +410,15 @@ Round-5 runtime checks (dev server, Chromium; 1920 × 1000, `innerWidth` 1920, `
 - Language switch: `data-theme` and `bridgio-theme` stay `light` across EN→AR→EN and stay `dark` across EN→AR→EN.
 - The round-4 preview build (`51g2lxcxs`) measured 272 / 88 / 544 at a true 1920 viewport, matching the dev server.
 - The owner's round-5 live gate (2026-11-17) on the branch preview `bridgio-frontend-16bxe9fqy-youssef-17fc.vercel.app` passed clean; the round-5 section above records the pass, the instant-collapse confirmation request and the three items still open on the owner's console.
+
+Round-6 runtime checks (dev server, Chromium; 1920 × 1080 unless noted; AR and EN):
+
+- Collapse/expand: 48 samples across 1024 / 1440 / 1920 and both directions, each taken at 0, ~60, ~125 and ~250 ms after the toggle click plus the settled state. Glyph edge and nav line differ by at most **0.01 px** in every sample; settled rail 272 / 88 px at 1440 and 1920, 200 / 64 px at 1024; settled chip edge 28 px at 1440 / 1920 and 16 px at 1024; expanded label line 70 px. The expanded row's chip edge stays at 26 px (the design inset), while the label column is the 70 px line.
+- Guest roles: the four sign-in buttons land on the four required URLs with `?as=`; the shell banner names the role; seeded teacher totals, student units, parent units and assistant capabilities all render; the account menu contains only **Sign in**; `auth.getSession()` remains `null`; no console errors in either language.
+- Guest exits: account-menu Sign in keeps the chosen `as` on `/sign-in`; choosing Student from there lands on the student preview; a real teacher sign-in clears the banner; Sign out returns to `/sign-in` with the picker. A fresh navigation recreates the baked teacher session (the documented `VITE_MOCK_SESSION=teacher` behaviour).
+- Sign-in layout: at 1920 the column, hero, form, submit, guest grid and links row all measure 544 px and share the 960 px centre in EN and AR, light and dark. The old inner 28 rem form cap is gone. Gaps are 32 / 24 / 32 px, and the links row's outer edges meet the form's in both directions.
+- Sign-in contrast: hint 6.63:1 light and 8.43:1 dark; badge 14.91:1 / 11.45:1; auth controls 6.91:1 / 7.05:1.
+- Sign-in controls: the language control builds the URL through `hrefWithLang` and the theme switch toggles the shared store (`data-theme` and `bridgio-theme` move together); both appear on all four auth routes through `AuthLayout`.
 
 ---
 
@@ -398,6 +465,8 @@ All under `docs/screenshots/`. Each pair of `-rest` / `-pressed` images uses the
 | Round 5 — Mohsen popup width (1920, AR + EN) | `followup-r5-popup-en-1920.png`, `followup-r5-popup-ar-1920.png` |
 | Round 5 — Theme row click updates the settings label live (light → dark) | `followup-r5-settings-theme-light-1920.png`, `followup-r5-theme-row-toggle-settings-label-1920.png` |
 | Round 5 — language switch preserves the dark theme (EN → AR → EN) | `followup-r5-lang-switch-theme-kept-ar-dark-1920.png`, `followup-r5-lang-switch-theme-kept-en-dark-1920.png` |
+| Round 6 — sign-in, one column + role picker + auth controls (1920, EN + AR × light + dark) | `round6-signin-en-light-1920.png`, `round6-signin-en-dark-1920.png`, `round6-signin-ar-light-1920.png`, `round6-signin-ar-dark-1920.png` |
+| Round 6 — guest preview, four roles (1920, EN + AR, light) | `round6-guest-teacher-en-light-1920.png`, `round6-guest-teacher-ar-light-1920.png`, `round6-guest-student-en-light-1920.png`, `round6-guest-student-ar-light-1920.png`, `round6-guest-parent-en-light-1920.png`, `round6-guest-parent-ar-light-1920.png`, `round6-guest-assistant-en-light-1920.png`, `round6-guest-assistant-ar-light-1920.png` |
 
 ---
 
