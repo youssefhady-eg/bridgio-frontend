@@ -49,6 +49,78 @@ export const seedIds = {
   threadTeacherAssistant: 'thread_teacher_assistant',
 } as const
 
+/**
+ * Demo identities, at module scope so the guest preview can borrow one without
+ * creating a session. They are copies of the seed rows: `createSeedDatabase`
+ * clones them into its own mutable list, so a preview read can never mutate the
+ * adapter's stored users.
+ */
+const DEMO_USERS: readonly User[] = [
+  {
+    id: seedIds.teacher,
+    role: 'teacher',
+    displayName: 'أ. منى عبد الرحمن',
+    email: 'mona.teacher@bridgio.test',
+    avatarUrl: null,
+    gender: 'female',
+  },
+  {
+    id: seedIds.assistant,
+    role: 'assistant',
+    displayName: 'هالة محمود — مساعدة المعلم',
+    email: 'hala.assistant@bridgio.test',
+    avatarUrl: null,
+    gender: null,
+  },
+  {
+    id: seedIds.parent,
+    role: 'parent',
+    displayName: 'أ. عادل حسن — ولي أمر',
+    email: 'adel.parent@bridgio.test',
+    avatarUrl: null,
+    gender: null,
+  },
+  {
+    id: seedIds.studentSara,
+    role: 'student',
+    displayName: 'سارة محمد',
+    email: 'sara.student@bridgio.test',
+    avatarUrl: null,
+    gender: null,
+  },
+  {
+    id: seedIds.studentOmar,
+    role: 'student',
+    displayName: 'عمر خالد',
+    email: 'omar.student@bridgio.test',
+    avatarUrl: null,
+    gender: null,
+  },
+  {
+    id: seedIds.studentYoussef,
+    role: 'student',
+    displayName: 'يوسف علي',
+    email: 'youssef.student@bridgio.test',
+    avatarUrl: null,
+    gender: null,
+  },
+] as const
+
+/**
+ * The demo identity used by the read-only guest preview for a role. Sara is the
+ * student whose seeded enrollments, progress and attempts fill the student
+ * screens; the other roles have one demo user each.
+ */
+export function demoUserForRole(role: User['role']): User {
+  const preferred =
+    role === 'student'
+      ? DEMO_USERS.find((user) => user.id === seedIds.studentSara)
+      : DEMO_USERS.find((user) => user.role === role)
+  const user = preferred ?? DEMO_USERS.find((candidate) => candidate.role === role)
+  if (!user) throw new Error(`No demo user for role: ${role}`)
+  return { ...user }
+}
+
 /** Internal storage model. Adapter methods map these to the public contract types. */
 export interface MockClassroom {
   id: ClassroomId
@@ -294,56 +366,7 @@ export function createSeedDatabase(options: {
   scenario: 'seeded' | 'empty'
   session: 'teacher' | 'student' | 'assistant' | 'parent' | 'none'
 }): MockDatabase {
-  const users: User[] = [
-    {
-      id: seedIds.teacher,
-      role: 'teacher',
-      displayName: 'أ. منى عبد الرحمن',
-      email: 'mona.teacher@bridgio.test',
-      avatarUrl: null,
-      gender: 'female',
-    },
-    {
-      id: seedIds.assistant,
-      role: 'assistant',
-      displayName: 'هالة محمود — مساعدة المعلم',
-      email: 'hala.assistant@bridgio.test',
-      avatarUrl: null,
-      gender: null,
-    },
-    {
-      id: seedIds.parent,
-      role: 'parent',
-      displayName: 'أ. عادل حسن — ولي أمر',
-      email: 'adel.parent@bridgio.test',
-      avatarUrl: null,
-      gender: null,
-    },
-    {
-      id: seedIds.studentSara,
-      role: 'student',
-      displayName: 'سارة محمد',
-      email: 'sara.student@bridgio.test',
-      avatarUrl: null,
-      gender: null,
-    },
-    {
-      id: seedIds.studentOmar,
-      role: 'student',
-      displayName: 'عمر خالد',
-      email: 'omar.student@bridgio.test',
-      avatarUrl: null,
-      gender: null,
-    },
-    {
-      id: seedIds.studentYoussef,
-      role: 'student',
-      displayName: 'يوسف علي',
-      email: 'youssef.student@bridgio.test',
-      avatarUrl: null,
-      gender: null,
-    },
-  ]
+  const users: User[] = DEMO_USERS.map((user) => ({ ...user }))
 
   /**
    * RBAC grants. The assistant is deliberately granted some teacher

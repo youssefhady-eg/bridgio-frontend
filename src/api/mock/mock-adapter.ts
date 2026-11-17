@@ -91,6 +91,13 @@ export interface MockApiOptions {
   session?: 'teacher' | 'student' | 'assistant' | 'parent' | 'none'
   latencyMs?: number
   now?: () => Date
+  /**
+   * Read-only guest preview. When no mock session is active, reads resolve as
+   * this demo role; every write still goes through `currentUser()` and fails
+   * UNAUTHENTICATED. Omit it to read the `?as` query parameter on the client;
+   * pass `null` to disable the fallback (tests, SSR).
+   */
+  previewRole?: UserRole | null
 }
 
 const NOT_GROUNDED_ANSWER =
@@ -225,6 +232,22 @@ function clone<T>(value: T): T {
   return structuredClone(value)
 }
 
+/**
+ * The guest preview is client-only URL state. Reading it on demand (rather than
+ * at adapter construction) means a client-side `?as=` navigation is seen by the
+ * next adapter call; during SSR there is no window and no preview.
+ */
+function previewRoleFromLocation(): UserRole | null {
+  if (typeof window === 'undefined') return null
+  const value = new URLSearchParams(window.location.search).get('as')
+  return value === 'teacher' ||
+    value === 'student' ||
+    value === 'assistant' ||
+    value === 'parent'
+    ? value
+    : null
+}
+
 function fail(code: ApiErrorCode, message: string, status: number | null = null): never {
   throw new ApiError(code, message, { status })
 }
@@ -271,6 +294,32 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
     return requireUser(db.sessionUserId)
   }
 
+  /**
+   * Read-only viewer resolution. A real session always wins. With no session,
+   * an explicit preview role (from `?as=` on the client, or the option in a
+   * test) borrows the matching demo user. This is the ONLY fallback; every
+   * write below keeps using `currentUser()`, so a guest preview can never
+   * persist a change or invent an account.
+   */
+  function viewerUser(): User {
+    if (db.sessionUserId) return requireUser(db.sessionUserId)
+    const role =
+      options.previewRole !== undefined
+        ? options.previewRole
+        : previewRoleFromLocation()
+    const preview = role
+      ? db.users.find((candidate) => candidate.role === role)
+      : undefined
+    if (!preview) {
+      fail(
+        'UNAUTHENTICATED',
+        'No mock session or preview role is active.',
+        401,
+      )
+    }
+    return preview
+  }
+
   function requireActor(role: UserRole): User {
     const user = currentUser()
     if (user.role !== role) {
@@ -281,6 +330,22 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
 
   function requireSelf(role: UserRole, id: UserId): User {
     const user = requireActor(role)
+    if (user.id !== id) {
+      fail('FORBIDDEN', 'A user may only access their own record.', 403)
+    }
+    return user
+  }
+
+  function requireViewerActor(role: UserRole): User {
+    const user = viewerUser()
+    if (user.role !== role) {
+      fail('FORBIDDEN', `This view requires the ${role} role.`, 403)
+    }
+    return user
+  }
+
+  function requireViewerSelf(role: UserRole, id: UserId): User {
+    const user = requireViewerActor(role)
     if (user.id !== id) {
       fail('FORBIDDEN', 'A user may only access their own record.', 403)
     }
@@ -844,7 +909,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
   // ---------------------------------------------------------------------------
 
   function requireParent(): User {
-    const user = currentUser()
+    const user = viewerUser()
     if (user.role !== 'parent') {
       fail('FORBIDDEN', 'This action requires the parent role.', 403)
     }
@@ -1194,7 +1259,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
     teachers: {
       getProfile: (input) =>
         respond<TeacherProfile>(() => {
-          const teacher = requireSelf('teacher', input.teacherId)
+          const teacher = requireViewerSelf('teacher', input.teacherId)
           const classes = db.classrooms.filter(
             (classroom) => classroom.teacherId === teacher.id,
           )
@@ -1209,7 +1274,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
 
       getDashboard: (input) =>
         respond<TeacherDashboard>(() => {
-          const teacher = requireSelf('teacher', input.teacherId)
+          const teacher = requireViewerSelf('teacher', input.teacherId)
           const classes = db.classrooms.filter(
             (classroom) => classroom.teacherId === teacher.id,
           )
@@ -1247,7 +1312,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
     students: {
       getProfile: (input) =>
         respond<StudentProfile>(() => {
-          const user = currentUser()
+          const user = viewerUser()
           if (user.role === 'student' && user.id !== input.studentId) {
             fail('FORBIDDEN', 'A student may only read their own profile.', 403)
           }
@@ -1271,7 +1336,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
 
       getProgress: (input) =>
         respond<StudentProgress>(() => {
-          const user = currentUser()
+          const user = viewerUser()
           const student = requireUser(input.studentId)
           if (student.role !== 'student') {
             fail('VALIDATION', 'The requested user is not a student.', 422)
@@ -1318,7 +1383,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
     rbac: {
       getCapabilities: (input) =>
         respond<UserCapabilities>(() => {
-          const user = currentUser()
+          const user = viewerUser()
           if (user.id !== input.userId) {
             fail('FORBIDDEN', 'A user may only read their own capabilities.', 403)
           }
@@ -1346,7 +1411,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
     messages: {
       listThreads: () =>
         respond<MessageThread[]>(() => {
-          const user = currentUser()
+          const user = viewerUser()
           return threadsForUser(user).sort((left, right) =>
             right.lastMessageAt.localeCompare(left.lastMessageAt),
           )
@@ -1354,7 +1419,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
 
       listMessages: (input) =>
         respond<Message[]>(() => {
-          const user = currentUser()
+          const user = viewerUser()
           const thread = threadsForUser(user).find(
             (item) => item.id === input.threadId,
           )
@@ -1409,7 +1474,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
     notifications: {
       listForUser: (input: ListNotificationsInput) =>
         respond<Notification[]>(() => {
-          const user = currentUser()
+          const user = viewerUser()
           if (user.id !== input.userId) {
             fail('FORBIDDEN', 'A user may only read their own notifications.', 403)
           }
@@ -1419,13 +1484,13 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
 
     search: {
       search: (input: SearchInput) =>
-        respond<SearchResults>(() => searchResults(currentUser(), input)),
+        respond<SearchResults>(() => searchResults(viewerUser(), input)),
     },
 
     classrooms: {
       listForTeacher: (input) =>
         respond<ClassroomSummary[]>(() => {
-          const teacher = requireSelf('teacher', input.teacherId)
+          const teacher = requireViewerSelf('teacher', input.teacherId)
           return db.classrooms
             .filter((classroom) => classroom.teacherId === teacher.id)
             .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
@@ -1434,14 +1499,14 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
 
       get: (input) =>
         respond<ClassroomDetail>(() => {
-          const user = currentUser()
+          const user = viewerUser()
           const classroom = requireVisibleClassroom(input.classroomId, user)
           return classDetail(classroom)
         }),
 
       listStudents: (input) =>
         respond<ClassroomStudent[]>(() => {
-          const teacher = currentUser()
+          const teacher = viewerUser()
           if (teacher.role !== 'teacher') {
             fail('FORBIDDEN', 'Only a teacher can read the class roster.', 403)
           }
@@ -1497,7 +1562,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
     materials: {
       listForTeacher: (input) =>
         respond<Material[]>(() => {
-          const teacher = requireSelf('teacher', input.teacherId)
+          const teacher = requireViewerSelf('teacher', input.teacherId)
           return db.materials
             .filter(
               (material) =>
@@ -1511,7 +1576,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
       get: (input) =>
         respond<Material>(() => {
           const material = requireMaterial(input.materialId)
-          const user = requireSelf('teacher', material.teacherId)
+          const user = requireViewerSelf('teacher', material.teacherId)
           if (material.teacherId !== user.id) {
             fail('FORBIDDEN', 'This material is not available.', 403)
           }
@@ -1581,7 +1646,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
     tests: {
       listForTeacher: (input) =>
         respond<TestSummary[]>(() => {
-          const teacher = requireSelf('teacher', input.teacherId)
+          const teacher = requireViewerSelf('teacher', input.teacherId)
           return db.tests
             .filter((test) => test.teacherId === teacher.id)
             .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))
@@ -1590,7 +1655,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
 
       listForClass: (input) =>
         respond<TestSummary[]>(() => {
-          const user = currentUser()
+          const user = viewerUser()
           const classroom = requireVisibleClassroom(input.classroomId, user)
           return db.tests
             .filter(
@@ -1603,7 +1668,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
 
       get: (input) =>
         respond<Test>(() => {
-          const user = currentUser()
+          const user = viewerUser()
           return testDetail(requireVisibleTest(input.testId, user))
         }),
 
@@ -1683,14 +1748,14 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
         respond<Question[]>(() => {
           // Full questions carry `correctOptionId`, so this is teacher-only.
           // Student sessions read questions through `listForStudentTest`.
-          const teacher = requireActor('teacher')
+          const teacher = requireViewerActor('teacher')
           requireVisibleTest(input.testId, teacher)
           return questionsForTest(input.testId)
         }),
 
       listForStudentTest: (input) =>
         respond<StudentQuestion[]>(() => {
-          const user = currentUser()
+          const user = viewerUser()
           requireVisibleTest(input.testId, user)
           return questionsForTest(input.testId).map(toStudentQuestion)
         }),
@@ -1815,7 +1880,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
     attempts: {
       listForStudent: (input) =>
         respond<AttemptSummary[]>(() => {
-          requireSelf('student', input.studentId)
+          requireViewerSelf('student', input.studentId)
           return db.attempts
             .filter((attempt) => attempt.studentId === input.studentId)
             .sort((left, right) => right.startedAt.localeCompare(left.startedAt))
@@ -1830,7 +1895,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
        */
       listForTest: (input) =>
         respond<TestAttemptSummary[]>(() => {
-          const teacher = requireActor('teacher')
+          const teacher = requireViewerActor('teacher')
           const test = requireVisibleTest(input.testId, teacher)
           return db.attempts
             .filter((attempt) => attempt.testId === test.id)
@@ -1883,7 +1948,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
 
       get: (input) =>
         respond<Attempt>(() => {
-          const student = currentUser()
+          const student = viewerUser()
           if (student.role !== 'student') {
             fail('FORBIDDEN', 'Only the student can open their attempt.', 403)
           }
@@ -1950,7 +2015,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
     mohsen: {
       ask: (input: AskMohsenInput) =>
         respond<MohsenAnswer>(() => {
-          const user = currentUser()
+          const user = viewerUser()
           if (input.askedBy !== user.id) {
             fail('FORBIDDEN', 'Mohsen answers only for the signed-in user.', 403)
           }

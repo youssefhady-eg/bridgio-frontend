@@ -12,6 +12,8 @@ import { AppHeader } from '~/components/AppHeader'
 import { AppSidebar } from '~/components/AppSidebar'
 import { ChatPopup } from '~/components/chat/ChatPopup'
 import { MohsenFab } from '~/components/mohsen/MohsenFab'
+import { AuthControls } from '~/components/shared/AuthControls'
+import { GuestPreviewNotice } from '~/components/shared/GuestPreviewNotice'
 import {
   defaultLang,
   dirFor,
@@ -173,6 +175,9 @@ function RootComponent() {
 function AuthLayout() {
   return (
     <main className="auth-main" id="app-main">
+      {/* The account screens have no header, so their language and theme
+          controls live here rather than being copied into each form. */}
+      <AuthControls />
       <Outlet />
     </main>
   )
@@ -190,33 +195,41 @@ function AppShell() {
 
   return (
     <>
-      <AppHeader
-        onOpenSidebar={() => setSidebarOpen(true)}
-        onOpenChat={() => setChatOpen(true)}
-        theme={theme}
-        onToggleTheme={toggleTheme}
-        sidebarCollapsed={sidebarCollapsed}
-      />
+      {/*
+        One shell wrapper owns the desktop rail animation. The registered
+        `--rail-p` property on `.app-shell` drives the grid track, the header
+        padding and the icon chips from a single value, so the wordmark cannot
+        drift away from the sidebar line mid-transition (round-6 fix).
+      */}
       <div
-        className={`app-body${sidebarCollapsed ? ' app-body--collapsed' : ''}`}
+        className={`app-shell${sidebarCollapsed ? ' app-shell--collapsed' : ''}`}
       >
-        <AppSidebar
-          open={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
-          collapsed={sidebarCollapsed}
-          onToggleCollapsed={toggleSidebarCollapsed}
+        <AppHeader
+          onOpenSidebar={() => setSidebarOpen(true)}
+          onOpenChat={() => setChatOpen(true)}
+          theme={theme}
+          onToggleTheme={toggleTheme}
         />
-        <button
-          type="button"
-          className={`sidebar-backdrop${sidebarOpen ? ' is-open' : ''}`}
-          aria-label={strings.header.menuCloseLabel}
-          tabIndex={sidebarOpen ? 0 : -1}
-          onClick={() => setSidebarOpen(false)}
-        />
-        <div className="app-content">
-          <main className="app-main" id="app-main">
-            <Outlet />
-          </main>
+        <div className="app-body">
+          <AppSidebar
+            open={sidebarOpen}
+            onClose={() => setSidebarOpen(false)}
+            collapsed={sidebarCollapsed}
+            onToggleCollapsed={toggleSidebarCollapsed}
+          />
+          <button
+            type="button"
+            className={`sidebar-backdrop${sidebarOpen ? ' is-open' : ''}`}
+            aria-label={strings.header.menuCloseLabel}
+            tabIndex={sidebarOpen ? 0 : -1}
+            onClick={() => setSidebarOpen(false)}
+          />
+          <div className="app-content">
+            <main className="app-main" id="app-main">
+              <GuestPreviewNotice />
+              <Outlet />
+            </main>
+          </div>
         </div>
       </div>
       <ChatPopup open={chatOpen} onClose={() => setChatOpen(false)} />

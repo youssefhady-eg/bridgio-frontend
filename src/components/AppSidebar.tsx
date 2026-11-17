@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react'
 import { assistantCapabilityOrder, navFor } from '~/shell/nav'
 import type { NavScreenId } from '~/shell/nav'
 import { useFocusScope } from '~/shell/useFocusScope'
+import { useGuestPreview } from '~/shell/useGuestPreview'
 import { usePreviewRole } from '~/shell/usePreviewRole'
 import { useLang, useStrings } from '~/shell/useStrings'
 
@@ -60,8 +61,10 @@ export function AppSidebar({
     ...sessionQueryOptions(),
     enabled: role === 'assistant',
   })
-  const sessionUser = sessionQuery.data?.user
-  const assistantSession = role === 'assistant' && sessionUser?.role === 'assistant'
+  const guest = useGuestPreview()
+  const sessionUser = sessionQuery.data?.user ?? guest.user
+  const assistantSession =
+    role === 'assistant' && sessionUser?.role === 'assistant'
   const capabilitiesQuery = useQuery({
     ...capabilitiesQueryOptions(sessionUser?.id ?? ''),
     enabled: assistantSession,
@@ -223,11 +226,15 @@ export function AppSidebar({
             collapsed ? strings.sidebar.expandLabel : strings.sidebar.collapseLabel
           }
         >
-          <AppIcon
-            name={collapsed ? 'expand' : 'collapse'}
-            size={22}
-            strokeWidth={2}
-          />
+          {/* Same 32 px chip box as the nav icons, so the toggle glyph centres
+              on the folded rail with everything else. */}
+          <span className="app-sidebar__icon" aria-hidden="true">
+            <AppIcon
+              name={collapsed ? 'expand' : 'collapse'}
+              size={22}
+              strokeWidth={2}
+            />
+          </span>
           <span className="app-sidebar__label">
             {collapsed ? strings.sidebar.expandLabel : strings.sidebar.collapseLabel}
           </span>

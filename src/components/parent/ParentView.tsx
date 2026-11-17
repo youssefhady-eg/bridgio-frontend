@@ -12,6 +12,7 @@ import { ProgressBar } from '~/components/dashboard/ProgressBar'
 import { StatusChip, type StatusTone } from '~/components/dashboard/StatusChip'
 import { formatCount, formatDate, formatPercent } from '~/components/dashboard/format'
 import { MetaPair } from '~/components/shared/MetaPair'
+import { useGuestPreview } from '~/shell/useGuestPreview'
 import { useLang, useStrings } from '~/shell/useStrings'
 
 /**
@@ -40,7 +41,9 @@ export function ParentView({ section }: { section: ParentSection }) {
   const copy = strings.parent
 
   const sessionQuery = useQuery(sessionQueryOptions())
-  const isParent = sessionQuery.data?.user.role === 'parent'
+  const guest = useGuestPreview()
+  const viewer = sessionQuery.data?.user ?? guest.user
+  const isParent = viewer?.role === 'parent'
 
   const profileQuery = useQuery({
     ...parentProfileQueryOptions(),

@@ -7,8 +7,17 @@ import { sessionQueryOptions } from '~/api/queries'
 import type { UserRole } from '~/api/types'
 import { EmptyNote } from '~/components/dashboard/EmptyNote'
 import { PageHero } from '~/components/shared/PageHero'
+import type { AppRole } from '~/shell/nav'
 import { usePreviewRole } from '~/shell/usePreviewRole'
 import { useLang, useStrings } from '~/shell/useStrings'
+
+/** The four guest landings, in the order the sign-in screen offers them. */
+const guestRoleOrder: readonly AppRole[] = [
+  'teacher',
+  'student',
+  'parent',
+  'assistant',
+] as const
 
 /**
  * Sign in — wired to the adapter.
@@ -19,9 +28,11 @@ import { useLang, useStrings } from '~/shell/useStrings'
  * for the role the backend returned, and the session query is refreshed. On
  * failure the adapter's own error message is shown, never an invented one.
  *
- * "Continue as a guest" is the other way in: it clears the mock session and
- * drops the visitor on the dashboard preview with no signed-in user, so the
- * guest state is real (no fake account) and can be left by signing in later.
+ * "Continue as a guest" opens a read-only preview, not an account: the visitor
+ * picks one of the four roles, the mock session is cleared, and the matching
+ * seeded demo identity is borrowed for reads through `?as=`. The preview is
+ * labelled in the shell, creates no session and cannot write; signing in later
+ * is the only exit that turns it into a real account.
  *
  * The two self-service links still open screens that state the accounts
  * backend is not connected; they never fake a result.
@@ -48,20 +59,17 @@ export function SignInView() {
     },
   })
 
-  // "Continue as a guest": no account is invented and no credentials are sent.
-  // The mock session is cleared so the dashboard renders its no-session guest
-  // state, then the visitor lands on the teacher dashboard preview.
+  // Guest preview: clear the mock session, then land on the chosen role's
+  // screen with `?as=<role>`. No credentials are sent and no account is
+  // created; the adapter borrows the seeded demo identity for reads only.
   const guestMutation = useMutation({
-    mutationFn: () => api.auth.signOut(),
-    onSuccess: () => {
+    mutationFn: (nextRole: AppRole) => api.auth.signOut(),
+    onSuccess: (_result, nextRole) => {
       queryClient.setQueryData(sessionQueryOptions().queryKey, null)
       void queryClient.invalidateQueries({
         queryKey: sessionQueryOptions().queryKey,
       })
-      void navigate({
-        to: '/teacher/dashboard',
-        search: { as: 'teacher', lang },
-      })
+      navigateToRoleHome(nextRole)
     },
   })
 
@@ -148,38 +156,52 @@ export function SignInView() {
         />
       ) : null}
 
-      <p className="field__hint">{copy.signInHint}</p>
+      <p className="field__hint signin-hint">{copy.signInHint}</p>
 
       <div className="signin-guest">
-        <button
-          type="button"
-          className="button button--secondary signin-guest__button"
-          disabled={guestMutation.isPending}
-          onClick={() => guestMutation.mutate()}
-        >
+        <h2 className="signin-guest__heading" id="signin-guest-heading">
           {copy.guestLabel}
-        </button>
+        </h2>
+        <div
+          className="signin-guest__roles"
+          role="group"
+          aria-labelledby="signin-guest-heading"
+        >
+          {guestRoleOrder.map((guestRole) => (
+            <button
+              key={guestRole}
+              type="button"
+              className="button button--secondary signin-guest__button"
+              disabled={guestMutation.isPending}
+              onClick={() => guestMutation.mutate(guestRole)}
+            >
+              {copy.guestRoles[guestRole]}
+            </button>
+          ))}
+        </div>
         <p className="field__hint">{copy.guestHint}</p>
       </div>
 
       <nav className="auth-links" aria-label={copy.linksHeading}>
         <h2 className="auth-links__heading">{copy.linksHeading}</h2>
-        <Link
-          to="/sign-up"
-          search={{ as: role, lang }}
-          className="auth-links__link"
-          preload={false}
-        >
-          {copy.signUpLink}
-        </Link>
-        <Link
-          to="/forgot-password"
-          search={{ as: role, lang }}
-          className="auth-links__link"
-          preload={false}
-        >
-          {copy.forgotLink}
-        </Link>
+        <div className="auth-links__row">
+          <Link
+            to="/sign-up"
+            search={{ as: role, lang }}
+            className="auth-links__link"
+            preload={false}
+          >
+            {copy.signUpLink}
+          </Link>
+          <Link
+            to="/forgot-password"
+            search={{ as: role, lang }}
+            className="auth-links__link"
+            preload={false}
+          >
+            {copy.forgotLink}
+          </Link>
+        </div>
       </nav>
     </div>
   )

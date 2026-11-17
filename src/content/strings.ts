@@ -152,6 +152,15 @@ export const ar = {
     profileLabel: 'الملف الشخصي',
     notificationsLabel: 'الإشعارات',
   },
+  /**
+   * Read-only guest preview. The banner is UI copy only: the preview borrows a
+   * seeded demo identity for reads and never creates a session or an account.
+   */
+  guestPreview: {
+    badge: 'معاينة الزائر',
+    body: 'بيانات تجريبية. سجّل الدخول لعرض بياناتك.',
+    signIn: 'تسجيل الدخول',
+  },
   /** Nav item labels — teacher copy is MSA formal, student copy is Egyptian casual, parent copy is MSA formal. */
   nav: {
     // Neutral in the sidebar for both languages, so the rail never guesses a
@@ -1094,6 +1103,13 @@ export const ar = {
     signInHint: 'يُتحقق من البيانات عبر خدمة الحسابات المتصلة.',
     guestLabel: 'الدخول كزائر',
     guestHint: 'تصفّح المنصة دون تسجيل الدخول. يمكنك تسجيل الدخول في أي وقت.',
+    guestRolesLabel: 'اختر دور المعاينة',
+    guestRoles: {
+      teacher: 'المعلم',
+      student: 'الطالب',
+      parent: 'وليّ الأمر',
+      assistant: 'مساعد المعلم',
+    } as Record<PreviewRoleId, string>,
     status: 'تسجيل الدخول غير متاح حاليًا.',
     /**
      * Self-service account flows remain PROPOSED and NOT connected. The adapter
@@ -1725,6 +1741,11 @@ export const en: Strings = {
     supportLabel: 'Support',
     profileLabel: 'Profile',
     notificationsLabel: 'Notifications',
+  },
+  guestPreview: {
+    badge: 'Guest preview',
+    body: 'Demo data. Sign in to see your own.',
+    signIn: 'Sign in',
   },
   nav: {
     'teacher-dashboard': 'Dashboard',
@@ -2617,6 +2638,13 @@ export const en: Strings = {
     guestLabel: 'Continue as a guest',
     guestHint:
       'Browse the platform without signing in. You can sign in at any time.',
+    guestRolesLabel: 'Choose a preview role',
+    guestRoles: {
+      teacher: 'Teacher',
+      student: 'Student',
+      parent: 'Parent',
+      assistant: 'Assistant',
+    },
     status: 'Sign-in is not available yet.',
     unavailable:
       'The accounts service is not connected in this build, so the step was not performed.',

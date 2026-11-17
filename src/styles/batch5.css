@@ -149,24 +149,32 @@
 }
 
 .auth-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2) var(--space-4);
-  align-items: center;
-  margin-block-start: var(--space-6);
+  display: grid;
+  gap: var(--space-3);
+  margin-block-start: var(--space-8);
+  width: 100%;
 }
 
 .auth-links__heading {
-  flex-basis: 100%;
   margin: 0;
   font-size: var(--font-label-size);
+}
+
+/* One deliberate row: the first link starts on the form's inline-start edge,
+   the last ends on its inline-end edge, in both directions. */
+.auth-links__row {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
 }
 
 .auth-links__link {
   display: inline-flex;
   align-items: center;
   min-height: var(--touch-target);
-  padding-inline: var(--space-2);
+  padding-inline: 0;
   border-radius: var(--radius-input);
   color: var(--bridgio-maroon);
   font-weight: 600;

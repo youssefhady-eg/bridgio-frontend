@@ -116,6 +116,86 @@ describe('mock adapter — auth and permissions', () => {
   })
 })
 
+describe('mock adapter — guest preview (read-only)', () => {
+  it('serves seed reads for each preview role with no session', async () => {
+    const teacherApi = createMockApi({
+      session: 'none',
+      previewRole: 'teacher',
+      latencyMs: 0,
+    })
+    expect(await teacherApi.auth.getSession()).toBeNull()
+    const dashboard = await teacherApi.teachers.getDashboard({
+      teacherId: seedIds.teacher,
+    })
+    expect(dashboard.classes.length).toBeGreaterThan(0)
+
+    const studentApi = createMockApi({
+      session: 'none',
+      previewRole: 'student',
+      latencyMs: 0,
+    })
+    const profile = await studentApi.students.getProfile({
+      studentId: seedIds.studentSara,
+    })
+    expect(profile.user.id).toBe(seedIds.studentSara)
+
+    const parentApi = createMockApi({
+      session: 'none',
+      previewRole: 'parent',
+      latencyMs: 0,
+    })
+    const parent = await parentApi.parents.getProfile()
+    expect(parent.children.length).toBeGreaterThan(0)
+
+    const assistantApi = createMockApi({
+      session: 'none',
+      previewRole: 'assistant',
+      latencyMs: 0,
+    })
+    const capabilities = await assistantApi.rbac.getCapabilities({
+      userId: seedIds.assistant,
+    })
+    expect(capabilities.items.length).toBeGreaterThan(0)
+  })
+
+  it('rejects writes with UNAUTHENTICATED and creates no session', async () => {
+    const api = createMockApi({
+      session: 'none',
+      previewRole: 'teacher',
+      latencyMs: 0,
+    })
+
+    await expect(
+      api.tests.publish({
+        teacherId: seedIds.teacher,
+        testId: seedIds.testIntegrationDraft,
+      }),
+    ).rejects.toMatchObject({ code: 'UNAUTHENTICATED' })
+
+    await expect(
+      api.messages.sendMessage({
+        threadId: seedIds.threadTeacher,
+        body: 'preview message',
+      }),
+    ).rejects.toMatchObject({ code: 'UNAUTHENTICATED' })
+
+    expect(await api.auth.getSession()).toBeNull()
+  })
+
+  it('keeps the session authoritative when one exists', async () => {
+    const api = createMockApi({
+      session: 'teacher',
+      previewRole: 'student',
+      latencyMs: 0,
+    })
+    const session = await api.auth.getSession()
+    expect(session?.user.role).toBe('teacher')
+    await expect(
+      api.rbac.getCapabilities({ userId: seedIds.assistant }),
+    ).rejects.toMatchObject({ code: 'FORBIDDEN' })
+  })
+})
+
 describe('mock adapter — teacher dashboard', () => {
   it('returns classes, recent tests and student progress through the adapter', async () => {
     const dashboard = await created().teachers.getDashboard({

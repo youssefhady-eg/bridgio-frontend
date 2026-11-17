@@ -5,9 +5,10 @@ import { sessionQueryOptions, teacherDashboardQueryOptions } from '~/api/queries
 import type { TestSummary } from '~/api/types'
 import { MetaPair } from '~/components/shared/MetaPair'
 import { MetaSep } from '~/components/shared/MetaSep'
+import { dashboardLabel } from '~/content/roles'
+import { useGuestPreview } from '~/shell/useGuestPreview'
 import { usePreviewRole } from '~/shell/usePreviewRole'
 import { useLang, useStrings } from '~/shell/useStrings'
-import { dashboardLabel } from '~/content/roles'
 import { EmptyNote } from './EmptyNote'
 import { ProgressBar } from './ProgressBar'
 import { StatusChip } from './StatusChip'
@@ -36,16 +37,18 @@ import { Icon } from './icons'
 
 export function TeacherDashboard() {
   const sessionQuery = useQuery(sessionQueryOptions())
+  const guest = useGuestPreview()
   const strings = useStrings().dashboard
   const lang = useLang()
+
+  // A real session always wins; with no session, the guest preview borrows the
+  // matching demo identity for reads. This is UI state, never a login.
+  const sessionUser = sessionQuery.data?.user ?? guest.user
   const teacherId =
-    sessionQuery.data?.user.role === 'teacher'
-      ? sessionQuery.data.user.id
-      : null
+    sessionUser?.role === 'teacher' ? sessionUser.id : null
 
   // The heading follows the signed-in user's gender, exactly as the profile
   // role line does. A pending session keeps the neutral string.
-  const sessionUser = sessionQuery.data?.user
   const heading = sessionUser ? dashboardLabel(sessionUser, strings) : strings.title
 
   const dashboardQuery = useQuery({

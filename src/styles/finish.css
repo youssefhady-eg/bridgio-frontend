@@ -126,14 +126,16 @@
 }
 
 @media (min-width: 1024px) {
-  /* The utility rows keep the same 48 / 8 / 16 metrics as the main nav rows. */
+  /* The utility rows keep the same 48 px rhythm as the main nav rows. The
+     12 px gap puts their labels on the same 70 px line; the fold animation in
+     followup.css owns the inline padding of both row types. */
   .utility-links {
     gap: 8px;
   }
 
   .utility-links__link {
     min-height: 48px;
-    gap: 8px;
+    gap: 12px;
     padding-block: 8px;
     padding-inline: 14px;
     border-radius: 16px;
@@ -142,15 +144,6 @@
   .utility-links__icon {
     width: 32px;
     height: 32px;
-  }
-
-  .app-sidebar.is-collapsed .utility-links {
-    padding-inline: var(--space-3);
-  }
-
-  .app-sidebar.is-collapsed .utility-links__link {
-    justify-content: center;
-    padding-inline: 0;
   }
 }
 
@@ -198,14 +191,19 @@
 
 /* ---- Sign-in (informational only; no invented auth) ---------------------- */
 
+/* The auth column owns the width (.auth-main); the form fills it. The old
+   28 rem cap sat inside a 32 rem column and pushed the form to one edge, which
+   read as off-centre in RTL. */
 .signin-form {
   display: grid;
   gap: var(--space-4);
-  max-width: 28rem;
+  width: 100%;
+  max-width: none;
 }
 
 .signin-form__submit {
-  justify-self: start;
+  width: 100%;
+  justify-self: stretch;
 }
 
 /* ---- Student result review ---------------------------------------------- */
