@@ -1,6 +1,6 @@
 # BRIDGIO — Batch 5 Follow-up Delivery Note
 
-**Date:** 2026-11-14 (updated 2026-11-16 — see the live-gate, round-2, round-3 and round-4 corrections below)
+**Date:** 2026-11-14 (updated 2026-11-17 — see the live-gate, round-2, round-3, round-4 and round-5 corrections below)
 **Branch:** `feat/finish-frontend-followup`
 **Base:** `ec831fc` (`origin/main`, after the Batch 5 merge, PR #33)
 **Docs-first commit:** `95165db` — Muse's current `BRIDGIO-LIVE_RULES.md` copied into `docs/` before any code changed (byte-identical to the working copy Muse edited).
@@ -212,6 +212,14 @@ The menu stays open after the row click, and the label is already correct when i
 
 **Why the gate's sidebar and popup numbers differ.** The gate measured screenshots, not geometry. In a 1920-px window at 80 % browser zoom the CSS viewport is 1536 px and `devicePixelRatio` is 1.25; the clamps resolve identically at 1536 and 1920 (272 / 88 / 544 CSS px), so a 1920-px screenshot shows 340 / 110 / 680 device pixels. The gate's 332–336 / 102–110 / 656–670 crop estimates sit inside that ±2–3 px reading error. The AR readings (up to 384 / 121) exceed even that scale, but there is no AR width rule: `grep` finds one clamp for both directions and the measured AR rail is 272.0 / 88.0. At a true 1920 CSS viewport (and on the round-4 preview `bridgio-frontend-51g2lxcxs-youssef-17fc.vercel.app`) the rail is 272 / 88 and the panel 544 in both languages.
 
+#### Round-5 live gate (owner, 2026-11-17)
+
+The owner ran the live gate on this branch's preview, `bridgio-frontend-16bxe9fqy-youssef-17fc.vercel.app`, and reports a clean pass: all six round-5 fixes and all previously verified behaviour hold at 1920 px in Arabic and English, light and dark. This is the owner's run on the deployed preview, not a dev-server measurement; the figures in the round-5 tables above are the geometry it confirms.
+
+- The scale-corrected rail and popup widths are accepted: the round-4 sidebar (332–384 / 102–121) and popup (656–670) "failures" were captured at 125 % display scale, and the underlying CSS is 272 / 88 / 544 as measured.
+- **Open for the owner:** the collapse is now instant. Round 5 withdrew the 250 ms `grid-template-columns` and header-padding transitions to remove the transient offset, so the rail snaps in one frame instead of animating. The owner needs to confirm that an instant snap is acceptable rather than ask for a corrected animation.
+- **Still open on the owner's console** (not covered by the live gate): an axe accessibility run, the 390 px overflow check, and a console-error check. The production live gate follows the owner's merge.
+
 ---
 
 ## 1. Items 1–4: what `main` actually had
@@ -304,6 +312,7 @@ Seed accounts accept any non-empty password: `mona.teacher@bridgio.test` (teache
 | `npm test` | **166 passed (166)**, 18 files |
 | `npm run typecheck` | **pass** (`tsc --noEmit`, no output) |
 | `npm run build` | **pass**, exit 0 (vite client + Nitro SSR, then `tsc --noEmit`) |
+| Live gate (owner, branch preview `16bxe9fqy`, 2026-11-17) | **pass** — all six round-5 fixes and the earlier behaviour, at 1920, AR + EN, light + dark |
 
 The follow-up adds one test file (`src/content/roles.test.ts`: three `roleLabel` cases — female label, null keeps neutral, male keeps neutral — three `dashboardLabel` cases for the 2026-11-16 correction, and four `dashboardLinkLabel` cases for round 2 — female, non-female, no session, and English) and one mock-adapter expectation (`support.submitRequest` added to `EXPECTED_METHODS`). Batch 5 ended at 150; nothing was removed. Round 2 takes the count from 156 to 160. Round 3 adds two `dashboardNavLabel` cases (gendered Arabic, one-word English for every gender) and takes the count from 160 to 162. Round 4 removes those two cases together with the `dashboardNavLabel` helper, returning the count to **160**; no other test changed. Round 5 adds six `theme-state` cases — theme resolution when a stored choice and a pre-painted attribute disagree, the pre-paint fallback, the no-source default, and the shared store's toggle and subscriber contract — taking the count from 160 to **166**.
 
@@ -342,6 +351,7 @@ Round-5 runtime checks (dev server, Chromium; 1920 × 1000, `innerWidth` 1920, `
 - Settings label: on `/profile` in the light theme the button reads "Switch to dark theme"; clicking the account-menu row reads "Switch to light theme" immediately, with the row `aria-checked="true"` and the menu still open.
 - Language switch: `data-theme` and `bridgio-theme` stay `light` across EN→AR→EN and stay `dark` across EN→AR→EN.
 - The round-4 preview build (`51g2lxcxs`) measured 272 / 88 / 544 at a true 1920 viewport, matching the dev server.
+- The owner's round-5 live gate (2026-11-17) on the branch preview `bridgio-frontend-16bxe9fqy-youssef-17fc.vercel.app` passed clean; the round-5 section above records the pass, the instant-collapse confirmation request and the three items still open on the owner's console.
 
 ---
 
