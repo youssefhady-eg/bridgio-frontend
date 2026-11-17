@@ -46,9 +46,13 @@ const LANG_STORAGE_KEY = 'bridgio.lang'
 /**
  * Pre-paint theme init. Runs in <head> before the body renders, so a visitor
  * who chose dark never sees a light flash. Default light when nothing is
- * stored; only the exact value "dark" applies. Kept dependency-free.
+ * stored; only the exact value "dark" applies. The resolved value is always
+ * written, so every document load (the language switch is a normal navigation)
+ * paints the stored theme and never inherits a stale attribute. Kept
+ * dependency-free; language is not read here, so switching it cannot flip the
+ * theme.
  */
-const THEME_INIT_SCRIPT = `(function(){try{if(localStorage.getItem('${THEME_STORAGE_KEY}')==='dark'){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();`
+const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem('${THEME_STORAGE_KEY}')==='dark'?'dark':'light';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();`
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient

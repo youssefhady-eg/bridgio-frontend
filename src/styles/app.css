@@ -468,6 +468,14 @@ summary:focus-visible,
     top: 0;
     align-self: start;
     height: 100dvh;
+    /* The grid track (272 px expanded / 88 px collapsed at 1920) is the width
+       contract. Pin the item's used size to that track and drop its automatic
+       min-content floor, so no long label - Arabic or English - can widen the
+       rendered rail past the clamp. This is belt-and-braces: the track is a
+       fixed clamp, but grid items default to `min-width: auto`, which is the
+       classic way a locale-dependent label escapes. */
+    inline-size: 100%;
+    min-inline-size: 0;
     /* The sidebar box never scrolls: the nav scrolls inside it and the foot
        (with the collapse toggle) stays pinned to the bottom edge. */
     overflow: hidden;

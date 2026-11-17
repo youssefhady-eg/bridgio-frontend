@@ -449,7 +449,9 @@ select.input {
 
 /* Theme row: the label fills the row and a small switch reports the live
    theme. The on/off colours come from the swapped token pair, so the switch
-   reads correctly in both themes without a second palette. */
+   reads correctly in both themes without a second palette. The switch is
+   decorative: it must never be its own hit target, because the whole row is
+   the `menuitemcheckbox` that toggles the theme. */
 .account-menu__item-label {
   flex: 1;
 }
@@ -464,6 +466,7 @@ select.input {
   background: var(--disabled-overlay);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-pill);
+  pointer-events: none;
   transition:
     background-color var(--motion-duration-fast) var(--motion-ease-standard),
     border-color var(--motion-duration-fast) var(--motion-ease-standard);
@@ -474,6 +477,7 @@ select.input {
   height: 14px;
   background: var(--bridgio-maroon);
   border-radius: 50%;
+  pointer-events: none;
   transition:
     background-color var(--motion-duration-fast) var(--motion-ease-standard),
     margin-inline-start var(--motion-duration-fast) var(--motion-ease-standard);

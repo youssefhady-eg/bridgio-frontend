@@ -224,6 +224,13 @@
   display: flex;
   flex-direction: column;
   width: min(32rem, calc(100vw - 2rem));
+  /* Belt-and-braces cap: the rendered width must be 32 rem (544 px at the 17 px
+     desktop root) and the mobile `width` above is the only rule that used to
+     hold it. `max-inline-size` makes the cap survive any later width rule or
+     content-driven growth. Border-box keeps the 2 px sticker inside the 32 rem,
+     not on top of it. */
+  max-inline-size: min(32rem, calc(100vw - 2rem));
+  box-sizing: border-box;
   max-height: min(40rem, calc(100dvh - 2rem));
   overflow: hidden;
   background: var(--bridgio-paper);

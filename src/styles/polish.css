@@ -107,14 +107,20 @@ body {
     min-height: calc(var(--header-h) - var(--outline-sticker));
     padding-block: 0;
     padding-inline: 70px 32px;
-    transition: padding-inline-start 250ms ease;
   }
 
   /* Collapsed rail: the only alignment line left is the icon chip's
      inline-start edge. The chip is 32 px and centred in the rail, so that edge
-     is rail / 2 − 16 px (16 px at the 1024 floor, 28 px at 1440 and above).
+     is rail / 2 - 16 px (16 px at the 1024 floor, 28 px at 1440 and above).
      The clamp is the same collapsed track as the grid, so the wordmark keeps a
-     real sidebar line in both states. */
+     real sidebar line in both states.
+
+     No padding transition: the rail's collapsed link style (centred icon, zero
+     inline padding) applies in the same frame as the track change, so the chip
+     is already at rail / 2 - 16 px when the wordmark moves. Round 5 removed the
+     old 250 ms padding transition because it animated 70 -> 28 while the chip
+     slid 120 -> 28, and every in-flight frame was off by up to ~50 px (the
+     round-4 live gate caught exactly that at 1920). */
   .app-header--sidebar-collapsed .app-header__inner {
     padding-inline-start: calc(clamp(64px, 6.11vw, 88px) / 2 - 16px);
   }
@@ -186,14 +192,16 @@ body {
      1440 px (272 px), and only the in-between widths scale. */
   .app-body {
     grid-template-columns: clamp(200px, 18.89vw, 272px) minmax(0, 1fr);
-    /* Owner decision 2026-11-13: the sidebar and the content column animate
-       together. Only the first track changes (expanded ↔ collapsed); the
-       content track keeps its width and moves with the grid, so there is no
-       separate content animation and no jump. `grid-template-columns` is
-       interpolable because both states have the same track count and the same
-       flexible second track. Reduced motion is handled by the global 0.01ms
-       rule in app.css. */
-    transition: grid-template-columns 250ms ease;
+    /* Round 5 withdrew the 2026-11-13 250 ms `grid-template-columns` animation.
+       The collapsed rail centres its icons immediately (link padding 0, icon
+       centred in the still-wide track) and then slides them to the 88 px rail
+       edge, while the header wordmark moved on a separate 70 -> 28 px
+       trajectory. Every animated frame put the glyph on a line the icon chip
+       had already left, which is what the round-4 live gate measured as a
+       ~21 px (EN) / ~29 px (AR) collapsed offset. The rail now changes in one
+       frame, so the expanded and collapsed lines are always exact - and the
+       icons no longer fly across the rail on the way in. Reduced motion already
+       forced this state. */
   }
 
   /* Collapsed rail — must stay after the expanded rule above to win at equal
