@@ -142,6 +142,76 @@ A fourth owner pass reopened six items: interface-settings spacing, the gender o
 
   The geometry is exact; the ~0.4–0.9 px residual is the difference between the 1 px alpha-scan threshold used to measure and the ~1.9 px geometric inset used in CSS, not a layout offset.
 
+### Correction 2026-11-17 (round 5) — owner follow-up
+
+The round-4 live gate passed 5 of 6 items and confirmed the two open questions from rounds 2–3 as failures. Round 5 lands the six corrections as one code commit (`3fa71fd`), the rules sync as `3e8988b`, and this note plus 14 screenshots as a third commit. The branch is still pushed only (no PR, no merge).
+
+**Docs first — landed.** Muse's current rules file was found in the owner checkout. `docs/BRIDGIO-LIVE_RULES.md` is now a byte-identical copy (SHA-256 `240F459B...734A`, 111,001 bytes; `git hash-object` equals the source blob `ff06f65548d8386f4225c4a2e972a9597729f544`), carrying the round-4 code re-gate and the round-4 live-gate verdict in the §10 log. The previous copy was the round-3 file (`2808E774...28DB`, 91,342 bytes). No code or specification value changed in the sync.
+
+| # | Round-5 finding | Fix | Commit |
+| --- | --- | --- | --- |
+| R5-1 | Collapsed wordmark still ~21 px (EN) / ~29 px (AR) off the icon chip | The collapse was animated twice on different trajectories: `grid-template-columns` 272 → 88 px (250 ms) and the header `padding-inline-start` 70 → 28 px (250 ms), while the collapsed rail re-centres its icons first (chip 120 → 28 px as the wide track finishes). No frame of that animation could align; only the settled state did, and the gate's screenshot caught the animation. Both properties now change in the same frame, so the line is exact at every instant. | `3fa71fd` |
+| R5-2 | Mohsen popup ~656–670 px at 1920 vs 32 rem = 544 px | The panel already renders 544.0 px at a true 1920 CSS viewport (and on the round-4 preview build); the gate's figure is the same layout captured at 125 % display scale (544 × 1.25 = 680 screenshot px). No width bug exists. Kept the existing `width` and added `max-inline-size: min(32rem, calc(100vw - 2rem))` plus an explicit `box-sizing: border-box` so the cap cannot be overridden by a later rule. | `3fa71fd` |
+| R5-3 | Sidebar ~332–384 px expanded / ~102–121 px collapsed vs 272 / 88 | The rail measures 272.0 px expanded and 88.0 px collapsed in AR **and** EN at a true 1920 CSS viewport (and on the round-4 preview); the gate's numbers are those values ×1.22–1.25 (the same screenshot scale). AR is not content-wider than EN. Pinned the grid item to its track with `inline-size: 100%` and `min-inline-size: 0` so a long label can never grow the rendered rail. | `3fa71fd` |
+| R5-4 | Clicking the Theme ROW did nothing; only the switch worked | Not reproducible in a real browser: the row is one `<button role="menuitemcheckbox">` and a click at 12 %, 50 %, 82 % or 97 % of its width toggles the theme. The decorative switch is now `pointer-events: none`, so the row has a single hit target and no descendant can own the click. | `3fa71fd` |
+| R5-5 | The Interface settings theme label stayed stale after an account-menu toggle | `useTheme` held a private `useState` per mount, so the header and `/profile` had two independent copies. Theme state is now one module-level external store (`useSyncExternalStore`), shared by both; the account-menu row updates the settings button in the same render. | `3fa71fd` |
+| R5-6 | The first EN→AR switch flipped light→dark | Not reproducible with clean storage, nor with a stored choice: the language switch is a normal navigation and never touches the theme. Hardened so it cannot regress: the pre-paint script now always writes the resolved theme (light or dark) to `<html>`, and the store resolves a valid stored choice before the pre-painted attribute (`resolveTheme`). The resolver has no language input. Light and dark were verified across EN→AR→EN. | `3fa71fd` |
+
+#### Round-5 measurements (real Chromium, `getBoundingClientRect`)
+
+Setup for every figure: window 1920 × 1000, `window.innerWidth` 1920, `devicePixelRatio` 1, root `html` font-size 17 px, computed `zoom` 1. Measured on the dev server and repeated on the round-4 preview build; both agree. "Visible glyph edge" is a canvas alpha scan of the rendered wordmark (first column with alpha > 40), not the image box.
+
+**Wordmark (item 1).**
+
+| State | Language | Visible glyph edge | Target line | Δ |
+| --- | --- | --- | --- | --- |
+| Collapsed | EN | 28.1 px | icon chip inline-start 27.6 px | +0.5 px |
+| Collapsed | AR | 1881.5 px | icon chip inline-start 1882.0 px | −0.5 px |
+| Expanded | EN | 70.0 px | nav label column 70.0 px | 0.0 px |
+| Expanded | AR | 1839.5 px | nav label column (right) 1839.6 px | −0.1 px |
+
+- Collapsed rail 88.0 px in both languages; header `padding-inline-start` 28 px. Sampled immediately after the click and again at 60 ms and 300 ms: rail, padding, chip and glyph are identical in all three samples, so there is no transient frame any more.
+- The 0.5 px residual is sub-pixel: the alpha edge sits at 13.235 % of the artwork (18.0 px of 136) while CSS compensates the 13.204 % geometric inset (17.96 px), and the chip is centred in the rail's content box (inside its 1.5 px inline-end rule), not its border box.
+
+**Sidebar (item 3).**
+
+| State | EN width | AR width | Grid tracks |
+| --- | --- | --- | --- |
+| Expanded | 272.0 px | 272.0 px | `272px 1637.6px` |
+| Collapsed | 88.0 px | 88.0 px | `88px 1821.6px` |
+
+**Mohsen popup (item 2).**
+
+| Language | `getBoundingClientRect().width` | Computed `width` | Computed `max-inline-size` | Root font-size | Transform |
+| --- | --- | --- | --- | --- | --- |
+| EN | 544.0 px | 544 px | 544 px | 17 px | none |
+| AR | 544.0 px | 544 px | 544 px | 17 px | none |
+
+**Theme row and settings label (items 4–5).**
+
+| Click point (fraction of the row width) | Theme before | Theme after |
+| --- | --- | --- |
+| 0.12 (over the icon) | dark | light |
+| 0.50 (over the label) | light | dark |
+| 0.82 (over the switch gap) | dark | light |
+| 0.97 (over the switch edge) | light | dark |
+
+| Step | Theme | Stored | Settings button label | Row `aria-checked` |
+| --- | --- | --- | --- | --- |
+| `/profile`, light | light | light | "Switch to dark theme" | – |
+| Account-menu row clicked at 12 % | dark | dark | "Switch to light theme" (same tick) | true |
+
+The menu stays open after the row click, and the label is already correct when it is read immediately afterwards — no reload.
+
+**Language switch (item 6).**
+
+| Theme set | EN | AR | EN again |
+| --- | --- | --- | --- |
+| Dark | dark / stored dark | dark / stored dark | dark / stored dark |
+| Light | light / stored light | light / stored light | light / stored light |
+
+**Why the gate's sidebar and popup numbers differ.** The gate measured screenshots, not geometry. In a 1920-px window at 80 % browser zoom the CSS viewport is 1536 px and `devicePixelRatio` is 1.25; the clamps resolve identically at 1536 and 1920 (272 / 88 / 544 CSS px), so a 1920-px screenshot shows 340 / 110 / 680 device pixels. The gate's 332–336 / 102–110 / 656–670 crop estimates sit inside that ±2–3 px reading error. The AR readings (up to 384 / 121) exceed even that scale, but there is no AR width rule: `grep` finds one clamp for both directions and the measured AR rail is 272.0 / 88.0. At a true 1920 CSS viewport (and on the round-4 preview `bridgio-frontend-51g2lxcxs-youssef-17fc.vercel.app`) the rail is 272 / 88 and the panel 544 in both languages.
+
 ---
 
 ## 1. Items 1–4: what `main` actually had
@@ -231,11 +301,11 @@ Seed accounts accept any non-empty password: `mona.teacher@bridgio.test` (teache
 
 | Gate | Result |
 | --- | --- |
-| `npm test` | **160 passed (160)**, 18 files |
+| `npm test` | **166 passed (166)**, 18 files |
 | `npm run typecheck` | **pass** (`tsc --noEmit`, no output) |
 | `npm run build` | **pass**, exit 0 (vite client + Nitro SSR, then `tsc --noEmit`) |
 
-The follow-up adds one test file (`src/content/roles.test.ts`: three `roleLabel` cases — female label, null keeps neutral, male keeps neutral — three `dashboardLabel` cases for the 2026-11-16 correction, and four `dashboardLinkLabel` cases for round 2 — female, non-female, no session, and English) and one mock-adapter expectation (`support.submitRequest` added to `EXPECTED_METHODS`). Batch 5 ended at 150; nothing was removed. Round 2 takes the count from 156 to 160. Round 3 adds two `dashboardNavLabel` cases (gendered Arabic, one-word English for every gender) and takes the count from 160 to 162. Round 4 removes those two cases together with the `dashboardNavLabel` helper, returning the count to **160**; no other test changed.
+The follow-up adds one test file (`src/content/roles.test.ts`: three `roleLabel` cases — female label, null keeps neutral, male keeps neutral — three `dashboardLabel` cases for the 2026-11-16 correction, and four `dashboardLinkLabel` cases for round 2 — female, non-female, no session, and English) and one mock-adapter expectation (`support.submitRequest` added to `EXPECTED_METHODS`). Batch 5 ended at 150; nothing was removed. Round 2 takes the count from 156 to 160. Round 3 adds two `dashboardNavLabel` cases (gendered Arabic, one-word English for every gender) and takes the count from 160 to 162. Round 4 removes those two cases together with the `dashboardNavLabel` helper, returning the count to **160**; no other test changed. Round 5 adds six `theme-state` cases — theme resolution when a stored choice and a pre-painted attribute disagree, the pre-paint fallback, the no-source default, and the shared store's toggle and subscriber contract — taking the count from 160 to **166**.
 
 Runtime checks (dev server, Chromium, 1920 / 1440 / 390):
 
@@ -262,6 +332,16 @@ Round-4 runtime checks (dev server, Chromium, 1024 / 1440 / 1920; AR and EN unle
 - Header theme: the sun/moon button is gone; the account menu still exposes the Theme switch, and toggling it flips `data-theme` and persists `bridgio-theme`.
 - Guest: "Continue as a guest" lands on the teacher dashboard preview with no session and no invented account; signing in afterwards still works.
 - Wordmark: the visible glyph edge matches the sidebar edge at 1024 / 1440 / 1920 in AR and EN, expanded (nav label column, 70 px) and collapsed (icon chip, 16 / 28 px); figures in the round-4 table above.
+
+Round-5 runtime checks (dev server, Chromium; 1920 × 1000, `innerWidth` 1920, `devicePixelRatio` 1; AR and EN):
+
+- Collapsed wordmark: after the collapse the rail is 88.0 px, header padding 28 px, icon chip inline-start 27.6 px (EN) / 1882.0 px (AR, right edge), and the alpha-scan glyph edge 28.1 px / 1881.5 px — a 0.5 px residual. The same four values are already true in the first sample taken immediately after the click (and at 60 ms and 300 ms), so the old in-flight offset is gone.
+- Sidebar: rail 272.0 px expanded and 88.0 px collapsed in both languages; tracks `272px 1637.6px` / `88px 1821.6px`; `document.scrollWidth == clientWidth` (1910) at 1920.
+- Mohsen popup: `getBoundingClientRect().width` 544.0 px, computed `width: 544px`, `max-inline-size: 544px`, root 17 px, `transform: none` after the entry animation, EN and AR.
+- Theme row: a click at 12 / 50 / 82 / 97 % of the row width toggles the theme every time; the switch is `pointer-events: none`.
+- Settings label: on `/profile` in the light theme the button reads "Switch to dark theme"; clicking the account-menu row reads "Switch to light theme" immediately, with the row `aria-checked="true"` and the menu still open.
+- Language switch: `data-theme` and `bridgio-theme` stay `light` across EN→AR→EN and stay `dark` across EN→AR→EN.
+- The round-4 preview build (`51g2lxcxs`) measured 272 / 88 / 544 at a true 1920 viewport, matching the dev server.
 
 ---
 
@@ -303,6 +383,11 @@ All under `docs/screenshots/`. Each pair of `-rest` / `-pressed` images uses the
 | Round 4 — "Continue as a guest" on sign-in (AR + EN, 1920) | `followup-r4-signin-guest-ar-1920.png`, `followup-r4-signin-guest-en-1920.png` |
 | Round 4 — guest dashboard with no session (AR + EN, 1920) | `followup-r4-guest-dashboard-ar-1920.png`, `followup-r4-guest-dashboard-en-1920.png` |
 | Round 4 — wordmark visible-glyph alignment, expanded + collapsed (1024 / 1440 / 1920, AR + EN) | `followup-r4-wordmark-expanded-1024-en.png`, `followup-r4-wordmark-expanded-1024-ar.png`, `followup-r4-wordmark-collapsed-1024-en.png`, `followup-r4-wordmark-collapsed-1024-ar.png`, `followup-r4-wordmark-expanded-1440-en.png`, `followup-r4-wordmark-expanded-1440-ar.png`, `followup-r4-wordmark-collapsed-1440-en.png`, `followup-r4-wordmark-collapsed-1440-ar.png`, `followup-r4-wordmark-expanded-1920-en.png`, `followup-r4-wordmark-expanded-1920-ar.png`, `followup-r4-wordmark-collapsed-1920-en.png`, `followup-r4-wordmark-collapsed-1920-ar.png` |
+| Round 5 — collapsed wordmark vs icon chip (1920, AR + EN; full + detail crop) | `followup-r5-wordmark-collapsed-en-1920.png`, `followup-r5-wordmark-collapsed-en-detail.png`, `followup-r5-wordmark-collapsed-ar-1920.png`, `followup-r5-wordmark-collapsed-ar-detail.png` |
+| Round 5 — sidebar rendered width, expanded + collapsed (1920, AR + EN) | `followup-r5-sidebar-expanded-en-1920.png`, `followup-r5-sidebar-expanded-ar-1920.png`, `followup-r5-sidebar-collapsed-en-1920.png`, `followup-r5-sidebar-collapsed-ar-1920.png` |
+| Round 5 — Mohsen popup width (1920, AR + EN) | `followup-r5-popup-en-1920.png`, `followup-r5-popup-ar-1920.png` |
+| Round 5 — Theme row click updates the settings label live (light → dark) | `followup-r5-settings-theme-light-1920.png`, `followup-r5-theme-row-toggle-settings-label-1920.png` |
+| Round 5 — language switch preserves the dark theme (EN → AR → EN) | `followup-r5-lang-switch-theme-kept-ar-dark-1920.png`, `followup-r5-lang-switch-theme-kept-en-dark-1920.png` |
 
 ---
 
