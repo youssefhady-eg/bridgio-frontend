@@ -69,9 +69,33 @@ export function SignInView() {
       void queryClient.invalidateQueries({
         queryKey: sessionQueryOptions().queryKey,
       })
+      setGuestTitle(nextRole)
       navigateToRoleHome(nextRole)
     },
   })
+
+  /**
+   * The router keeps the outgoing route (and its document title) on screen
+   * until the destination route commits. On a guest landing that briefly left
+   * the sign-in title in the tab, so write the destination title as soon as the
+   * role switch succeeds; the destination route's own `head` then writes the
+   * same value.
+   */
+  function setGuestTitle(nextRole: AppRole) {
+    switch (nextRole) {
+      case 'teacher':
+        document.title = strings.dashboard.headTitle
+        return
+      case 'student':
+        document.title = strings.studentHome.headTitle
+        return
+      case 'parent':
+        document.title = strings.parent.headTitle
+        return
+      case 'assistant':
+        document.title = strings.assistant.headTitle
+    }
+  }
 
   function navigateToRoleHome(nextRole: UserRole) {
     switch (nextRole) {

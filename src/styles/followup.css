@@ -1008,6 +1008,36 @@ select.input {
     gap: 12px;
   }
 
+  /*
+   * Both lists are single-column grids. Their implicit `auto` track was sized
+   * by the rows' min-content width (the 32 px chip plus the animated inline
+   * padding), which is the rail minus the 24 px nav padding but not minus the
+   * sidebar's trailing hairline. The track therefore stuck out by that
+   * hairline, the nav's `scrollWidth` exceeded its `clientWidth`, and the
+   * folded rail grew a horizontal scrollbar under Support. Fill the track from
+   * the content box and let the rows shrink instead; the chip still lands on
+   * `--chip-line`.
+   */
+  .app-sidebar__list,
+  .utility-links {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .app-sidebar__list > li,
+  .utility-links > li {
+    min-inline-size: 0;
+  }
+
+  /*
+   * Utilities used to carry a second 12 px inline inset on top of the nav's
+   * own 12 px, so their icons sat 12 px right of the main nav icons (and off
+   * the folded rail's centre). One inset is enough: the shared `--chip-line`
+   * padding then puts all rows on the same edge in both states.
+   */
+  .utility-links {
+    padding-inline: 0;
+  }
+
   /* Labels sit on the expanded line every frame (70 px from the shell edge,
      58 px from the link box, which starts after the 12 px nav padding). */
   .app-sidebar__link .app-sidebar__label,

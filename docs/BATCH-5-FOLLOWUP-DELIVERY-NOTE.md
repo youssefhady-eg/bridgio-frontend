@@ -279,6 +279,85 @@ The 32 rem column renders 544 px because the desktop root is 17 px, not 16; the 
 
 ---
 
+### Correction 2026-11-18 (round 7) — owner follow-up
+
+The seventh pass closes three items: the folded rail's horizontal scrollbar, the EN guest Parent tab title, and a fresh icon-centre audit at 1024 / 1440 plus mid-animation at 1920 and 1024. The docs sync is its own commit; the code, note and screenshots are a second. The branch is pushed only — no PR, no merge.
+
+**Docs first — done.** Commit `a8cfcf5` replaces `docs/BRIDGIO-LIVE_RULES.md` with the copy supplied on 2026-11-18 (including the 15:47 owner-feedback paragraph). The committed file is **123,948 bytes**, SHA-1 `17ffadbedd5889ece6db7c90593d40a776453d96`, SHA-256 `0FEA9E6484F40F68082E8086B1C2E1123BE28A516BBD847F7904B87780B55115`, Git blob `5747c3de8e3c06325d0f7de481292dbaa46463a0`. The round-6 copy was 111,001 bytes; this one is larger and different, so the sync is real. (The hand-off listed 123,035 bytes / `f7abbc38`; the copy actually received and committed here is the larger file with the later paragraph.)
+
+| # | Round-7 finding | Fix |
+| --- | --- | --- |
+| R7-1 | A horizontal scrollbar appears under the folded rail; the Support row and the foot are squeezed | The overflow was **content**, not the scrollbar. `.utility-links` is a grid whose implicit `auto` track took the rows' 64 px min-content width (32 px chip + 2 × 16 px inline padding), while its own content box was 39.17 px after the 12 px nav padding and its 12 px container padding. The track ran to x = 88 in a nav whose `clientWidth` is 87 (the 1.5 px trailing border paints as 0.8 px at the 125 % capture zoom), so `scrollWidth` was 88 and Chromium reserved an 11 px horizontal bar. `.app-sidebar__list` had the same 64 px track inside a 63.17 px box (it stopped at x = 76, still inside the nav). Both desktop lists now use `grid-template-columns: minmax(0, 1fr)` and their `li` children `min-inline-size: 0`, so the rows shrink to the content box. `.utility-links` also drops its second 12 px inline padding, which is what put the utility icons 12 px right of the main icons: the shared `--chip-line` padding now puts every row on the same edge. The nav's `overflow-x: auto` and the app-wide scrollbar styling are untouched — nothing is hidden. |
+| R7-2 | The EN guest Parent landing keeps "Sign in — Bridgio" in the tab | The string was already right; the tab kept the outgoing route's title until the parent route committed. `guestMutation.onSuccess` now writes the destination title (`setGuestTitle`) **before** `navigateToRoleHome`, using the same `strings` object the destination `head` uses. The destination route still writes the same value. The wrong-title window is now the role switch itself (title correct in the ~120 ms sample, while the sign-in form is still on screen), not the route chunk. |
+| R7-3 | Re-check the icon centres at 1024 / 1440 and mid-animation | The defect reproduced: the utility chip centre was 12 px right of the main chip in **both** states (56 vs 44 at 1440 collapsed; 54 vs 42 expanded). After R7-1 the two centres are identical (0.00 px) in every settled and mid-animation sample. The toggle chip remains 0.7 px inline-start of the nav chips — a pre-existing sub-pixel difference, unchanged and inside the 1.6 px tolerance; it is not a layout defect. |
+
+#### Round-7 measurements (dev server, Chromium, `getBoundingClientRect`)
+
+Viewport 1440 × 1080 for the before/after row (rail 87.97 px, nav `clientWidth` 87, 1.5 px trailing border painting as 0.8 px at the 125 % capture zoom); 1024 / 1440 / 1920 × 1080 for the matrix; `devicePixelRatio` 1, AR and EN. The "before" row re-applies the round-6 rules in the same build (`grid-template-columns: auto`, `li { min-inline-size: auto }`, utility `padding-inline: 12px`), so the comparison is like for like.
+
+**Item 1 — the overflowing element, collapsed, EN, 1440.**
+
+| Measure | Round-6 rules | Round-7 fix |
+| --- | --- | --- |
+| `.app-sidebar__nav` client / scroll / horizontal bar | 87 / 88 / **11 px** | 87 / 87 / **0** |
+| `.utility-links` client / scroll | 63 / 76 | 63 / 63 |
+| `.app-sidebar__list` client / scroll | 63 / 64 | 63 / 63 |
+| Main icon x / centre | 27.99 / 43.99 | 27.99 / 43.99 |
+| Utility icon x / centre | 39.99 / **55.99** | 27.99 / **43.99** |
+| Rail width / centre | 87.97 / 43.99 | 87.97 / 43.99 |
+
+The overflowing element is `.utility-links`: its 12 px container padding + 64 px track ends at x = 88, past the nav's 87 px content edge. `.app-sidebar__list` overflows its own grid box by 0.8 px (64 vs 63.17) but not the nav. After the fix both lists report `scrollWidth == clientWidth`; the nav reports `scrollWidth == clientWidth` at every width, state, language and theme below (63 / 63 at 1024, 87 / 87 at 1440 and 1920). The screenshot pair `round7-before-rail-overflow-1440-en-light.png` / `round7-rail-fixed-1440-en-light.png` shows the same rail before and after. Support sits fully in view (row `top` 572.8, `bottom` 620.8; nav `top` 76, `bottom` 1005.6) and the foot chevron is outside the scrolling nav.
+
+**Item 3 — settled icon centres (CSS px).** Expanded rows are on the 26 px chip line (labels on 70 px); collapsed rows are on the rail centre. AR absolute x is the mirrored position; its inline insets are the same 26 / 28 px.
+
+| Width | Lang | State | Rail | Main centre | Utility centre | Toggle centre | Main − utility | Nav client / scroll |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1024 | EN | expanded | 200.00 | 42.00 | 42.00 | 41.30 | 0.00 | 199 / 199 |
+| 1024 | EN | collapsed | 64.00 | 32.00 | 32.00 | 31.30 | 0.00 | 63 / 63 |
+| 1024 | AR | expanded | 200.00 | 971.60 | 971.60 | 972.30 | 0.00 | 199 / 199 |
+| 1024 | AR | collapsed | 64.00 | 981.60 | 981.60 | 982.30 | 0.00 | 63 / 63 |
+| 1440 | EN | expanded | 272.00 | 42.00 | 42.00 | 41.30 | 0.00 | 271 / 271 |
+| 1440 | EN | collapsed | 87.97 | 43.99 | 43.99 | 43.29 | 0.00 | 87 / 87 |
+| 1440 | AR | expanded | 272.00 | 1387.60 | 1387.60 | 1388.30 | 0.00 | 271 / 271 |
+| 1440 | AR | collapsed | 87.97 | 1385.61 | 1385.61 | 1386.31 | 0.00 | 87 / 87 |
+| 1920 | EN | expanded | 272.00 | 42.00 | 42.00 | 41.30 | 0.00 | 271 / 271 |
+| 1920 | EN | collapsed | 88.00 | 44.00 | 44.00 | 43.30 | 0.00 | 87 / 87 |
+| 1920 | AR | expanded | 272.00 | 1867.60 | 1867.60 | 1868.30 | 0.00 | 271 / 271 |
+| 1920 | AR | collapsed | 88.00 | 1865.60 | 1865.60 | 1866.30 | 0.00 | 87 / 87 |
+
+Every row also has `offsetHeight - clientHeight = 0` (no horizontal bar) and `offsetWidth - clientWidth = 0` (no vertical bar); the document's `clientWidth == scrollWidth` at 1014 / 1430 / 1910 for the three widths, so there is no page-level horizontal overflow. The 0.7 px toggle difference is the same in all 12 rows and has not moved since round 6. The dark theme repeats the collapsed numbers exactly — 64 / 32 / 32 at 1024, 87.97 / 43.99 / 43.99 at 1440 and 88 / 44 / 44 at 1920, AR mirrored — with `hBar 0` and the same 1014 / 1430 / 1910 document widths; the Support row stays fully in view in all 12 theme combinations.
+
+**Item 3 — mid-animation.** Four collapse runs and four expand runs; requested sample times 0 / 60 / 125 / 250 ms, actual times below. "Rail" is the sidebar's rendered width; `hBar` is the nav's `offsetHeight - clientHeight`.
+
+| Width | Lang | Direction | Actual sample times (ms) | Rail at 0 / 60 / 125 / 250 ms | `hBar` at all four | Main = utility centre |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1920 | EN | collapse | 1.3 / 67.5 / 133.7 / 259.6 | 272.00 / 247.35 / 137.69 / 88.00 | 0 / 0 / 0 / 0 | yes, 0.00 px |
+| 1920 | AR | collapse | 0.8 / 68.0 / 147.7 / 257.3 | 272.00 / 247.35 / 122.14 / 88.44 | 0 / 0 / 0 / 0 | yes, 0.00 px |
+| 1024 | EN | collapse | 0.6 / 67.3 / 146.8 / 259.6 | 200.00 / 181.78 / 89.24 / 64.33 | 0 / 0 / 0 / 0 | yes, 0.00 px |
+| 1024 | AR | collapse | 0.9 / 72.2 / 133.8 / 259.0 | 200.00 / 181.78 / 100.72 / 64.00 | 0 / 0 / 0 / 0 | yes, 0.00 px |
+| 1920 | EN | expand | 11.7 / 80.6 / 142.2 / 266.3 | 88.00 / 139.15 / 237.85 / 271.99 | 0 / 0 / 0 / 0 | yes, 0.00 px |
+| 1920 | AR | expand | 1.5 / 85.7 / 147.5 / 273.9 | 88.00 / 139.15 / 237.85 / 271.99 | 0 / 0 / 0 / 0 | yes, 0.00 px |
+| 1024 | EN | expand | 12.8 / 92.6 / 151.4 / 263.8 | 64.00 / 101.66 / 174.66 / 199.99 | 0 / 0 / 0 / 0 | yes, 0.00 px |
+| 1024 | AR | expand | 15.2 / 87.2 / 146.9 / 256.8 | 64.00 / 101.95 / 174.81 / 200.00 | 0 / 0 / 0 / 0 | yes, 0.00 px |
+
+In every one of the 40 samples main and utility share the same centre to 0.00 px; the toggle stays 0.70 px behind. The labels stay on the 70 px line (LTR; mirrored in RTL). In the collapse direction they fade through 0.16 at the ~60 ms sample and 0 at ~125 ms; in the expand direction they stay at 0 until the gather releases them and return to 1 by the 250 ms sample. The nav's `scrollWidth == clientWidth` in every sample, so the fix holds without a settled-state trick. The 400 ms sample (not shown) is the settled state in the table above.
+
+**Item 2 — guest Parent tab title.** Each row is one real click on the sign-in guest picker; "at ~120 ms" is the first sample after the URL changed. The sign-in form and h1 were still on screen in that sample, so the title moved before the destination route committed.
+
+| Role | Lang | URL in the ~120 ms sample | Title in that sample | Settled title |
+| --- | --- | --- | --- | --- |
+| Teacher | EN | `/teacher/dashboard?as=teacher&lang=en` | Teacher dashboard — Bridgio | Teacher dashboard — Bridgio |
+| Student | EN | `/student/home?as=student&lang=en` | My page — Bridgio | My page — Bridgio |
+| Parent | EN | `/parent/progress?as=parent&lang=en` | **Parents — Bridgio** | **Parents — Bridgio** |
+| Assistant | EN | `/assistant?as=assistant&lang=en` | Teacher Assistant area — Bridgio | Teacher Assistant area — Bridgio |
+| Parent | AR | `/parent/progress?as=parent&lang=ar` | ولي الأمر — Bridgio | ولي الأمر — Bridgio |
+
+Before this change the pre-fix parent sample read `Sign in — Bridgio` at ~100 ms and `Parents — Bridgio` only at ~250 ms. Direct SSR of `/parent/progress?as=parent&lang=en` has always returned `<title>Parents — Bridgio</title>`, which is why the fix is a timing fix in the role switch, not a string change. The settled title is written both by `setGuestTitle` and by the route's own `head`.
+
+**Non-regression.** The expanded rail keeps its 272 / 200 px column, 26 px chip line, 70 px label line and one-line labels: all 10 labels at 1024 and 1440 report one line box (`Range.getClientRects().length = 1`). The 12 layout combinations above also report no page overflow. The wordmark/header, sign-in column and guest picker, Mohsen popup (544 px), theme row, settings rows, language-preserves-theme behaviour, inline search, the no-sun/moon header, and the AR neutral sidebar beside the gendered H1 are untouched by this diff; the guest picker was exercised by the title test. The new rules are inside `@media (min-width: 1024px)`, so the phone drawer is unchanged.
+
+---
+
 ## 1. Items 1–4: what `main` actually had
 
 | # | Item | State in `main` (`ec831fc`) | What this branch adds |
@@ -371,8 +450,9 @@ Seed accounts accept any non-empty password: `mona.teacher@bridgio.test` (teache
 | `npm run build` | **pass**, exit 0 (vite client + Nitro SSR, then `tsc --noEmit`); the built CSS keeps `@property --rail-p` |
 | Live gate (owner, branch preview `16bxe9fqy`, 2026-11-17) | **pass** — all six round-5 fixes and the earlier behaviour, at 1920, AR + EN, light + dark |
 | Round-6 local gate | **pass** — the figures and screenshots in the round-6 section above |
+| Round-7 local gate | **pass** — docs sync, folded-rail overflow, guest Parent title and 40 mid-animation samples; figures in the round-7 section above |
 
-The follow-up adds one test file (`src/content/roles.test.ts`: three `roleLabel` cases — female label, null keeps neutral, male keeps neutral — three `dashboardLabel` cases for the 2026-11-16 correction, and four `dashboardLinkLabel` cases for round 2 — female, non-female, no session, and English) and one mock-adapter expectation (`support.submitRequest` added to `EXPECTED_METHODS`). Batch 5 ended at 150; nothing was removed. Round 2 takes the count from 156 to 160. Round 3 adds two `dashboardNavLabel` cases (gendered Arabic, one-word English for every gender) and takes the count from 160 to 162. Round 4 removes those two cases together with the `dashboardNavLabel` helper, returning the count to **160**; no other test changed. Round 5 adds six `theme-state` cases — theme resolution when a stored choice and a pre-painted attribute disagree, the pre-paint fallback, the no-source default, and the shared store's toggle and subscriber contract — taking the count from 160 to **166**. Round 6 adds three guest-preview cases to `mock-adapter.test.ts` — seed reads for all four roles with no session, writes rejecting `UNAUTHENTICATED` while no session is created, and the real session staying authoritative over `?as` — taking the count from 166 to **169**. No existing test changed.
+The follow-up adds one test file (`src/content/roles.test.ts`: three `roleLabel` cases — female label, null keeps neutral, male keeps neutral — three `dashboardLabel` cases for the 2026-11-16 correction, and four `dashboardLinkLabel` cases for round 2 — female, non-female, no session, and English) and one mock-adapter expectation (`support.submitRequest` added to `EXPECTED_METHODS`). Batch 5 ended at 150; nothing was removed. Round 2 takes the count from 156 to 160. Round 3 adds two `dashboardNavLabel` cases (gendered Arabic, one-word English for every gender) and takes the count from 160 to 162. Round 4 removes those two cases together with the `dashboardNavLabel` helper, returning the count to **160**; no other test changed. Round 5 adds six `theme-state` cases — theme resolution when a stored choice and a pre-painted attribute disagree, the pre-paint fallback, the no-source default, and the shared store's toggle and subscriber contract — taking the count from 160 to **166**. Round 6 adds three guest-preview cases to `mock-adapter.test.ts` — seed reads for all four roles with no session, writes rejecting `UNAUTHENTICATED` while no session is created, and the real session staying authoritative over `?as` — taking the count from 166 to **169**. No existing test changed. Round 7 changes no test and removes none; the count stays **169**.
 
 Runtime checks (dev server, Chromium, 1920 / 1440 / 390):
 
@@ -419,6 +499,15 @@ Round-6 runtime checks (dev server, Chromium; 1920 × 1080 unless noted; AR and 
 - Sign-in layout: at 1920 the column, hero, form, submit, guest grid and links row all measure 544 px and share the 960 px centre in EN and AR, light and dark. The old inner 28 rem form cap is gone. Gaps are 32 / 24 / 32 px, and the links row's outer edges meet the form's in both directions.
 - Sign-in contrast: hint 6.63:1 light and 8.43:1 dark; badge 14.91:1 / 11.45:1; auth controls 6.91:1 / 7.05:1.
 - Sign-in controls: the language control builds the URL through `hrefWithLang` and the theme switch toggles the shared store (`data-theme` and `bridgio-theme` move together); both appear on all four auth routes through `AuthLayout`.
+
+Round-7 runtime checks (dev server, Chromium; 1024 / 1440 / 1920 × 1080; AR and EN; light and dark):
+
+- Folded rail: after the fix, all 12 width × language × theme combinations report `.app-sidebar__nav` `scrollWidth == clientWidth`, no horizontal or vertical bar, `documentElement.scrollWidth == clientWidth`, and a fully visible Support row. The chevron lives in the foot, outside the nav, and is reachable in every combination.
+- The before/after pair at 1440 EN collapsed: nav 87 / 88 with an 11 px bar and utility centre 55.99 → 87 / 87 with no bar and utility centre 43.99. The main centre stays 43.99. `.utility-links` is the element that crossed the nav's content edge; `.app-sidebar__list` is fixed for the same min-content reason.
+- Expanded rail: 272 px at 1440 / 1920 and 200 px at 1024; chip line 26 px; label line 70 px; all 10 labels one line at 1024 and 1440 in both languages; no bars. The utility icons moved from 38 to 26 px onto the main icon line (the owner-visible 12 px offset); the rest of the expanded rail is unchanged.
+- Mid-animation: 20 collapse + 20 expand samples at 0 / ~60 / ~125 / ~250 ms on 1920 and 1024, AR and EN. Main and utility centres are equal to 0.00 px in every sample; toggle 0.70 px behind. `hBar = 0` in all 40; labels leave the line while gathered and return by the 250 ms expand sample.
+- Guest Parent title: with the fix, the tab reads `Parents — Bridgio` in EN and `ولي الأمر — Bridgio` in AR at the first ~120 ms sample (while the sign-in form is still on screen), and the same after the route commits. Teacher, Student, Parent and Assistant all follow their own destination title; no role falls back to `Sign in — Bridgio` once the switch succeeds.
+- No test, contract, dependency or route change; the only code files touched are `src/styles/followup.css` and `src/components/shared/SignInView.tsx`.
 
 ---
 
@@ -467,6 +556,9 @@ All under `docs/screenshots/`. Each pair of `-rest` / `-pressed` images uses the
 | Round 5 — language switch preserves the dark theme (EN → AR → EN) | `followup-r5-lang-switch-theme-kept-ar-dark-1920.png`, `followup-r5-lang-switch-theme-kept-en-dark-1920.png` |
 | Round 6 — sign-in, one column + role picker + auth controls (1920, EN + AR × light + dark) | `round6-signin-en-light-1920.png`, `round6-signin-en-dark-1920.png`, `round6-signin-ar-light-1920.png`, `round6-signin-ar-dark-1920.png` |
 | Round 6 — guest preview, four roles (1920, EN + AR, light) | `round6-guest-teacher-en-light-1920.png`, `round6-guest-teacher-ar-light-1920.png`, `round6-guest-student-en-light-1920.png`, `round6-guest-student-ar-light-1920.png`, `round6-guest-parent-en-light-1920.png`, `round6-guest-parent-ar-light-1920.png`, `round6-guest-assistant-en-light-1920.png`, `round6-guest-assistant-ar-light-1920.png` |
+| Round 7 — folded rail, no horizontal scrollbar (1024 / 1440 / 1920, EN + AR × light + dark) | `round7-rail-{1024,1440,1920}-{en,ar}-{light,dark}.png` |
+| Round 7 — the overflowing `.utility-links` recreated vs the fix (1440, EN, light) | `round7-before-rail-overflow-1440-en-light.png`, `round7-rail-fixed-1440-en-light.png` |
+| Round 7 — expanded utility icons on the main icon line (1440, EN + AR, light) | `round7-rail-expanded-1440-en-light.png`, `round7-rail-expanded-1440-ar-light.png` |
 
 ---
 
