@@ -413,7 +413,7 @@ h1 {
 }
 
 .button--primary:hover:not(:disabled) {
-  background: var(--bridgio-maroon-outline);
+  background: var(--primary-hover-bg);
 }
 
 .button--secondary {

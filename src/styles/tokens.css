@@ -28,6 +28,10 @@
   --bridgio-paper-fixed: #fff6e8;
   --bridgio-maroon: #2c0706; /* ink / default text on cream */
   --bridgio-maroon-outline: #471e1b; /* logo outline dark */
+  /* Primary-button hover/press fill. Light swaps the cream fill for the
+     logo-outline maroon (cream label stays on top). Dark must not do that —
+     see the dark block, where it dips the cream fill instead. */
+  --primary-hover-bg: var(--bridgio-maroon-outline);
   --bridgio-success: #1f7a57;
   --bridgio-info: #2a62b0;
   --bridgio-warning-fill: #f2a93b; /* fill only, never amber text on cream */
@@ -138,8 +142,17 @@
   --bridgio-paper: #471e1b; /* surface          = locked logo-outline (lifted) */
   --bridgio-maroon: #f9ecd9; /* ink/outline      = brand cream */
   /* --bridgio-red / --bridgio-red-accent: unchanged (accent only). */
-  /* --bridgio-maroon-outline: unchanged (#471e1b) — it is the primary-button
-     hover shade and still reads as a darkening under cream buttons. */
+  /* --bridgio-maroon-outline: unchanged (#471e1b) — it is the logo outline,
+     not a usable primary-button hover fill here. Under the swapped tokens the
+     primary button is cream with maroon ink, so hovering to #471e1b painted
+     maroon on maroon (measured 1.29:1 on the sign-up submit). Keep the cream
+     fill and dip it toward the dark paper instead: same press affordance,
+     ink stays readable. */
+  --primary-hover-bg: color-mix(
+    in srgb,
+    var(--bridgio-maroon) 88%,
+    var(--bridgio-paper)
+  );
 
   /* ---- Status hues derived from the locked hues toward cream (AA) ------- */
   --bridgio-success: #76a88b;

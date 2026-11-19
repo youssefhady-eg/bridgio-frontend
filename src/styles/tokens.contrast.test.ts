@@ -103,3 +103,61 @@ describe('dark theme status hues meet WCAG AA (4.5:1) on the dark surface', () =
     expect(contrast('#2c0706', token('--bridgio-warning-fill'))).toBeGreaterThanOrEqual(4.5)
   })
 })
+
+/** Resolve a `var(--token)` indirection inside one theme scope. */
+function resolve(
+  value: string,
+  read: (name: string) => string,
+): string {
+  const ref = /^var\((--[\w-]+)\)$/.exec(value.trim())
+  return ref?.[1] ? resolve(read(ref[1]), read) : value
+}
+
+/** Resolve the `color-mix(in srgb, A n%, B)` formula the dark token uses. */
+function mix(value: string, read: (name: string) => string): string {
+  const flat = value.replace(/\s+/g, ' ').trim()
+  const m = /^color-mix\( in srgb, (.+?) ([\d.]+)%, (.+?) \)$/.exec(flat)
+  if (!m?.[1] || !m[2] || !m[3]) throw new Error(`cannot mix ${value}`)
+  const a = parse(resolve(m[1], read)).rgb
+  const b = parse(resolve(m[3], read)).rgb
+  const p = Number(m[2]) / 100
+  return `rgb(${[0, 1, 2]
+    .map((i) => Math.round(a[i]! * p + b[i]! * (1 - p)))
+    .join(', ')})`
+}
+
+/** The hover/press fill of the primary button, in the given theme scope. */
+function primaryFill(
+  value: string,
+  read: (name: string) => string,
+): string {
+  const resolved = resolve(value, read)
+  return resolved.startsWith('color-mix(') ? mix(resolved, read) : resolved
+}
+
+/**
+ * The primary button's label sits on the hover/press fill, not the resting
+ * fill. Round 8's gate found the dark button painting maroon ink (#2c0706)
+ * on the logo-outline maroon (#471e1b) once a submit attempt left the pointer
+ * on it: 1.29:1. These pin the hover/press fill to a readable pair in both
+ * themes without touching the resting button or the light hover shade.
+ */
+describe('primary button stays readable on its hover/press fill', () => {
+  it('light: cream label on the logo-outline maroon', () => {
+    expect(
+      contrast(
+        token('--bridgio-cream'),
+        primaryFill(token('--primary-hover-bg'), token),
+      ),
+    ).toBeGreaterThanOrEqual(4.5)
+  })
+
+  it('dark: maroon label on the dipped cream fill', () => {
+    expect(
+      contrast(
+        darkToken('--bridgio-cream'),
+        primaryFill(darkToken('--primary-hover-bg'), darkToken),
+      ),
+    ).toBeGreaterThanOrEqual(4.5)
+  })
+})

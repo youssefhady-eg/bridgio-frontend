@@ -449,6 +449,77 @@ The guest menu stays "Guest — Assistant" throughout, and the language link car
 
 **Non-regression.** `npm test` is 18 files / **169 of 169** (unchanged from the round-7 baseline at `c67d395`), `npm run typecheck` is clean, and `npm run build` succeeds. `src/api/config.ts`, the shared `.capability-list` base rules outside `.assistant-page`, the signed-in account menu, the expanded rail, the motion tokens and the Thmanyah font are untouched by this diff. Out of scope and left alone: the round-7 scrollbar and EN guest Parent title fixes, the Mohsen sign-out/in, the 390 px and console checks, and the Vercel toolbar overlay.
 
+### Correction 2026-11-19 (round 9) — owner follow-up
+
+The ninth pass works the four round-8 live-gate findings on `feat/finish-frontend-followup`, on top of the round-8 tip `d2664ca`: the dark "Create account" submit button after an invalid submit, the AR collapsed rail and wordmark, `/student/home` losing the guest session on a language switch, and the theme surviving a language switch. Two of the four did not reproduce on this tip; that is stated with the measurements rather than papered over, and no code was changed for them.
+
+**Baseline at `d2664ca`, before any edit.** `npm test` **18 files / 169 of 169**, `npm run typecheck` clean, `npm run build` exit 0. The branch was clean at that tip.
+
+**Docs first — no round-9 copy exists on this machine, so no sync is recorded.** `BRIDGIO-LIVE_RULES.md` was searched for under `C:\Users\Youssef Hady` (repo `docs/`, both worktrees, `%TEMP%`). The newest copies are all the round-8 file: **130,440 bytes**, SHA-256 `02fef6e77a3c3173c9ac6503be0a31348d7c01b92ca08ef54c7b9a003bd0dd3f`, ending at the round-8 fold decision, with no round-9 tail. `docs/BRIDGIO-LIVE_RULES.md` is therefore untouched by this round. The round-9 scope is taken from the owner brief, not from a file, and no sync is claimed that did not happen.
+
+| # | Round-9 finding | Cause and fix |
+| --- | --- | --- |
+| R9-1 | Dark "Create account" submit is unreadable once a submit attempt has been made | **The state is `:hover` (and `:active`), not `:disabled`.** An invalid form never starts the mutation, so the button stays enabled; after the click the pointer rests on it, which is what the gate photographed. `.button--primary:hover:not(:disabled)` and `.button--primary:active:not(:disabled)` painted `--bridgio-maroon-outline` (`#471e1b`) while the label is `--bridgio-cream` — which dark redefines as `#2c0706` — measuring **1.29:1**. Fix: one new role token, `--primary-hover-bg`. Light keeps today's `var(--bridgio-maroon-outline)` exactly; dark keeps the cream fill and dips it toward the dark paper with `color-mix(in srgb, var(--bridgio-maroon) 88%, var(--bridgio-paper))`. Hover in `app.css` / `polish.css` and press in `followup.css` now read that token. The resting button, the enabled state and the light theme are unchanged; no new hex value is introduced. |
+| R9-2 | AR collapsed rail narrower than EN and its wordmark off the rail edge | **Not reproducible on `d2664ca` or this tip.** The collapsed rail is one shared `--rail-collapsed: clamp(64px, 6.11vw, 88px)` for both directions: measured **88.00 px for EN and AR** at 1920 × 1080, with the icon centre on the rail centre to **0.00 px** and the AR wordmark's painted edge on the rail's inner edge to **−0.04 px** (EN +0.38 px — both sub-pixel). Dark is identical (the cream wordmark takes over), and the built preview matches the dev server. No code change: redoing either rail would have broken the round-8 numbers the gate already accepted. |
+| R9-3 | `/student/home` shows "No student session" after the language switch, after a reload and on a direct `?as=student` load | **Cause: the route loader's SSR session prefetch.** `student.home` called `ensureQueryData(sessionQueryOptions())`, and SSR cannot see `?as=`; a preview build that bakes a seeded account (VITE_MOCK_SESSION unset → `readSession` defaults to `teacher`) dehydrates that teacher into the query cache with a 30 s `staleTime`. Guest preview only activates while `getSession()` is `null`, so the client lost the preview. The language link already preserved `as` (`hrefWithLang`, covered by `lang.test.ts`); the full-page navigation was simply re-running the bad prefetch. Fix: the same guard `assistant.tsx` got in round 8 — when `api.mode === 'mock'` and the location carries `?as=`, skip the session/profile/progress/attempts prefetch and let the client answer it. |
+| R9-4 | Theme does not survive a language switch | **Not reproducible.** 6/6 switches in both directions on the built preview, from the account-menu Theme row (seeded session) and from the sign-in control (no session), plus 6/6 on the dev server; the four-step guest flow (set dark on sign-in → Student preview → switch) also stays dark. `resolveTheme` never takes the active language as an input, the pre-paint script re-applies the stored value on every full navigation, and `theme-state.test.ts` already pins the contract. No code change. |
+
+#### Round-9 measurements (Chromium 1255 via CDP, 1920 × 1080, `devicePixelRatio` 1)
+
+The in-app browser pane is 1000 px wide, below the 1024 px desktop breakpoint, so every number below was taken through the DevTools protocol with a true 1920 CSS-pixel viewport at dpr 1. Contrast is composited from the computed colours: the button's own background, its 8 % disabled overlay and the alpha label over that fill.
+
+**Item 1 — sign-up submit, light and dark, EN and AR.** EN and AR report the same colours; the label is `Create account` (142.86 × 44 px) or `إنشاء الحساب` (122.39 × 44 px). `after submit` is the state the gate photographed: one real click on the untouched form, pointer left on the button, native validation blocks the request, the button stays `disabled: false`.
+
+| Theme | State | Fill | Label | Contrast |
+| --- | --- | --- | --- | --- |
+| Light | enabled (rest) | `rgb(44, 7, 6)` | `rgb(249, 236, 217)` | 15.81:1 (unchanged) |
+| Light | after submit (`:hover`) | `rgb(71, 30, 27)` | `rgb(249, 236, 217)` | 12.27:1 (unchanged) |
+| Light | disabled | `rgb(238, 227, 214)` | `rgba(44, 7, 6, 0.4)` → `rgb(160, 139, 131)` | 2.54:1 (unchanged; disabled is WCAG-exempt) |
+| Dark | enabled (rest) | `rgb(249, 236, 217)` | `rgb(44, 7, 6)` | 15.81:1 (unchanged) |
+| Dark | after submit (`:hover`) | `rgb(228, 211, 194)` | `rgb(44, 7, 6)` | **12.64:1** (was **1.29:1** on `#471e1b`) |
+| Dark | disabled | `rgb(85, 46, 42)` | `rgba(249, 236, 217, 0.62)` → `rgb(187, 164, 151)` | 4.87:1 (unchanged since round 8) |
+
+The press state adds `filter: brightness(0.96)` on the same dark fill, which stays above 11:1. Two assertions were added to `tokens.contrast.test.ts` that resolve `--primary-hover-bg` in each theme and require ≥ 4.5:1, so the maroon-on-maroon pair cannot come back. Screenshots `round9-item1-signup-{en,ar}-{light,dark}-{enabled,after-submit,disabled}.png`.
+
+**Item 2 — collapsed rail and wordmark, `getBoundingClientRect` per combination** (1920 × 1080; light and dark identical apart from which wordmark file is visible). "Edge on rail" is the AR wordmark's painted inline-start edge minus the rail's inner edge (EN: painted end minus the rail's far edge).
+
+| Combo | Rail box (x, w) | Grid column | Icon centre − rail centre | Wordmark box (x, w) | Edge on rail | Sidebar overflow |
+| --- | --- | --- | --- | --- | --- | --- |
+| EN light | 0.00, 88.00 | 88px | 0.00 | 18.73, 70.25 | +0.38 | none |
+| AR light | 1832.00, 88.00 | 88px | 0.00 | 1822.72, 70.25 | −0.04 | none |
+| EN dark | 0.00, 88.00 | 88px | 0.00 | 18.73, 70.25 | +0.38 | none |
+| AR dark | 1832.00, 88.00 | 88px | 0.00 | 1822.72, 70.25 | −0.04 | none |
+
+Width sweep, collapsed, EN vs AR rail: **87.97 / 87.97** at 1440, **83.45 / 83.45** at 1366, **78.20 / 78.20** at 1280, **67.20 / 67.20** at 1100, **64.00 / 64.00** at 1024 — one shared clamp, so the directions cannot diverge. The icon centre is on the rail centre to ≤ 0.01 px at every width. The built preview repeats the 1920 and 1280 rows exactly. The expanded rail (272.00 px at 1920 and 1440) and the EN collapsed rail were not touched. Screenshots `round9-item2-collapsed-{en,ar}-{light,dark}.png`.
+
+**Item 3 — guest preview on `/student/home`, seeded-teacher build (`VITE_MOCK_SESSION` unset).** Reproduced first, then re-run after the loader fix; the table is the built preview (`4190`), and the dev server (`5175`) reports the same six rows.
+
+| Step | URL | Guest badge | Greeting | Progress data | "No student session" |
+| --- | --- | --- | --- | --- | --- |
+| Preview from sign-in | `/student/home?as=student&lang=en` | Student | Hello, سارة محمد! | 67 %, 2 units | no |
+| Switch EN→AR | `...&lang=ar` | الطالب | أهلًا يا سارة محمد! | ٦٧٪, وحدتان | no |
+| Switch AR→EN | `...&lang=en` | Student | Hello, سارة محمد! | yes | no |
+| Reload | `...&lang=en` | Student | Hello, سارة محمد! | yes | no |
+| Direct load EN | `...&lang=en` | Student | Hello, سارة محمد! | yes | no |
+| Direct load AR | `...&lang=ar` | الطالب | أهلًا يا سارة محمد! | yes | no |
+
+Pre-fix, the same six steps read `guest: false`, "No student session" / "مفيش جلسة طالب" from step 2 onward (reproduced on `5175`, teacher-seeded). Re-verified on the same build: `/assistant?as=assistant&lang=ar` (guest, هالة محمود), `/teacher/dashboard?as=teacher&lang=ar` (real teacher session, no guest badge — `as` matches the baked role), `/parent/progress?as=parent&lang=ar` (guest, child سارة محمد). Screenshots `round9-item3-student-home-{en,ar}.png`, `round9-item3-{assistant,teacher-dashboard,parent-progress}-en.png`.
+
+**Item 4 — theme across the language switch, built preview.** Each row is one toggle followed by one language switch; "survived" means both `data-theme` and `localStorage['bridgio-theme']` still held the toggled value after the navigation.
+
+| Flow | Direction | Survived |
+| --- | --- | --- |
+| Sign-in control, no session (build has no baked account) | EN→AR / AR→EN, three each | **6/6** |
+| Account-menu Theme row, seeded teacher | EN→AR / AR→EN, three each | **6/6** |
+| Dev server, account-menu Theme row | EN→AR / AR→EN, three each | **6/6** |
+| Guest flow: dark on sign-in → Student preview → switch | EN→AR | dark before and after |
+
+Screenshots `round9-item4-en-dark-{before,after}.png` (EN→AR) and `round9-item4-ar-dark-{before,after}.png` (AR→EN).
+
+**Gates after the changes.** `npm test` **18 files / 171 of 171** (the round-8 169 plus the two new button-fill assertions), `npm run typecheck` clean, `npm run build` succeeds (`✓ built in 1.53s`). Nothing outside the five touched source files and the test file changed: `src/routes/student.home.tsx`, `src/styles/{tokens,app,polish,followup}.css`, `src/styles/tokens.contrast.test.ts`.
+
+**Non-regression and out of scope.** Light-mode buttons, the enabled primary button, the disabled tokens, the EN collapsed rail, the expanded rail and the wordmark scale formula are byte-identical to `d2664ca`. The round-8 passing items (pill links, guest menu, assistant cards) were not touched. Out of scope and left alone: the per-role wordmark theory, the mock password, email trimming, the Mohsen sign-out (it did not recur), the 390 px and console checks, and the Vercel toolbar overlay.
+
 ---
 
 ## 1. Items 1–4: what `main` actually had

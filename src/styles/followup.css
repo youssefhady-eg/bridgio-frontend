@@ -166,7 +166,11 @@ html {
   transform: scale(var(--motion-press-scale));
 }
 
-.button--primary:active:not(:disabled),
+.button--primary:active:not(:disabled) {
+  background: var(--primary-hover-bg);
+  filter: brightness(0.96);
+}
+
 .mohsen-fab:active {
   background: var(--bridgio-maroon-outline);
   filter: brightness(0.96);
