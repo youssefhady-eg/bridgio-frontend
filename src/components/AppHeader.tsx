@@ -6,6 +6,7 @@ import { sessionQueryOptions } from '~/api/queries'
 import { AppIcon } from '~/components/AppIcon'
 import { HeaderSearch } from '~/components/HeaderSearch'
 import { hrefWithLang } from '~/shell/lang'
+import { useGuestPreview } from '~/shell/useGuestPreview'
 import { usePreviewRole } from '~/shell/usePreviewRole'
 import type { Theme } from '~/shell/theme-state'
 import { useLang, useStrings } from '~/shell/useStrings'
@@ -48,6 +49,7 @@ export function AppHeader({
   const searchStr = href.slice(pathname.length).split('#')[0] ?? ''
   const lang = useLang()
   const role = usePreviewRole()
+  const guest = useGuestPreview()
   const strings = useStrings()
   const nextLang = lang === 'en' ? 'ar' : 'en'
 
@@ -254,6 +256,37 @@ export function AppHeader({
                       {signOutMutation.isPending
                         ? strings.header.signingOutLabel
                         : strings.header.signOutLabel}
+                    </button>
+                  </>
+                ) : guest.active && guest.role ? (
+                  <>
+                    <p className="account-menu__role">
+                      {strings.guestPreview.roleLine(
+                        strings.auth.guestRoles[guest.role],
+                      )}
+                    </p>
+                    <Link
+                      to="/sign-in"
+                      search={{ as: guest.role, lang }}
+                      className="account-menu__item"
+                      role="menuitem"
+                      preload={false}
+                      onClick={() => setAccountOpen(false)}
+                    >
+                      <AppIcon name="user" size={18} />
+                      {strings.header.signInLabel}
+                    </Link>
+                    <button
+                      type="button"
+                      className="account-menu__item"
+                      role="menuitem"
+                      onClick={() => {
+                        setAccountOpen(false)
+                        void navigate({ to: '/sign-in', search: { lang } })
+                      }}
+                    >
+                      <AppIcon name="close" size={18} />
+                      {strings.guestPreview.exit}
                     </button>
                   </>
                 ) : (

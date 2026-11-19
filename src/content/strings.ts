@@ -160,6 +160,8 @@ export const ar = {
     badge: 'معاينة الزائر',
     body: 'بيانات تجريبية. سجّل الدخول لعرض بياناتك.',
     signIn: 'تسجيل الدخول',
+    roleLine: (role: string) => `زائر — ${role}`,
+    exit: 'الخروج من معاينة الزائر',
   },
   /** Nav item labels — teacher copy is MSA formal, student copy is Egyptian casual, parent copy is MSA formal. */
   nav: {
@@ -1746,6 +1748,8 @@ export const en: Strings = {
     badge: 'Guest preview',
     body: 'Demo data. Sign in to see your own.',
     signIn: 'Sign in',
+    roleLine: (role: string) => `Guest — ${role}`,
+    exit: 'Exit guest preview',
   },
   nav: {
     'teacher-dashboard': 'Dashboard',

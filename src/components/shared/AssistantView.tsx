@@ -186,7 +186,7 @@ function Frame({
 }) {
   const copy = useStrings().assistant
   return (
-    <div className="dashboard">
+    <div className="dashboard assistant-page">
       <PageHero
         badge={copy.badge}
         title={copy.title}

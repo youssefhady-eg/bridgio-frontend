@@ -171,17 +171,37 @@
 }
 
 .auth-links__link {
+  position: relative;
+  isolation: isolate;
   display: inline-flex;
   align-items: center;
   min-height: var(--touch-target);
   padding-inline: 0;
-  border-radius: var(--radius-input);
+  border-radius: 0;
   color: var(--bridgio-maroon);
   font-weight: 600;
   text-decoration: none;
 }
 
-.auth-links__link:hover {
+/* Plain text at rest. The wash is a text-line highlight on hover/keyboard
+   focus only — not a filled 44 px pill. The link keeps the 44 px hit area
+   without painting it. */
+.auth-links__link::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset-block: 50% auto;
+  inset-inline: calc(var(--space-1) * -1);
+  height: 1.7em;
+  border-radius: 4px;
+  background: transparent;
+  transform: translateY(-50%);
+  transition: background-color var(--motion-duration-fast)
+    var(--motion-ease-standard);
+}
+
+.auth-links__link:hover::before,
+.auth-links__link:focus-visible::before {
   background: var(--hover-bg);
 }
 

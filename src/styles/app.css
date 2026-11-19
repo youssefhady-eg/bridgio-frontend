@@ -314,10 +314,13 @@ summary:focus-visible,
   }
 
   /* 136 px clean wordmark at the 1440 px base, fluid — 136 / 1440 = 9.44vw,
-     floored at 112 px so the artwork never reads cramped on a 1024 px screen. */
+     floored at 112 px so the artwork never reads cramped on a 1024 px screen.
+     `--wordmark-width` is set on the shell (followup.css): it keeps this size
+     expanded and shrinks the artwork to the folded rail so its painted end
+     lands on the rail edge instead of hanging past it. */
   .app-header__wordmark--maroon {
     display: block;
-    width: clamp(112px, 9.44vw, 136px);
+    width: var(--wordmark-width, clamp(112px, 9.44vw, 136px));
   }
 
   .app-header__menu {
@@ -344,7 +347,7 @@ summary:focus-visible,
 /* Desktop dark band: the same fluid width as the light maroon wordmark. */
 @media (min-width: 1024px) {
   :root[data-theme='dark'] .app-header__wordmark--cream {
-    width: clamp(112px, 9.44vw, 136px);
+    width: var(--wordmark-width, clamp(112px, 9.44vw, 136px));
   }
 }
 

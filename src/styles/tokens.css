@@ -153,7 +153,11 @@
   --text-muted: rgba(249, 236, 217, 0.64);
   --border: rgba(249, 236, 217, 0.14);
   --border-strong: rgba(249, 236, 217, 0.24);
-  --disabled-text: rgba(249, 236, 217, 0.4);
+  /* 0.4 measured 2.93:1 on the disabled pill (paper #471e1b + 8% overlay).
+     Disabled controls are exempt from WCAG, but the owner needs the submit
+     label to be readable while a request is pending, so dark keeps 0.62
+     (4.87:1). Light is deliberately unchanged. */
+  --disabled-text: rgba(249, 236, 217, 0.62);
   --hover-bg: rgba(249, 236, 217, 0.06);
   --disabled-overlay: rgba(249, 236, 217, 0.08);
 

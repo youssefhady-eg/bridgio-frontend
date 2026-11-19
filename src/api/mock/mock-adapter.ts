@@ -257,6 +257,25 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
     scenario: options.scenario ?? 'seeded',
     session: options.session ?? 'teacher',
   })
+
+  /*
+   * A deployment may bake a seeded session (`VITE_MOCK_SESSION=teacher`) for a
+   * signed-in demo. An explicit `?as=` for a different role is the stronger
+   * intent: the visitor asked for that role's preview, so the baked session
+   * must not win and make the page say "no session for this role". Clearing it
+   * here keeps the preview read-only (every write still needs a session) and
+   * makes the same URL behave the same way after a reload. This runs on the
+   * client only; SSR has no `window`, and the route loader skips its session
+   * prefetch for mock previews so a stale teacher is never dehydrated.
+   */
+  const explicitPreview = previewRoleFromLocation()
+  if (explicitPreview) {
+    const seeded = db.users.find((user) => user.id === db.sessionUserId)
+    if (seeded && seeded.role !== explicitPreview) {
+      db.sessionUserId = null
+    }
+  }
+
   const latencyMs = options.latencyMs ?? 0
   const clock = options.now ?? (() => new Date())
   let sequence = 0

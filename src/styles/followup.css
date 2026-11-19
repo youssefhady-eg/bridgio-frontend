@@ -420,6 +420,18 @@ select.input {
     var(--motion-ease-emphasis);
 }
 
+/* Guest preview: the menu states which demo role is active above the two
+   actions, so the borrowed identity is never mistaken for a signed-in one. */
+.account-menu__role {
+  margin: 0 0 var(--space-1);
+  padding: var(--space-1) var(--space-3) var(--space-2);
+  border-block-end: var(--outline-hairline) solid var(--border);
+  color: var(--text-secondary);
+  font-size: var(--font-caption-size);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
 .account-menu__item {
   display: flex;
   align-items: center;
@@ -435,6 +447,7 @@ select.input {
   font-weight: 600;
   text-align: start;
   text-decoration: none;
+  white-space: nowrap;
   cursor: pointer;
 }
 
@@ -925,14 +938,26 @@ select.input {
  * every desktop width. RTL flips which side is the inline-start, so the
  * matching inset swaps: 13.2 % in LTR, 1.4 % in RTL. Scoped to the desktop
  * header, where the element/line targets above are set.
+ *
+ * In the folded rail the painted start stays on the icon-chip edge and the
+ * artwork is scaled down until its painted *end* lands on the rail's far
+ * edge. At the 136 px expanded size the wordmark is wider than the 88 px rail,
+ * so without the scale it hung ~56 px into the content column (measured as
+ * "+58 px past the rail edge" in the round-7 gate). `--wordmark-width` is
+ * animated by `--rail-p` below, so the shrink follows the fold instead of
+ * snapping.
  */
 @media (min-width: 1024px) {
   .app-header__brand {
-    margin-inline-start: calc(-0.13204 * clamp(112px, 9.44vw, 136px));
+    margin-inline-start: calc(
+      -0.13204 * var(--wordmark-width, clamp(112px, 9.44vw, 136px))
+    );
   }
 
   :root[dir='rtl'] .app-header__brand {
-    margin-inline-start: calc(-0.01399 * clamp(112px, 9.44vw, 136px));
+    margin-inline-start: calc(
+      -0.01399 * var(--wordmark-width, clamp(112px, 9.44vw, 136px))
+    );
   }
 }
 
@@ -982,6 +1007,23 @@ select.input {
         (var(--rail-edge) - 70px) * var(--rail-ride)
     );
     --nav-line: calc(70px + (var(--rail-edge) - 70px) * var(--rail-ride));
+
+    /*
+     * Folded artwork width. The painted glyphs occupy 85.397 % of the image
+     * box (13.204 % leading whitespace, 1.399 % trailing), so an element of
+     * `(rail / 2 + 16) / 0.85397` has its painted end exactly on the rail's
+     * far edge when the header line is `rail / 2 - 16`. The expanded size is
+     * the approved clamp; the fold interpolates between the two.
+     */
+    --wordmark-expanded: clamp(112px, 9.44vw, 136px);
+    --wordmark-collapsed: calc(
+      (var(--rail-collapsed) / 2 + 16px) / 0.85397
+    );
+    --wordmark-width: calc(
+      var(--wordmark-expanded) -
+        (var(--wordmark-expanded) - var(--wordmark-collapsed)) * var(--rail-p)
+    );
+
     transition: --rail-p 250ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 

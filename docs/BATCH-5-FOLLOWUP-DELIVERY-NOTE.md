@@ -1,6 +1,6 @@
 # BRIDGIO — Batch 5 Follow-up Delivery Note
 
-**Date:** 2026-11-14 (updated 2026-11-17 — see the live-gate and round-2 … round-6 corrections below)
+**Date:** 2026-11-14 (updated 2026-11-19 — see the live-gate and round-2 … round-8 corrections below)
 **Branch:** `feat/finish-frontend-followup`
 **Base:** `ec831fc` (`origin/main`, after the Batch 5 merge, PR #33)
 **Docs-first commit:** `95165db` — Muse's current `BRIDGIO-LIVE_RULES.md` copied into `docs/` before any code changed (byte-identical to the working copy Muse edited).
@@ -355,6 +355,99 @@ In every one of the 40 samples main and utility share the same centre to 0.00 px
 Before this change the pre-fix parent sample read `Sign in — Bridgio` at ~100 ms and `Parents — Bridgio` only at ~250 ms. Direct SSR of `/parent/progress?as=parent&lang=en` has always returned `<title>Parents — Bridgio</title>`, which is why the fix is a timing fix in the role switch, not a string change. The settled title is written both by `setGuestTitle` and by the route's own `head`.
 
 **Non-regression.** The expanded rail keeps its 272 / 200 px column, 26 px chip line, 70 px label line and one-line labels: all 10 labels at 1024 and 1440 report one line box (`Range.getClientRects().length = 1`). The 12 layout combinations above also report no page overflow. The wordmark/header, sign-in column and guest picker, Mohsen popup (544 px), theme row, settings rows, language-preserves-theme behaviour, inline search, the no-sun/moon header, and the AR neutral sidebar beside the gendered H1 are untouched by this diff; the guest picker was exercised by the title test. The new rules are inside `@media (min-width: 1024px)`, so the phone drawer is unchanged.
+
+### Correction 2026-11-19 (round 8) — owner follow-up
+
+The eighth pass folds in six owner findings from the live preview: the dark "Create account" submit button, the two sign-in text links, the guest account menu, the collapsed rail and wordmark, the `/assistant` granted cards, and the `/assistant` language switch. The docs sync is its own commit; the code, note and screenshots are a second. The branch is pushed only — no PR, no merge.
+
+**Docs first — done.** Commit `dbbf08f` replaces `docs/BRIDGIO-LIVE_RULES.md` with the copy supplied on 2026-11-19 (it carries the 13:26 FOLD decision and this round's six-item scope). The committed file is **130,440 bytes**, SHA-1 `f10e417295f1fdf84e18f9d2f8b0f942b86d1c00`, SHA-256 `02fef6e77a3c3173c9ac6503be0a31348d7c01b92ca08ef54c7b9a003bd0dd3f`, Git blob `6470fe287ebe31e2071ffd190c779b0142c362d4`. The round-7 copy was 123,948 bytes; this one is larger and different, so the sync is real. No sync is recorded that did not happen.
+
+| # | Round-8 finding | Cause and fix |
+| --- | --- | --- |
+| R8-1 | Dark "Create account" submit button unreadable | **Token/state cause:** the disabled pill paints its label with `--disabled-text`, and the dark value was cream at 40 % alpha — `rgba(249, 236, 217, 0.4)` — over the pill's `#471e1b` paper plus the 8 % `--disabled-overlay`, measuring **2.93:1**. Only the dark token changed, to `rgba(249, 236, 217, 0.62)` (**4.87:1**). Light is deliberately untouched. The enabled pill was already correct in both themes (**15.81:1**) and is unchanged. |
+| R8-2 | "Create a new account" and "Forgot your password?" read as filled pills | `.auth-links__link` painted a persistent 44 px `--hover-bg` pill — its 44 px hit area *was* its visible box. At rest the link is now plain text: maroon, weight 600, no underline, transparent background, `border-radius: 0`. The wash moved to a text-line `::before` (1.7 em tall, 4 px radius, inset −4 px inline) shown on `:hover` and `:focus-visible` only. The 44 px hit area is kept. Wording, order and position unchanged. |
+| R8-3 | Guest account menu never says which role is previewed, and has no exit | The guest branch held only the "Sign in" link (round 6: no Theme row — that is session-only). It now opens with a role line — `Guest — Teacher` / `زائر — الطالب` — and adds **Exit guest preview** (`الخروج من معاينة الزائر`), which returns to the sign-in role picker. The signed-in branch (Profile, Theme row, Sign out) is untouched. |
+| R8-4 | AR collapsed rail wider than EN with off-centre glyphs; the collapsed wordmark hangs past the rail | The collapsed rail is a single shared `--rail-collapsed: clamp(64px, 6.11vw, 88px)`, so EN and AR cannot diverge, and both icon-chip columns sit on the rail centre (`--rail-edge`). The collapsed wordmark now reads `--wordmark-width`, interpolated by `--rail-p` from the expanded clamp to `(rail / 2 + 16) / 0.85397`, so its painted *end* lands on the rail's far edge while its painted *start* stays on the chip edge. The expanded clamp (`clamp(112px, 9.44vw, 136px)`) and the 272 px expanded rail are unchanged. Reproduced pre-fix overhang: **+56.1 px** in both directions. |
+| R8-5 | `/assistant` granted-section cards are ~16:1 empty pills and the page is loose | Grants are a 2–4 item list, so a full-width row measured **1159.4 × 77.6 px (14.94:1)** — a banner for one label. `.capability-list` is now `repeat(auto-fill, minmax(12rem, 1fr))` with a tighter `.capability-item` (36 px icon, `--radius-input`, `--space-3`/`--space-4` padding), plus an `.assistant-page`-scoped rhythm that tightens the hero and section gaps on this screen only. Grants and wording are unchanged. |
+| R8-6 | Switching language on `/assistant` loses the session | **Cause:** the built preview bakes a seeded mock session (`VITE_MOCK_SESSION` unset → `readSession` defaults to `teacher`), and `?as=` was only a fallback consulted when no session was live, so `/assistant?as=assistant` rendered "No teacher assistant session". Two fixes: `createMockApi` clears a baked session whose role differs from an explicit `?as=` (client only — SSR has no `window`), and the assistant loader skips its session/capabilities prefetch for a mock `?as=` preview so a stale teacher is never dehydrated into the 30 s cache. |
+
+#### Round-8 measurements (dev server, Chromium, `getComputedStyle` / `getBoundingClientRect`)
+
+Viewports 1440 × 900 / 1000 and 1024 / 1280 / 1920 × 1000, `devicePixelRatio` 1, EN and AR. Contrast is computed from the *composited* colours: the pill's own background colour plus its 8 % overlay gradient, with the alpha label composited on top. The submit button is measured on a detached probe of the same `button button--primary` classes because React resets the real button's `disabled`.
+
+**Item 1 — the four submit-button states.** The `enabled`/`disabled` and light/dark numbers are identical for EN and AR (the label text differs only in length).
+
+| Theme | State | Label token | Backdrop (composited) | Contrast |
+| --- | --- | --- | --- | --- |
+| Light | enabled | `rgb(249, 236, 217)` | `rgb(44, 7, 6)` | 15.81:1 |
+| Light | disabled | `rgba(44, 7, 6, 0.4)` | `rgb(238, 227, 214)` | 2.54:1 (unchanged) |
+| Dark | enabled | `rgb(44, 7, 6)` | `rgb(249, 236, 217)` | 15.81:1 |
+| Dark | disabled | `rgba(249, 236, 217, 0.4)` → **0.62** | `rgb(85, 46, 42)` | **2.93:1 → 4.87:1** |
+
+The dark fix is one token (`--disabled-text`); the light token and the enabled pill are byte-identical to round 7. Screenshots `round8-item1-signup-{en,ar}-{light,dark}-{enabled,disabled}.png`.
+
+**Item 2 — link treatment at rest and on interaction** (EN light, and the same rule in the other three combinations). Two links: "Create a new account", "Forgot your password?".
+
+| State | `color` | `font-weight` | `text-decoration-line` | `background-color` | `border-radius` | `::before` background |
+| --- | --- | --- | --- | --- | --- | --- |
+| Rest | `rgb(44, 7, 6)` (maroon) | 600 | none | `rgba(0, 0, 0, 0)` | 0 px | `rgba(0, 0, 0, 0)` |
+| Hover | `rgb(44, 7, 6)` | 600 | none | `rgba(0, 0, 0, 0)` | 0 px | `rgba(44, 7, 6, 0.04)` |
+| Focus-visible | `rgb(44, 7, 6)` | 600 | none | `rgba(0, 0, 0, 0)` | 0 px | `rgba(44, 7, 6, 0.04)` |
+
+Dark mirrors this with `rgb(249, 236, 217)` text and `rgba(249, 236, 217, 0.06)`. The `::before` box is 28.88 px tall (1.7 em), inset −4 px inline and vertically centred on the text line — a highlight, not a 44 px pill. The measured link box stays 44 px tall (hit area), width 166.86 / 177.16 px EN. Screenshots `round8-item2-auth-links-{en,ar}-{light,dark}-{rest,hover}.png`.
+
+**Item 3 — guest account-menu contents, per role.** Read from the open menu on `5173` (`VITE_MOCK_SESSION=none`, so the preview is a true guest). All four roles, EN and AR, show the same three parts; the signed-in menu was read on `5174` (`VITE_MOCK_SESSION=teacher`) and is unchanged.
+
+| Role | Menu (EN) | Menu (AR) |
+| --- | --- | --- |
+| Teacher | `Guest — Teacher`, Sign in, Exit guest preview | `زائر — المعلم`, تسجيل الدخول, الخروج من معاينة الزائر |
+| Student | `Guest — Student`, Sign in, Exit guest preview | `زائر — الطالب`, … |
+| Parent | `Guest — Parent`, Sign in, Exit guest preview | `زائر — وليّ الأمر`, … |
+| Assistant | `Guest — Assistant`, Sign in, Exit guest preview | `زائر — مساعد المعلم`, … |
+| Signed in (teacher) | Profile, Theme, Sign out | الملف الشخصي, المظهر, تسجيل الخروج |
+
+"Exit guest preview" lands on `/sign-in?lang=<lang>` with the role picker ("Continue as a guest": Teacher, Student, Parent, Assistant). No Theme row in the guest menu; the signed-in menu keeps its Theme `menuitemcheckbox`. Screenshots `round8-item3-guest-menu-{en,ar}-{teacher,student,parent,assistant}-light.png` plus `…-{en,ar}-assistant-dark.png`.
+
+**Item 4 — collapsed rail and wordmark, `getBoundingClientRect` per combination.** "Paint start" / "paint end" are the glyph edges derived from the box and the 13.204 % / 1.399 % whitespace split (RTL mirrors which side is inline-start). Differences are against the icon-chip edge and the rail's far edge.
+
+| Width | Lang | Rail | Icon centre − rail centre | Paint start − chip edge | Paint end − rail far edge | Wordmark box |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1024 | EN | 64.00 | 0.00 | +0.01 | 0.00 | 56.20 |
+| 1024 | AR | 64.00 | 0.00 | −0.01 | 0.00 | 56.20 |
+| 1280 | EN | 78.20 | 0.00 | +0.01 | +0.01 | 64.53 |
+| 1280 | AR | 78.20 | 0.00 | 0.00 | −0.01 | 64.53 |
+| 1440 | EN | 87.97 | 0.00 | 0.00 | 0.00 | 70.25 |
+| 1440 | AR | 87.97 | 0.00 | −0.01 | −0.01 | 70.25 |
+| 1920 | EN | 88.00 | 0.00 | 0.00 | −0.01 | 70.25 |
+| 1920 | AR | 88.00 | 0.00 | −0.01 | 0.00 | 70.25 |
+
+Every collapsed combination lands the icon centre on the rail centre and the painted wordmark between the chip edge and the rail's far edge, to ≤0.01 px. The expanded rail is unchanged: 200.00 px at 1024, 241.79 at 1280, 272.00 at 1440 and 1920 (the same `clamp(200px, 18.89vw, 272px)`). Pre-fix, the same probe with the round-7 wordmark rule restored overhangs the rail's far edge by **+56.10 px** (EN) and **−56.09 px** (AR, mirrored) at 1440 collapsed; after the fix that is 0.00 / −0.01. Screenshots `round8-item4-rail-{1024,1280,1440,1920}-{en,ar}-{collapsed,expanded}.png`.
+
+**Item 5 — granted cards and page height,** 1440 × 900, EN + AR, light + dark (all four identical).
+
+| Measure | Round-7 | Round-8 |
+| --- | --- | --- |
+| Granted card box | 1159.4 × 77.6 px | **225.5 × 61.6 px** |
+| Card aspect | 14.94:1 | **3.66:1** |
+| Cardinality | one full-width column | 5 auto-fill tracks (`minmax(12rem, 1fr)`) |
+| Page bottom / main scroll | 759.1 / 747 px | **629.5 / 618 px** |
+
+The "Round-7" column re-applies the old rules in the same build (single column, `--space-4` padding, `--radius-card`, 44 px icon) so the comparison is like for like. Grants (Teacher dashboard, Tests) and their wording are unchanged, and the shared `.capability-list` / section classes are only overridden inside `.assistant-page`. Screenshots `round8-item5-granted-{en,ar}-{light,dark}.png`.
+
+**Item 6 — exact repro and fix.** On the built preview (`VITE_MOCK_SESSION` unset, so it bakes teacher), loading `/assistant?as=assistant&lang=en` directly rendered the "No teacher assistant session" state and the account menu showed the teacher session; switching EN→AR or AR→EN kept the same wrong state, and a reload reproduced it. After the fix, on `5174` (`VITE_MOCK_SESSION=teacher`):
+
+| Step | URL | H1 / greeting | Both sections | "No … session" |
+| --- | --- | --- | --- | --- |
+| Direct load, EN | `/assistant?as=assistant&lang=en` | "The sections granted to your account" / Welcome, هالة محمود | Granted + Current session + note | no |
+| Switch EN→AR (in place) | `/assistant?as=assistant&lang=ar` | الأقسام الممنوحة لحسابك | yes | no |
+| Switch AR→EN | `/assistant?as=assistant&lang=en` | back to EN | yes | no |
+| Reload, EN | `/assistant?as=assistant&lang=en` | same as first row | yes | no |
+| Direct load, AR | `/assistant?as=assistant&lang=ar` | الأقسام الممنوحة لحسابك | yes | no |
+| Switch AR→EN | `/assistant?as=assistant&lang=en` | page unchanged, only `lang` flips | yes | no |
+
+The guest menu stays "Guest — Assistant" throughout, and the language link carries `as` (it already did — `hrefWithLang`). `/assistant?as=teacher` on the same build keeps the teacher session, so the change only lets an explicit `?as=` win over a *different* baked role; when `?as=` matches the baked role nothing is cleared. `src/api/config.ts` is deliberately unmodified (its default stays `teacher`, so the demo's first paint is unchanged); deploying the preview with `VITE_MOCK_SESSION=none` remains an owner action recorded in the live rules.
+
+**Non-regression.** `npm test` is 18 files / **169 of 169** (unchanged from the round-7 baseline at `c67d395`), `npm run typecheck` is clean, and `npm run build` succeeds. `src/api/config.ts`, the shared `.capability-list` base rules outside `.assistant-page`, the signed-in account menu, the expanded rail, the motion tokens and the Thmanyah font are untouched by this diff. Out of scope and left alone: the round-7 scrollbar and EN guest Parent title fixes, the Mohsen sign-out/in, the 390 px and console checks, and the Vercel toolbar overlay.
 
 ---
 
