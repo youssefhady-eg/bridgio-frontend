@@ -927,29 +927,28 @@ select.input {
   text-underline-offset: 3px;
 }
 
-/* ---- 15. Wordmark: align the visible glyph, not the element box ---------- */
+/* ---- 15. Wordmark: one size, glyph centred ------------------------------- */
 /*
- * The header padding puts the wordmark's *element* edge on the sidebar's
- * label column (70 px) when expanded and on the icon chip's inline-start edge
- * when collapsed. The artwork itself is not flush with that box: inside the
- * 720-unit viewBox the glyphs begin at x = 335.07 (95.07 units, ≈13.2 %, of
- * empty space on the inline-start) and end at x = 949.93 (10.07 units, ≈1.4 %,
- * on the inline-end). At the 136 px desktop width that is ~18 px of visible
- * misalignment on the leading side, which is what still reads as "off".
+ * The header padding puts the wordmark's *painted glyph* edge on the brand
+ * line. The artwork is not flush with its element box: inside the 720-unit
+ * viewBox the glyphs begin at x = 335.07 (95.07 units, ≈13.2 %, of empty space
+ * on the inline-start) and end at x = 949.93 (10.07 units, ≈1.4 %, on the
+ * inline-end), so 85.397 % of the box is visible. At the 136 px desktop width
+ * that is ~18 px of visible misalignment on the leading side, which is what
+ * reads as "off".
  *
  * Pull the box in by its own inline-start whitespace so the *painted* edge
- * lands on the sidebar line in both the expanded and the collapsed rail, at
- * every desktop width. RTL flips which side is the inline-start, so the
- * matching inset swaps: 13.2 % in LTR, 1.4 % in RTL. Scoped to the desktop
- * header, where the element/line targets above are set.
+ * lands on the brand line in both rail states, at every desktop width. RTL
+ * flips which side is the inline-start, so the matching inset swaps: 13.2 % in
+ * LTR, 1.4 % in RTL. Scoped to the desktop header, where the line targets
+ * above are set.
  *
- * In the folded rail the painted start stays on the icon-chip edge and the
- * artwork is scaled down until its painted *end* lands on the rail's far
- * edge. At the 136 px expanded size the wordmark is wider than the 88 px rail,
- * so without the scale it hung ~56 px into the content column (measured as
- * "+58 px past the rail edge" in the round-7 gate). `--wordmark-width` is
- * animated by `--rail-p` below, so the shrink follows the fold instead of
- * snapping.
+ * Round 10 (owner decision 2026-11-20, Option A) removes the round-8 shrink:
+ * the folded rail is widened (150 px at the 1440 px base) so the wordmark keeps
+ * its full expanded size in both states. `--brand-line` is the nav column
+ * (70 px) when expanded and the painted glyph *centred* in the widened rail
+ * when folded, so its two visible edges sit symmetrically with padding on both
+ * sides. It rides with `--rail-p` below; the wordmark never shrinks.
  */
 @media (min-width: 1024px) {
   .app-header__brand {
@@ -981,8 +980,9 @@ select.input {
  *
  * The labels are taken out of flow and pinned to the 70 px line, so shrinking
  * the chip padding cannot drag them sideways; they fade with the gather. The
- * header uses the same `--nav-line` for its inline-start padding, and the
- * wordmark's existing glyph compensation keeps the painted edge on that line.
+ * header uses `--brand-line` for its inline-start padding: the same 70 px line
+ * when expanded, the painted wordmark centred in the widened rail when folded.
+ * The glyph compensation in section 15 keeps the painted edge on that line.
  *
  * 0.16 is the gather share: labels have fully faded before the chip starts its
  * ride, so no frame shows text being clipped by the narrowing rail. Both
@@ -998,7 +998,15 @@ select.input {
   .app-shell {
     --rail-p: 0;
     --rail-expanded: clamp(200px, 18.89vw, 272px);
-    --rail-collapsed: clamp(64px, 6.11vw, 88px);
+    /*
+     * Round 10 (owner decision 2026-11-20, Option A): the folded rail is
+     * widened so the full-size wordmark fits inside it. 150 px at the 1440 px
+     * base (150 / 1440 = 10.4167vw, the same vw approach as before), floored at
+     * 144 px — the smallest rail that still leaves 16 px of visible padding
+     * around the wordmark's painted glyph at 1024 px (112 px floored element ×
+     * 85.397 % = ~96 px painted). The 88 px folded spec is superseded.
+     */
+    --rail-collapsed: clamp(144px, 10.4167vw, 150px);
     --rail-width: calc(
       var(--rail-expanded) -
         (var(--rail-expanded) - var(--rail-collapsed)) * var(--rail-p)
@@ -1013,20 +1021,24 @@ select.input {
     --nav-line: calc(70px + (var(--rail-edge) - 70px) * var(--rail-ride));
 
     /*
-     * Folded artwork width. The painted glyphs occupy 85.397 % of the image
-     * box (13.204 % leading whitespace, 1.399 % trailing), so an element of
-     * `(rail / 2 + 16) / 0.85397` has its painted end exactly on the rail's
-     * far edge when the header line is `rail / 2 - 16`. The expanded size is
-     * the approved clamp; the fold interpolates between the two.
+     * One wordmark size in both rail states. Round 10 removes the round-8
+     * shrink (`--wordmark-collapsed` and the interpolated `--wordmark-width`),
+     * so `--wordmark-width` is the plain approved expanded clamp and the
+     * artwork stays full size while the rail folds. The painted glyphs occupy
+     * 85.397 % of the box (13.204 % leading whitespace, 1.399 % trailing).
+     *
+     * `--brand-line` is where the *painted* glyph starts (the negative margin
+     * in section 15 moves the element box so its visible edge lands there):
+     *   expanded = 70 px, the sidebar's nav-label column;
+     *   folded   = the painted glyph centred in the widened rail, so both
+     *              visible edges sit symmetrically with padding on both sides.
      */
-    --wordmark-expanded: clamp(112px, 9.44vw, 136px);
-    --wordmark-collapsed: calc(
-      (var(--rail-collapsed) / 2 + 16px) / 0.85397
+    --wordmark-width: clamp(112px, 9.44vw, 136px);
+    --wordmark-painted: calc(var(--wordmark-width) * 0.85397);
+    --wordmark-line: calc(
+      (var(--rail-width) - var(--wordmark-painted)) / 2
     );
-    --wordmark-width: calc(
-      var(--wordmark-expanded) -
-        (var(--wordmark-expanded) - var(--wordmark-collapsed)) * var(--rail-p)
-    );
+    --brand-line: calc(70px + (var(--wordmark-line) - 70px) * var(--rail-ride));
 
     transition: --rail-p 250ms cubic-bezier(0.4, 0, 0.2, 1);
   }
@@ -1040,7 +1052,7 @@ select.input {
   }
 
   .app-header__inner {
-    padding-inline: var(--nav-line) 32px;
+    padding-inline: var(--brand-line) 32px;
   }
 
   /* The icon chip keeps its 32 px box; only its distance from the edge moves. */

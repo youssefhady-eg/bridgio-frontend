@@ -103,9 +103,10 @@ body {
      nav label column starts at 12 px (nav inline padding) + 14 px (link inline
      padding) + 32 px (icon chip) + 12 px (link gap) = 70 px; the wordmark's
      inline-start edge sits on that same line at every desktop width.
-     Round 6 moves the line with the rail animation: followup.css sets the
-     padding from `--nav-line`, which is computed from the same value as the
-     grid track and the icon chips. */
+     Rounds 6 and 10 move the line with the rail animation: followup.css sets the
+     padding from `--brand-line` — the same 70 px line when expanded and the
+     painted wordmark centred in the widened folded rail, both derived from the
+     same `--rail-p` value as the grid track and the icon chips. */
   .app-header__inner {
     min-height: calc(var(--header-h) - var(--outline-sticker));
     padding-block: 0;

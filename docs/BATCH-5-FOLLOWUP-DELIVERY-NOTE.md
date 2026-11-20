@@ -1,6 +1,6 @@
 # BRIDGIO — Batch 5 Follow-up Delivery Note
 
-**Date:** 2026-11-14 (updated 2026-11-19 — see the live-gate and round-2 … round-8 corrections below)
+**Date:** 2026-11-14 (updated 2026-11-20 — see the live-gate and round-2 … round-10 corrections below)
 **Branch:** `feat/finish-frontend-followup`
 **Base:** `ec831fc` (`origin/main`, after the Batch 5 merge, PR #33)
 **Docs-first commit:** `95165db` — Muse's current `BRIDGIO-LIVE_RULES.md` copied into `docs/` before any code changed (byte-identical to the working copy Muse edited).
@@ -522,6 +522,72 @@ Screenshots `round9-item4-en-dark-{before,after}.png` (EN→AR) and `round9-item
 
 ---
 
+### Correction 2026-11-20 (round 10) — collapsed rail width and full-size wordmark
+
+The tenth pass fixes only the round-9 live-gate's second item on `feat/finish-frontend-followup`, on top of the round-9 tip `52779f6`: the folded rail could not hold the wordmark, so round 8 had shrunk the wordmark to fit it, and the shrunken AR mark no longer sat on the rail centre. The owner chose **Option A — widen the folded rail so the full-size wordmark fits inside it**. Options B (a brand mark only) and C (keep the shrunken wordmark) were rejected by the owner and are **not** implemented; the three options are not mixed anywhere in the diff.
+
+**Baseline at `52779f6`, before any edit.** `npm test` **18 files / 171 of 171**, `npm run typecheck` clean, `npm run build` exit 0 (Node v24.18.0, npm 11.16.0). The branch was clean at that tip.
+
+**Docs first — no round-10 copy exists on this machine, so no sync is recorded.** `BRIDGIO-LIVE_RULES.md` was searched for under both worktrees, `Desktop\Youssef\Projects`, `Downloads`, `Documents` and `%TEMP%`. The newest high-school copy is still the **round-8 file**: **130,440 bytes**, SHA-256 `02fef6e77a3c3173c9ac6503be0a31348d7c01b92ca08ef54c7b9a003bd0dd3f`, tailing at the 2026-11-14 chat-scope line — the same file round 9 recorded, with no round-9 or round-10 tail. `docs/BRIDGIO-LIVE_RULES.md` is untouched by this round. The round-10 scope is taken from the owner brief, not from a file, and no sync is claimed that did not happen.
+
+#### What changed
+
+| Item | Round 8 / 9 (superseded) | Round 10 (Option A) |
+| --- | --- | --- |
+| Folded rail | `clamp(64px, 6.11vw, 88px)` | **`clamp(144px, 10.4167vw, 150px)`** — 150 px at the 1440 px base, 144 px floor (the floor is the smallest rail that still leaves 16 px of padding around the wordmark at 1024 px) |
+| Wordmark size | `--wordmark-collapsed` → `--wordmark-expanded`, interpolated by `--rail-p` (shrank to ≈70 px folded) | **`--wordmark-width: clamp(112px, 9.44vw, 136px)`** — the plain pre-round-8 clamp, one size in both states; `--wordmark-collapsed` and the interpolation are deleted |
+| Wordmark position, folded | painted start edge on the icon-chip edge | **painted glyph centred in the rail** — `--brand-line = (rail − painted)/2`, ridden by `--rail-ride` |
+| Expanded rail | 272 px | **272 px — unchanged** |
+| Rail animation | `--rail-p`, 250 ms `cubic-bezier(0.4, 0, 0.2, 1)` | **unchanged**; the wordmark is full size on every frame |
+
+The header inline-start padding now reads `--brand-line` instead of `--nav-line`; `--nav-line` still drives the sidebar labels (taken out of flow and pinned to the 70 px line), so the labels and the wordmark can move independently. One registered progress value (`--rail-p`) still derives the grid track, the chip line, the labels and the header padding, so nothing can drift out of step during the fold. No test, contract, route or dependency changed; the only code files touched are `src/styles/followup.css`, `src/styles/app.css` and `src/styles/polish.css` (comments and the rail variables).
+
+**Pre-round-8 comparison (the size the owner is getting back).** At `c67d395` the folded rail was 88 px and the wordmark stayed its plain `clamp(112px, 9.44vw, 136px)`: at 1440 the painted glyph ran from the 28 px chip edge to ≈144 px, i.e. **+56 px past the rail** — the overhang the round-7 gate reported as "+58 px". Round 8 answered that by shrinking the wordmark to ≈70 px; round 10 answers it by widening the rail to 150 px and keeping the wordmark at the pre-round-8 size. The wordmark element (`136 × 49.11` at 1920, painted `116 × 38`) is therefore **byte-for-byte the pre-round-8 value** in both states.
+
+#### Round-10 measurements (`getBoundingClientRect`, Chromium 1255, `devicePixelRatio` 1)
+
+Dev server, trailing `?as=teacher`, settled `--rail-p` (0 expanded, 1 folded), 1920 × 919. "Icon Δ" is the main-nav icon centre minus the rail centre (the utility icon centre is identical). "Wordmark Δ" is the painted glyph centre minus the rail centre. The painted glyph is 85.397 % of the element box (13.204 % leading whitespace, 1.399 % trailing), so the painted box is derived from the element box.
+
+| Combo (1920) | Rail w | Rail centre | Header pad | Wordmark element | Wordmark painted (start → end) | Wordmark Δ | Icon Δ |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| EN light expanded | 272.00 | 136.00 | 70 px | 136.00 × 49.11 | 70.01 → 186.15 | −7.92 | −94.00 |
+| EN light folded | **150.00** | 75.00 | 16.93 px | 136.00 × 49.11 | 16.93 → 133.07 | **0.00** | **0.00** |
+| EN dark folded | **150.00** | 75.00 | 16.93 px | 136.00 × 49.11 | 16.93 → 133.07 | **0.00** | **0.00** |
+| AR light expanded | 272.00 | 1784.00 | 70 px | 136.00 × 49.11 | 1733.85 → 1849.99 | +7.92 | +94.00 |
+| AR light folded | **150.00** | 1845.00 | 16.93 px | 136.00 × 49.11 | 1786.93 → 1903.07 | **0.00** | **0.00** |
+| AR dark folded | **150.00** | 1845.00 | 16.93 px | 136.00 × 49.11 | 1786.93 → 1903.07 | **0.00** | **0.00** |
+
+The expanded wordmark sits on the 70 px brand line as before (the −7.92 / +7.92 is the rail-centre offset, not a misalignment: the glyph's painted start is exactly on 70.01). The folded rail is **150.00 px in both directions**, its glyphs are centred to **0.00 px**, and the rail grows by only the wordmark's own width — 150 − 116.14 = 33.86 px, i.e. ≈16.93 px of visible padding on each side.
+
+Width sweep, folded, EN = AR (one shared clamp, so the directions cannot diverge) and the wordmark Δ is 0.00 in every cell:
+
+| Viewport | Rail w | Rail centre | Header pad | Wordmark element | Wordmark painted |
+| --- | --- | --- | --- | --- | --- |
+| 1920 | **150.00** | 75.00 | 16.93 px | 136.00 × 49.11 | 116.14 |
+| 1440 | **150.00** | 75.00 | 16.96 px | 135.92 × 49.09 | 116.07 |
+| 1024 | **144.00** | 72.00 | 24.18 px | 112.00 × 40.44 | 95.64 |
+
+Expanded is unchanged at every width: 272.00 at 1440 / 1920, 200.00 at 1024. `documentElement.scrollWidth == clientWidth` at all three widths, so the wider rail adds no horizontal overflow. The four roles (teacher / student / parent / assistant, folded, EN light) each report rail 150.00, centre 75.00, wordmark Δ 0.00 and icon Δ 0.00 — the shell is identical across roles.
+
+**The fold holds the wordmark at full size.** Sampling every animation frame after a real toggle click at 1920, the wordmark element is **136.00 × 49.11 on all 13 EN frames and all 14 AR frames** (rail 272 → 150), so the artwork never shrinks and never scales mid-flight; only its inline-start position rides with `--rail-p`.
+
+**Painted glyph box** (canvas alpha scan of the rendered `<img>`, maroon, 1920): element `136 × 49.11`, painted glyph **`116 × 38`** (leading 13.24 %, trailing 1.47 %, top 20.41 %, bottom 2.04 %).
+
+#### Gates after the changes
+
+`npm test` **18 files / 171 of 171** (no change from the `52779f6` baseline), `npm run typecheck` clean, `npm run build` succeeds.
+
+#### Spec points that conflict with the locked decisions (recorded, not silently resolved)
+
+- **Wordmark glyph size.** The locked spec asks for the folded wordmark's painted glyph at "≈118–120 wide, ≈40–44 tall". Measured, it is `116 × 38` — about 2 px under the low end — because the spec **also** pins the expanded rail "unchanged (272 px)" and round 9's item 1(c) restored the wordmark to its pre-round-8 element size. Enlarging the glyph to reach 118 painted would enlarge the *expanded* wordmark too, which the spec forbids. The element is kept at `clamp(112px, 9.44vw, 136px)` (the pre-round-8 value); the ~2 px is noted here rather than resolved by editing a locked state.
+- **"Centred horizontally … on the rail edge."** The spec phrases the folded position both as "centred horizontally in the collapsed rail" and "on the rail edge". Option A cannot satisfy chip-edge alignment (a 116 px glyph cannot start on a 16.93 px chip edge inside a 150 px rail) and a centred glyph, so the painted glyph is **centred** — the reading that matches the owner's live complaint (the AR mark sitting ~32–38 px off the rail centre).
+
+#### Out of scope and left alone
+
+The round-9 passing items (dark primary hover fill, `/student/home` guest preview, theme across a language switch), the round-8 items (pill links, guest menu, assistant cards), the mock password behaviour, the email trailing spaces, the Mohsen sign-out/sign-in cycle, the 390 px overflow check, the console check, the Vercel toolbar overlay, and the `/search` + `/profile` Support link below the fold (noted, not changed).
+
+---
+
 ## 1. Items 1–4: what `main` actually had
 
 | # | Item | State in `main` (`ec831fc`) | What this branch adds |
@@ -723,6 +789,8 @@ All under `docs/screenshots/`. Each pair of `-rest` / `-pressed` images uses the
 | Round 7 — folded rail, no horizontal scrollbar (1024 / 1440 / 1920, EN + AR × light + dark) | `round7-rail-{1024,1440,1920}-{en,ar}-{light,dark}.png` |
 | Round 7 — the overflowing `.utility-links` recreated vs the fix (1440, EN, light) | `round7-before-rail-overflow-1440-en-light.png`, `round7-rail-fixed-1440-en-light.png` |
 | Round 7 — expanded utility icons on the main icon line (1440, EN + AR, light) | `round7-rail-expanded-1440-en-light.png`, `round7-rail-expanded-1440-ar-light.png` |
+| Round 10 — folded rail with the full-size wordmark + header (1920, EN + AR × light + dark) | `round10-collapsed-{en,ar}-{light,dark}.png` |
+| Round 10 — expanded header unchanged (1920, EN + AR, light) | `round10-expanded-{en,ar}-light.png` |
 
 ---
 

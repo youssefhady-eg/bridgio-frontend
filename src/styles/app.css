@@ -315,9 +315,9 @@ summary:focus-visible,
 
   /* 136 px clean wordmark at the 1440 px base, fluid — 136 / 1440 = 9.44vw,
      floored at 112 px so the artwork never reads cramped on a 1024 px screen.
-     `--wordmark-width` is set on the shell (followup.css): it keeps this size
-     expanded and shrinks the artwork to the folded rail so its painted end
-     lands on the rail edge instead of hanging past it. */
+     `--wordmark-width` is set on the shell (followup.css) and is one size for
+     both rail states (round 10 Option A, 2026-11-20): the folded rail is
+     widened so the artwork never has to shrink. */
   .app-header__wordmark--maroon {
     display: block;
     width: var(--wordmark-width, clamp(112px, 9.44vw, 136px));
@@ -469,7 +469,7 @@ summary:focus-visible,
     top: 0;
     align-self: start;
     height: 100dvh;
-    /* The grid track (272 px expanded / 88 px collapsed at 1920) is the width
+    /* The grid track (272 px expanded / 150 px collapsed at 1920) is the width
        contract. Pin the item's used size to that track and drop its automatic
        min-content floor, so no long label - Arabic or English - can widen the
        rendered rail past the clamp. This is belt-and-braces: the track is a
