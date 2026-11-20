@@ -121,33 +121,23 @@
 }
 
 /*
- * Dark theme — PROPOSED, not a brand lock. Opt-in via `data-theme="dark"` on
- * <html>, set by the header toggle and remembered in localStorage.
- *
- * Unlike the rejected dark attempt (an invented #1a0403 page colour with the
- * brand maroon as the surface), this palette is built only from LOCKED brand
- * colours and one derived rule:
- *   page base  = brand maroon  #2c0706  (the maroon base)
- *   surface    = locked logo-outline    #471e1b  (a lifted maroon)
- *   ink        = brand cream   #f9ecd9  (cream ink)
- *   accent     = brand red     #d51c1d  (small ticks/dots only, unchanged)
- * Status hues stay the locked brand hues, lightened toward cream only enough
- * to reach AA on the dark surface (derived by mixing, not new brand colours).
+ * Dark theme — Warm Near-Black Charcoal (owner-accepted 2026-11-20 on
+ * gemini/ui-refresh, replacing the #2c0706 / #471e1b warm-maroon dark pair).
+ *   page base  = #110e0f  (warm near-black charcoal)
+ *   surface    = #1a1516  (lifted warm charcoal)
+ *   ink        = #f9ecd9  (locked brand cream ink)
+ *   accent     = #d51c1d  (locked brand red, small ticks/dots only)
+ * Every existing token name stays intact so app/polish/batch5/finish/followup
+ * stylesheets pick up the palette with zero undefined tokens.
  */
 :root[data-theme='dark'] {
   color-scheme: dark;
 
-  /* ---- LOCKED roles swap (values reused, none invented) ----------------- */
-  --bridgio-cream: #2c0706; /* page background  = brand maroon */
-  --bridgio-paper: #471e1b; /* surface          = locked logo-outline (lifted) */
+  /* ---- Warm Near-Black Charcoal surface swap ---------------------------- */
+  --bridgio-cream: #110e0f; /* page background  = warm near-black charcoal */
+  --bridgio-paper: #1a1516; /* surface          = lifted warm charcoal */
   --bridgio-maroon: #f9ecd9; /* ink/outline      = brand cream */
-  /* --bridgio-red / --bridgio-red-accent: unchanged (accent only). */
-  /* --bridgio-maroon-outline: unchanged (#471e1b) — it is the logo outline,
-     not a usable primary-button hover fill here. Under the swapped tokens the
-     primary button is cream with maroon ink, so hovering to #471e1b painted
-     maroon on maroon (measured 1.29:1 on the sign-up submit). Keep the cream
-     fill and dip it toward the dark paper instead: same press affordance,
-     ink stays readable. */
+  /* --bridgio-red / --bridgio-red-accent / --bridgio-paper-fixed: unchanged. */
   --primary-hover-bg: color-mix(
     in srgb,
     var(--bridgio-maroon) 88%,
@@ -160,30 +150,25 @@
   --bridgio-error: #e08a90;
   /* --bridgio-warning-fill #f2a93b: fill only; its chip keeps dark text. */
 
-  /* ---- PROPOSED neutrals, mirrored onto cream --------------------------- */
+  /* ---- Neutrals mirrored onto cream over warm charcoal ------------------ */
   --text-primary: #f9ecd9;
-  --text-secondary: rgba(249, 236, 217, 0.72);
+  --text-secondary: rgba(249, 236, 217, 0.74);
   --text-muted: rgba(249, 236, 217, 0.64);
-  --border: rgba(249, 236, 217, 0.14);
-  --border-strong: rgba(249, 236, 217, 0.24);
-  /* 0.4 measured 2.93:1 on the disabled pill (paper #471e1b + 8% overlay).
-     Disabled controls are exempt from WCAG, but the owner needs the submit
-     label to be readable while a request is pending, so dark keeps 0.62
-     (4.87:1). Light is deliberately unchanged. */
   --disabled-text: rgba(249, 236, 217, 0.62);
+  --border: rgba(249, 236, 217, 0.12);
+  --border-strong: rgba(249, 236, 217, 0.22);
   --hover-bg: rgba(249, 236, 217, 0.06);
   --disabled-overlay: rgba(249, 236, 217, 0.08);
 
-  /* The header band is already maroon; keep cream on it explicit (the cream
-     token now means maroon, so these must not alias through it). */
-  --band-bg: #2c0706;
+  /* Phone dark header band matches Warm Near-Black Charcoal with cream ink. */
+  --band-bg: #110e0f;
   --band-text: #f9ecd9;
   --band-text-secondary: rgba(249, 236, 217, 0.75);
-  --band-border: rgba(249, 236, 217, 0.24);
+  --band-border: rgba(249, 236, 217, 0.22);
   --band-hover: rgba(249, 236, 217, 0.08);
 
   /* Cream ring reads on every dark surface; the "on-dark" variant stays cream
-     too, because the phone header band is still maroon. */
+     too, because the phone header band is still dark. */
   --focus-ring-color: #f9ecd9;
   --focus-ring-color-on-dark: #f9ecd9;
 }

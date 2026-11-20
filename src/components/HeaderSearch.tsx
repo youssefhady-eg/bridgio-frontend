@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link, useRouterState } from '@tanstack/react-router'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react'
 import { sessionQueryOptions, searchQueryOptions } from '~/api/queries'
 import type { SearchResultKind } from '~/api/types'
 import { AppIcon, type AppIconName } from '~/components/AppIcon'
@@ -19,12 +19,11 @@ const MAX_INLINE_RESULTS = 6
 /**
  * Inline header search.
  *
- * Clicking the control opens a panel in place — it never navigates to
- * `/search`. Typing filters through the same PROPOSED `search.search` seam the
- * search page uses (the mock adapter's own seed, teacher-only), and choosing a
- * result navigates to it. A "view all results" link opens the dedicated
- * `/search?q=` page for the full list, so the URL-based search is kept without
- * forcing every search to leave the current screen.
+ * Clicking the control (or pressing Ctrl+K / Cmd+K as a teacher) opens a panel
+ * in place — it never navigates to `/search`. Typing filters through the same
+ * PROPOSED `search.search` seam the search page uses (the mock adapter's own
+ * seed, teacher-only), and choosing a result navigates to it. A "view all
+ * results" link opens `/search?q=` for the full list.
  */
 export function HeaderSearch() {
   const strings = useStrings()
@@ -37,6 +36,7 @@ export function HeaderSearch() {
   const [query, setQuery] = useState('')
   const rootRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
 
   const sessionQuery = useQuery(sessionQueryOptions())
   const teacherId =
@@ -54,6 +54,21 @@ export function HeaderSearch() {
   useEffect(() => {
     setOpen(false)
   }, [pathname])
+
+  // Global Ctrl+K / Cmd+K shortcut (teacher-only).
+  useEffect(() => {
+    if (teacherId === null) return
+
+    function onGlobalKeyDown(event: KeyboardEvent) {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault()
+        setOpen((current) => !current)
+      }
+    }
+
+    window.addEventListener('keydown', onGlobalKeyDown)
+    return () => window.removeEventListener('keydown', onGlobalKeyDown)
+  }, [teacherId])
 
   // Focus the field as soon as the panel opens.
   useEffect(() => {
@@ -87,6 +102,30 @@ export function HeaderSearch() {
     }
   }, [open])
 
+  // Keyboard ArrowDown / ArrowUp navigation between the input and result links.
+  function onPanelKeyDown(event: ReactKeyboardEvent<HTMLDivElement>) {
+    if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return
+    const links = Array.from(
+      panelRef.current?.querySelectorAll<HTMLAnchorElement>(
+        '.search-results--inline a[href], .header-search__foot a[href]',
+      ) ?? [],
+    )
+    if (links.length === 0) return
+
+    event.preventDefault()
+    const currentIndex = links.indexOf(
+      document.activeElement as HTMLAnchorElement,
+    )
+    if (event.key === 'ArrowDown') {
+      const next = currentIndex < links.length - 1 ? currentIndex + 1 : 0
+      links[next]?.focus()
+    } else if (currentIndex <= 0) {
+      inputRef.current?.focus()
+    } else {
+      links[currentIndex - 1]?.focus()
+    }
+  }
+
   const results = resultsQuery.data?.results ?? []
   const visible = results.slice(0, MAX_INLINE_RESULTS)
 
@@ -99,6 +138,7 @@ export function HeaderSearch() {
         aria-label={strings.header.searchOpenLabel}
         aria-expanded={open}
         aria-controls="header-search-panel"
+        aria-keyshortcuts={teacherId !== null ? 'Control+K Meta+K' : undefined}
         title={strings.header.searchLabel}
       >
         <AppIcon name="search" size={20} />
@@ -107,10 +147,12 @@ export function HeaderSearch() {
 
       {open ? (
         <div
+          ref={panelRef}
           className="header-search__panel"
           id="header-search-panel"
           role="dialog"
           aria-label={copy.title}
+          onKeyDown={onPanelKeyDown}
         >
           <div className="header-search__field">
             <label className="field header-search__label">

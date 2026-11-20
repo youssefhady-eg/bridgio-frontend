@@ -243,6 +243,12 @@ h1 {
   letter-spacing: -0.01em;
 }
 
+/* Connected Arabic glyphs must never carry negative letter-spacing. */
+:root[dir='rtl'] h1,
+:root[dir='rtl'] .total-card__value {
+  letter-spacing: 0;
+}
+
 /* Eyebrow badge above each page title. */
 .app-shell__badge {
   gap: var(--space-2);
@@ -290,12 +296,22 @@ h1 {
 .player-test,
 .choice-card,
 .player-option {
-  transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 
+/* Calm surface feedback on hover — no bounce/lift shift. */
 .class-card:hover,
 .player-test:hover {
-  transform: translateY(-2px);
+  border-color: var(--bridgio-maroon);
+}
+
+.total-card__value,
+.class-card__stats dd,
+.count-chip,
+.progress-row__labels strong,
+.attempt-score,
+.parent-score {
+  font-variant-numeric: tabular-nums;
 }
 
 /* Section headings with a count chip. */
@@ -547,22 +563,52 @@ body {
   }
 }
 
-/* ---- Dark theme refinements ---------------------------------------------- */
+/* ---- Dark theme refinements (Warm Near-Black Charcoal) ------------------- */
 
-/*
- * Same class names and locked roles as light. Only the derived card rim and
- * the two controls whose default assumes a light surface need dark rules.
- */
 :root[data-theme='dark'] {
-  /* A maroon rim disappears on the maroon base, so the card edge flips to a
-     translucent cream hairline (fill and radius are unchanged). */
-  --card-border: rgba(249, 236, 217, 0.3);
+  /* Crisp charcoal hairline instead of a high-contrast 30% wireframe rim. */
+  --outline-card: 1px;
+  --card-border: rgba(249, 236, 217, 0.14);
+  /* Third luminance step (#2c2625) above #1a1516 surfaces for chips, stat
+     strips, builder steppers, progress tracks, and active/hover rows. */
+  --tint-cream-deep: color-mix(in srgb, var(--bridgio-maroon) 8%, var(--bridgio-paper));
+  --tint-red: color-mix(in srgb, var(--bridgio-red) 16%, var(--bridgio-paper));
+  --tint-info: color-mix(in srgb, var(--bridgio-info) 14%, var(--bridgio-paper));
+  --tint-success: color-mix(in srgb, var(--bridgio-success) 15%, var(--bridgio-paper));
+  --tint-error: color-mix(in srgb, var(--bridgio-error) 14%, var(--bridgio-paper));
 }
 
-/* The active sidebar pill is cream in dark, so its icon chip must darken, not
-   lighten (the light rule lays cream over cream). */
+/* Active sidebar item in Warm Charcoal dark mode: elevated charcoal tile with
+   a crisp brand-red accent indicator on the inline-start edge (zero impact on
+   --chip-line / --nav-line / --rail-p geometry). */
+:root[data-theme='dark'] .app-sidebar__link.is-active,
+:root[data-theme='dark'] .utility-links__link.is-active {
+  position: relative;
+  background: var(--tint-cream-deep);
+  color: var(--bridgio-maroon);
+}
+
+:root[data-theme='dark'] .app-sidebar__link.is-active::before,
+:root[data-theme='dark'] .utility-links__link.is-active::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block: 10px;
+  width: 2.5px;
+  border-radius: var(--radius-pill);
+  background: var(--bridgio-red);
+}
+
 :root[data-theme='dark'] .app-sidebar__link.is-active .app-sidebar__icon {
-  background: rgba(44, 7, 6, 0.12);
+  background: transparent;
+  color: var(--bridgio-maroon);
+}
+
+/* Neutral charcoal backdrops for drawers/popups in dark mode. */
+:root[data-theme='dark'] .sidebar-backdrop,
+:root[data-theme='dark'] .chat-popup,
+:root[data-theme='dark'] .mohsen-ask {
+  background: rgb(10 8 9 / 68%);
 }
 
 /* Warning is a bright amber fill; its chip keeps dark maroon text and rim in

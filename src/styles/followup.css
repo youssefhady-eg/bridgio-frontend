@@ -30,7 +30,7 @@ html {
 }
 
 *::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--bridgio-cream);
 }
 
 *::-webkit-scrollbar-thumb {
@@ -957,9 +957,10 @@ select.input {
     );
   }
 
+  html[dir='rtl'] .app-header__brand,
   :root[dir='rtl'] .app-header__brand {
     margin-inline-start: calc(
-      -0.01399 * var(--wordmark-width, clamp(112px, 9.44vw, 136px))
+      -0.00865 * var(--wordmark-width, clamp(112px, 9.44vw, 136px))
     );
   }
 }
@@ -1034,9 +1035,9 @@ select.input {
      *              visible edges sit symmetrically with padding on both sides.
      */
     --wordmark-width: clamp(112px, 9.44vw, 136px);
-    --wordmark-painted: calc(var(--wordmark-width) * 0.85397);
+    --wordmark-painted: calc(var(--wordmark-width) * 0.85975);
     --wordmark-line: calc(
-      (var(--rail-width) - var(--wordmark-painted)) / 2
+      (var(--rail-width) - var(--outline-hairline) - var(--wordmark-painted)) / 2
     );
     --brand-line: calc(70px + (var(--wordmark-line) - 70px) * var(--rail-ride));
 
