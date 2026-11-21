@@ -4,7 +4,7 @@ import { capabilitiesQueryOptions, sessionQueryOptions } from '~/api/queries'
 import { AppIcon, navIconName } from '~/components/AppIcon'
 import { useEffect, useRef, useState } from 'react'
 import { assistantCapabilityOrder, navFor } from '~/shell/nav'
-import type { NavScreenId } from '~/shell/nav'
+import type { NavRoute, NavScreenId } from '~/shell/nav'
 import { useFocusScope } from '~/shell/useFocusScope'
 import { useGuestPreview } from '~/shell/useGuestPreview'
 import { usePreviewRole } from '~/shell/usePreviewRole'
@@ -13,9 +13,10 @@ import { useLang, useStrings } from '~/shell/useStrings'
 /**
  * Primary navigation sidebar — the single source of navigation for every role.
  *
- * Desktop: a fixed sidebar with an icon and a word for each item, active state
- * included. Phone: rendered as a drawer opened from the header menu button and
- * closed by the backdrop, the close button, or any nav link.
+ * Desktop: a full-height column with a 52 px brand row, 42 px nav rows and the
+ * five teacher groups from the 2026-11-21 shell port. Phone: the same markup
+ * becomes a 256 px drawer opened from the topbar menu button and closed by the
+ * backdrop, the close button, or any nav link.
  *
  * The Teacher Assistant has no fixed menu: the items are exactly the
  * capabilities the backend granted this account (read through the adapter). A
@@ -29,6 +30,28 @@ interface AppSidebarProps {
   /** Desktop only: the sidebar is folded to an icon rail. */
   collapsed: boolean
   onToggleCollapsed: () => void
+}
+
+/**
+ * Teacher information architecture for the five-group rail. The group ids are
+ * the ones named in the brief; the labels live in `strings.sidebar.groups`.
+ * Every teacher item is listed here, and anything added later without a group
+ * falls through as an unlabelled row instead of disappearing.
+ */
+const teacherGroupOrder = [
+  { id: 'command', items: ['teacher-dashboard'] },
+  { id: 'detect', items: ['teacher-classes', 'teacher-students'] },
+  { id: 'diagnose', items: ['teacher-tests'] },
+  { id: 'decide', items: ['teacher-question-bank'] },
+  { id: 'verify', items: ['teacher-materials'] },
+] as const
+
+type TeacherGroupId = (typeof teacherGroupOrder)[number]['id']
+
+interface SidebarGroup {
+  key: string
+  label: string | null
+  items: readonly NavRoute[]
 }
 
 export function AppSidebar({
@@ -84,6 +107,36 @@ export function AppSidebar({
     return strings.nav[id]
   }
 
+  // Teacher groups come from the brief. Every other role keeps one flat list
+  // with no invented section names.
+  const groups: SidebarGroup[] =
+    role === 'teacher'
+      ? buildTeacherGroups(items)
+      : [{ key: 'all', label: null, items }]
+
+  function buildTeacherGroups(routes: readonly NavRoute[]): SidebarGroup[] {
+    const byId = new Map<string, NavRoute>(
+      routes.map((item) => [item.id, item] as const),
+    )
+    const grouped = new Set<string>()
+    const result: SidebarGroup[] = teacherGroupOrder.map((group) => {
+      const groupItems = group.items
+        .map((id) => byId.get(id))
+        .filter((item): item is NavRoute => item !== undefined)
+      groupItems.forEach((item) => grouped.add(item.id))
+      return {
+        key: group.id,
+        label: strings.sidebar.groups[group.id as TeacherGroupId],
+        items: groupItems,
+      }
+    })
+    const ungrouped = routes.filter((item) => !grouped.has(item.id))
+    if (ungrouped.length > 0) {
+      result.push({ key: 'more', label: null, items: ungrouped })
+    }
+    return result.filter((group) => group.items.length > 0)
+  }
+
   // The assistant has a single granted-sections screen, so its items are
   // distinguished by the in-page anchor. With no anchor yet in the URL, the
   // first granted section is the one in view.
@@ -130,7 +183,7 @@ export function AppSidebar({
     },
   ] as const
 
-  // Below 1024px the sidebar is a drawer: while it is open keep focus inside,
+  // Below 769px the sidebar is a drawer: while it is open keep focus inside,
   // close on Escape, and return focus to the menu button. On desktop it is never
   // `open`, so this does nothing.
   const drawerRef = useRef<HTMLElement>(null)
@@ -143,7 +196,39 @@ export function AppSidebar({
       className={`app-sidebar${open ? ' is-open' : ''}${collapsed ? ' is-collapsed' : ''}`}
       aria-label={strings.sidebar.navLabel}
     >
-      <div className="app-sidebar__head">
+      <div className="app-sidebar__brand">
+        <Link
+          to="/"
+          search={{ as: role, lang }}
+          className="app-sidebar__wordmark"
+          preload={false}
+        >
+          <span className="app-sidebar__mark" aria-hidden="true">
+            B
+          </span>
+          <span className="app-sidebar__text">BRIDGIO</span>
+        </Link>
+
+        <button
+          type="button"
+          className="app-sidebar__toggle"
+          onClick={onToggleCollapsed}
+          aria-expanded={!collapsed}
+          aria-controls="app-sidebar"
+          aria-label={
+            collapsed ? strings.sidebar.expandLabel : strings.sidebar.collapseLabel
+          }
+          title={
+            collapsed ? strings.sidebar.expandLabel : strings.sidebar.collapseLabel
+          }
+        >
+          <AppIcon
+            name={collapsed ? 'expand' : 'collapse'}
+            size={18}
+            strokeWidth={2}
+          />
+        </button>
+
         <button
           type="button"
           className="app-sidebar__close"
@@ -155,32 +240,52 @@ export function AppSidebar({
       </div>
 
       <nav className="app-sidebar__nav" aria-label={strings.sidebar.navLabel}>
-        <ul className="app-sidebar__list">
-          {items.map((item) => {
-            const active = isActive(item)
-            return (
-              <li key={`${item.id}:${item.hash ?? ''}`}>
-                <Link
-                  to={item.to}
-                  hash={item.hash}
-                  search={{ as: role, lang }}
-                  className={`app-sidebar__link${active ? ' is-active' : ''}`}
-                  title={collapsed ? navLabel(item.id) : undefined}
-                  aria-current={active ? 'page' : undefined}
-                  preload={false}
-                  onClick={onClose}
-                >
-                  <span className="app-sidebar__icon" aria-hidden="true">
-                    <AppIcon name={navIconName(item.id)} size={22} strokeWidth={2} />
-                  </span>
-                  <span className="app-sidebar__label">
-                    {navLabel(item.id)}
-                  </span>
-                </Link>
-              </li>
-            )
-          })}
-        </ul>
+        {groups.map((group) => {
+          const labelId = group.label ? `nav-group-${group.key}` : undefined
+          return (
+            <div className="app-sidebar__group" key={group.key}>
+              {group.label ? (
+                <p className="app-sidebar__group-label" id={labelId}>
+                  {group.label}
+                </p>
+              ) : null}
+              <ul
+                className="app-sidebar__list"
+                aria-labelledby={labelId}
+              >
+                {group.items.map((item) => {
+                  const active = isActive(item)
+                  return (
+                    <li key={`${item.id}:${item.hash ?? ''}`}>
+                      <Link
+                        to={item.to}
+                        hash={item.hash}
+                        search={{ as: role, lang }}
+                        className={`app-sidebar__link${active ? ' is-active' : ''}`}
+                        title={collapsed ? navLabel(item.id) : undefined}
+                        aria-current={active ? 'page' : undefined}
+                        preload={false}
+                        onClick={onClose}
+                      >
+                        <span className="app-sidebar__icon" aria-hidden="true">
+                          <AppIcon
+                            name={navIconName(item.id)}
+                            size={20}
+                            strokeWidth={2}
+                          />
+                        </span>
+                        <span className="app-sidebar__label">
+                          {navLabel(item.id)}
+                        </span>
+                      </Link>
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
+          )
+        })}
+
         {showAssistantNote ? (
           <p className="app-sidebar__note">{strings.sidebar.assistantNote}</p>
         ) : null}
@@ -201,7 +306,7 @@ export function AppSidebar({
                   onClick={onClose}
                 >
                   <span className="utility-links__icon" aria-hidden="true">
-                    <AppIcon name={link.icon} size={22} strokeWidth={2} />
+                    <AppIcon name={link.icon} size={20} strokeWidth={2} />
                   </span>
                   <span className="app-sidebar__label">{link.label}</span>
                 </Link>
@@ -210,36 +315,6 @@ export function AppSidebar({
           })}
         </ul>
       </nav>
-
-      {/* Desktop only (hidden on the phone drawer): fold to an icon rail. */}
-      <div className="app-sidebar__foot">
-        <button
-          type="button"
-          className="app-sidebar__toggle"
-          onClick={onToggleCollapsed}
-          aria-expanded={!collapsed}
-          aria-controls="app-sidebar"
-          aria-label={
-            collapsed ? strings.sidebar.expandLabel : strings.sidebar.collapseLabel
-          }
-          title={
-            collapsed ? strings.sidebar.expandLabel : strings.sidebar.collapseLabel
-          }
-        >
-          {/* Same 32 px chip box as the nav icons, so the toggle glyph centres
-              on the folded rail with everything else. */}
-          <span className="app-sidebar__icon" aria-hidden="true">
-            <AppIcon
-              name={collapsed ? 'expand' : 'collapse'}
-              size={22}
-              strokeWidth={2}
-            />
-          </span>
-          <span className="app-sidebar__label">
-            {collapsed ? strings.sidebar.expandLabel : strings.sidebar.collapseLabel}
-          </span>
-        </button>
-      </div>
     </aside>
   )
 }

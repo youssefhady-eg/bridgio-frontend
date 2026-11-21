@@ -135,6 +135,8 @@ export const ar = {
     themeLabel: 'المظهر',
     themeToDark: 'المظهر الداكن',
     themeToLight: 'المظهر الفاتح',
+    breadcrumbLabel: 'مسار التنقّل',
+    homeLabel: 'الرئيسية',
   },
   /** Primary navigation sidebar (all roles). */
   sidebar: {
@@ -151,6 +153,18 @@ export const ar = {
     supportLabel: 'الدعم',
     profileLabel: 'الملف الشخصي',
     notificationsLabel: 'الإشعارات',
+    /**
+     * Teacher information architecture (2026-11-21 shell port). The brief names
+     * five groups; the Arabic wording below is DRAFT like the rest of this file
+     * and has not been reviewed by an Arabic editor.
+     */
+    groups: {
+      command: 'القيادة',
+      detect: 'الرصد',
+      diagnose: 'التشخيص',
+      decide: 'القرار',
+      verify: 'التحقق',
+    },
   },
   /**
    * Read-only guest preview. The banner is UI copy only: the preview borrows a
@@ -682,6 +696,7 @@ export const ar = {
     lead: 'ابحث في اختباراتك وموادك وأسئلتك من مكان واحد.',
     inputLabel: 'كلمة البحث',
     placeholder: 'اكتب كلمة للبحث...',
+    shortcut: 'Ctrl K',
     submit: 'ابحث',
     promptTitle: 'ابدأ البحث',
     promptBody: 'اكتب كلمة لتظهر النتائج من اختباراتك وموادك وأسئلتك.',
@@ -1728,6 +1743,8 @@ export const en: Strings = {
     themeLabel: 'Theme',
     themeToDark: 'Dark theme',
     themeToLight: 'Light theme',
+    breadcrumbLabel: 'Breadcrumb',
+    homeLabel: 'Home',
   },
   sidebar: {
     navLabel: 'Primary navigation',
@@ -1743,6 +1760,13 @@ export const en: Strings = {
     supportLabel: 'Support',
     profileLabel: 'Profile',
     notificationsLabel: 'Notifications',
+    groups: {
+      command: 'Command',
+      detect: 'Detect',
+      diagnose: 'Diagnose',
+      decide: 'Decide',
+      verify: 'Verify',
+    },
   },
   guestPreview: {
     badge: 'Guest preview',
@@ -2222,6 +2246,7 @@ export const en: Strings = {
     lead: 'Search your tests, materials and questions in one place.',
     inputLabel: 'Search term',
     placeholder: 'Type a word to search...',
+    shortcut: 'Ctrl K',
     submit: 'Search',
     promptTitle: 'Start searching',
     promptBody:

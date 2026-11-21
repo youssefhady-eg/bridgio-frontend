@@ -87,7 +87,7 @@ export const Route = createRootRouteWithContext<{
         },
         {
           name: 'theme-color',
-          content: '#2c0706',
+          content: '#f6f3ee',
         },
       ],
       links: [
@@ -195,42 +195,39 @@ function AppShell() {
 
   return (
     <>
-      {/*
-        One shell wrapper owns the desktop rail animation. The registered
-        `--rail-p` property on `.app-shell` drives the grid track, the header
-        padding and the icon chips from a single value, so the wordmark cannot
-        drift away from the sidebar line mid-transition (round-6 fix).
-      */}
+      {/* One grid owns the whole shell: the sidebar spans both rows, the 52 px
+          topbar sits in row 1 beside it, and the main column scrolls inside
+          row 2. The old header-above-body nesting and the animated rail
+          property are gone. */}
       <div
         className={`app-shell${sidebarCollapsed ? ' app-shell--collapsed' : ''}`}
+        data-collapsed={sidebarCollapsed}
       >
+        <AppSidebar
+          open={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+          collapsed={sidebarCollapsed}
+          onToggleCollapsed={toggleSidebarCollapsed}
+        />
         <AppHeader
           onOpenSidebar={() => setSidebarOpen(true)}
           onOpenChat={() => setChatOpen(true)}
           theme={theme}
           onToggleTheme={toggleTheme}
         />
-        <div className="app-body">
-          <AppSidebar
-            open={sidebarOpen}
-            onClose={() => setSidebarOpen(false)}
-            collapsed={sidebarCollapsed}
-            onToggleCollapsed={toggleSidebarCollapsed}
-          />
-          <button
-            type="button"
-            className={`sidebar-backdrop${sidebarOpen ? ' is-open' : ''}`}
-            aria-label={strings.header.menuCloseLabel}
-            tabIndex={sidebarOpen ? 0 : -1}
-            onClick={() => setSidebarOpen(false)}
-          />
-          <div className="app-content">
-            <main className="app-main" id="app-main">
-              <GuestPreviewNotice />
-              <Outlet />
-            </main>
+        <button
+          type="button"
+          className={`sidebar-backdrop${sidebarOpen ? ' is-open' : ''}`}
+          aria-label={strings.header.menuCloseLabel}
+          tabIndex={sidebarOpen ? 0 : -1}
+          onClick={() => setSidebarOpen(false)}
+        />
+        <main className="app-main" id="app-main">
+          <div className="app-main__inner">
+            <GuestPreviewNotice />
+            <Outlet />
           </div>
-        </div>
+        </main>
       </div>
       <ChatPopup open={chatOpen} onClose={() => setChatOpen(false)} />
       <MohsenFab />

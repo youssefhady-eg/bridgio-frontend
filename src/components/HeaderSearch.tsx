@@ -89,7 +89,7 @@ export function HeaderSearch() {
       if (event.key === 'Escape') {
         setOpen(false)
         rootRef.current
-          ?.querySelector<HTMLButtonElement>('.app-utility__button--search')
+          ?.querySelector<HTMLButtonElement>('.header-search__trigger')
           ?.focus()
       }
     }
@@ -133,16 +133,18 @@ export function HeaderSearch() {
     <div className="header-search" ref={rootRef}>
       <button
         type="button"
-        className="app-utility__button app-utility__button--search"
+        className="header-search__trigger"
         onClick={() => setOpen((current) => !current)}
         aria-label={strings.header.searchOpenLabel}
         aria-expanded={open}
         aria-controls="header-search-panel"
         aria-keyshortcuts={teacherId !== null ? 'Control+K Meta+K' : undefined}
-        title={strings.header.searchLabel}
       >
-        <AppIcon name="search" size={20} />
-        <span className="app-utility__label">{strings.header.searchLabel}</span>
+        <AppIcon name="search" size={18} />
+        <span className="header-search__placeholder">{copy.placeholder}</span>
+        {teacherId !== null ? (
+          <kbd className="header-search__kbd">{copy.shortcut}</kbd>
+        ) : null}
       </button>
 
       {open ? (

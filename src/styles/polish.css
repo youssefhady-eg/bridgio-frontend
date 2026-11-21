@@ -21,17 +21,6 @@
   --outline-card: 1.5px;
   --card-border: rgba(44, 7, 6, 0.85);
   --radius-panel: var(--radius-card);
-  --content-max: 72rem;
-  /* Header minimum for the inner bar (phone/tablet sizing). */
-  --header-min: 72px;
-  /* Full desktop header height, border included (box-sizing: border-box).
-     Figma + Redesign shell lock: a 76 px bar with a 2 px bottom rule and a
-     136 px clean wordmark vertically centred. The sticky sidebar offset uses
-     this so its foot meets the fold with the collapse toggle visible.
-     Fluid: 76 px is the design value at the 1440 px base, so 76 / 1440 =
-     5.28vw. Below roughly 1210 px the 64 px minimum holds, so the bar never
-     gets shorter than a comfortable touch row. Consumed only at >= 1024 px. */
-  --header-h: clamp(64px, 5.28vw, 76px);
 }
 
 body {
@@ -40,203 +29,6 @@ body {
 
 ::selection {
   background: color-mix(in srgb, var(--bridgio-red) 22%, transparent);
-}
-
-/* ---- Utility header: slimmer, quieter ------------------------------------ */
-
-.app-header {
-  border-bottom: var(--outline-hairline) solid var(--card-border);
-}
-
-.app-header__inner {
-  max-width: none;
-  min-height: var(--header-min);
-  padding: var(--space-2) var(--space-4);
-  gap: var(--space-2);
-}
-
-.app-utility__button,
-.app-header__menu {
-  transition: background-color 0.15s ease, border-color 0.15s ease;
-}
-
-@media (min-width: 768px) {
-  .app-header {
-    background: var(--bridgio-paper);
-  }
-
-  .app-header__inner {
-    padding-inline: var(--space-6);
-  }
-
-  .app-utility__button {
-    background: var(--bridgio-paper);
-    border-color: var(--border-strong);
-  }
-
-  .app-utility__button:hover:not(:disabled) {
-    border-color: var(--bridgio-maroon);
-    background: var(--hover-bg);
-  }
-}
-
-@media (min-width: 1024px) {
-  /* The sidebar pins under the header at --header-h, so the header has to stay
-     pinned too. Without this the header scrolls away and leaves a band above
-     the sidebar. z-index 40 matches the below-1024 px rule and stays under the
-     drawer (60), backdrop (50) and chat popup (80). */
-  .app-header {
-    position: sticky;
-    top: 0;
-    z-index: 40;
-    /* Border-box: exactly --header-h tall including the 2 px rule, so the
-       sidebar's --header-h sticky offset meets it with no band. */
-    min-height: var(--header-h);
-    border-bottom-width: var(--outline-sticker);
-  }
-
-  /* 74 px content box + 2 px rule = the 76 px bar. The 136 px wordmark is
-     49.1 px tall, so the flex row centres it with no vertical padding and the
-     bar keeps --header-h in both themes. */
-  /* The header spans the same full-width box as the app body, so its
-     inline-start padding is what aligns the wordmark with the sidebar nav. The
-     nav label column starts at 12 px (nav inline padding) + 14 px (link inline
-     padding) + 32 px (icon chip) + 12 px (link gap) = 70 px; the wordmark's
-     inline-start edge sits on that same line at every desktop width.
-     Rounds 6 and 10 move the line with the rail animation: followup.css sets the
-     padding from `--brand-line` — the same 70 px line when expanded and the
-     painted wordmark centred in the widened folded rail, both derived from the
-     same `--rail-p` value as the grid track and the icon chips. */
-  .app-header__inner {
-    min-height: calc(var(--header-h) - var(--outline-sticker));
-    padding-block: 0;
-    padding-inline: 70px 32px;
-  }
-}
-
-/* ---- Sidebar ------------------------------------------------------------- */
-
-.app-sidebar {
-  background: var(--bridgio-paper);
-  border-inline-end: var(--outline-hairline) solid var(--card-border);
-}
-
-.app-sidebar__nav {
-  padding: var(--space-4) var(--space-3);
-}
-
-.app-sidebar__list {
-  gap: 2px;
-}
-
-.app-sidebar__link {
-  position: relative;
-  border-radius: 12px;
-  padding-inline: var(--space-3) var(--space-4);
-  color: var(--text-secondary);
-  transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.app-sidebar__link:hover {
-  background: var(--tint-cream-deep);
-  color: var(--text-primary);
-}
-
-.app-sidebar__link:hover .app-sidebar__icon {
-  color: var(--text-primary);
-}
-
-.app-sidebar__icon {
-  width: 32px;
-  height: 32px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-}
-
-/* Active tile: cream fill + maroon label. The locked token pair inverts in
-   dark (maroon fill + cream label), so this one rule covers both themes. No
-   icon-chip fill — the tile itself carries the state. */
-.app-sidebar__link.is-active {
-  background: var(--bridgio-cream);
-  color: var(--bridgio-maroon);
-}
-
-.app-sidebar__note {
-  margin: var(--space-4) var(--space-1) 0;
-  padding: var(--space-3);
-  border-radius: 12px;
-  background: var(--bridgio-cream);
-  line-height: 1.5;
-}
-
-@media (min-width: 1024px) {
-  /* Round 6: the desktop rail is one animated value. `.app-shell` owns the
-     registered progress property; followup.css derives the grid track, the
-     header padding and the chip positions from it. The old static track
-     declarations were removed here so there is only one mechanism. */
-
-  /* The sidebar starts below the header, so a sticky top:0 + height:100dvh
-     pushed the foot (and its collapse toggle) below the fold. Pin it under the
-     header instead, so the toggle is visible without scrolling. */
-  .app-sidebar {
-    top: var(--header-h);
-    height: calc(100dvh - var(--header-h));
-  }
-
-  /* The designed 24 px gap between the header and the first nav item. */
-  .app-sidebar__nav {
-    padding-block-start: 24px;
-  }
-
-  /* 48 px rows (32 px icon chip + 8 px block padding), 8 px gap, 16 px radius,
-     14 px inline padding — the Redesign numbers. */
-  .app-sidebar__list {
-    gap: 8px;
-  }
-
-  .app-sidebar__link {
-    min-height: 48px;
-    padding-block: 8px;
-    padding-inline: 14px;
-    border-radius: 16px;
-  }
-
-  .app-sidebar__foot {
-    padding: var(--space-3);
-  }
-
-  .app-sidebar__toggle {
-    min-height: 48px;
-    gap: 8px;
-    border-color: transparent;
-    border-radius: 16px;
-    color: var(--text-muted);
-  }
-
-  .app-sidebar__toggle:hover {
-    color: var(--text-primary);
-    background: var(--tint-cream-deep);
-  }
-}
-
-@media (max-width: 1023.98px) {
-  .app-sidebar {
-    border-inline-end: var(--outline-sticker) solid var(--bridgio-maroon);
-  }
-}
-
-/* ---- Main column --------------------------------------------------------- */
-
-.app-main {
-  max-width: var(--content-max);
-  padding: var(--space-8) var(--space-4) var(--space-16);
-}
-
-@media (min-width: 768px) {
-  .app-main {
-    padding: var(--space-8) var(--space-8) var(--space-16);
-  }
 }
 
 h1 {
@@ -424,13 +216,14 @@ h1 {
 }
 
 .button--primary {
-  background: var(--bridgio-maroon);
-  border-color: var(--bridgio-maroon);
-  color: var(--bridgio-cream);
+  background: var(--cta-bg);
+  border-color: var(--cta-bg);
+  color: var(--cta-text);
 }
 
 .button--primary:hover:not(:disabled) {
-  background: var(--primary-hover-bg);
+  background: var(--cta-bg-hover);
+  border-color: var(--cta-bg-hover);
 }
 
 .button--secondary {
@@ -538,19 +331,7 @@ body {
   overflow-x: clip;
 }
 
-@media (max-width: 1023.98px) {
-  .app-header {
-    position: sticky;
-    top: 0;
-    z-index: 40;
-  }
-}
-
 @media (max-width: 767.98px) {
-  .app-header__inner {
-    min-height: 60px;
-  }
-
   .dashboard__totals {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -578,37 +359,11 @@ body {
   --tint-error: color-mix(in srgb, var(--bridgio-error) 14%, var(--bridgio-paper));
 }
 
-/* Active sidebar item in Warm Charcoal dark mode: elevated charcoal tile with
-   a crisp brand-red accent indicator on the inline-start edge (zero impact on
-   --chip-line / --nav-line / --rail-p geometry). */
-:root[data-theme='dark'] .app-sidebar__link.is-active,
-:root[data-theme='dark'] .utility-links__link.is-active {
-  position: relative;
-  background: var(--tint-cream-deep);
-  color: var(--bridgio-maroon);
-}
-
-:root[data-theme='dark'] .app-sidebar__link.is-active::before,
-:root[data-theme='dark'] .utility-links__link.is-active::before {
-  content: '';
-  position: absolute;
-  inset-inline-start: 0;
-  inset-block: 10px;
-  width: 2.5px;
-  border-radius: var(--radius-pill);
-  background: var(--bridgio-red);
-}
-
-:root[data-theme='dark'] .app-sidebar__link.is-active .app-sidebar__icon {
-  background: transparent;
-  color: var(--bridgio-maroon);
-}
-
 /* Neutral charcoal backdrops for drawers/popups in dark mode. */
 :root[data-theme='dark'] .sidebar-backdrop,
 :root[data-theme='dark'] .chat-popup,
 :root[data-theme='dark'] .mohsen-ask {
-  background: rgb(10 8 9 / 68%);
+  background: rgb(0 0 0 / 62%);
 }
 
 /* Warning is a bright amber fill; its chip keeps dark maroon text and rim in

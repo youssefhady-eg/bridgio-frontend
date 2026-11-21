@@ -6,30 +6,24 @@ import { sessionQueryOptions } from '~/api/queries'
 import { AppIcon } from '~/components/AppIcon'
 import { HeaderSearch } from '~/components/HeaderSearch'
 import { hrefWithLang } from '~/shell/lang'
+import { navFor } from '~/shell/nav'
 import { useGuestPreview } from '~/shell/useGuestPreview'
 import { usePreviewRole } from '~/shell/usePreviewRole'
 import type { Theme } from '~/shell/theme-state'
 import { useLang, useStrings } from '~/shell/useStrings'
 
 /**
- * Slim utility header â€” refinement branch.
+ * Topbar — 2026-11-21 shell port.
  *
- * The header no longer carries the primary navigation (that is the sidebar's
- * job), nor the colour-theme switch (it lives in the account menu now). It
- * holds only utility controls: the menu button (phone only), the brand, the
- * language toggle, the inline search, the messages trigger and the account area.
+ * The bar is exactly 52 px tall and carries three zones: a breadcrumb at the
+ * inline-start, the inline search trigger in the middle, and the utility
+ * controls (notifications, language, messages, account) at the inline-end.
+ * The brand now lives in the sidebar's brand row, not here.
  *
- * Three brand size states are unchanged (see app.css), one DOM, media queries:
- *  - >= 1024 px : large header, adopted wordmark, maroon fill, fluid width
- *    clamp(112px, 9.44vw, 136px) (the 200 px colour lockup is no longer rendered
- *    in the header; the asset stays in the repo for large/cover use)
- *   768-1023 : light small header, adopted wordmark, maroon fill, 148 px
- *   <768 px  : dark band, adopted wordmark, cream fill, inline-start in the
- *              single flex row (the desktop centring is withdrawn)
- *
- * The account control is the avatar only. It opens a small menu with Profile,
- * Sign out (through `auth.signOut`) when a session exists, or Sign in when it
- * does not. Every label comes from the central strings.
+ * The colour-theme switch stays in the account menu only; there is deliberately
+ * no sun/moon button in the topbar. The account control opens the same menu as
+ * before: Profile, Theme, Sign out when a session exists, or the guest role
+ * line plus Sign in / Exit when the preview has no session.
  */
 
 interface AppHeaderProps {
@@ -59,6 +53,27 @@ export function AppHeader({
   const user = sessionQuery.data?.user ?? null
   const [accountOpen, setAccountOpen] = useState(false)
   const accountRef = useRef<HTMLDivElement>(null)
+
+  // Breadcrumb: role area first, current destination second. Detail routes
+  // keep their section name (a class detail still reads "Classes").
+  const navItems = role === 'assistant' ? navFor('assistant') : navFor(role)
+  const section = navItems.find(
+    (item) =>
+      pathname === item.to || pathname.startsWith(`${item.to}/`),
+  )
+  const utilityCrumbs: Record<string, string> = {
+    '/notifications': strings.sidebar.notificationsLabel,
+    '/help': strings.sidebar.helpLabel,
+    '/guide': strings.sidebar.guideLabel,
+    '/support': strings.sidebar.supportLabel,
+    '/profile': strings.sidebar.profileLabel,
+    '/search': strings.search.title,
+    '/assistant': strings.profile.roles.assistant,
+  }
+  const currentCrumb = section
+    ? strings.nav[section.id]
+    : (utilityCrumbs[pathname] ?? strings.header.homeLabel)
+  const roleCrumb = strings.profile.roles[role]
 
   const signOutMutation = useMutation({
     mutationFn: () => api.auth.signOut(),
@@ -112,47 +127,49 @@ export function AppHeader({
   return (
     <header className="app-header">
       <div className="app-header__inner">
-        <button
-          type="button"
-          className="app-header__menu"
-          onClick={onOpenSidebar}
-          aria-label={strings.header.menuLabel}
-        >
-          <AppIcon name="menu" size={22} />
-        </button>
+        <div className="app-header__start">
+          <button
+            type="button"
+            className="app-header__menu"
+            onClick={onOpenSidebar}
+            aria-label={strings.header.menuLabel}
+            aria-controls="app-sidebar"
+          >
+            <AppIcon name="menu" size={20} />
+          </button>
 
-        {/* The brand links to the shell home, keeping the preview role and the
-            language in the query so `/` redirects to the same role home. */}
-        <Link
-          to="/"
-          search={{ as: role, lang }}
-          className="app-header__brand"
-        >
-          {/* Adopted wordmark â€” fills baked in the files, never recoloured.
-              One of the two is visible per breakpoint/theme (see app.css). */}
-          <img
-            className="app-header__wordmark app-header__wordmark--cream"
-            src="/brand/wordmark-cream.svg"
-            alt={strings.header.wordmarkAlt}
-            width={136}
-            height={49}
-            decoding="async"
-          />
-          <img
-            className="app-header__wordmark app-header__wordmark--maroon"
-            src="/brand/wordmark-maroon.svg"
-            alt={strings.header.wordmarkAlt}
-            width={148}
-            height={53}
-            decoding="async"
-          />
-        </Link>
+          <nav
+            className="app-breadcrumb"
+            aria-label={strings.header.breadcrumbLabel}
+          >
+            <span className="app-breadcrumb__root">{roleCrumb}</span>
+            <span className="app-breadcrumb__sep" aria-hidden="true">
+              /
+            </span>
+            <strong className="app-breadcrumb__current">{currentCrumb}</strong>
+          </nav>
+        </div>
+
+        <HeaderSearch />
 
         <div
-          className="app-header__utilities"
+          className="app-header__end"
           role="group"
           aria-label={strings.header.utilityLabel}
         >
+          {role === 'teacher' ? (
+            <Link
+              to="/notifications"
+              search={{ as: role, lang }}
+              className="app-utility__button"
+              aria-label={strings.sidebar.notificationsLabel}
+              title={strings.sidebar.notificationsLabel}
+              preload={false}
+            >
+              <AppIcon name="notifications" size={18} />
+            </Link>
+          ) : null}
+
           <a
             className="app-utility__button app-utility__button--lang"
             href={hrefWithLang(pathname, searchStr, nextLang)}
@@ -176,15 +193,14 @@ export function AppHeader({
             </span>
           </a>
 
-          <HeaderSearch />
-
           <button
             type="button"
             className="app-utility__button"
             onClick={onOpenChat}
             aria-label={strings.header.assistantOpenLabel}
+            title={strings.header.assistantLabel}
           >
-            <AppIcon name="chat" size={20} />
+            <AppIcon name="chat" size={18} />
             <span className="app-utility__label">
               {strings.header.assistantLabel}
             </span>
@@ -202,7 +218,7 @@ export function AppHeader({
               aria-controls="account-menu-panel"
               title={strings.header.accountLabel}
             >
-              <AppIcon name="user" size={20} />
+              <AppIcon name="user" size={18} />
             </button>
 
             {accountOpen ? (
@@ -225,8 +241,8 @@ export function AppHeader({
                       <AppIcon name="user" size={18} />
                       {strings.sidebar.profileLabel}
                     </Link>
-                    {/* Same theme state as the header sun/moon control: the
-                        row toggles it and the switch position reports it. */}
+                    {/* Same theme state as the account row: the row toggles it
+                        and the switch position reports it. */}
                     <button
                       type="button"
                       className="account-menu__item account-menu__item--theme"

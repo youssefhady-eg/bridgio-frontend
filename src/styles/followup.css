@@ -47,81 +47,6 @@ html {
   background: transparent;
 }
 
-/* ---- 2. Wordmark alignment in the header --------------------------------- */
-/*
- * One header DOM, one flex row, at every width. The wordmark sits at the
- * inline-start and the utilities are pushed to the inline-end by their auto
- * margin. On a phone the menu button comes first, so the wordmark follows it;
- * from 1024 px the menu is gone and the wordmark is the first item.
- *
- * The header is full-width (no max-width, no auto margin): it spans the same
- * box as the app body below it, so the wordmark's inline-start edge can line up
- * with the sidebar's nav. The 2026-11-14 three-column centring at >= 768 px is
- * withdrawn — the wordmark is never centred on desktop.
- *
- * The one phone addition is the account avatar, which is now the only route to
- * sign out because the sidebar Profile item is gone.
- */
-
-@media (max-width: 767.98px) {
-  .app-utility__button--account {
-    display: inline-flex;
-  }
-
-  /*
-   * The row now carries five utilities, not the three it carried when the
-   * single-row bar was designed. Give the wordmark the room: 8 px edge padding,
-   * 34 x 44 px icon-only controls and 4 px gaps keep the 136 px wordmark on a
-   * 390 px phone instead of collapsing it under the flexible row. The wordmark's
-   * own width is untouched; on this 380 px desktop-Chrome viewport (10 px
-   * scrollbar) it measures 126 px, and 136 px at a true 390 px.
-   */
-  .app-header__inner {
-    padding-inline: var(--space-2);
-    gap: var(--space-1);
-  }
-
-  .app-utility__button {
-    width: 34px;
-    min-width: 34px;
-    padding-inline: 0;
-    justify-content: center;
-  }
-
-  /* The account rule lives in section 7; this pair selector keeps the avatar
-     the same shape as the four controls beside it. */
-  .app-utility__button.app-utility__button--account {
-    width: 34px;
-    min-width: 34px;
-  }
-
-  .app-header__utilities {
-    gap: var(--space-1);
-  }
-}
-
-/*
- * Tablet: five labelled utility controls are wider than either side column of
- * the centred grid at 768-1023 px, so the labels would overlap the wordmark.
- * The cluster is icon-only here, exactly as on phone, and the labels return
- * with the large header at 1024 px where the columns have room for them.
- */
-@media (min-width: 768px) and (max-width: 1023.98px) {
-  .app-utility__label {
-    display: none;
-  }
-}
-
-/* Small phones: keep the row intact by trading 2 px of control width for
-   wordmark width. Still one row, still five controls, still 44 px tall. */
-@media (max-width: 359.98px) {
-  .app-utility__button,
-  .app-utility__button.app-utility__button--account {
-    width: 32px;
-    min-width: 32px;
-  }
-}
-
 /* ---- 3. Pressed states --------------------------------------------------- */
 /*
  * Every control gets a visible pressed response: a token wash plus the single
@@ -234,10 +159,6 @@ html {
   filter: brightness(0.98);
 }
 
-.app-header__brand:active {
-  filter: brightness(0.94);
-}
-
 /* ---- 4. Motion (owner-approved tokens) ----------------------------------- */
 
 @keyframes bridgio-surface-in {
@@ -287,19 +208,6 @@ html {
 .material-row__detail {
   animation: bridgio-detail-in var(--motion-duration-base)
     var(--motion-ease-standard);
-}
-
-/* Sidebar drawer: the locked 250 ms ease, both directions. */
-@media (max-width: 1023.98px) {
-  .app-sidebar {
-    transition:
-      transform var(--motion-duration-slow) var(--motion-ease-standard),
-      visibility 0s linear var(--motion-duration-slow);
-  }
-
-  .app-sidebar.is-open {
-    transition-delay: 0s;
-  }
 }
 
 /* Inputs respond to hover/focus with the same token timing. */
@@ -397,12 +305,6 @@ select.input {
   display: inline-flex;
 }
 
-.app-utility__button--account {
-  width: var(--touch-target);
-  padding: 0;
-  border-radius: var(--radius-pill);
-  justify-content: center;
-}
 
 .app-utility__button--account .app-utility__label {
   display: none;
@@ -417,9 +319,10 @@ select.input {
   gap: 2px;
   min-width: 12rem;
   padding: var(--space-2);
-  background: var(--bridgio-paper);
-  border: var(--outline-sticker) solid var(--bridgio-maroon);
-  border-radius: var(--radius-input);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  box-shadow: var(--shadow-overlay);
   animation: bridgio-surface-in var(--motion-duration-base)
     var(--motion-ease-emphasis);
 }
@@ -783,7 +686,55 @@ select.input {
  */
 .header-search {
   position: relative;
-  display: inline-flex;
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+
+.header-search__trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  height: 34px;
+  padding-inline: 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  font-family: 'Bridgio Body', 'Bridgio Label', sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: start;
+  cursor: pointer;
+  transition: border-color var(--ease), background-color var(--ease),
+    color var(--ease);
+}
+
+.header-search__trigger:hover {
+  border-color: var(--border-strong);
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+}
+
+.header-search__placeholder {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.header-search__kbd {
+  flex: none;
+  padding: 1px 5px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  font-family: 'Bridgio Body', 'Bridgio Label', sans-serif;
+  font-size: 11px;
+  line-height: 1.5;
 }
 
 .header-search__panel {
@@ -795,9 +746,10 @@ select.input {
   max-height: min(70vh, 34rem);
   overflow-y: auto;
   padding: var(--space-4);
-  background: var(--bridgio-paper);
-  border: var(--outline-sticker) solid var(--bridgio-maroon);
-  border-radius: var(--radius-card);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  box-shadow: var(--shadow-overlay);
   animation: bridgio-surface-in var(--motion-duration-base)
     var(--motion-ease-emphasis);
 }
@@ -927,198 +879,30 @@ select.input {
   text-underline-offset: 3px;
 }
 
-/* ---- 15. Wordmark: one size, glyph centred ------------------------------- */
+
+/* ---- 17. Phone topbar search -------------------------------------------- */
 /*
- * The header padding puts the wordmark's *painted glyph* edge on the brand
- * line. The artwork is not flush with its element box: inside the 720-unit
- * viewBox the glyphs begin at x = 335.07 (95.07 units, ≈13.2 %, of empty space
- * on the inline-start) and end at x = 949.93 (10.07 units, ≈1.4 %, on the
- * inline-end), so 85.397 % of the box is visible. At the 136 px desktop width
- * that is ~18 px of visible misalignment on the leading side, which is what
- * reads as "off".
- *
- * Pull the box in by its own inline-start whitespace so the *painted* edge
- * lands on the brand line in both rail states, at every desktop width. RTL
- * flips which side is the inline-start, so the matching inset swaps: 13.2 % in
- * LTR, 1.4 % in RTL. Scoped to the desktop header, where the line targets
- * above are set.
- *
- * Round 10 (owner decision 2026-11-20, Option A) removes the round-8 shrink:
- * the folded rail is widened (150 px at the 1440 px base) so the wordmark keeps
- * its full expanded size in both states. `--brand-line` is the nav column
- * (70 px) when expanded and the painted glyph *centred* in the widened rail
- * when folded, so its two visible edges sit symmetrically with padding on both
- * sides. It rides with `--rail-p` below; the wordmark never shrinks.
+ * The trigger collapses to its icon at <= 768 px. The panel leaves the
+ * trigger's box and pins under the 52 px topbar so it never overflows the
+ * viewport in either direction.
  */
-@media (min-width: 1024px) {
-  .app-header__brand {
-    margin-inline-start: calc(
-      -0.13204 * var(--wordmark-width, clamp(112px, 9.44vw, 136px))
-    );
-  }
-
-  html[dir='rtl'] .app-header__brand,
-  :root[dir='rtl'] .app-header__brand {
-    margin-inline-start: calc(
-      -0.00865 * var(--wordmark-width, clamp(112px, 9.44vw, 136px))
-    );
-  }
-}
-
-/* ---- 16. Desktop rail: one animated line -------------------------------- */
-/*
- * Round 6 restores the 250 ms fold/unfold. The previous attempt animated the
- * grid track and the header padding separately; the icon chip followed a third
- * path, so the wordmark glyph left the sidebar line on almost every frame.
- *
- * Now `.app-shell` owns a single registered progress value, `--rail-p`
- * (0 = expanded, 1 = folded). Every geometry below is derived from it:
- *
- *   rail width      = expanded - (expanded - collapsed) * p
- *   icon chip edge  = 26 px -> 70 px while the labels gather (p <= 0.16),
- *                     then follows the rail edge (rail / 2 - 16 px)
- *   nav label line  = 70 px until the gather finishes, then follows the chip
- *
- * The labels are taken out of flow and pinned to the 70 px line, so shrinking
- * the chip padding cannot drag them sideways; they fade with the gather. The
- * header uses `--brand-line` for its inline-start padding: the same 70 px line
- * when expanded, the painted wordmark centred in the widened rail when folded.
- * The glyph compensation in section 15 keeps the painted edge on that line.
- *
- * 0.16 is the gather share: labels have fully faded before the chip starts its
- * ride, so no frame shows text being clipped by the narrowing rail. Both
- * directions use the same curve and duration.
- */
-@property --rail-p {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 0;
-}
-
-@media (min-width: 1024px) {
-  .app-shell {
-    --rail-p: 0;
-    --rail-expanded: clamp(200px, 18.89vw, 272px);
-    /*
-     * Round 10 (owner decision 2026-11-20, Option A): the folded rail is
-     * widened so the full-size wordmark fits inside it. 150 px at the 1440 px
-     * base (150 / 1440 = 10.4167vw, the same vw approach as before), floored at
-     * 144 px — the smallest rail that still leaves 16 px of visible padding
-     * around the wordmark's painted glyph at 1024 px (112 px floored element ×
-     * 85.397 % = ~96 px painted). The 88 px folded spec is superseded.
-     */
-    --rail-collapsed: clamp(144px, 10.4167vw, 150px);
-    --rail-width: calc(
-      var(--rail-expanded) -
-        (var(--rail-expanded) - var(--rail-collapsed)) * var(--rail-p)
-    );
-    --rail-gather: clamp(0, calc(var(--rail-p) * 6.25), 1);
-    --rail-ride: clamp(0, calc((var(--rail-p) - 0.16) * 1.1904762), 1);
-    --rail-edge: calc(var(--rail-width) / 2 - 16px);
-    --chip-line: calc(
-      26px + 44px * var(--rail-gather) +
-        (var(--rail-edge) - 70px) * var(--rail-ride)
-    );
-    --nav-line: calc(70px + (var(--rail-edge) - 70px) * var(--rail-ride));
-
-    /*
-     * One wordmark size in both rail states. Round 10 removes the round-8
-     * shrink (`--wordmark-collapsed` and the interpolated `--wordmark-width`),
-     * so `--wordmark-width` is the plain approved expanded clamp and the
-     * artwork stays full size while the rail folds. The painted glyphs occupy
-     * 85.397 % of the box (13.204 % leading whitespace, 1.399 % trailing).
-     *
-     * `--brand-line` is where the *painted* glyph starts (the negative margin
-     * in section 15 moves the element box so its visible edge lands there):
-     *   expanded = 70 px, the sidebar's nav-label column;
-     *   folded   = the painted glyph centred in the widened rail, so both
-     *              visible edges sit symmetrically with padding on both sides.
-     */
-    --wordmark-width: clamp(112px, 9.44vw, 136px);
-    --wordmark-painted: calc(var(--wordmark-width) * 0.85975);
-    --wordmark-line: calc(
-      (var(--rail-width) - var(--outline-hairline) - var(--wordmark-painted)) / 2
-    );
-    --brand-line: calc(70px + (var(--wordmark-line) - 70px) * var(--rail-ride));
-
-    transition: --rail-p 250ms cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .app-shell--collapsed {
-    --rail-p: 1;
-  }
-
-  .app-body {
-    grid-template-columns: var(--rail-width) minmax(0, 1fr);
-  }
-
-  .app-header__inner {
-    padding-inline: var(--brand-line) 32px;
-  }
-
-  /* The icon chip keeps its 32 px box; only its distance from the edge moves. */
-  .app-sidebar__link,
-  .utility-links__link {
-    padding-inline: calc(var(--chip-line) - 12px);
-  }
-
-  .utility-links__link {
-    position: relative;
-    gap: 12px;
-  }
-
-  /*
-   * Both lists are single-column grids. Their implicit `auto` track was sized
-   * by the rows' min-content width (the 32 px chip plus the animated inline
-   * padding), which is the rail minus the 24 px nav padding but not minus the
-   * sidebar's trailing hairline. The track therefore stuck out by that
-   * hairline, the nav's `scrollWidth` exceeded its `clientWidth`, and the
-   * folded rail grew a horizontal scrollbar under Support. Fill the track from
-   * the content box and let the rows shrink instead; the chip still lands on
-   * `--chip-line`.
-   */
-  .app-sidebar__list,
-  .utility-links {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .app-sidebar__list > li,
-  .utility-links > li {
-    min-inline-size: 0;
-  }
-
-  /*
-   * Utilities used to carry a second 12 px inline inset on top of the nav's
-   * own 12 px, so their icons sat 12 px right of the main nav icons (and off
-   * the folded rail's centre). One inset is enough: the shared `--chip-line`
-   * padding then puts all rows on the same edge in both states.
-   */
-  .utility-links {
+@media (max-width: 768px) {
+  .header-search__trigger {
+    width: 34px;
     padding-inline: 0;
+    justify-content: center;
   }
 
-  /* Labels sit on the expanded line every frame (70 px from the shell edge,
-     58 px from the link box, which starts after the 12 px nav padding). */
-  .app-sidebar__link .app-sidebar__label,
-  .utility-links__link .app-sidebar__label,
-  .app-sidebar__toggle .app-sidebar__label {
-    position: absolute;
-    inset-block-start: 50%;
-    inset-inline-start: calc(var(--nav-line) - 12px);
-    max-inline-size: calc(100% - (var(--nav-line) - 12px));
-    overflow: hidden;
-    opacity: calc(1 - var(--rail-gather));
-    pointer-events: none;
-    text-overflow: ellipsis;
-    transform: translateY(-50%);
-    white-space: nowrap;
+  .header-search__placeholder,
+  .header-search__kbd {
+    display: none;
   }
 
-  /* The toggle gets the same 32 px chip box as a nav icon, so its glyph is
-     centred on the rail with the rest of the icons when folded. */
-  .app-sidebar__toggle {
-    position: relative;
-    gap: 12px;
-    padding-inline: calc(var(--chip-line) - 13.5px);
+  .header-search__panel {
+    position: fixed;
+    inset-block-start: calc(var(--topbar-h) + var(--space-2));
+    inset-inline: var(--space-3);
+    width: auto;
+    max-height: calc(100dvh - var(--topbar-h) - var(--space-6));
   }
 }

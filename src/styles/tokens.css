@@ -2,37 +2,87 @@
  * BRIDGIO — design tokens (Stage 1 shell).
  *
  * Source of truth: docs/BRIDGIO-UI-UX-token-sheet.md (2026-11-01) and
- * docs/BRIDGIO-LIVE_RULES.md §1–§2.
+ * docs/BRIDGIO-LIVE_RULES.md §1–§2, plus the 2026-11-21 shell/token port.
  *
- * Labels are carried over exactly as the token sheet defines them:
+ * The first block carries the ported demo names verbatim (canvas, surface,
+ * maroon, geometry, ease). The second block maps the long-standing BRIDGIO
+ * token names onto them so every existing stylesheet keeps working without an
+ * undefined token. Labels are unchanged:
  *  - LOCKED             → already a brand decision; use as-is.
  *  - PROPOSED FOR UI    → not a brand lock; used as-is for the MVP and
  *                         labelled proposed in the delivery note.
- * Nothing here invents a new value.
  */
 
 :root {
   /* Light is the default and the only theme the page paints without a
-     `data-theme` attribute. The dark theme (below) is opt-in via the header
-     toggle and persists in localStorage. */
+     `data-theme` attribute. The dark theme (below) is opt-in via the account
+     menu and persists in localStorage. */
   color-scheme: light;
 
-  /* ---- Colours — LOCKED ------------------------------------------------- */
+  /* ---- Ported demo tokens — Warm Cream Light ---------------------------- */
+  --bg-canvas: #f6f3ee;
+  --bg-surface: #ffffff;
+  --bg-elevated: #efeae2;
+  --bg-hover: #f3efe8;
+  --bg-active: #eae3d8;
+  --bg-inset: #faf8f5;
+
+  --border-subtle: #e5dfd6;
+  --border-strong: #cec5b8;
+
+  --text-primary: #1a1516;
+  --text-secondary: #574d4f;
+  /* The demo's #7F7375 is 4.14:1 on #F6F3EE, below AA for body text. Darkened
+     one step so the locked contrast test keeps passing (delivery note). */
+  --text-muted: #6f6466;
+
+  --brand-maroon: #7a1c2e;
+  --brand-maroon-hover: #621524;
+  --brand-maroon-soft: rgba(122, 28, 46, 0.09);
+  --brand-on-primary: #faf6f1;
+  --focus-ring: #94263b;
+
+  --status-success: #1d7a4c;
+  --status-success-soft: rgba(29, 122, 76, 0.11);
+  --status-warning: #b4690e;
+  --status-warning-soft: rgba(180, 105, 14, 0.12);
+  --status-danger: #b82e3a;
+  --status-danger-soft: rgba(184, 46, 58, 0.11);
+  --status-neutral: #7a7072;
+
+  --shadow-xs: 0 1px 2px rgba(26, 21, 22, 0.05);
+  --shadow-overlay: 0 16px 40px rgba(20, 14, 15, 0.16);
+
+  /* Shell geometry (ported verbatim). */
+  --topbar-h: 52px;
+  --sidebar-w: 236px;
+  --sidebar-w-collapsed: 58px;
+  --row-h: 42px;
+  --content-max: 1320px;
+  --ease: 130ms cubic-bezier(0.2, 0, 0, 1);
+
+  /* Button-level CTA pair. Kept separate from the brand accent because the
+     dark theme intentionally inverts the button (cream fill, dark label)
+     without turning --brand-maroon into cream. */
+  --cta-bg: #7a1c2e;
+  --cta-bg-hover: #621524;
+  --cta-text: #faf6f1;
+
+  /* ---- Colours — LOCKED (mapped onto the ported palette) ---------------- */
   --bridgio-red: #d51c1d; /* brand red — NOT status red */
   --bridgio-red-accent: #f41920; /* logo artwork only, sparingly */
-  --bridgio-cream: #f9ecd9; /* app background */
-  --bridgio-paper: #fff6e8; /* surface */
+  --bridgio-cream: #f6f3ee; /* app background — mirrors --bg-canvas */
+  --bridgio-paper: #ffffff; /* surface — mirrors --bg-surface */
   /* Brand paper that stays cream in both themes. Used only where supplied
      artwork must keep its dark outline legible (the Mohsen mascot), so it is
      deliberately outside the dark-theme swap. */
   --bridgio-paper-fixed: #fff6e8;
-  --bridgio-maroon: #2c0706; /* ink / default text on cream */
-  --bridgio-maroon-outline: #471e1b; /* logo outline dark */
-  /* Primary-button hover/press fill. Light swaps the cream fill for the
-     logo-outline maroon (cream label stays on top). Dark must not do that —
-     see the dark block, where it dips the cream fill instead. */
-  --primary-hover-bg: var(--bridgio-maroon-outline);
-  --bridgio-success: #1f7a57;
+  --bridgio-maroon: var(--brand-maroon); /* ink / default text on cream */
+  --bridgio-maroon-outline: var(--brand-maroon-hover); /* logo outline dark */
+  /* Primary-button hover/press fill. Light dips the maroon; dark goes white
+     under the dark label (see the dark block). */
+  --primary-hover-bg: var(--cta-bg-hover);
+  --bridgio-success: #1d7a4c;
   --bridgio-info: #2a62b0;
   --bridgio-warning-fill: #f2a93b; /* fill only, never amber text on cream */
   --bridgio-error: #7e1a2b; /* wine — error is never brand red */
@@ -41,25 +91,20 @@
   --bridgio-cream-artwork: #f9eedc;
 
   /* ---- PROPOSED FOR UI — opacity neutrals over locked colours ----------- */
-  --text-primary: #2c0706;
-  --text-secondary: rgba(44, 7, 6, 0.7);
-  --text-muted: rgba(44, 7, 6, 0.64);
-  --border: rgba(44, 7, 6, 0.12);
-  --border-strong: rgba(44, 7, 6, 0.18);
-  --disabled-text: rgba(44, 7, 6, 0.4);
-  --hover-bg: rgba(44, 7, 6, 0.04);
+  --border: var(--border-subtle);
+  --disabled-text: rgba(26, 21, 22, 0.4);
+  --hover-bg: var(--bg-hover);
   /* Token sheet §1: disabled = paper + maroon at 8% overlay. Layered as an
      overlay on paper rather than a new hex, so no brand colour is invented. */
-  --disabled-overlay: rgba(44, 7, 6, 0.08);
+  --disabled-overlay: rgba(26, 21, 22, 0.08);
 
-  /* On the dark (maroon) header band, status-neutral visuals flip: cream is
-     used as the light surface so contrast holds. These are derived mirrors of
-     the proposed neutrals — flagged in the delivery note. */
-  --band-bg: #2c0706;
-  --band-text: var(--bridgio-cream); /* cream on maroon */
-  --band-text-secondary: rgba(249, 236, 217, 0.75);
-  --band-border: rgba(249, 236, 217, 0.24);
-  --band-hover: rgba(249, 236, 217, 0.08);
+  /* Topbar band mirrors. The shell no longer paints a maroon band; the names
+     stay defined for older rules that still read them. */
+  --band-bg: var(--bg-surface);
+  --band-text: var(--text-primary);
+  --band-text-secondary: var(--text-secondary);
+  --band-border: var(--border-subtle);
+  --band-hover: var(--bg-hover);
 
   /* ---- PROPOSED FOR UI — app type scale (not the deck's 120/72/44 scale) - */
   --font-display-size-hero: 32px; /* line-height 1.2 */
@@ -93,9 +138,9 @@
   /* ---- PROPOSED FOR UI — interaction ------------------------------------ */
   --focus-ring-width: 2px;
   --focus-ring-offset: 2px;
-  --focus-ring-color: var(--bridgio-maroon);
+  --focus-ring-color: var(--focus-ring);
   /* Dark-surface focus ring variant (cream) — deviation flagged in the
-     delivery note: the proposed maroon ring is invisible on maroon. */
+     delivery note: the maroon ring is invisible on the wine base. */
   --focus-ring-color-on-dark: var(--bridgio-cream);
   --touch-target: 44px;
 
@@ -121,28 +166,68 @@
 }
 
 /*
- * Dark theme — Warm Near-Black Charcoal (owner-accepted 2026-11-20 on
- * gemini/ui-refresh, replacing the #2c0706 / #471e1b warm-maroon dark pair).
- *   page base  = #110e0f  (warm near-black charcoal)
- *   surface    = #1a1516  (lifted warm charcoal)
- *   ink        = #f9ecd9  (locked brand cream ink)
- *   accent     = #d51c1d  (locked brand red, small ticks/dots only)
+ * Dark theme — Wine (owner-accepted 2026-11-21 on gemini/ui-refresh, replacing
+ * the Warm Near-Black Charcoal pair).
+ *   page base  = #1A0A0E  (wine black)
+ *   surface    = #240F15  (lifted wine)
+ *   elevated   = #2F151D  (third step)
+ *   ink        = #F7F1EB  (cream text)
+ *   accent     = #B32E47  (wine maroon — never swapped to cream)
  * Every existing token name stays intact so app/polish/batch5/finish/followup
  * stylesheets pick up the palette with zero undefined tokens.
+ *
+ * `--bridgio-maroon` remains the ink alias (cream here) so the locked contrast
+ * test and every existing "maroon as ink" rule keep their meaning. The new
+ * `--brand-maroon` is the accent and is deliberately NOT cream.
  */
 :root[data-theme='dark'] {
   color-scheme: dark;
 
-  /* ---- Warm Near-Black Charcoal surface swap ---------------------------- */
-  --bridgio-cream: #110e0f; /* page background  = warm near-black charcoal */
-  --bridgio-paper: #1a1516; /* surface          = lifted warm charcoal */
-  --bridgio-maroon: #f9ecd9; /* ink/outline      = brand cream */
+  /* ---- Wine surface swap ------------------------------------------------ */
+  --bg-canvas: #1a0a0e;
+  --bg-surface: #240f15;
+  --bg-elevated: #2f151d;
+  --bg-hover: #2a1219;
+  --bg-active: #331821;
+  --bg-inset: #1f0c11;
+
+  --border-subtle: #3a1c24;
+  --border-strong: #4e2833;
+
+  --text-primary: #f7f1eb;
+  --text-secondary: rgba(247, 241, 235, 0.74);
+  --text-muted: rgba(247, 241, 235, 0.64);
+
+  --brand-maroon: #b32e47;
+  --brand-maroon-hover: #c93a55;
+  --brand-maroon-soft: rgba(179, 46, 71, 0.18);
+  --brand-on-primary: #1a0a0e;
+  --focus-ring: #d4536b;
+
+  --status-success: #76a88b;
+  --status-success-soft: rgba(118, 168, 139, 0.15);
+  --status-warning: #e5a035;
+  --status-warning-soft: rgba(229, 160, 53, 0.14);
+  --status-danger: #e55b66;
+  --status-danger-soft: rgba(229, 91, 102, 0.14);
+  --status-neutral: #9e888e;
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.25);
+  --shadow-overlay: 0 20px 48px rgba(0, 0, 0, 0.55);
+
+  --cta-bg: #f2e8dc;
+  --cta-bg-hover: #ffffff;
+  --cta-text: #1a0a0e;
+
+  /* ---- Existing shared names mapped onto the wine palette --------------- */
+  --bridgio-cream: #1a0a0e;
+  --bridgio-paper: #240f15;
+  /* Ink stays cream in dark. This is the long-standing BRIDGIO meaning of
+     --bridgio-maroon, not the new --brand-maroon accent. */
+  --bridgio-maroon: #f7f1eb;
+  --bridgio-maroon-outline: #c93a55;
+  --primary-hover-bg: var(--cta-bg-hover);
   /* --bridgio-red / --bridgio-red-accent / --bridgio-paper-fixed: unchanged. */
-  --primary-hover-bg: color-mix(
-    in srgb,
-    var(--bridgio-maroon) 88%,
-    var(--bridgio-paper)
-  );
 
   /* ---- Status hues derived from the locked hues toward cream (AA) ------- */
   --bridgio-success: #76a88b;
@@ -150,27 +235,23 @@
   --bridgio-error: #e08a90;
   /* --bridgio-warning-fill #f2a93b: fill only; its chip keeps dark text. */
 
-  /* ---- Neutrals mirrored onto cream over warm charcoal ------------------ */
-  --text-primary: #f9ecd9;
-  --text-secondary: rgba(249, 236, 217, 0.74);
-  --text-muted: rgba(249, 236, 217, 0.64);
-  --disabled-text: rgba(249, 236, 217, 0.62);
-  --border: rgba(249, 236, 217, 0.12);
-  --border-strong: rgba(249, 236, 217, 0.22);
-  --hover-bg: rgba(249, 236, 217, 0.06);
-  --disabled-overlay: rgba(249, 236, 217, 0.08);
+  /* ---- Neutrals mirrored onto cream over wine --------------------------- */
+  --border: var(--border-subtle);
+  --disabled-text: rgba(247, 241, 235, 0.62);
+  --hover-bg: rgba(247, 241, 235, 0.06);
+  --disabled-overlay: rgba(247, 241, 235, 0.08);
 
-  /* Phone dark header band matches Warm Near-Black Charcoal with cream ink. */
-  --band-bg: #110e0f;
-  --band-text: #f9ecd9;
-  --band-text-secondary: rgba(249, 236, 217, 0.75);
-  --band-border: rgba(249, 236, 217, 0.22);
-  --band-hover: rgba(249, 236, 217, 0.08);
+  /* Topbar band mirrors. */
+  --band-bg: var(--bg-surface);
+  --band-text: var(--text-primary);
+  --band-text-secondary: var(--text-secondary);
+  --band-border: var(--border-subtle);
+  --band-hover: var(--bg-hover);
 
   /* Cream ring reads on every dark surface; the "on-dark" variant stays cream
      too, because the phone header band is still dark. */
-  --focus-ring-color: #f9ecd9;
-  --focus-ring-color-on-dark: #f9ecd9;
+  --focus-ring-color: #f7f1eb;
+  --focus-ring-color-on-dark: #f7f1eb;
 }
 
 /* Larger canvas, larger type: the phone sizes read small on a 1440px screen.
@@ -188,4 +269,3 @@
     --font-label-size: clamp(15px, 1.11vw, 16px);
   }
 }
-
