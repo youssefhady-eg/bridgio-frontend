@@ -61,6 +61,35 @@
   --content-max: 1320px;
   --ease: 130ms cubic-bezier(0.2, 0, 0, 1);
 
+  /* ---- Ported demo type: stacks, text scale, radii (Part 2) -------------- *
+   * The rebuilt teacher views read these. The demo's Arabic stacks name
+   * IBM Plex Sans Arabic, which is not bundled here (no CDN links, no new font
+   * files), so the stacks resolve onto the repo's bundled script-split faces:
+   * `Bridgio Body` (Inter Latin via local() + Nunito fallback, Baloo Arabic)
+   * and `Bridgio Display` (Sora Latin, Alexandria Arabic). Thmanyah names stay
+   * first while the asset is pending. RTL (Arabic) is the default like the
+   * demo; `:root[dir='ltr']` switches body/display to the Latin stacks.
+   */
+  --font-en-sans: 'Inter', 'Bridgio Body', system-ui, -apple-system, sans-serif;
+  --font-en-display: 'Sora', 'Bridgio Display', 'Inter', sans-serif;
+  --font-ar-sans: 'Thmanyah Sans', 'Bridgio Body', system-ui, sans-serif;
+  --font-ar-display: 'Thmanyah Serif Display', 'Bridgio Display', 'Bridgio Body',
+    serif;
+  --font-body: var(--font-ar-sans);
+  --font-display: var(--font-ar-display);
+
+  --text-xs: clamp(0.75rem, 0.72rem + 0.1vw, 0.8125rem);
+  --text-sm: clamp(0.8125rem, 0.79rem + 0.12vw, 0.875rem);
+  --text-base: clamp(0.875rem, 0.85rem + 0.14vw, 0.9375rem);
+  --text-lg: clamp(1rem, 0.96rem + 0.22vw, 1.125rem);
+  --text-xl: clamp(1.25rem, 1.12rem + 0.45vw, 1.5rem);
+  --text-kpi: clamp(1.5rem, 1.38rem + 0.5vw, 1.85rem);
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-full: 9999px;
+
   /* Button-level CTA pair. Kept separate from the brand accent because the
      dark theme intentionally inverts the button (cream fill, dark label)
      without turning --brand-maroon into cream. */
@@ -165,14 +194,21 @@
   --bridgio-lockup-min-width: 200px; /* LOCKED minimum full-lockup width */
 }
 
+/* Latin direction (English) switches body/display to the Latin stacks, exactly
+   as the demo does. RTL stays on the Arabic stacks above. */
+:root[dir='ltr'] {
+  --font-body: var(--font-en-sans);
+  --font-display: var(--font-en-display);
+}
+
 /*
- * Dark theme — Wine (owner-accepted 2026-11-21 on gemini/ui-refresh, replacing
- * the Warm Near-Black Charcoal pair).
- *   page base  = #1A0A0E  (wine black)
- *   surface    = #240F15  (lifted wine)
- *   elevated   = #2F151D  (third step)
- *   ink        = #F7F1EB  (cream text)
- *   accent     = #B32E47  (wine maroon — never swapped to cream)
+ * Dark theme — Wine (owner-accepted 2026-11-21 on gemini/ui-refresh).
+ * Part 2 (2026-11-22) replaced this block with the demo's wine values verbatim:
+ * the Option 1 drift is gone (bg-inset/inset steps, borders, brand hover/soft,
+ * focus ring, all status hues, text-secondary/muted, shadows). The dark "B"
+ * chip letter is fixed too: --brand-on-primary is cream #FAF6F1, not the CTA
+ * ink — cream on wine 5.74:1.
+ *
  * Every existing token name stays intact so app/polish/batch5/finish/followup
  * stylesheets pick up the palette with zero undefined tokens.
  *
@@ -183,37 +219,37 @@
 :root[data-theme='dark'] {
   color-scheme: dark;
 
-  /* ---- Wine surface swap ------------------------------------------------ */
+  /* ---- Wine surface swap (demo values, verbatim) ------------------------ */
   --bg-canvas: #1a0a0e;
+  --bg-inset: #14070a;
   --bg-surface: #240f15;
   --bg-elevated: #2f151d;
-  --bg-hover: #2a1219;
-  --bg-active: #331821;
-  --bg-inset: #1f0c11;
+  --bg-hover: #361821;
+  --bg-active: #421d28;
 
-  --border-subtle: #3a1c24;
-  --border-strong: #4e2833;
+  --border-subtle: #3d1d26;
+  --border-strong: #572a37;
 
   --text-primary: #f7f1eb;
-  --text-secondary: rgba(247, 241, 235, 0.74);
-  --text-muted: rgba(247, 241, 235, 0.64);
+  --text-secondary: #cdb9bf;
+  --text-muted: #997f87;
 
   --brand-maroon: #b32e47;
-  --brand-maroon-hover: #c93a55;
-  --brand-maroon-soft: rgba(179, 46, 71, 0.18);
-  --brand-on-primary: #1a0a0e;
-  --focus-ring: #d4536b;
+  --brand-maroon-hover: #c93853;
+  --brand-maroon-soft: rgba(179, 46, 71, 0.22);
+  --brand-on-primary: #faf6f1;
+  --focus-ring: #e06b80;
 
-  --status-success: #76a88b;
-  --status-success-soft: rgba(118, 168, 139, 0.15);
-  --status-warning: #e5a035;
-  --status-warning-soft: rgba(229, 160, 53, 0.14);
-  --status-danger: #e55b66;
-  --status-danger-soft: rgba(229, 91, 102, 0.14);
-  --status-neutral: #9e888e;
+  --status-success: #42c27d;
+  --status-success-soft: rgba(66, 194, 125, 0.15);
+  --status-warning: #e8a63c;
+  --status-warning-soft: rgba(232, 166, 60, 0.16);
+  --status-danger: #f06570;
+  --status-danger-soft: rgba(240, 101, 112, 0.16);
+  --status-neutral: #997f87;
 
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.25);
-  --shadow-overlay: 0 20px 48px rgba(0, 0, 0, 0.55);
+  --shadow-xs: 0 1px 2px rgba(8, 2, 4, 0.35);
+  --shadow-overlay: 0 20px 48px rgba(8, 2, 4, 0.65);
 
   --cta-bg: #f2e8dc;
   --cta-bg-hover: #ffffff;
@@ -225,14 +261,14 @@
   /* Ink stays cream in dark. This is the long-standing BRIDGIO meaning of
      --bridgio-maroon, not the new --brand-maroon accent. */
   --bridgio-maroon: #f7f1eb;
-  --bridgio-maroon-outline: #c93a55;
+  --bridgio-maroon-outline: #c93853;
   --primary-hover-bg: var(--cta-bg-hover);
   /* --bridgio-red / --bridgio-red-accent / --bridgio-paper-fixed: unchanged. */
 
-  /* ---- Status hues derived from the locked hues toward cream (AA) ------- */
-  --bridgio-success: #76a88b;
+  /* ---- Status hues (demo status values; info has no demo twin) ---------- */
+  --bridgio-success: #42c27d;
   --bridgio-info: #7d99c0;
-  --bridgio-error: #e08a90;
+  --bridgio-error: #f06570;
   /* --bridgio-warning-fill #f2a93b: fill only; its chip keeps dark text. */
 
   /* ---- Neutrals mirrored onto cream over wine --------------------------- */

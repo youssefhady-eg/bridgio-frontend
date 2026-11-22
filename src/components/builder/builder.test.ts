@@ -37,6 +37,11 @@ function question(input: {
     origin: 'mohsen',
     createdAt: '2026-11-03T10:00:00.000Z',
     updatedAt: '2026-11-03T10:00:00.000Z',
+    type: 'mcq',
+    difficulty: 'medium',
+    points: 1,
+    modelAnswer: null,
+    unitId: null,
   }
 }
 

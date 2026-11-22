@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Fragment, useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { api } from '~/api'
 import { isApiError } from '~/api/errors'
 import { queryKeys } from '~/api/query-keys'
@@ -17,25 +17,28 @@ import type {
   MaterialStatus,
   UserId,
 } from '~/api/types'
-import { EmptyNote } from '~/components/dashboard/EmptyNote'
-import { StatusChip, type StatusTone } from '~/components/dashboard/StatusChip'
-import { formatDate } from '~/components/dashboard/format'
-import type { IconName } from '~/components/dashboard/icons'
-import { MetaSep } from '~/components/shared/MetaSep'
-import { PageHero } from '~/components/shared/PageHero'
-import { SelectField } from '~/components/shared/SelectField'
+import { formatCount, formatDate } from '~/components/dashboard/format'
 import { useLang, useStrings } from '~/shell/useStrings'
+import {
+  Drawer,
+  EmptyBox,
+  LoadingNote,
+  PageHead,
+  Panel,
+  Status,
+} from './ui'
 
 /**
- * Teacher material library — the teacher's text materials and links, with
- * metadata-only create and delete.
+ * Part 2 (2026-11-22) — teacher material library as a dense table.
  *
- * Data is the composed `materialLibraryQueryOptions` (materials + classes +
- * unit names) through the adapter. Create uses `materials.create` with a `text`
- * or `link` kind only; PDF/image binary upload is an integration gap, so the
- * screen says so instead of faking an upload. Delete uses `materials.delete`:
- * the mock returns CONFLICT for a material a test relies on, and the row shows
- * that specific reason rather than a generic error.
+ * Data is the composed `materialLibraryQueryOptions` (materials + classes + unit
+ * names) through the adapter. Create and delete stay real: `materials.create`
+ * with a text or link kind, `materials.delete` with the adapter's CONFLICT for a
+ * material a test relies on.
+ *
+ * The size column is the word count the adapter supplies; a material without one
+ * shows "—". No byte size or duration is invented. PDF/image upload remains an
+ * integration gap and the copy says so instead of faking an upload button.
  */
 export function MaterialLibrary() {
   const copy = useStrings().materialLibrary
@@ -43,22 +46,16 @@ export function MaterialLibrary() {
 
   if (sessionQuery.isPending) {
     return (
-      <Frame>
-        <p className="loading-note" role="status">
-          {copy.loading}
-        </p>
+      <Frame title={copy.title}>
+        <LoadingNote>{copy.loading}</LoadingNote>
       </Frame>
     )
   }
 
   if (sessionQuery.data?.user.role !== 'teacher') {
     return (
-      <Frame>
-        <EmptyNote
-          icon="alert"
-          title={copy.noSessionTitle}
-          body={copy.noSessionBody}
-        />
+      <Frame title={copy.title}>
+        <EmptyBox title={copy.noSessionTitle} body={copy.noSessionBody} />
       </Frame>
     )
   }
@@ -67,9 +64,9 @@ export function MaterialLibrary() {
 }
 
 function MaterialLibraryBody({ teacherId }: { teacherId: UserId }) {
-  const strings = useStrings()
-  const copy = strings.materialLibrary
+  const copy = useStrings().materialLibrary
   const [classId, setClassId] = useState('all')
+  const [detail, setDetail] = useState<Material | null>(null)
   const libraryQuery = useQuery(materialLibraryQueryOptions(teacherId))
   const data = libraryQuery.data
 
@@ -78,114 +75,319 @@ function MaterialLibraryBody({ teacherId }: { teacherId: UserId }) {
       ? (data?.materials ?? [])
       : data.materials.filter((material) => material.classroomId === classId)
 
-  return (
-    <Frame>
-      {libraryQuery.isError ? (
-        <EmptyNote
+  if (libraryQuery.isPending || data === undefined) {
+    return (
+      <Frame title={copy.title}>
+        <LoadingNote>{copy.loading}</LoadingNote>
+      </Frame>
+    )
+  }
+
+  if (libraryQuery.isError) {
+    return (
+      <Frame title={copy.title}>
+        <EmptyBox
           tone="error"
           title={copy.loadErrorTitle}
           body={copy.loadErrorBody}
         />
-      ) : libraryQuery.isPending || data === undefined ? (
-        <p className="loading-note" role="status">
-          {copy.loading}
-        </p>
+      </Frame>
+    )
+  }
+
+  return (
+    <Frame
+      title={copy.title}
+      actions={
+        data.classrooms.length > 0 ? (
+          <select
+            className="tv-select"
+            aria-label={copy.filterClass}
+            value={classId}
+            onChange={(event) => setClassId(event.target.value)}
+          >
+            <option value="all">{copy.allClasses}</option>
+            {data.classrooms.map((classroom) => (
+              <option key={classroom.id} value={classroom.id}>
+                {classroom.name}
+              </option>
+            ))}
+          </select>
+        ) : null
+      }
+    >
+      {data.classrooms.length === 0 ? (
+        <Panel>
+          <EmptyBox title={copy.noClassesTitle} body={copy.noClassesBody} />
+        </Panel>
+      ) : (
+        <AddMaterialForm
+          teacherId={teacherId}
+          classrooms={data.classrooms}
+          unitsByClass={data.unitsByClass}
+        />
+      )}
+
+      <Panel labelledBy="materials-heading">
+        <div className="tv-panel-head">
+          <h2 className="tv-panel-title" id="materials-heading">
+            {copy.listHeading}
+            <span className="tv-count">
+              {copy.materialsCount(visible.length)}
+            </span>
+          </h2>
+        </div>
+        {visible.length === 0 ? (
+          <EmptyBox
+            title={
+              data.materials.length === 0
+                ? copy.emptyTitle
+                : copy.emptyFilterTitle
+            }
+            body={
+              data.materials.length === 0
+                ? copy.emptyBody
+                : copy.emptyFilterBody
+            }
+          />
+        ) : (
+          <div className="tv-table-wrap">
+            <table className="tv-table">
+              <caption className="visually-hidden">{copy.tableCaption}</caption>
+              <thead>
+                <tr>
+                  <th scope="col">{copy.colTitle}</th>
+                  <th scope="col">{copy.colClass}</th>
+                  <th scope="col">{copy.colType}</th>
+                  <th scope="col">{copy.colWords}</th>
+                  <th scope="col">{copy.colCreated}</th>
+                  <th scope="col">{copy.colAction}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {visible.map((material) => (
+                  <MaterialRow
+                    key={material.id}
+                    material={material}
+                    teacherId={teacherId}
+                    classroom={data.classrooms.find(
+                      (item) => item.id === material.classroomId,
+                    )}
+                    units={data.unitsByClass[material.classroomId] ?? []}
+                    onOpen={() => setDetail(material)}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Panel>
+
+      {detail ? (
+        <MaterialDetailDrawer
+          material={detail}
+          classroom={data.classrooms.find(
+            (item) => item.id === detail.classroomId,
+          )}
+          units={data.unitsByClass[detail.classroomId] ?? []}
+          onClose={() => setDetail(null)}
+        />
+      ) : null}
+    </Frame>
+  )
+}
+
+function MaterialRow({
+  material,
+  teacherId,
+  classroom,
+  units,
+  onOpen,
+}: {
+  material: Material
+  teacherId: UserId
+  classroom: ClassroomSummary | undefined
+  units: readonly CurriculumUnit[]
+  onOpen: () => void
+}) {
+  const copy = useStrings().materialLibrary
+  const lang = useLang()
+  const queryClient = useQueryClient()
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
+
+  const deleteMutation = useMutation({
+    mutationFn: () =>
+      api.materials.delete({ teacherId, materialId: material.id }),
+    onSuccess: () => {
+      setConfirmingDelete(false)
+      void queryClient.invalidateQueries({ queryKey: queryKeys.materials.all() })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.classrooms.all() })
+    },
+    onError: () => setConfirmingDelete(false),
+  })
+
+  const kindLabels: Record<MaterialKind, string> = {
+    text: copy.kindText,
+    link: copy.kindLink,
+    pdf: copy.kindPdf,
+    image: copy.kindImage,
+  }
+
+  const statusLabels: Record<MaterialStatus, string> = {
+    ready: copy.statusReady,
+    processing: copy.statusProcessing,
+    failed: copy.statusFailed,
+  }
+
+  const unit = units.find((item) => item.id === material.unitId)
+  const deleteConflict =
+    isApiError(deleteMutation.error) && deleteMutation.error.code === 'CONFLICT'
+
+  return (
+    <tr>
+      <td className="tv-td-primary">
+        <div className="tv-cell-title">{material.title}</div>
+        <div className="tv-cell-sub">{unit?.title ?? copy.noUnit}</div>
+        {material.status !== 'ready' ? (
+          <Status tone="warning">{statusLabels[material.status]}</Status>
+        ) : null}
+      </td>
+      <td data-label={copy.colClass}>{classroom?.name ?? copy.noClass}</td>
+      <td data-label={copy.colType}>{kindLabels[material.kind]}</td>
+      <td data-label={copy.colWords} className="tv-num">
+        {material.wordCount === null
+          ? copy.noWords
+          : formatCount(material.wordCount, lang)}
+      </td>
+      <td data-label={copy.colCreated} className="tv-cell-sub">
+        {formatDate(material.createdAt, copy.unknownDate, lang)}
+      </td>
+      <td data-label={copy.colAction}>
+        {confirmingDelete ? (
+          <div className="tv-actions-cell">
+            <button
+              type="button"
+              className="tv-btn tv-btn-danger-ghost tv-btn-sm"
+              disabled={deleteMutation.isPending}
+              onClick={() => deleteMutation.mutate()}
+            >
+              {deleteMutation.isPending
+                ? copy.deleting
+                : copy.deleteConfirm}
+            </button>
+            <button
+              type="button"
+              className="tv-btn tv-btn-secondary tv-btn-sm"
+              disabled={deleteMutation.isPending}
+              onClick={() => setConfirmingDelete(false)}
+            >
+              {copy.deleteCancel}
+            </button>
+          </div>
+        ) : (
+          <div className="tv-actions-cell">
+            <button
+              type="button"
+              className="tv-btn tv-btn-subtle tv-btn-sm"
+              onClick={onOpen}
+            >
+              {copy.view}
+            </button>
+            <button
+              type="button"
+              className="tv-btn tv-btn-danger-ghost tv-btn-sm"
+              onClick={() => {
+                deleteMutation.reset()
+                setConfirmingDelete(true)
+              }}
+            >
+              {copy.delete}
+            </button>
+          </div>
+        )}
+        {deleteMutation.isError ? (
+          <div className="tv-inline-error" role="alert">
+            {deleteConflict ? copy.deleteConflictTitle : copy.deleteErrorTitle}
+          </div>
+        ) : null}
+      </td>
+    </tr>
+  )
+}
+
+function MaterialDetailDrawer({
+  material,
+  classroom,
+  units,
+  onClose,
+}: {
+  material: Material
+  classroom: ClassroomSummary | undefined
+  units: readonly CurriculumUnit[]
+  onClose: () => void
+}) {
+  const copy = useStrings().materialLibrary
+  const lang = useLang()
+  const detailQuery = useQuery(materialDetailQueryOptions(material.id))
+  const unit = units.find((item) => item.id === material.unitId)
+
+  return (
+    <Drawer
+      title={material.title}
+      subtitle={[classroom?.name ?? copy.noClass, unit?.title ?? copy.noUnit].join(
+        ' · ',
+      )}
+      closeLabel={copy.close}
+      onClose={onClose}
+      footer={
+        <button
+          type="button"
+          className="tv-btn tv-btn-secondary tv-btn-sm"
+          onClick={onClose}
+        >
+          {copy.close}
+        </button>
+      }
+    >
+      <p className="tv-cell-sub">
+        {[
+          material.wordCount === null
+            ? copy.noWords
+            : copy.wordsCount(material.wordCount),
+          `${copy.created} ${formatDate(material.createdAt, copy.unknownDate, lang)}`,
+        ].join(' · ')}
+      </p>
+
+      {detailQuery.isPending ? (
+        <LoadingNote>{copy.detailLoading}</LoadingNote>
+      ) : detailQuery.isError || !detailQuery.data ? (
+        <EmptyBox
+          tone="error"
+          title={copy.detailErrorTitle}
+          body={copy.detailErrorBody}
+        />
       ) : (
         <>
-          <EmptyNote
-            icon="alert"
-            title={copy.uploadGapTitle}
-            body={copy.uploadGapBody}
-          />
-
-          {data.classrooms.length === 0 ? (
-            <EmptyNote
-              title={copy.noClassesTitle}
-              body={copy.noClassesBody}
-            />
+          {detailQuery.data.textContent ? (
+            <p>{detailQuery.data.textContent}</p>
           ) : (
-            <AddMaterialForm
-              teacherId={teacherId}
-              classrooms={data.classrooms}
-              unitsByClass={data.unitsByClass}
-            />
+            <p className="tv-cell-sub">{copy.detailNoContent}</p>
           )}
-
-          <section
-            className="dashboard__section"
-            aria-labelledby="materials-list-heading"
-          >
-            <div className="section-head">
-              <h2 id="materials-list-heading">{copy.listHeading}</h2>
-              <span className="count-chip">
-                {copy.materialsCount(visible.length)}
-              </span>
-            </div>
-            <p className="section-lead">{copy.listLead}</p>
-
-            <div className="filter-bar" aria-label={copy.filtersLabel}>
-              <label className="filter-bar__field">
-                <span className="field__label">{copy.filterClass}</span>
-                <SelectField>
-                  <select
-                    className="input"
-                    value={classId}
-                    onChange={(event) => setClassId(event.target.value)}
-                  >
-                    <option value="all">{copy.allClasses}</option>
-                    {data.classrooms.map((classroom) => (
-                      <option key={classroom.id} value={classroom.id}>
-                        {classroom.name}
-                      </option>
-                    ))}
-                  </select>
-                </SelectField>
-              </label>
-              {classId !== 'all' ? (
-                <button
-                  type="button"
-                  className="button button--secondary button--small"
-                  onClick={() => setClassId('all')}
-                >
-                  {copy.clearFilters}
-                </button>
-              ) : null}
-            </div>
-
-            {visible.length === 0 ? (
-              data.materials.length === 0 ? (
-                <EmptyNote
-                  icon="book"
-                  title={copy.emptyTitle}
-                  body={copy.emptyBody}
-                />
-              ) : (
-                <EmptyNote
-                  icon="spark"
-                  title={copy.emptyFilterTitle}
-                  body={copy.emptyFilterBody}
-                />
-              )
-            ) : (
-              <ul className="material-list">
-                {visible.map((material) => (
-                  <li key={material.id}>
-                    <MaterialRow
-                      material={material}
-                      teacherId={teacherId}
-                      classroom={data.classrooms.find(
-                        (item) => item.id === material.classroomId,
-                      )}
-                      units={data.unitsByClass[material.classroomId] ?? []}
-                    />
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
+          {detailQuery.data.sourceUrl ? (
+            <p>
+              <a
+                className="tv-btn tv-btn-secondary tv-btn-sm"
+                href={detailQuery.data.sourceUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {copy.openLink}
+              </a>
+            </p>
+          ) : null}
         </>
       )}
-    </Frame>
+    </Drawer>
   )
 }
 
@@ -198,8 +400,7 @@ function AddMaterialForm({
   classrooms: ClassroomSummary[]
   unitsByClass: MaterialLibraryData['unitsByClass']
 }) {
-  const strings = useStrings()
-  const copy = strings.materialLibrary
+  const copy = useStrings().materialLibrary
   const queryClient = useQueryClient()
   const [classId, setClassId] = useState('')
   const [unitId, setUnitId] = useState('')
@@ -238,29 +439,30 @@ function AddMaterialForm({
   })
 
   return (
-    <section
-      className="dashboard__section"
-      aria-labelledby="material-add-heading"
-    >
-      <div className="section-head">
-        <h2 id="material-add-heading">{copy.addHeading}</h2>
+    <Panel labelledBy="material-add-heading">
+      <div className="tv-panel-head">
+        <h2 className="tv-panel-title" id="material-add-heading">
+          {copy.addHeading}
+        </h2>
       </div>
-      <p className="section-lead">{copy.addLead}</p>
+      <div className="tv-panel-body tv-stack-sm">
+        <p className="tv-cell-sub">
+          {copy.uploadGapTitle} {copy.uploadGapBody}
+        </p>
 
-      <form
-        className="builder-form material-form"
-        onSubmit={(event) => {
-          event.preventDefault()
-          setCreatedTitle(null)
-          createMutation.mutate()
-        }}
-      >
-        <div className="material-form__row">
-          <label className="field">
-            <span className="field__label">{copy.classLabel}</span>
-            <SelectField>
+        <form
+          className="tv-stack-sm"
+          onSubmit={(event) => {
+            event.preventDefault()
+            setCreatedTitle(null)
+            createMutation.mutate()
+          }}
+        >
+          <div className="tv-grid-3">
+            <label className="tv-field">
+              <span className="tv-label">{copy.classLabel}</span>
               <select
-                className="input"
+                className="tv-select"
                 value={classId}
                 required
                 onChange={(event) => {
@@ -278,14 +480,12 @@ function AddMaterialForm({
                   </option>
                 ))}
               </select>
-            </SelectField>
-          </label>
+            </label>
 
-          <label className="field">
-            <span className="field__label">{copy.unitLabel}</span>
-            <SelectField>
+            <label className="tv-field">
+              <span className="tv-label">{copy.unitLabel}</span>
               <select
-                className="input"
+                className="tv-select"
                 value={unitId}
                 disabled={classId === '' || units.length === 0}
                 onChange={(event) => {
@@ -300,14 +500,12 @@ function AddMaterialForm({
                   </option>
                 ))}
               </select>
-            </SelectField>
-          </label>
+            </label>
 
-          <label className="field">
-            <span className="field__label">{copy.kindLabel}</span>
-            <SelectField>
+            <label className="tv-field">
+              <span className="tv-label">{copy.kindLabel}</span>
               <select
-                className="input"
+                className="tv-select"
                 value={kind}
                 onChange={(event) => {
                   setKind(event.target.value === 'link' ? 'link' : 'text')
@@ -317,287 +515,98 @@ function AddMaterialForm({
                 <option value="text">{copy.kindText}</option>
                 <option value="link">{copy.kindLink}</option>
               </select>
-            </SelectField>
-          </label>
-        </div>
+            </label>
+          </div>
 
-        <label className="field">
-          <span className="field__label">{copy.titleLabel}</span>
-          <input
-            className="input"
-            type="text"
-            value={title}
-            required
-            placeholder={copy.titlePlaceholder}
-            onChange={(event) => {
-              setTitle(event.target.value)
-              setCreatedTitle(null)
-            }}
-          />
-        </label>
-
-        {kind === 'text' ? (
-          <label className="field">
-            <span className="field__label">{copy.textLabel}</span>
-            <textarea
-              className="input textarea"
-              rows={5}
-              value={textContent}
-              required
-              placeholder={copy.textPlaceholder}
-              onChange={(event) => {
-                setTextContent(event.target.value)
-                setCreatedTitle(null)
-              }}
-            />
-          </label>
-        ) : (
-          <label className="field">
-            <span className="field__label">{copy.urlLabel}</span>
+          <label className="tv-field">
+            <span className="tv-label">{copy.titleLabel}</span>
             <input
-              className="input"
+              className="tv-input"
               type="text"
-              inputMode="url"
-              value={sourceUrl}
+              value={title}
               required
-              placeholder={copy.urlPlaceholder}
+              placeholder={copy.titlePlaceholder}
               onChange={(event) => {
-                setSourceUrl(event.target.value)
+                setTitle(event.target.value)
                 setCreatedTitle(null)
               }}
             />
           </label>
-        )}
 
-        {createMutation.isError ? (
-          <EmptyNote
-            tone="error"
-            title={copy.createErrorTitle}
-            body={copy.createErrorBody}
-          />
-        ) : null}
+          {kind === 'text' ? (
+            <label className="tv-field">
+              <span className="tv-label">{copy.textLabel}</span>
+              <textarea
+                className="tv-textarea"
+                rows={5}
+                value={textContent}
+                required
+                placeholder={copy.textPlaceholder}
+                onChange={(event) => {
+                  setTextContent(event.target.value)
+                  setCreatedTitle(null)
+                }}
+              />
+            </label>
+          ) : (
+            <label className="tv-field">
+              <span className="tv-label">{copy.urlLabel}</span>
+              <input
+                className="tv-input"
+                type="text"
+                inputMode="url"
+                value={sourceUrl}
+                required
+                placeholder={copy.urlPlaceholder}
+                onChange={(event) => {
+                  setSourceUrl(event.target.value)
+                  setCreatedTitle(null)
+                }}
+              />
+            </label>
+          )}
 
-        {createdTitle ? (
-          <p className="finish-note" role="status">
-            {copy.createSuccessBody(createdTitle)}
-          </p>
-        ) : null}
+          {createMutation.isError ? (
+            <EmptyBox
+              tone="error"
+              title={copy.createErrorTitle}
+              body={copy.createErrorBody}
+            />
+          ) : null}
 
-        <div className="builder-actions">
-          <button
-            type="submit"
-            className="button button--primary"
-            disabled={!canSubmit || createMutation.isPending}
-          >
-            {createMutation.isPending ? copy.submitting : copy.submit}
-          </button>
-        </div>
-      </form>
-    </section>
-  )
-}
+          {createdTitle ? (
+            <p className="tv-cell-sub" role="status">
+              {copy.createSuccessBody(createdTitle)}
+            </p>
+          ) : null}
 
-function MaterialRow({
-  material,
-  teacherId,
-  classroom,
-  units,
-}: {
-  material: Material
-  teacherId: UserId
-  classroom: ClassroomSummary | undefined
-  units: readonly CurriculumUnit[]
-}) {
-  const strings = useStrings()
-  const copy = strings.materialLibrary
-  const lang = useLang()
-  const queryClient = useQueryClient()
-  const [expanded, setExpanded] = useState(false)
-  const [confirmingDelete, setConfirmingDelete] = useState(false)
-
-  const detailQuery = useQuery({
-    ...materialDetailQueryOptions(material.id),
-    enabled: expanded,
-  })
-
-  const deleteMutation = useMutation({
-    mutationFn: () =>
-      api.materials.delete({ teacherId, materialId: material.id }),
-    onSuccess: () => {
-      setConfirmingDelete(false)
-      void queryClient.invalidateQueries({ queryKey: queryKeys.materials.all() })
-      void queryClient.invalidateQueries({ queryKey: queryKeys.classrooms.all() })
-    },
-    onError: () => setConfirmingDelete(false),
-  })
-
-  const kindLabels: Record<MaterialKind, string> = {
-    text: copy.kindText,
-    link: copy.kindLink,
-    pdf: copy.kindPdf,
-    image: copy.kindImage,
-  }
-
-  const statusLabels: Record<MaterialStatus, string> = {
-    ready: copy.statusReady,
-    processing: copy.statusProcessing,
-    failed: copy.statusFailed,
-  }
-
-  const statusTone: StatusTone =
-    material.status === 'ready' ? 'success' : 'warning'
-  const statusIcon: IconName =
-    material.status === 'ready'
-      ? 'check'
-      : material.status === 'processing'
-        ? 'clock'
-        : 'alert'
-
-  const unit = units.find((item) => item.id === material.unitId)
-  const meta = [
-    classroom?.name ?? copy.noClass,
-    unit?.title ?? copy.noUnit,
-    kindLabels[material.kind],
-  ]
-  if (material.wordCount !== null) {
-    meta.push(copy.wordsCount(material.wordCount))
-  }
-  meta.push(
-    `${copy.created} ${formatDate(material.createdAt, copy.unknownDate, lang)}`,
-  )
-
-  const deleteConflict =
-    isApiError(deleteMutation.error) && deleteMutation.error.code === 'CONFLICT'
-
-  return (
-    <article className="material-row">
-      <div className="material-row__head">
-        <h3>
-          <bdi>{material.title}</bdi>
-        </h3>
-        <StatusChip
-          tone={statusTone}
-          icon={statusIcon}
-          label={statusLabels[material.status]}
-        />
-      </div>
-      <p className="row-meta">
-        {meta.map((item, index) => (
-          <Fragment key={`${item}:${index}`}>
-            {index > 0 ? <MetaSep /> : null}
-            <bdi>{item}</bdi>
-          </Fragment>
-        ))}
-      </p>
-
-      <div className="builder-actions">
-        <button
-          type="button"
-          className="button button--secondary button--small"
-          aria-expanded={expanded}
-          aria-controls={`material-detail-${material.id}`}
-          onClick={() => setExpanded((current) => !current)}
-        >
-          {expanded ? copy.hide : copy.view}
-        </button>
-        {confirmingDelete ? null : (
-          <button
-            type="button"
-            className="button button--danger button--small"
-            onClick={() => {
-              deleteMutation.reset()
-              setConfirmingDelete(true)
-            }}
-          >
-            {copy.delete}
-          </button>
-        )}
-      </div>
-
-      {confirmingDelete ? (
-        <div className="delete-confirm" role="alert">
-          <p>{copy.deleteConfirmTitle}</p>
-          <p>{copy.deleteConfirmBody}</p>
-          <div className="builder-actions">
+          <div className="tv-page-actions">
             <button
-              type="button"
-              className="button button--danger button--small"
-              disabled={deleteMutation.isPending}
-              onClick={() => deleteMutation.mutate()}
+              type="submit"
+              className="tv-btn tv-btn-primary"
+              disabled={!canSubmit || createMutation.isPending}
             >
-              {deleteMutation.isPending ? copy.deleting : copy.deleteConfirm}
-            </button>
-            <button
-              type="button"
-              className="button button--secondary button--small"
-              disabled={deleteMutation.isPending}
-              onClick={() => setConfirmingDelete(false)}
-            >
-              {copy.deleteCancel}
+              {createMutation.isPending ? copy.submitting : copy.submit}
             </button>
           </div>
-        </div>
-      ) : null}
-
-      {deleteMutation.isError ? (
-        <EmptyNote
-          tone="error"
-          title={
-            deleteConflict ? copy.deleteConflictTitle : copy.deleteErrorTitle
-          }
-          body={deleteConflict ? copy.deleteConflictBody : copy.deleteErrorBody}
-        />
-      ) : null}
-
-      {expanded ? (
-        <div
-          className="material-row__detail"
-          id={`material-detail-${material.id}`}
-        >
-          {detailQuery.isPending ? (
-            <p className="loading-note" role="status">
-              {copy.detailLoading}
-            </p>
-          ) : detailQuery.isError || !detailQuery.data ? (
-            <EmptyNote
-              tone="error"
-              title={copy.detailErrorTitle}
-              body={copy.detailErrorBody}
-            />
-          ) : (
-            <>
-              {detailQuery.data.textContent ? (
-                <p className="material-row__text">
-                  {detailQuery.data.textContent}
-                </p>
-              ) : (
-                <p className="finish-note">{copy.detailNoContent}</p>
-              )}
-              {detailQuery.data.sourceUrl ? (
-                <p>
-                  <a
-                    className="screen-link"
-                    href={detailQuery.data.sourceUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {copy.openLink}
-                  </a>
-                </p>
-              ) : null}
-            </>
-          )}
-        </div>
-      ) : null}
-    </article>
+        </form>
+      </div>
+    </Panel>
   )
 }
 
-function Frame({ children }: { children: ReactNode }) {
-  const copy = useStrings().materialLibrary
+function Frame({
+  title,
+  actions,
+  children,
+}: {
+  title: string
+  actions?: ReactNode
+  children: ReactNode
+}) {
   return (
-    <div className="dashboard">
-      <PageHero badge={copy.badge} title={copy.title} lead={copy.lead} />
+    <div className="tv-page">
+      <PageHead title={title}>{actions}</PageHead>
       {children}
     </div>
   )

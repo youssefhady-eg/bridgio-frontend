@@ -33,6 +33,7 @@ import finishCss from '~/styles/finish.css?url'
 import followupCss from '~/styles/followup.css?url'
 import fontsCss from '~/styles/fonts.css?url'
 import polishCss from '~/styles/polish.css?url'
+import teacherViewsCss from '~/styles/teacher-views.css?url'
 import tokensCss from '~/styles/tokens.css?url'
 
 /**
@@ -101,6 +102,7 @@ export const Route = createRootRouteWithContext<{
         { rel: 'stylesheet', href: finishCss },
         { rel: 'stylesheet', href: batch5Css },
         { rel: 'stylesheet', href: followupCss },
+        { rel: 'stylesheet', href: teacherViewsCss },
       ],
     }
   },

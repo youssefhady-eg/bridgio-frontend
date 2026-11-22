@@ -1,0 +1,2411 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BRIDGIO — المنصة التعليمية</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Sora:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+
+  <style>
+    /* =========================================================================
+       1. DESIGN TOKENS — Thmanyah-ready + Warm Charcoal Dark / Warm Cream Light
+       ========================================================================= */
+    /* Drop self-hosted Thmanyah .woff2 files in /fonts/ to activate automatically */
+    @font-face {
+      font-family: 'Thmanyah Sans';
+      src: local('Thmanyah Sans'), url('/fonts/ThmanyahSans-Regular.woff2') format('woff2');
+      font-weight: 400; font-display: swap;
+    }
+    @font-face {
+      font-family: 'Thmanyah Sans';
+      src: local('Thmanyah Sans Medium'), url('/fonts/ThmanyahSans-Medium.woff2') format('woff2');
+      font-weight: 500; font-display: swap;
+    }
+    @font-face {
+      font-family: 'Thmanyah Sans';
+      src: local('Thmanyah Sans SemiBold'), url('/fonts/ThmanyahSans-SemiBold.woff2') format('woff2');
+      font-weight: 600; font-display: swap;
+    }
+    @font-face {
+      font-family: 'Thmanyah Serif Display';
+      src: local('Thmanyah Serif Display Bold'), url('/fonts/ThmanyahSerifDisplay-Bold.woff2') format('woff2');
+      font-weight: 700; font-display: swap;
+    }
+
+    :root {
+      --font-en-sans: 'Inter', system-ui, -apple-system, sans-serif;
+      --font-en-display: 'Sora', 'Inter', sans-serif;
+      --font-ar-sans: 'Thmanyah Sans', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+      --font-ar-display: 'Thmanyah Serif Display', 'Thmanyah Sans', 'IBM Plex Sans Arabic', serif;
+
+      --font-body: var(--font-ar-sans);
+      --font-display: var(--font-ar-display);
+
+      --text-xs: clamp(0.75rem, 0.72rem + 0.1vw, 0.8125rem);
+      --text-sm: clamp(0.8125rem, 0.79rem + 0.12vw, 0.875rem);
+      --text-base: clamp(0.875rem, 0.85rem + 0.14vw, 0.9375rem);
+      --text-lg: clamp(1rem, 0.96rem + 0.22vw, 1.125rem);
+      --text-xl: clamp(1.25rem, 1.12rem + 0.45vw, 1.5rem);
+      --text-kpi: clamp(1.5rem, 1.38rem + 0.5vw, 1.85rem);
+
+      --topbar-h: 52px;
+      --sidebar-w: 236px;
+      --sidebar-w-collapsed: 58px;
+      --row-h: 42px;
+      --content-max: 1320px;
+
+      --radius-sm: 4px;
+      --radius-md: 6px;
+      --radius-lg: 8px;
+      --radius-full: 9999px;
+      --ease: 130ms cubic-bezier(0.2, 0, 0, 1);
+
+      /* Warm Cream Light Mode */
+      --bg-canvas: #F6F3EE;
+      --bg-surface: #FFFFFF;
+      --bg-elevated: #EFEAE2;
+      --bg-hover: #F3EFE8;
+      --bg-active: #EAE3D8;
+      --bg-inset: #FAF8F5;
+
+      --border-subtle: #E5DFD6;
+      --border-strong: #CEC5B8;
+
+      --text-primary: #1A1516;
+      --text-secondary: #574D4F;
+      --text-muted: #7F7375;
+
+      --brand-maroon: #7A1C2E;
+      --brand-maroon-hover: #621524;
+      --brand-maroon-soft: rgba(122, 28, 46, 0.09);
+      --brand-on-primary: #FAF6F1;
+      --focus-ring: #94263B;
+
+      --status-success: #1D7A4C;
+      --status-success-soft: rgba(29, 122, 76, 0.11);
+      --status-warning: #B4690E;
+      --status-warning-soft: rgba(180, 105, 14, 0.12);
+      --status-danger: #B82E3A;
+      --status-danger-soft: rgba(184, 46, 58, 0.11);
+      --status-neutral: #7A7072;
+
+      --shadow-xs: 0 1px 2px rgba(26, 21, 22, 0.05);
+      --shadow-overlay: 0 16px 40px rgba(20, 14, 15, 0.16);
+    }
+
+    :root[dir='ltr'] {
+      --font-body: var(--font-en-sans);
+      --font-display: var(--font-en-display);
+    }
+
+    /* Warm Near-Black Charcoal Dark Mode */
+    /* Calibrated Dark Wine Maroon */
+    :root[data-theme='dark'] {
+      --bg-canvas: #1A0A0E;
+      --bg-inset: #14070A;
+      --bg-surface: #240F15;
+      --bg-elevated: #2F151D;
+      --bg-hover: #361821;
+      --bg-active: #421D28;
+
+      --border-subtle: #3D1D26;
+      --border-strong: #572A37;
+
+      --text-primary: #F7F1EB;
+      --text-secondary: #CDB9BF;
+      --text-muted: #997F87;
+
+      /* Crimson-wine CTA (5.7:1 contrast with cream text) */
+      --brand-maroon: #B32E47;
+      --brand-maroon-hover: #C93853;
+      --brand-maroon-soft: rgba(179, 46, 71, 0.22);
+      --brand-on-primary: #FAF6F1;
+      --focus-ring: #E06B80;
+
+      --status-success: #42C27D;
+      --status-success-soft: rgba(66, 194, 125, 0.15);
+      --status-warning: #E8A63C;
+      --status-warning-soft: rgba(232, 166, 60, 0.16);
+      --status-danger: #F06570;
+      --status-danger-soft: rgba(240, 101, 112, 0.16);
+      --status-neutral: #997F87;
+
+      --shadow-xs: 0 1px 2px rgba(8, 2, 4, 0.35);
+      --shadow-overlay: 0 20px 48px rgba(8, 2, 4, 0.65);
+    }
+
+    /* =========================================================================
+       2. RESET, ACCESSIBILITY & SINGLE-SCROLL SHELL
+       ========================================================================= */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      height: 100%; margin: 0; overflow: hidden;
+      background: var(--bg-canvas); color: var(--text-primary);
+      font-family: var(--font-body); font-size: var(--text-base);
+      line-height: 1.55; -webkit-font-smoothing: antialiased;
+    }
+    :root[dir='ltr'] body { line-height: 1.45; }
+    a { color: inherit; text-decoration: none; }
+    button, input, select, textarea { font-family: inherit; color: inherit; }
+
+    .br-num { font-variant-numeric: tabular-nums; }
+    .br-bidi-math {
+      direction: ltr; unicode-bidi: isolate;
+      display: inline-block; font-family: var(--font-en-sans);
+      font-variant-numeric: tabular-nums; vertical-align: baseline;
+    }
+    .katex { font-size: 1.02em; }
+
+    .br-skip-link {
+      position: fixed; inset-block-start: -100px; inset-inline-start: 16px;
+      z-index: 2000; padding: 8px 14px; border-radius: var(--radius-md);
+      background: var(--brand-maroon); color: var(--brand-on-primary);
+      font-size: var(--text-sm); font-weight: 600;
+    }
+    .br-skip-link:focus-visible {
+      inset-block-start: 10px; outline: 2px solid var(--focus-ring); outline-offset: 2px;
+    }
+
+    .br-shell {
+      display: grid;
+      grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+      grid-template-rows: var(--topbar-h) minmax(0, 1fr);
+      height: 100dvh; overflow: hidden;
+    }
+    .br-shell[data-collapsed='true'] {
+      grid-template-columns: var(--sidebar-w-collapsed) minmax(0, 1fr);
+    }
+    .br-shell[data-focus-mode='true'] {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .br-shell[data-focus-mode='true'] .br-sidebar { display: none; }
+
+    /* Sidebar */
+    .br-sidebar {
+      grid-row: 1 / -1; grid-column: 1;
+      display: flex; flex-direction: column; min-height: 0;
+      background: var(--bg-surface);
+      border-inline-end: 1px solid var(--border-subtle);
+      z-index: 20;
+    }
+    .br-sidebar-brand {
+      height: var(--topbar-h); display: flex; align-items: center;
+      justify-content: space-between; padding-inline: 14px;
+      border-block-end: 1px solid var(--border-subtle); flex-shrink: 0;
+    }
+    .br-wordmark {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: var(--font-en-display); font-weight: 700; font-size: 1rem;
+      letter-spacing: 0.04em; color: var(--text-primary);
+    }
+    .br-wordmark-mark {
+      width: 22px; height: 22px; border-radius: 5px;
+      background: var(--brand-maroon); color: var(--brand-on-primary);
+      display: grid; place-items: center; font-size: 0.78rem; font-weight: 700; flex-shrink: 0;
+    }
+    .br-shell[data-collapsed='true'] .br-sidebar-text,
+    .br-shell[data-collapsed='true'] .br-nav-group-label,
+    .br-shell[data-collapsed='true'] .br-user-meta { display: none; }
+    .br-shell[data-collapsed='true'] .br-sidebar-brand { justify-content: center; padding-inline: 0; }
+    .br-shell[data-collapsed='true'] .br-wordmark { display: none; }
+
+    .br-sidebar-nav {
+      flex: 1; overflow-y: auto; padding: 10px 8px;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .br-nav-group-label {
+      padding: 0 10px 4px; font-size: 0.72rem; font-weight: 600;
+      color: var(--text-muted); text-transform: uppercase;
+    }
+    .br-nav-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+    .br-nav-item {
+      position: relative; width: 100%; display: flex; align-items: center; gap: 10px;
+      height: 36px; padding-inline: 10px; border-radius: var(--radius-md);
+      border: 0; background: transparent; color: var(--text-secondary);
+      font-size: var(--text-sm); font-weight: 500; cursor: pointer; text-align: start;
+      transition: background var(--ease), color var(--ease);
+    }
+    .br-nav-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+    .br-nav-item[aria-current='page'] {
+      background: var(--brand-maroon-soft); color: var(--text-primary); font-weight: 600;
+    }
+    .br-nav-item[aria-current='page']::before {
+      content: ''; position: absolute; inset-inline-start: 0; top: 6px; bottom: 6px;
+      width: 2.5px; border-radius: 2px; background: var(--brand-maroon);
+    }
+    .br-nav-badge {
+      margin-inline-start: auto; font-size: 0.72rem; padding: 1px 6px;
+      border-radius: var(--radius-sm); background: var(--bg-elevated);
+      color: var(--text-secondary); font-variant-numeric: tabular-nums;
+    }
+    .br-shell[data-collapsed='true'] .br-nav-item { justify-content: center; padding-inline: 0; }
+    .br-shell[data-collapsed='true'] .br-nav-badge { display: none; }
+
+    .br-sidebar-footer {
+      padding: 10px; border-block-start: 1px solid var(--border-subtle);
+      display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+    }
+    .br-avatar {
+      width: 30px; height: 30px; border-radius: var(--radius-md);
+      background: var(--bg-elevated); border: 1px solid var(--border-strong);
+      display: grid; place-items: center; font-size: 0.75rem; font-weight: 600;
+      color: var(--text-primary); flex-shrink: 0;
+    }
+    .br-user-meta { min-width: 0; }
+    .br-user-name { font-size: var(--text-sm); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .br-user-role { font-size: 0.72rem; color: var(--text-muted); }
+
+    /* Topbar */
+    .br-topbar {
+      grid-row: 1; grid-column: 2;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding-inline: 18px; background: var(--bg-surface);
+      border-block-end: 1px solid var(--border-subtle); min-width: 0;
+    }
+    .br-shell[data-focus-mode='true'] .br-topbar { grid-column: 1; }
+    .br-topbar-start { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .br-breadcrumb {
+      display: flex; align-items: center; gap: 6px;
+      font-size: var(--text-sm); color: var(--text-muted); white-space: nowrap; overflow: hidden;
+    }
+    .br-breadcrumb strong { color: var(--text-primary); font-weight: 600; }
+
+    .br-search-trigger {
+      flex: 0 1 320px; height: 34px; display: flex; align-items: center; gap: 8px;
+      padding-inline: 10px; border-radius: var(--radius-md);
+      background: var(--bg-elevated); border: 1px solid var(--border-subtle);
+      color: var(--text-muted); font-size: var(--text-sm); cursor: pointer;
+      transition: border-color var(--ease), background var(--ease);
+    }
+    .br-search-trigger:hover { border-color: var(--border-strong); color: var(--text-secondary); }
+    .br-kbd {
+      margin-inline-start: auto; font-family: var(--font-en-sans); font-size: 0.7rem;
+      padding: 1px 5px; border-radius: 4px; background: var(--bg-surface);
+      border: 1px solid var(--border-subtle); color: var(--text-muted);
+    }
+
+    .br-topbar-end { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+
+    /* Main Scroll Container (ONLY vertical scroll in app) */
+    #app-main {
+      grid-row: 2; grid-column: 2;
+      min-width: 0; min-height: 0; overflow-y: auto;
+      padding: clamp(14px, 1.6vw, 22px); outline: none;
+    }
+    .br-shell[data-focus-mode='true'] #app-main { grid-column: 1; }
+    .br-container {
+      max-width: var(--content-max); margin-inline: auto;
+      display: flex; flex-direction: column; gap: 18px;
+    }
+
+    /* =========================================================================
+       3. PRIMITIVES — Buttons, Panels, Tables, Inputs, Status Dots, Tabs
+       ========================================================================= */
+    .br-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      height: 34px; padding-inline: 12px; border-radius: var(--radius-md);
+      border: 1px solid transparent; background: transparent; color: var(--text-primary);
+      font-size: var(--text-sm); font-weight: 500; cursor: pointer; white-space: nowrap;
+      transition: background var(--ease), border-color var(--ease), color var(--ease);
+    }
+    .br-btn:focus-visible, .br-input:focus-visible, .br-select:focus-visible, .br-textarea:focus-visible {
+      outline: 2px solid var(--focus-ring); outline-offset: 2px;
+    }
+    .br-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .br-btn-sm { height: 28px; padding-inline: 9px; font-size: var(--text-xs); }
+    .br-btn-icon { width: 34px; padding-inline: 0; }
+    .br-btn-icon.br-btn-sm { width: 28px; }
+
+    .br-btn-primary {
+      background: var(--brand-maroon); color: var(--brand-on-primary);
+      box-shadow: var(--shadow-xs);
+    }
+    .br-btn-primary:hover:not(:disabled) { background: var(--brand-maroon-hover); }
+
+    /* CTA: cream in dark mode, wine in light mode (owner decision 2026-11-21).
+       Button-level only — the brand token stays wine, so the nav indicator,
+       chart bars, soft tints and dots keep their maroon in dark mode. */
+    :root[data-theme='dark'] .br-btn-primary {
+      background: #F2E8DC; color: #1A0A0E;
+    }
+    :root[data-theme='dark'] .br-btn-primary:hover:not(:disabled) {
+      background: #FFFFFF;
+    }
+
+    .br-btn-secondary {
+      background: var(--bg-surface); border-color: var(--border-strong); color: var(--text-primary);
+    }
+    .br-btn-secondary:hover:not(:disabled) { background: var(--bg-hover); }
+
+    .br-btn-ghost { color: var(--text-secondary); }
+    .br-btn-ghost:hover:not(:disabled) { background: var(--bg-hover); color: var(--text-primary); }
+
+    .br-btn-subtle {
+      background: var(--bg-elevated); border-color: var(--border-subtle); color: var(--text-primary);
+    }
+    .br-btn-subtle:hover:not(:disabled) { border-color: var(--border-strong); background: var(--bg-hover); }
+
+    .br-btn-danger-ghost { color: var(--status-danger); }
+    .br-btn-danger-ghost:hover:not(:disabled) { background: var(--status-danger-soft); }
+
+    .br-segmented {
+      display: inline-flex; padding: 2px; border-radius: var(--radius-md);
+      background: var(--bg-elevated); border: 1px solid var(--border-subtle);
+    }
+    .br-seg-btn {
+      height: 26px; padding-inline: 9px; border: 0; border-radius: 4px;
+      background: transparent; color: var(--text-secondary);
+      font-size: var(--text-xs); font-weight: 500; cursor: pointer;
+    }
+    .br-seg-btn[aria-pressed='true'] {
+      background: var(--bg-surface); color: var(--text-primary);
+      box-shadow: var(--shadow-xs); font-weight: 600;
+    }
+
+    .br-page-head {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; flex-wrap: wrap;
+    }
+    .br-page-title {
+      margin: 0; font-family: var(--font-display);
+      font-size: var(--text-xl); font-weight: 700; line-height: 1.25;
+    }
+    .br-page-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+    /* Panels */
+    .br-panel {
+      background: var(--bg-surface); border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg); box-shadow: var(--shadow-xs); overflow: hidden;
+    }
+    .br-panel-head {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      padding: 11px 16px; border-block-end: 1px solid var(--border-subtle);
+      flex-wrap: wrap;
+    }
+    .br-panel-title {
+      margin: 0; font-size: var(--text-sm); font-weight: 600;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .br-count {
+      font-size: var(--text-xs); font-weight: 600; color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+    }
+    .br-panel-body { padding: 14px 16px; }
+
+    /* KPI Grid */
+    .br-kpi-grid {
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;
+    }
+    .br-kpi {
+      background: var(--bg-surface); border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg); padding: 13px 16px;
+      display: flex; flex-direction: column; gap: 4px; box-shadow: var(--shadow-xs);
+    }
+    .br-kpi-label { font-size: var(--text-xs); color: var(--text-muted); font-weight: 500; }
+    .br-kpi-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+    .br-kpi-value {
+      font-size: var(--text-kpi); font-weight: 700; line-height: 1.15;
+      font-variant-numeric: tabular-nums;
+    }
+    .br-kpi-meta { font-size: var(--text-xs); color: var(--text-secondary); }
+    .br-kpi-meta.danger { color: var(--status-danger); }
+    .br-kpi-meta.success { color: var(--status-success); }
+    .br-kpi-meta.warning { color: var(--status-warning); }
+
+    /* Grid layouts */
+    .br-grid-2 { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 16px; }
+    .br-grid-equal { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .br-grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+
+    /* Status Dot */
+    .br-status {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: var(--text-xs); color: var(--text-secondary); white-space: nowrap;
+    }
+    .br-status::before {
+      content: ''; width: 6px; height: 6px; border-radius: var(--radius-full);
+      background: var(--status-neutral); flex-shrink: 0;
+    }
+    .br-status[data-tone='success']::before { background: var(--status-success); }
+    .br-status[data-tone='warning']::before { background: var(--status-warning); }
+    .br-status[data-tone='danger']::before { background: var(--status-danger); }
+
+    /* Progress Bar */
+    .br-bar-wrap { display: flex; align-items: center; gap: 8px; min-width: 110px; }
+    .br-bar-track {
+      flex: 1; height: 6px; border-radius: 3px; background: var(--bg-elevated); overflow: hidden;
+    }
+    .br-bar-fill { height: 100%; border-radius: 3px; background: var(--status-success); }
+    .br-bar-fill[data-tone='warning'] { background: var(--status-warning); }
+    .br-bar-fill[data-tone='danger'] { background: var(--status-danger); }
+
+    /* Dense 42px Tables */
+    .br-table-wrap { width: 100%; overflow-x: auto; }
+    .br-table { width: 100%; border-collapse: collapse; text-align: start; font-size: var(--text-sm); }
+    .br-table th {
+      height: 36px; padding-inline: 14px; font-size: var(--text-xs); font-weight: 500;
+      color: var(--text-muted); border-block-end: 1px solid var(--border-subtle);
+      background: var(--bg-inset); white-space: nowrap;
+    }
+    .br-table td {
+      height: var(--row-h); padding: 6px 14px;
+      border-block-end: 1px solid var(--border-subtle); vertical-align: middle;
+    }
+    .br-table tbody tr:last-child td { border-block-end: none; }
+    .br-table tbody tr:hover { background: var(--bg-hover); }
+    .br-cell-title { font-weight: 500; color: var(--text-primary); }
+    .br-cell-sub { font-size: var(--text-xs); color: var(--text-muted); }
+    .br-actions-cell { display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
+
+    /* Inputs & Forms */
+    .br-input, .br-select, .br-textarea {
+      height: 34px; padding-inline: 10px; border-radius: var(--radius-md);
+      border: 1px solid var(--border-strong); background: var(--bg-inset);
+      color: var(--text-primary); font-size: var(--text-sm); width: 100%;
+    }
+    .br-textarea { height: auto; padding: 10px; min-height: 84px; resize: vertical; line-height: 1.55; }
+    .br-field { display: flex; flex-direction: column; gap: 5px; }
+    .br-label { font-size: var(--text-xs); font-weight: 600; color: var(--text-secondary); }
+    .br-toolbar {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+      padding: 10px 16px; border-block-end: 1px solid var(--border-subtle);
+      background: var(--bg-inset);
+    }
+    .br-tabs {
+      display: flex; align-items: center; gap: 4px;
+      border-block-end: 1px solid var(--border-subtle); padding-inline: 16px;
+      background: var(--bg-surface);
+    }
+    .br-tab {
+      position: relative; height: 40px; padding-inline: 12px; border: 0;
+      background: transparent; color: var(--text-secondary);
+      font-size: var(--text-sm); font-weight: 500; cursor: pointer;
+    }
+    .br-tab[aria-selected='true'] { color: var(--text-primary); font-weight: 600; }
+    .br-tab[aria-selected='true']::after {
+      content: ''; position: absolute; inset-inline: 0; bottom: -1px;
+      height: 2px; background: var(--brand-maroon);
+    }
+
+    /* Builder Split Pane */
+    .br-builder-sticky {
+      position: sticky; top: 0; z-index: 10;
+      background: var(--bg-surface); border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg); padding: 10px 14px;
+      display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+    }
+    .br-builder-grid {
+      display: grid; grid-template-columns: 270px minmax(0, 1fr); gap: 16px; align-items: start;
+    }
+    .br-q-list-item {
+      width: 100%; padding: 10px 12px; border: 0; border-block-end: 1px solid var(--border-subtle);
+      background: transparent; text-align: start; cursor: pointer;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .br-q-list-item:hover { background: var(--bg-hover); }
+    .br-q-list-item[aria-current='true'] {
+      background: var(--brand-maroon-soft);
+      border-inline-start: 2.5px solid var(--brand-maroon);
+    }
+    .br-math-bar {
+      display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
+      padding: 6px 8px; background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle); border-radius: var(--radius-md);
+    }
+    .br-math-preview {
+      padding: 12px 14px; border-radius: var(--radius-md);
+      background: var(--bg-inset); border: 1px dashed var(--border-strong);
+      min-height: 48px; line-height: 1.7;
+    }
+
+    /* Paper Scan Viewer */
+    .br-scan-stage {
+      position: relative; height: 290px; overflow: hidden;
+      background: #0B090A; border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md); display: grid; place-items: center;
+    }
+    .br-scan-sheet {
+      transition: transform 160ms ease; transform-origin: center center;
+      width: 88%; max-width: 440px; box-shadow: 0 10px 28px rgba(0,0,0,0.45);
+    }
+
+    /* Student Exam View */
+    .br-exam-grid {
+      display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 18px; align-items: start;
+    }
+    .br-q-nav-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+    .br-q-dot {
+      height: 34px; border-radius: var(--radius-md); border: 1px solid var(--border-strong);
+      background: var(--bg-inset); font-size: var(--text-xs); font-weight: 600;
+      cursor: pointer; position: relative; font-variant-numeric: tabular-nums;
+    }
+    .br-q-dot.answered { background: var(--status-success-soft); border-color: var(--status-success); color: var(--status-success); }
+    .br-q-dot.current { border-color: var(--brand-maroon); box-shadow: inset 0 0 0 1px var(--brand-maroon); }
+    .br-q-dot.flagged::after {
+      content: ''; position: absolute; top: 3px; inset-inline-end: 3px;
+      width: 6px; height: 6px; border-radius: 50%; background: var(--status-warning);
+    }
+    .br-option-card {
+      width: 100%; display: flex; align-items: center; gap: 10px;
+      padding: 11px 14px; border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle); background: var(--bg-inset);
+      text-align: start; cursor: pointer; transition: border-color var(--ease), background var(--ease);
+    }
+    .br-option-card:hover { border-color: var(--border-strong); background: var(--bg-hover); }
+    .br-option-card.selected {
+      border-color: var(--brand-maroon); background: var(--brand-maroon-soft);
+    }
+    .br-option-card.correct {
+      border-color: var(--status-success); background: var(--status-success-soft);
+    }
+    .br-option-card.wrong {
+      border-color: var(--status-danger); background: var(--status-danger-soft);
+    }
+
+    /* Drawers & Modals */
+    .br-backdrop {
+      position: fixed; inset: 0; background: rgba(10, 7, 8, 0.58);
+      z-index: 900; display: none; align-items: center; justify-content: center;
+      padding: 16px;
+    }
+    .br-backdrop.open { display: flex; }
+    .br-backdrop.drawer-mode { justify-content: flex-end; padding: 0; }
+    .br-modal {
+      width: 100%; max-width: 560px; max-height: 86dvh; overflow: hidden;
+      background: var(--bg-surface); border: 1px solid var(--border-strong);
+      border-radius: var(--radius-lg); box-shadow: var(--shadow-overlay);
+      display: flex; flex-direction: column;
+    }
+    .br-drawer {
+      width: min(460px, 100vw); height: 100dvh;
+      background: var(--bg-surface); border-inline-start: 1px solid var(--border-strong);
+      box-shadow: var(--shadow-overlay); display: flex; flex-direction: column;
+    }
+    .br-modal-body, .br-drawer-body { padding: 16px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 14px; }
+    .br-modal-foot, .br-drawer-foot {
+      padding: 12px 16px; border-block-start: 1px solid var(--border-subtle);
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      background: var(--bg-inset);
+    }
+
+    /* Skeleton & Empty States (Zero CLS 42px rows) */
+    @keyframes br-pulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.9; } }
+    .br-skel {
+      display: block; height: 14px; border-radius: 4px;
+      background: var(--bg-elevated); animation: br-pulse 1.3s ease-in-out infinite;
+    }
+    .br-empty {
+      padding: 40px 20px; text-align: center;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+    }
+    .br-empty-icon {
+      width: 40px; height: 40px; border-radius: var(--radius-lg);
+      background: var(--bg-elevated); border: 1px solid var(--border-subtle);
+      display: grid; place-items: center; color: var(--text-muted);
+    }
+
+    /* Toast */
+    .br-toast {
+      position: fixed; bottom: 18px; inset-inline-end: 18px; z-index: 1500;
+      padding: 10px 14px; border-radius: var(--radius-md);
+      background: var(--bg-surface); border: 1px solid var(--border-strong);
+      box-shadow: var(--shadow-overlay); font-size: var(--text-sm);
+      display: none; align-items: center; gap: 8px;
+    }
+    .br-toast.show { display: flex; }
+
+    /* Unread Notification Dot */
+    .br-dot-badge {
+      position: absolute; top: 6px; inset-inline-end: 6px;
+      width: 7px; height: 7px; border-radius: 50%; background: var(--brand-maroon);
+    }
+
+    /* Mobile Drawer + 375px Responsive Stacked Tables */
+    .br-mobile-menu-btn { display: none; }
+    @media (max-width: 960px) {
+      .br-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .br-grid-2, .br-grid-equal, .br-grid-3, .br-builder-grid, .br-exam-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+    @media (max-width: 768px) {
+      .br-shell, .br-shell[data-collapsed='true'] { grid-template-columns: minmax(0, 1fr); }
+      .br-topbar { grid-column: 1; padding-inline: 12px; }
+      #app-main { grid-column: 1; padding: 12px; }
+      .br-mobile-menu-btn { display: inline-flex; }
+      .br-search-trigger { flex: 0 0 34px; width: 34px; justify-content: center; padding-inline: 0; }
+      .br-search-trigger span, .br-search-trigger .br-kbd { display: none; }
+      .br-sidebar {
+        position: fixed; inset-block: 0; inset-inline-start: 0; width: 256px;
+        transform: translateX(110%); transition: transform 180ms ease;
+        box-shadow: var(--shadow-overlay);
+      }
+      :root[dir='ltr'] .br-sidebar { transform: translateX(-110%); }
+      .br-sidebar.mobile-open { transform: translateX(0); }
+
+      /* Stacked 375px tables */
+      .br-table thead { display: none; }
+      .br-table, .br-table tbody, .br-table tr, .br-table td { display: block; width: 100%; }
+      .br-table tr {
+        padding: 10px 12px; border-block-end: 1px solid var(--border-subtle);
+      }
+      .br-table td {
+        height: auto; padding: 4px 0; border: 0;
+        display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      }
+      .br-table td::before {
+        content: attr(data-label); font-size: var(--text-xs); color: var(--text-muted); font-weight: 500;
+      }
+      .br-table td.br-td-primary { display: block; padding-bottom: 6px; }
+      .br-table td.br-td-primary::before { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#app-main" class="br-skip-link" id="skip-link">تخطَّ إلى المحتوى</a>
+
+  <div class="br-shell" id="app-shell" data-collapsed="false" data-focus-mode="false">
+    <!-- SIDEBAR -->
+    <aside class="br-sidebar" id="sidebar" aria-label="التنقّل الرئيس">
+      <div class="br-sidebar-brand">
+        <a href="#dashboard" class="br-wordmark" data-nav="dashboard">
+          <span class="br-wordmark-mark">B</span>
+          <span>BRIDGIO</span>
+        </a>
+        <button class="br-btn br-btn-ghost br-btn-icon br-btn-sm" id="btn-collapse" title="طي/توسيع القائمة" aria-label="طي القائمة"></button>
+      </div>
+      <nav class="br-sidebar-nav" id="sidebar-nav"></nav>
+      <div class="br-sidebar-footer" id="sidebar-footer"></div>
+    </aside>
+
+    <!-- TOPBAR -->
+    <header class="br-topbar">
+      <div class="br-topbar-start">
+        <button class="br-btn br-btn-ghost br-btn-icon br-mobile-menu-btn" id="btn-mobile-menu" aria-label="القائمة"></button>
+        <div class="br-breadcrumb" id="breadcrumb"></div>
+      </div>
+
+      <button class="br-search-trigger" id="btn-open-search" aria-label="بحث سريع">
+        <span id="search-icon-slot"></span>
+        <span id="search-placeholder">بحث في الطلاب، الاختبارات، الأسئلة...</span>
+        <kbd class="br-kbd">Ctrl K</kbd>
+      </button>
+
+      <div class="br-topbar-end">
+        <div class="br-segmented" role="group" aria-label="الدور" id="role-switcher">
+          <button class="br-seg-btn" data-role="teacher" aria-pressed="true">معلمة</button>
+          <button class="br-seg-btn" data-role="student" aria-pressed="false">طالب</button>
+        </div>
+        <div class="br-segmented" role="group" aria-label="حالة البيانات" id="state-switcher" title="معاينة حالات الإنتاج">
+          <button class="br-seg-btn" data-uistate="live" aria-pressed="true">بيانات</button>
+          <button class="br-seg-btn" data-uistate="loading" aria-pressed="false">تحميل</button>
+          <button class="br-seg-btn" data-uistate="empty" aria-pressed="false">فارغ</button>
+        </div>
+        <button class="br-btn br-btn-ghost br-btn-icon" id="btn-notifications" style="position:relative" aria-label="الإشعارات"></button>
+        <button class="br-btn br-btn-ghost br-btn-sm" id="btn-lang" aria-label="تغيير اللغة">EN</button>
+        <button class="br-btn br-btn-ghost br-btn-icon" id="btn-theme" aria-label="تبديل المظهر"></button>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main id="app-main" tabindex="-1">
+      <div class="br-container" id="main-container"></div>
+    </main>
+  </div>
+
+  <!-- MODAL / DRAWER BACKDROP -->
+  <div class="br-backdrop" id="overlay-backdrop" role="dialog" aria-modal="true"></div>
+
+  <!-- TOAST -->
+  <div class="br-toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    /* =========================================================================
+       4. LUCIDE-MATCHED INLINE SVG ICONS
+       ========================================================================= */
+    const ICONS = {
+      home: '<path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5.5v-6.5h-5V21H4a1 1 0 0 1-1-1z"/>',
+      classes: '<rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/>',
+      tests: '<path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/>',
+      grading: '<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
+      bank: '<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.66 3.58 3 8 3s8-1.34 8-3V5M4 11v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/>',
+      materials: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+      students: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+      search: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
+      bell: '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>',
+      sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>',
+      moon: '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',
+      panelLeft: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/>',
+      menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
+      plus: '<path d="M12 5v14M5 12h14"/>',
+      x: '<path d="M18 6L6 18M6 6l12 12"/>',
+      check: '<path d="M20 6L9 17l-5-5"/>',
+      clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+      flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/>',
+      eye: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>',
+      zoomIn: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/>',
+      zoomOut: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M8 11h6"/>',
+      rotate: '<path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>',
+      upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5M12 3v12"/>',
+      sliders: '<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>',
+      trash: '<path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>',
+      chart: '<path d="M3 3v18h18"/><path d="M7 16v-5M12 16V8M17 16v-8"/>'
+    };
+
+    function icon(name, size = 16) {
+      return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name] || ''}</svg>`;
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[m]));
+    }
+
+    /* Render BiDi Arabic + KaTeX inline math ($...$) safely */
+    function renderMathText(raw) {
+      if (!raw) return '';
+      const parts = String(raw).split(/(\$[^$]+\$)/g);
+      return parts.map(part => {
+        if (part.startsWith('$') && part.endsWith('$') && part.length > 2) {
+          const expr = part.slice(1, -1);
+          if (window.katex) {
+            try {
+              const rendered = window.katex.renderToString(expr, { throwOnError: false, displayMode: false });
+              return `<span class="br-bidi-math" dir="ltr">${rendered}</span>`;
+            } catch (_) {}
+          }
+          return `<span class="br-bidi-math" dir="ltr">${escapeHtml(expr)}</span>`;
+        }
+        return escapeHtml(part);
+      }).join('');
+    }
+
+    /* =========================================================================
+       5. SEED DATA — Realistic Grade 12 Math (3 Cohorts, 32 Students)
+       ========================================================================= */
+    const COHORTS = [
+      { id: 'c_a', nameAr: '٣ ثانوي — أ', nameEn: 'Grade 12 — A', subjectAr: 'التفاضل والتكامل', subjectEn: 'Calculus', unitsDone: 3, unitsTotal: 4, avg: 78 },
+      { id: 'c_b', nameAr: '٣ ثانوي — ب', nameEn: 'Grade 12 — B', subjectAr: 'التفاضل والتكامل', subjectEn: 'Calculus', unitsDone: 2, unitsTotal: 4, avg: 66 },
+      { id: 'c_c', nameAr: '٣ ثانوي — ج', nameEn: 'Grade 12 — C', subjectAr: 'التفاضل والتكامل', subjectEn: 'Calculus', unitsDone: 3, unitsTotal: 4, avg: 82 }
+    ];
+
+    const UNITS = [
+      { id: 'u1', nameAr: 'قواعد الاشتقاق وتطبيقاته', nameEn: 'Differentiation Rules', mastery: 84 },
+      { id: 'u2', nameAr: 'التكامل المحدد وغير المحدد', nameEn: 'Definite & Indefinite Integration', mastery: 61 },
+      { id: 'u3', nameAr: 'المساحات والحجوم الدورانية', nameEn: 'Areas & Volumes of Revolution', mastery: 52 },
+      { id: 'u4', nameAr: 'النهايات والدوال الأسية', nameEn: 'Limits & Exponential Functions', mastery: 79 }
+    ];
+
+    const STUDENT_SEED = [
+      ['عمر خالد منصور','Omar Khaled','c_a',34,42,'٢٩ أكتوبر'],
+      ['يوسف علي حسن','Youssef Ali','c_b',39,45,'٣٠ أكتوبر'],
+      ['مريم طارق سعيد','Mariam Tarek','c_b',44,48,'٣١ أكتوبر'],
+      ['أحمد حسام الدين','Ahmed Hossam','c_a',48,54,'١ نوفمبر'],
+      ['نور شريف كامل','Nour Sherif','c_c',51,58,'٢ نوفمبر'],
+      ['كريم وليد فؤاد','Karim Walid','c_b',54,60,'٢ نوفمبر'],
+      ['سلمى إيهاب نبيل','Salma Ehab','c_a',62,67,'٣ نوفمبر'],
+      ['زياد محمود عادل','Ziad Mahmoud','c_c',65,70,'٣ نوفمبر'],
+      ['سارة محمد إبراهيم','Sara Mohamed','c_a',86,88,'٤ نوفمبر'],
+      ['آدم مصطفى راضي','Adam Mostafa','c_c',92,94,'٤ نوفمبر'],
+      ['فرح هاني سامي','Farah Hany','c_a',88,91,'٤ نوفمبر'],
+      ['تيمور أشرف زكي','Taimour Ashraf','c_b',72,74,'٣ نوفمبر'],
+      ['جنى أيمن فتحي','Jana Ayman','c_c',81,84,'٤ نوفمبر'],
+      ['بلال عماد صالح','Belal Emad','c_b',68,70,'٢ نوفمبر'],
+      ['ندى هشام عطية','Nada Hesham','c_a',79,82,'٣ نوفمبر'],
+      ['حمزة ياسر بركات','Hamza Yasser','c_c',89,90,'٤ نوفمبر'],
+      ['ليلى ناصر الدين','Laila Nasser','c_b',75,77,'٣ نوفمبر'],
+      ['مازن علاء توفيق','Mazen Alaa','c_a',71,73,'٢ نوفمبر'],
+      ['حبيبة وائل فهمي','Habiba Wael','c_c',94,95,'٤ نوفمبر'],
+      ['سيف الدين مجدي','Seif Magdy','c_b',59,62,'١ نوفمبر'],
+      ['روان تامر حسين','Rawan Tamer','c_a',83,85,'٣ نوفمبر'],
+      ['يحيى خالد شوقي','Yahya Khaled','c_c',76,78,'٢ نوفمبر'],
+      ['ملك أسامة بدوي','Malak Osama','c_b',64,66,'٢ نوفمبر'],
+      ['إياد سامح لطفي','Eyad Sameh','c_a',77,79,'٣ نوفمبر'],
+      ['دينا حازم راشد','Dina Hazem','c_c',85,87,'٤ نوفمبر'],
+      ['مصطفى عاطف جلال','Mostafa Atef','c_b',57,61,'١ نوفمبر'],
+      ['ياسمين عادل صبري','Yasmine Adel','c_a',90,92,'٤ نوفمبر'],
+      ['عبدالرحمن فادي','Abdelrahman Fady','c_c',73,75,'٢ نوفمبر'],
+      ['هنا رائد كمال','Hana Raed','c_b',80,81,'٣ نوفمبر'],
+      ['طارق مدحت سالم','Tarek Medhat','c_a',69,71,'٢ نوفمبر'],
+      ['شهد محمد رفعت','Shahd Refaat','c_c',87,89,'٤ نوفمبر'],
+      ['أدهم عمرو شحاتة','Adham Amr','c_b',74,76,'٣ نوفمبر']
+    ];
+
+    const state = {
+      lang: 'ar',
+      theme: 'dark',
+      role: 'teacher',
+      uiState: 'live', // live | loading | empty
+      collapsed: false,
+      route: 'dashboard', // teacher: dashboard|classes|tests|builder|grading|bank|materials|students; student: s_dashboard|s_exam|s_review
+      classFilter: 'all',
+      searchQuery: '',
+      builderTestId: 't_draft_1',
+      builderTab: 'questions', // questions | settings
+      builderSelectedQ: 0,
+      builderSaveState: 'saved',
+      gradingTestId: 't_pub_1',
+      gradingTab: 'submissions', // submissions | analysis
+      gradingSubId: 'sub_1',
+      scanZoom: 1,
+      scanRotate: 0,
+      studentExamId: 't_pub_1',
+      studentReviewId: 't_pub_2',
+      examIdx: 0,
+      examAnswers: {},
+      examFlags: {},
+      examSecondsLeft: 25 * 60,
+      examTimerId: null,
+      examUploadedPhoto: false,
+      students: STUDENT_SEED.map((s, i) => ({
+        id: `st_${i + 1}`,
+        nameAr: s[0], nameEn: s[1], cohortId: s[2],
+        mastery: s[3], lastScore: s[4], lastActiveAr: s[5],
+        scores: [Math.max(25, s[4] - 12), Math.max(30, s[4] - 5), s[4]],
+        notes: []
+      })),
+      questionBank: [
+        {
+          id: 'qb_1', unitId: 'u2', type: 'mcq', diff: 'medium', points: 2,
+          prompt: 'أوجد قيمة التكامل المحدد $\\int_{0}^{2} (3x^2 + 2x)\\,dx$',
+          options: ['$8$', '$10$', '$12$', '$16$'], answerIdx: 2,
+          modelAnswer: 'بالتكامل المباشر: $[x^3 + x^2]_0^2 = (8 + 4) - 0 = 12$'
+        },
+        {
+          id: 'qb_2', unitId: 'u2', type: 'mcq', diff: 'hard', points: 3,
+          prompt: 'إذا كانت $f\'(x) = \\frac{2x}{x^2 + 1}$ و $f(0) = 3$، فإن $f(x)$ تساوي:',
+          options: ['$\\ln(x^2+1) + 3$', '$2\\ln(x^2+1) + 3$', '$\\frac{1}{2}\\ln(x^2+1) + 3$', '$\\ln(x+1) + 3$'],
+          answerIdx: 0,
+          modelAnswer: 'البسط مشتقة المقام، إذن $f(x) = \\ln(x^2+1) + C$. بالتعويض $x=0$ نجد $C=3$.'
+        },
+        {
+          id: 'qb_3', unitId: 'u3', type: 'essay', diff: 'hard', points: 5,
+          prompt: 'احسب المساحة المحصورة بين المنحنى $y = x^2 - 4x$ ومحور السينات في الفترة $[0, 4]$ مع توضيح خطوات الحل.',
+          options: [], answerIdx: -1,
+          modelAnswer: 'الدالة سالبة في $[0,4]$، إذن $A = -\\int_0^4 (x^2 - 4x)\\,dx = -[\\frac{x^3}{3} - 2x^2]_0^4 = \\frac{32}{3}$ وحدة مربعة.'
+        },
+        {
+          id: 'qb_4', unitId: 'u1', type: 'mcq', diff: 'easy', points: 2,
+          prompt: 'مشتقة الدالة $y = e^{3x} + \\sin(2x)$ بالنسبة إلى $x$ هي:',
+          options: ['$3e^{3x} + 2\\cos(2x)$', '$e^{3x} + \\cos(2x)$', '$3e^{3x} - 2\\cos(2x)$', '$3xe^{3x} + 2\\cos(2x)$'],
+          answerIdx: 0,
+          modelAnswer: 'بتطبيق قاعدة السلسلة: $y\' = 3e^{3x} + 2\\cos(2x)$.'
+        },
+        {
+          id: 'qb_5', unitId: 'u4', type: 'mcq', diff: 'medium', points: 2,
+          prompt: 'أوجد النهاية $\\lim_{x \\to 0} \\frac{\\sin(5x)}{2x}$:',
+          options: ['$\\frac{2}{5}$', '$\\frac{5}{2}$', '$5$', '$0$'],
+          answerIdx: 1,
+          modelAnswer: 'باستخدام القاعدة $\\lim_{x \\to 0} \\frac{\\sin(ax)}{bx} = \\frac{a}{b} = \\frac{5}{2}$.'
+        },
+        {
+          id: 'qb_6', unitId: 'u3', type: 'mcq', diff: 'hard', points: 3,
+          prompt: 'حجم الجسم الناشئ من دوران المنطقة تحت $y = \\sqrt{x}$ على $[0, 4]$ دورة كاملة حول محور السينات يساوي:',
+          options: ['$4\\pi$', '$8\\pi$', '$16\\pi$', '$32\\pi$'],
+          answerIdx: 1,
+          modelAnswer: '$V = \\pi \\int_0^4 (\\sqrt{x})^2\\,dx = \\pi [\\frac{x^2}{2}]_0^4 = 8\\pi$.'
+        }
+      ],
+      tests: [
+        {
+          id: 't_draft_1', title: 'مراجعة التكامل والمساحات — مسودة', cohortId: 'c_a', status: 'draft',
+          updatedAr: '٤ نوفمبر ٢٠٢٦',
+          settings: { duration: 30, attempts: 1, shuffleQ: true, shuffleOpt: true, release: 'manual', startWindow: '2026-11-22T09:00', endWindow: '2026-11-24T22:00' },
+          questions: [
+            { id: 'q1', bankId: 'qb_1', type: 'mcq', points: 2, prompt: 'أوجد قيمة التكامل المحدد $\\int_{0}^{2} (3x^2 + 2x)\\,dx$', options: ['$8$', '$10$', '$12$', '$16$'], answerIdx: 2, modelAnswer: '$[x^3 + x^2]_0^2 = 12$' },
+            { id: 'q2', bankId: 'qb_3', type: 'essay', points: 5, prompt: 'احسب المساحة المحصورة بين المنحنى $y = x^2 - 4x$ ومحور السينات في الفترة $[0, 4]$ مع توضيح خطوات الحل.', options: [], answerIdx: -1, modelAnswer: '$A = -\\int_0^4 (x^2 - 4x)\\,dx = \\frac{32}{3}$' }
+          ]
+        },
+        {
+          id: 't_pub_1', title: 'اختبار الوحدة الثانية: التكامل المحدد', cohortId: 'c_a', status: 'published',
+          updatedAr: '٢ نوفمبر ٢٠٢٦',
+          settings: { duration: 25, attempts: 1, shuffleQ: false, shuffleOpt: true, release: 'manual', startWindow: '2026-11-18T08:00', endWindow: '2026-11-25T23:00' },
+          questions: [
+            { id: 'q10', bankId: 'qb_1', type: 'mcq', points: 2, prompt: 'أوجد قيمة التكامل المحدد $\\int_{0}^{2} (3x^2 + 2x)\\,dx$', options: ['$8$', '$10$', '$12$', '$16$'], answerIdx: 2, modelAnswer: '$[x^3 + x^2]_0^2 = 12$' },
+            { id: 'q11', bankId: 'qb_2', type: 'mcq', points: 3, prompt: 'إذا كانت $f\'(x) = \\frac{2x}{x^2 + 1}$ و $f(0) = 3$، فإن $f(x)$ تساوي:', options: ['$\\ln(x^2+1) + 3$', '$2\\ln(x^2+1) + 3$', '$\\frac{1}{2}\\ln(x^2+1) + 3$', '$\\ln(x+1) + 3$'], answerIdx: 0, modelAnswer: '$f(x) = \\ln(x^2+1) + 3$' },
+            { id: 'q12', bankId: 'qb_6', type: 'mcq', points: 3, prompt: 'حجم الجسم الناشئ من دوران المنطقة تحت $y = \\sqrt{x}$ على $[0, 4]$ دورة كاملة حول محور السينات يساوي:', options: ['$4\\pi$', '$8\\pi$', '$16\\pi$', '$32\\pi$'], answerIdx: 1, modelAnswer: '$V = \\pi [\\frac{x^2}{2}]_0^4 = 8\\pi$' },
+            { id: 'q13', bankId: 'qb_3', type: 'essay', points: 5, prompt: 'احسب المساحة المحصورة بين المنحنى $y = x^2 - 4x$ ومحور السينات في الفترة $[0, 4]$ مع توضيح خطوات الحل.', options: [], answerIdx: -1, modelAnswer: '$A = -\\int_0^4 (x^2 - 4x)\\,dx = \\frac{32}{3}$ وحدة مربعة.' }
+          ]
+        },
+        {
+          id: 't_pub_2', title: 'اختبار قواعد الاشتقاق والنهايات', cohortId: 'c_b', status: 'published',
+          updatedAr: '٢٨ أكتوبر ٢٠٢٦',
+          settings: { duration: 20, attempts: 1, shuffleQ: true, shuffleOpt: false, release: 'instant', startWindow: '2026-10-28T08:00', endWindow: '2026-11-05T23:00' },
+          questions: [
+            { id: 'q20', bankId: 'qb_4', type: 'mcq', points: 2, prompt: 'مشتقة الدالة $y = e^{3x} + \\sin(2x)$ بالنسبة إلى $x$ هي:', options: ['$3e^{3x} + 2\\cos(2x)$', '$e^{3x} + \\cos(2x)$', '$3e^{3x} - 2\\cos(2x)$', '$3xe^{3x} + 2\\cos(2x)$'], answerIdx: 0, modelAnswer: '$y\' = 3e^{3x} + 2\\cos(2x)$' },
+            { id: 'q21', bankId: 'qb_5', type: 'mcq', points: 2, prompt: 'أوجد النهاية $\\lim_{x \\to 0} \\frac{\\sin(5x)}{2x}$:', options: ['$\\frac{2}{5}$', '$\\frac{5}{2}$', '$5$', '$0$'], answerIdx: 1, modelAnswer: '$\\frac{5}{2}$' }
+          ]
+        }
+      ],
+      submissions: [
+        {
+          id: 'sub_1', testId: 't_pub_1', studentId: 'st_1', status: 'pending', submittedAt: 'منذ ١٨ دقيقة',
+          mcqScore: 5, mcqMax: 8, essayScore: 3, essayMax: 5, hasPaperScan: true,
+          typedAnswer: 'قمت بتكامل الدالة مباشرة من 0 إلى 4 ثم أخذت القيمة المطلقة للناتج النهائي (مرفق صورة الحل الورقي).',
+          teacherNote: 'خطوة التكامل صحيحة، لكن راجع إشارة الحد الثاني عند التعويض بـ $x=4$.'
+        },
+        {
+          id: 'sub_2', testId: 't_pub_1', studentId: 'st_2', status: 'pending', submittedAt: 'منذ ٤٢ دقيقة',
+          mcqScore: 2, mcqMax: 8, essayScore: 2, essayMax: 5, hasPaperScan: true,
+          typedAnswer: 'الناتج طلع معايا بالسالب $-\\frac{32}{3}$ ولم أعرف هل أتركها سالبة أم موجبة.',
+          teacherNote: ''
+        },
+        {
+          id: 'sub_3', testId: 't_pub_1', studentId: 'st_9', status: 'graded', submittedAt: 'أمس · ٠٨:١٥ م',
+          mcqScore: 8, mcqMax: 8, essayScore: 5, essayMax: 5, hasPaperScan: true,
+          typedAnswer: 'بما أن المنحنى أسفل محور السينات على $[0,4]$ أضفت إشارة سالبة قبل التكامل والناتج $\\frac{32}{3}$.',
+          teacherNote: 'حل نموذجي ومنظم جدًا.'
+        }
+      ],
+      itemAnalysis: {
+        t_pub_1: [
+          { qId: 'q10', accuracy: 84, wrongCount: 5, avgSec: 52, topWrong: '$10$' },
+          { qId: 'q11', accuracy: 41, wrongCount: 19, avgSec: 118, topWrong: '$2\\ln(x^2+1) + 3$' },
+          { qId: 'q12', accuracy: 34, wrongCount: 21, avgSec: 144, topWrong: '$16\\pi$' },
+          { qId: 'q13', accuracy: 47, wrongCount: 17, avgSec: 215, topWrong: 'نسيان الإشارة السالبة للمساحة' }
+        ]
+      },
+      materials: [
+        { id: 'm1', title: 'ملخص قوانين التكامل بالتعويض والتجزيء', cohortId: 'c_a', type: 'PDF', size: '2.4 MB', updated: '١ نوفمبر ٢٠٢٦' },
+        { id: 'm2', title: 'ورقة عمل: المساحات المحصورة بين منحنيين', cohortId: 'c_b', type: 'PDF', size: '1.1 MB', updated: '٣٠ أكتوبر ٢٠٢٦' },
+        { id: 'm3', title: 'شرح مرئي: الحجوم الدورانية بالرسوم', cohortId: 'c_c', type: 'فيديو', size: '18 دقيقة', updated: '٢٨ أكتوبر ٢٠٢٦' }
+      ],
+      notifications: [
+        { id: 'n1', unread: true, text: 'سلّم عمر خالد «اختبار الوحدة الثانية: التكامل المحدد» (يحتاج تصحيح مقالي).', time: 'منذ ١٨ دقيقة', action: () => { state.gradingSubId = 'sub_1'; navigate('grading'); } },
+        { id: 'n2', unread: true, text: 'نسبة الخطأ في السؤال ٣ من اختبار التكامل تجاوزت ٦٥٪ في صف ٣ ثانوي — أ.', time: 'منذ ساعة', action: () => { state.gradingTab = 'analysis'; navigate('grading'); } },
+        { id: 'n3', unread: false, text: 'تم حفظ مسودة «مراجعة التكامل والمساحات» بنجاح.', time: 'أمس', action: () => navigate('builder') }
+      ]
+    };
+
+    /* =========================================================================
+       6. TRANSLATIONS & HELPERS
+       ========================================================================= */
+    const T = {
+      ar: {
+        teacherRole: 'معلمة', studentRole: 'طالب',
+        teacherName: 'أ. منى عبد الرحمن', teacherSub: 'رياضيات · ٣ ثانوي',
+        studentName: 'عمر خالد منصور', studentSub: '٣ ثانوي — أ',
+        searchPlaceholder: 'بحث في الطلاب، الاختبارات، الأسئلة...',
+        skip: 'تخطَّ إلى المحتوى',
+        navGroups: { teaching: 'التدريس', content: 'المحتوى والطلاب', student: 'مساحة الطالب' },
+        routes: {
+          dashboard: 'لوحة المعلمة', classes: 'صفوفي', tests: 'الاختبارات',
+          builder: 'منشئ الاختبار', grading: 'التصحيح والتحليل',
+          bank: 'بنك الأسئلة', materials: 'مكتبة المواد', students: 'الطلاب',
+          s_dashboard: 'لوحة الطالب', s_exam: 'الاختبار النشط', s_review: 'مراجعة الاختبار'
+        }
+      },
+      en: {
+        teacherRole: 'Teacher', studentRole: 'Student',
+        teacherName: 'Ms. Mona Abdelrahman', teacherSub: 'Mathematics · Grade 12',
+        studentName: 'Omar Khaled Mansour', studentSub: 'Grade 12 — A',
+        searchPlaceholder: 'Search students, exams, questions...',
+        skip: 'Skip to content',
+        navGroups: { teaching: 'Teaching', content: 'Content & Roster', student: 'Student Workspace' },
+        routes: {
+          dashboard: 'Teacher Dashboard', classes: 'My Classes', tests: 'Exams',
+          builder: 'Exam Builder', grading: 'Grading & Analysis',
+          bank: 'Question Bank', materials: 'Materials', students: 'Students',
+          s_dashboard: 'Student Dashboard', s_exam: 'Active Exam', s_review: 'Exam Review'
+        }
+      }
+    };
+
+    const cohortName = id => {
+      const c = COHORTS.find(x => x.id === id);
+      return c ? (state.lang === 'ar' ? c.nameAr : c.nameEn) : '—';
+    };
+    const studentName = s => state.lang === 'ar' ? s.nameAr : s.nameEn;
+    const toneOf = val => val >= 75 ? 'success' : val >= 55 ? 'warning' : 'danger';
+
+    let toastTimer = null;
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      el.innerHTML = `<span style="color:var(--status-success)">${icon('check', 15)}</span><span>${escapeHtml(msg)}</span>`;
+      el.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+    }
+
+    function navigate(route) {
+      if (state.examTimerId && route !== 's_exam') {
+        clearInterval(state.examTimerId);
+        state.examTimerId = null;
+      }
+      state.route = route;
+      document.getElementById('sidebar').classList.remove('mobile-open');
+      render();
+      document.getElementById('app-main').scrollTop = 0;
+    }
+
+    /* =========================================================================
+       7. PAPER-SCAN SVG GENERATOR (Offline-ready realistic math sheet)
+       ========================================================================= */
+    function renderPaperScanSvg() {
+      return `
+        <svg class="br-scan-sheet" style="transform: scale(${state.scanZoom}) rotate(${state.scanRotate}deg);" viewBox="0 0 420 270" xmlns="http://www.w3.org/2000/svg">
+          <rect width="420" height="270" rx="4" fill="#FBF9F2"/>
+          <g stroke="#DCE5F2" stroke-width="1">
+            ${Array.from({length: 10}, (_, i) => `<line x1="0" y1="${34 + i * 24}" x2="420" y2="${34 + i * 24}"/>`).join('')}
+          </g>
+          <line x1="364" y1="0" x2="364" y2="270" stroke="#EAB8B8" stroke-width="1.2"/>
+          <g fill="#222A44" font-family="'IBM Plex Sans Arabic', sans-serif" font-size="13">
+            <text x="352" y="28" text-anchor="end" font-weight="600">س ٤: المساحة بين y = x² - 4x ومحور السينات على [0, 4]</text>
+            <text x="52" y="54" font-family="Georgia, serif" font-size="14">1)  y = 0  ⇒  x(x - 4) = 0  ⇒  x = 0,  x = 4</text>
+            <text x="52" y="82" font-family="Georgia, serif" font-size="14">2)  A = ∫₀⁴ (x² - 4x) dx = [ x³/3 - 2x² ]₀⁴</text>
+            <text x="52" y="110" font-family="Georgia, serif" font-size="14">3)  = (64/3 - 32) - 0  =  (64 - 96)/3  =  -32/3</text>
+            <text x="52" y="142" font-family="Georgia, serif" font-size="14">4)  ∴ المساحة = 32/3 وحدة مربعة (أخذت القيمة المطلقة)</text>
+          </g>
+          <!-- Subtle teacher red annotation circle -->
+          <ellipse cx="140" cy="77" rx="44" ry="13" fill="none" stroke="#C73848" stroke-width="1.6" stroke-dasharray="4 2"/>
+          <text x="200" y="176" fill="#C73848" font-family="'IBM Plex Sans Arabic', sans-serif" font-size="11.5" font-weight="600">ملاحظة: يجب وضع إشارة (-) قبل التكامل لأن الدالة سالبة في الفترة</text>
+        </svg>`;
+    }
+
+    /* =========================================================================
+       8. SKELETON & EMPTY STATE RENDERERS
+       ========================================================================= */
+    function renderSkeletonPage() {
+      return `
+        <div class="br-kpi-grid">
+          ${Array.from({length:4}).map(() => `<div class="br-kpi"><span class="br-skel" style="width:45%"></span><span class="br-skel" style="width:65%;height:26px;margin-top:8px"></span></div>`).join('')}
+        </div>
+        <div class="br-panel">
+          <div class="br-panel-head"><span class="br-skel" style="width:180px"></span><span class="br-skel" style="width:90px"></span></div>
+          <table class="br-table"><tbody>
+            ${Array.from({length:6}).map(() => `<tr><td><span class="br-skel" style="width:55%"></span></td><td><span class="br-skel" style="width:40%"></span></td><td><span class="br-skel" style="width:30%"></span></td></tr>`).join('')}
+          </tbody></table>
+        </div>`;
+    }
+
+    function renderEmptyState(title, desc, ctaLabel, onClickAttr) {
+      return `
+        <div class="br-panel">
+          <div class="br-empty">
+            <div class="br-empty-icon">${icon('tests', 20)}</div>
+            <div style="font-weight:600;font-size:var(--text-base)">${escapeHtml(title)}</div>
+            <div style="color:var(--text-muted);font-size:var(--text-sm);max-width:380px">${escapeHtml(desc)}</div>
+            ${ctaLabel ? `<button class="br-btn br-btn-primary" ${onClickAttr}>${icon('plus', 15)}<span>${escapeHtml(ctaLabel)}</span></button>` : ''}
+          </div>
+        </div>`;
+    }
+
+    /* =========================================================================
+       9. VIEW RENDERERS — TEACHER WORKSPACE
+       ========================================================================= */
+    function renderTeacherDashboard() {
+      if (state.uiState === 'loading') return renderSkeletonPage();
+      if (state.uiState === 'empty') {
+        return renderEmptyState(
+          'لا توجد صفوف أو اختبارات بعد (اليوم الأول)',
+          'ابدأ بإنشاء أول صف دراسي أو إعداد اختبارك الأول من بنك الأسئلة.',
+          'إنشاء أول اختبار',
+          'onclick="createNewDraft()"'
+        );
+      }
+
+      const filteredStudents = state.classFilter === 'all'
+        ? state.students
+        : state.students.filter(s => s.cohortId === state.classFilter);
+      const atRisk = [...filteredStudents].sort((a, b) => a.mastery - b.mastery).slice(0, 5);
+      const drafts = state.tests.filter(t => t.status === 'draft' && (state.classFilter === 'all' || t.cohortId === state.classFilter));
+      const pendingSubs = state.submissions.filter(s => s.status === 'pending');
+      const avgMastery = Math.round(filteredStudents.reduce((a, b) => a + b.mastery, 0) / Math.max(1, filteredStudents.length));
+
+      return `
+        <div class="br-page-head">
+          <h1 class="br-page-title">${T[state.lang].routes.dashboard}</h1>
+          <div class="br-page-actions">
+            <select class="br-select" style="width:auto" aria-label="تصفية الصف" onchange="state.classFilter=this.value;render()">
+              <option value="all" ${state.classFilter==='all'?'selected':''}>جميع الصفوف (${state.students.length} طالب)</option>
+              ${COHORTS.map(c => `<option value="${c.id}" ${state.classFilter===c.id?'selected':''}>${cohortName(c.id)}</option>`).join('')}
+            </select>
+            <button class="br-btn br-btn-primary" onclick="createNewDraft()">${icon('plus', 15)}<span>اختبار جديد</span></button>
+          </div>
+        </div>
+
+        <section class="br-kpi-grid" aria-label="ملخص الأداء">
+          <div class="br-kpi">
+            <span class="br-kpi-label">إجمالي الطلاب</span>
+            <div class="br-kpi-row"><span class="br-kpi-value">${filteredStudents.length}</span><span class="br-kpi-meta">${COHORTS.length} صفوف نشطة</span></div>
+          </div>
+          <div class="br-kpi">
+            <span class="br-kpi-label">متوسط الإتقان</span>
+            <div class="br-kpi-row"><span class="br-kpi-value">${avgMastery}%</span><span class="br-kpi-meta ${avgMastery>=70?'success':'warning'}">${avgMastery>=70?'ضمن المستهدف':'يحتاج دعمًا'}</span></div>
+          </div>
+          <div class="br-kpi">
+            <span class="br-kpi-label">تسليمات تنتظر التصحيح</span>
+            <div class="br-kpi-row"><span class="br-kpi-value">${pendingSubs.length}</span><span class="br-kpi-meta ${pendingSubs.length?'warning':'success'}">${pendingSubs.length?'مقالي + صور حل':'مكتمل'}</span></div>
+          </div>
+          <div class="br-kpi">
+            <span class="br-kpi-label">طلاب يحتاجون متابعة</span>
+            <div class="br-kpi-row"><span class="br-kpi-value">${filteredStudents.filter(s=>s.mastery<55).length}</span><span class="br-kpi-meta danger">أقل من 55% إتقان</span></div>
+          </div>
+        </section>
+
+        <div class="br-grid-2">
+          <section class="br-panel">
+            <div class="br-panel-head">
+              <h2 class="br-panel-title">طلاب يحتاجون متابعة <span class="br-count">${atRisk.length}</span></h2>
+              <button class="br-btn br-btn-ghost br-btn-sm" onclick="navigate('students')">عرض الكل (${filteredStudents.length})</button>
+            </div>
+            <div class="br-table-wrap">
+              <table class="br-table">
+                <thead><tr><th>الطالب</th><th>الصف</th><th>الإتقان</th><th>آخر درجة</th><th></th></tr></thead>
+                <tbody>
+                  ${atRisk.map(s => `
+                    <tr>
+                      <td class="br-td-primary"><div class="br-cell-title">${escapeHtml(studentName(s))}</div><div class="br-cell-sub">آخر نشاط: ${s.lastActiveAr}</div></td>
+                      <td data-label="الصف">${cohortName(s.cohortId)}</td>
+                      <td data-label="الإتقان">
+                        <div class="br-bar-wrap">
+                          <div class="br-bar-track" role="progressbar" aria-valuenow="${s.mastery}" aria-valuemin="0" aria-valuemax="100"><div class="br-bar-fill" data-tone="${toneOf(s.mastery)}" style="width:${s.mastery}%"></div></div>
+                          <span class="br-num" style="font-size:var(--text-xs);font-weight:600">${s.mastery}%</span>
+                        </div>
+                      </td>
+                      <td data-label="آخر درجة" class="br-num">${s.lastScore}%</td>
+                      <td data-label="إجراء"><div class="br-actions-cell"><button class="br-btn br-btn-subtle br-btn-sm" onclick="openStudentDrawer('${s.id}')">متابعة</button></div></td>
+                    </tr>`).join('')}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <section class="br-panel">
+              <div class="br-panel-head">
+                <h2 class="br-panel-title">إتقان الوحدات</h2>
+                <button class="br-btn br-btn-ghost br-btn-sm" onclick="state.gradingTab='analysis';navigate('grading')">تحليل البنود</button>
+              </div>
+              <div class="br-panel-body" style="display:flex;flex-direction:column;gap:12px">
+                ${UNITS.map(u => `
+                  <div style="display:flex;flex-direction:column;gap:5px">
+                    <div style="display:flex;justify-content:space-between;font-size:var(--text-sm)">
+                      <span>${state.lang==='ar'?u.nameAr:u.nameEn}</span>
+                      <strong class="br-num" style="color:var(--status-${toneOf(u.mastery)})">${u.mastery}%</strong>
+                    </div>
+                    <div class="br-bar-track"><div class="br-bar-fill" data-tone="${toneOf(u.mastery)}" style="width:${u.mastery}%"></div></div>
+                  </div>`).join('')}
+              </div>
+            </section>
+
+            <section class="br-panel">
+              <div class="br-panel-head">
+                <h2 class="br-panel-title">مسودات غير منشورة <span class="br-count">${drafts.length}</span></h2>
+              </div>
+              <div class="br-table-wrap">
+                <table class="br-table">
+                  <tbody>
+                    ${drafts.length ? drafts.map(d => `
+                      <tr>
+                        <td class="br-td-primary"><div class="br-cell-title">${escapeHtml(d.title)}</div><div class="br-cell-sub">${cohortName(d.cohortId)} · ${d.questions.length} أسئلة</div></td>
+                        <td data-label="إجراء"><div class="br-actions-cell">
+                          <button class="br-btn br-btn-subtle br-btn-sm" onclick="openBuilder('${d.id}')">تعديل</button>
+                          <button class="br-btn br-btn-primary br-btn-sm" onclick="publishTest('${d.id}')">نشر</button>
+                        </div></td>
+                      </tr>`).join('') : `<tr><td colspan="2" style="text-align:center;color:var(--text-muted)">لا توجد مسودات معلّقة.</td></tr>`}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <section class="br-panel">
+          <div class="br-panel-head">
+            <h2 class="br-panel-title">أحدث التسليمات للتصحيح <span class="br-count">${state.submissions.length}</span></h2>
+            <button class="br-btn br-btn-ghost br-btn-sm" onclick="navigate('grading')">فتح مساحة التصحيح</button>
+          </div>
+          <div class="br-table-wrap">
+            <table class="br-table">
+              <thead><tr><th>الطالب</th><th>الاختبار</th><th>المرفق</th><th>الحالة</th><th>الدرجة</th><th></th></tr></thead>
+              <tbody>
+                ${state.submissions.map(sub => {
+                  const st = state.students.find(x => x.id === sub.studentId);
+                  const ts = state.tests.find(x => x.id === sub.testId);
+                  return `
+                    <tr>
+                      <td class="br-td-primary"><div class="br-cell-title">${escapeHtml(studentName(st))}</div><div class="br-cell-sub">${sub.submittedAt}</div></td>
+                      <td data-label="الاختبار">${escapeHtml(ts.title)}</td>
+                      <td data-label="المرفق"><span class="br-cell-sub">${sub.hasPaperScan ? 'صورة حل ورقي + نص' : 'نص فقط'}</span></td>
+                      <td data-label="الحالة"><span class="br-status" data-tone="${sub.status==='graded'?'success':'warning'}">${sub.status==='graded'?'معتمد':'ينتظر التصحيح'}</span></td>
+                      <td data-label="الدرجة" class="br-num">${sub.mcqScore + sub.essayScore} / ${sub.mcqMax + sub.essayMax}</td>
+                      <td data-label="إجراء"><div class="br-actions-cell"><button class="br-btn br-btn-subtle br-btn-sm" onclick="state.gradingSubId='${sub.id}';state.gradingTab='submissions';navigate('grading')">${sub.status==='graded'?'مراجعة':'تصحيح'}</button></div></td>
+                    </tr>`;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </section>`;
+    }
+
+    function renderClassesView() {
+      if (state.uiState === 'loading') return renderSkeletonPage();
+      if (state.uiState === 'empty') return renderEmptyState('لا توجد صفوف مسجلة', 'أنشئ صفك الأول لتوزيع الاختبارات والمواد ومتابعة الإتقان.', 'إضافة صف', 'onclick="showToast(\'تم تجهيز نموذج الصف الجديد\')"');
+      return `
+        <div class="br-page-head">
+          <h1 class="br-page-title">${T[state.lang].routes.classes}</h1>
+          <button class="br-btn br-btn-primary" onclick="createNewDraft()">${icon('plus', 15)}<span>اختبار لصف</span></button>
+        </div>
+        <div class="br-grid-3">
+          ${COHORTS.map(c => {
+            const count = state.students.filter(s => s.cohortId === c.id).length;
+            const risk = state.students.filter(s => s.cohortId === c.id && s.mastery < 55).length;
+            return `
+              <article class="br-panel">
+                <div class="br-panel-head">
+                  <h2 class="br-panel-title">${cohortName(c.id)}</h2>
+                  <span class="br-status" data-tone="${toneOf(c.avg)}">متوسط ${c.avg}%</span>
+                </div>
+                <div class="br-panel-body" style="display:flex;flex-direction:column;gap:12px">
+                  <div class="br-cell-sub">${state.lang==='ar'?c.subjectAr:c.subjectEn} · ${c.unitsDone} / ${c.unitsTotal} وحدات</div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px;background:var(--bg-inset);border-radius:var(--radius-md);border:1px solid var(--border-subtle)">
+                    <div><div class="br-cell-sub">الطلاب</div><strong class="br-num">${count}</strong></div>
+                    <div><div class="br-cell-sub">يحتاجون متابعة</div><strong class="br-num" style="color:${risk?'var(--status-danger)':'var(--status-success)'}">${risk}</strong></div>
+                  </div>
+                  <div style="display:flex;gap:6px">
+                    <button class="br-btn br-btn-subtle br-btn-sm" style="flex:1" onclick="state.classFilter='${c.id}';navigate('students')">قائمة الطلاب</button>
+                    <button class="br-btn br-btn-secondary br-btn-sm" style="flex:1" onclick="state.classFilter='${c.id}';navigate('tests')">الاختبارات</button>
+                  </div>
+                </div>
+              </article>`;
+          }).join('')}
+        </div>`;
+    }
+
+    function renderTestsView() {
+      if (state.uiState === 'loading') return renderSkeletonPage();
+      if (state.uiState === 'empty') return renderEmptyState('لا توجد اختبارات', 'ابدأ ببناء اختبار جديد أو اسحب أسئلة جاهزة من بنك الأسئلة.', 'اختبار جديد', 'onclick="createNewDraft()"');
+      const list = state.classFilter === 'all' ? state.tests : state.tests.filter(t => t.cohortId === state.classFilter);
+      return `
+        <div class="br-page-head">
+          <h1 class="br-page-title">${T[state.lang].routes.tests}</h1>
+          <div class="br-page-actions">
+            <select class="br-select" style="width:auto" onchange="state.classFilter=this.value;render()">
+              <option value="all" ${state.classFilter==='all'?'selected':''}>كل الصفوف</option>
+              ${COHORTS.map(c => `<option value="${c.id}" ${state.classFilter===c.id?'selected':''}>${cohortName(c.id)}</option>`).join('')}
+            </select>
+            <button class="br-btn br-btn-primary" onclick="createNewDraft()">${icon('plus', 15)}<span>اختبار جديد</span></button>
+          </div>
+        </div>
+        <section class="br-panel">
+          <div class="br-table-wrap">
+            <table class="br-table">
+              <thead><tr><th>الاختبار</th><th>الصف</th><th>الأسئلة</th><th>المدة</th><th>الحالة</th><th>آخر تعديل</th><th></th></tr></thead>
+              <tbody>
+                ${list.map(t => `
+                  <tr>
+                    <td class="br-td-primary"><div class="br-cell-title">${escapeHtml(t.title)}</div><div class="br-cell-sub">${t.settings.release==='instant'?'إظهار فوري للدرجة':'بعد المراجعة اليدوية'}</div></td>
+                    <td data-label="الصف">${cohortName(t.cohortId)}</td>
+                    <td data-label="الأسئلة" class="br-num">${t.questions.length}</td>
+                    <td data-label="المدة" class="br-num">${t.settings.duration} د</td>
+                    <td data-label="الحالة"><span class="br-status" data-tone="${t.status==='published'?'success':'warning'}">${t.status==='published'?'منشور':'مسودة'}</span></td>
+                    <td data-label="آخر تعديل" class="br-cell-sub">${t.updatedAr}</td>
+                    <td data-label="إجراء">
+                      <div class="br-actions-cell">
+                        <button class="br-btn br-btn-subtle br-btn-sm" onclick="openBuilder('${t.id}')">تعديل</button>
+                        <button class="br-btn br-btn-ghost br-btn-sm" onclick="startStudentExam('${t.id}')">${icon('eye', 14)}<span>معاينة</span></button>
+                        ${t.status==='draft'
+                          ? `<button class="br-btn br-btn-primary br-btn-sm" onclick="publishTest('${t.id}')">نشر</button>`
+                          : `<button class="br-btn br-btn-ghost br-btn-sm" onclick="state.gradingTestId='${t.id}';navigate('grading')">التصحيح</button>`}
+                      </div>
+                    </td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </section>`;
+    }
+
+    /* FULL-PAGE EXAM BUILDER (Bank Picker + Exam Settings + KaTeX BiDi Math) */
+    function renderExamBuilder() {
+      const test = state.tests.find(t => t.id === state.builderTestId) || state.tests[0];
+      if (!test) return renderEmptyState('لا يوجد اختبار محدد', 'أنشئ اختبارًا جديدًا لفتح منشئ الاختبار.', 'اختبار جديد', 'onclick="createNewDraft()"');
+      if (state.builderSelectedQ >= test.questions.length) state.builderSelectedQ = Math.max(0, test.questions.length - 1);
+      const q = test.questions[state.builderSelectedQ];
+      const totalPts = test.questions.reduce((s, x) => s + Number(x.points || 0), 0);
+
+      return `
+        <div class="br-builder-sticky">
+          <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:220px">
+            <input class="br-input" style="max-width:340px;font-weight:600" value="${escapeHtml(test.title)}" oninput="updateTestField('${test.id}','title',this.value)" aria-label="عنوان الاختبار" />
+            <span class="br-status" data-tone="${test.status==='published'?'success':'warning'}">${test.status==='published'?'منشور':'مسودة'}</span>
+            <span class="br-cell-sub" id="save-indicator">${state.builderSaveState==='saved'?'تم الحفظ تلقائيًا':'جارٍ الحفظ...'}</span>
+          </div>
+          <div class="br-page-actions">
+            <button class="br-btn br-btn-subtle br-btn-sm" onclick="openBankPickerDrawer()">${icon('bank', 14)}<span>إضافة من بنك الأسئلة</span></button>
+            <button class="br-btn br-btn-secondary br-btn-sm" onclick="startStudentExam('${test.id}')">${icon('eye', 14)}<span>معاينة كطالب</span></button>
+            <button class="br-btn br-btn-primary br-btn-sm" onclick="publishTest('${test.id}')">${test.status==='published'?'تحديث النشر':'نشر الاختبار'}</button>
+          </div>
+        </div>
+
+        <div class="br-panel">
+          <div class="br-tabs" role="tablist">
+            <button class="br-tab" role="tab" aria-selected="${state.builderTab==='questions'}" onclick="state.builderTab='questions';render()">الأسئلة (${test.questions.length}) · ${totalPts} درجة</button>
+            <button class="br-tab" role="tab" aria-selected="${state.builderTab==='settings'}" onclick="state.builderTab='settings';render()">${icon('sliders', 14)} إعدادات الجدولة والنزاهة</button>
+          </div>
+
+          ${state.builderTab === 'settings' ? `
+            <div class="br-panel-body" style="max-width:760px;display:flex;flex-direction:column;gap:16px">
+              <div class="br-grid-equal">
+                <div class="br-field">
+                  <label class="br-label">الصف المستهدف</label>
+                  <select class="br-select" onchange="updateTestField('${test.id}','cohortId',this.value)">
+                    ${COHORTS.map(c => `<option value="${c.id}" ${test.cohortId===c.id?'selected':''}>${cohortName(c.id)}</option>`).join('')}
+                  </select>
+                </div>
+                <div class="br-field">
+                  <label class="br-label">مدة الاختبار (بالدقائق)</label>
+                  <input type="number" min="5" max="180" class="br-input br-num" value="${test.settings.duration}" onchange="updateTestSetting('${test.id}','duration',Number(this.value))" />
+                </div>
+                <div class="br-field">
+                  <label class="br-label">بداية نافذة الإتاحة</label>
+                  <input type="datetime-local" class="br-input br-num" value="${test.settings.startWindow}" onchange="updateTestSetting('${test.id}','startWindow',this.value)" />
+                </div>
+                <div class="br-field">
+                  <label class="br-label">نهاية نافذة الإتاحة</label>
+                  <input type="datetime-local" class="br-input br-num" value="${test.settings.endWindow}" onchange="updateTestSetting('${test.id}','endWindow',this.value)" />
+                </div>
+                <div class="br-field">
+                  <label class="br-label">عدد المحاولات المسموحة</label>
+                  <select class="br-select" onchange="updateTestSetting('${test.id}','attempts',Number(this.value))">
+                    <option value="1" ${test.settings.attempts===1?'selected':''}>محاولة واحدة</option>
+                    <option value="2" ${test.settings.attempts===2?'selected':''}>محاولتان</option>
+                    <option value="3" ${test.settings.attempts===3?'selected':''}>٣ محاولات</option>
+                  </select>
+                </div>
+                <div class="br-field">
+                  <label class="br-label">إظهار الدرجات للطلاب</label>
+                  <select class="br-select" onchange="updateTestSetting('${test.id}','release',this.value)">
+                    <option value="manual" ${test.settings.release==='manual'?'selected':''}>بعد المراجعة والتصحيح اليدوي</option>
+                    <option value="instant" ${test.settings.release==='instant'?'selected':''}>فوري بعد التسليم مباشرة</option>
+                  </select>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:10px;padding-top:8px;border-top:1px solid var(--border-subtle)">
+                <label style="display:flex;align-items:center;gap:10px;font-size:var(--text-sm);cursor:pointer">
+                  <input type="checkbox" ${test.settings.shuffleQ?'checked':''} onchange="updateTestSetting('${test.id}','shuffleQ',this.checked)" />
+                  <span>ترتيب عشوائي للأسئلة لكل طالب (يقلل الغش الجماعي)</span>
+                </label>
+                <label style="display:flex;align-items:center;gap:10px;font-size:var(--text-sm);cursor:pointer">
+                  <input type="checkbox" ${test.settings.shuffleOpt?'checked':''} onchange="updateTestSetting('${test.id}','shuffleOpt',this.checked)" />
+                  <span>ترتيب عشوائي لخيارات الاختيار من متعدد</span>
+                </label>
+              </div>
+            </div>
+          ` : `
+            <div class="br-panel-body">
+              <div class="br-builder-grid">
+                <div class="br-panel">
+                  <div class="br-panel-head">
+                    <span class="br-panel-title">ترتيب الأسئلة</span>
+                    <button class="br-btn br-btn-subtle br-btn-sm" onclick="addBlankQuestion('${test.id}')">${icon('plus', 13)} سؤال</button>
+                  </div>
+                  <div>
+                    ${test.questions.map((item, idx) => `
+                      <button class="br-q-list-item" aria-current="${idx===state.builderSelectedQ?'true':'false'}" onclick="state.builderSelectedQ=${idx};render()">
+                        <div style="display:flex;justify-content:space-between;font-size:var(--text-xs);color:var(--text-muted)">
+                          <span>سؤال ${idx+1} · ${item.type==='mcq'?'اختيار من متعدد':'مقالي / ورقي'}</span>
+                          <span class="br-num">${item.points} د</span>
+                        </div>
+                        <div style="font-size:var(--text-xs);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(item.prompt.replace(/\$/g,''))}</div>
+                      </button>`).join('')}
+                  </div>
+                </div>
+
+                ${q ? `
+                  <div style="display:flex;flex-direction:column;gap:14px">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+                      <div style="display:flex;align-items:center;gap:8px">
+                        <select class="br-select" style="width:auto" onchange="updateQuestionField('type',this.value)">
+                          <option value="mcq" ${q.type==='mcq'?'selected':''}>اختيار من متعدد (تصحيح تلقائي)</option>
+                          <option value="essay" ${q.type==='essay'?'selected':''}>مقالي / رفع صورة حل ورقي</option>
+                        </select>
+                        <label style="display:inline-flex;align-items:center;gap:6px;font-size:var(--text-xs);color:var(--text-secondary)">
+                          <span>الدرجة:</span>
+                          <input type="number" min="1" max="20" class="br-input br-num" style="width:68px" value="${q.points}" onchange="updateQuestionField('points',Number(this.value))" />
+                        </label>
+                      </div>
+                      <button class="br-btn br-btn-danger-ghost br-btn-sm" onclick="deleteCurrentQuestion()">${icon('trash', 14)} حذف السؤال</button>
+                    </div>
+
+                    <div class="br-field">
+                      <label class="br-label">نص السؤال (يدعم معادلات KaTeX بين علامتي $...$)</label>
+                      <div class="br-math-bar">
+                        <span class="br-cell-sub" style="margin-inline-end:4px">إدراج رمز رياضي:</span>
+                        <button class="br-btn br-btn-subtle br-btn-sm br-bidi-math" onclick="insertMathSnippet('$\\\\int_{0}^{2} x^2\\\\,dx$')">∫₀²</button>
+                        <button class="br-btn br-btn-subtle br-btn-sm br-bidi-math" onclick="insertMathSnippet('$\\\\frac{a}{b}$')">a/b</button>
+                        <button class="br-btn br-btn-subtle br-btn-sm br-bidi-math" onclick="insertMathSnippet('$\\\\sqrt{x}$')">√x</button>
+                        <button class="br-btn br-btn-subtle br-btn-sm br-bidi-math" onclick="insertMathSnippet('$\\\\lim_{x \\\\to 0}$')">lim</button>
+                        <button class="br-btn br-btn-subtle br-btn-sm br-bidi-math" onclick="insertMathSnippet('$\\\\pi$')">π</button>
+                        <button class="br-btn br-btn-subtle br-btn-sm br-bidi-math" onclick="insertMathSnippet('$x^2$')">x²</button>
+                      </div>
+                      <textarea class="br-textarea" id="q-prompt-input" oninput="updateQuestionField('prompt',this.value,true)">${escapeHtml(q.prompt)}</textarea>
+                    </div>
+
+                    <div class="br-field">
+                      <label class="br-label">معاينة KaTeX الحية (كما يراها الطالب)</label>
+                      <div class="br-math-preview" id="q-live-preview">${renderMathText(q.prompt)}</div>
+                    </div>
+
+                    ${q.type === 'mcq' ? `
+                      <div class="br-field">
+                        <label class="br-label">الخيارات (حدد الإجابة الصحيحة)</label>
+                        <div style="display:flex;flex-direction:column;gap:8px">
+                          ${(q.options.length ? q.options : ['','','','']).map((opt, oi) => `
+                            <div style="display:flex;align-items:center;gap:8px">
+                              <input type="radio" name="correctOpt" ${q.answerIdx===oi?'checked':''} onchange="updateQuestionField('answerIdx',${oi})" aria-label="تعيين الخيار ${oi+1} صحيحًا" />
+                              <input class="br-input" value="${escapeHtml(opt)}" oninput="updateQuestionOption(${oi},this.value)" />
+                              <span style="min-width:86px;font-size:var(--text-sm)">${renderMathText(opt)}</span>
+                            </div>`).join('')}
+                        </div>
+                      </div>
+                    ` : ''}
+
+                    <div class="br-field">
+                      <label class="br-label">نموذج الإجابة / خطوات الحل</label>
+                      <textarea class="br-textarea" style="min-height:64px" oninput="updateQuestionField('modelAnswer',this.value,true)">${escapeHtml(q.modelAnswer || '')}</textarea>
+                    </div>
+                  </div>
+                ` : '<div class="br-empty">اختر سؤالًا من القائمة أو أضف سؤالًا من بنك الأسئلة.</div>'}
+              </div>
+            </div>
+          `}
+        </div>`;
+    }
+
+    /* GRADING & QUESTION-LEVEL ITEM ANALYSIS + PAPER SCAN VIEWER */
+    function renderGradingView() {
+      if (state.uiState === 'loading') return renderSkeletonPage();
+      const test = state.tests.find(t => t.id === state.gradingTestId) || state.tests[1];
+      const subs = state.submissions.filter(s => s.testId === test.id);
+      const activeSub = subs.find(s => s.id === state.gradingSubId) || subs[0];
+      const activeStudent = activeSub ? state.students.find(s => s.id === activeSub.studentId) : null;
+      const essayQ = test.questions.find(q => q.type === 'essay') || test.questions[test.questions.length - 1];
+      const analysis = state.itemAnalysis[test.id] || [];
+
+      return `
+        <div class="br-page-head">
+          <h1 class="br-page-title">${T[state.lang].routes.grading}</h1>
+          <div class="br-page-actions">
+            <select class="br-select" style="width:auto" onchange="state.gradingTestId=this.value;render()">
+              ${state.tests.filter(t => t.status==='published').map(t => `<option value="${t.id}" ${t.id===test.id?'selected':''}>${escapeHtml(t.title)}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+
+        <div class="br-panel">
+          <div class="br-tabs" role="tablist">
+            <button class="br-tab" role="tab" aria-selected="${state.gradingTab==='submissions'}" onclick="state.gradingTab='submissions';render()">مراجعة التسليمات (${subs.length})</button>
+            <button class="br-tab" role="tab" aria-selected="${state.gradingTab==='analysis'}" onclick="state.gradingTab='analysis';render()">${icon('chart', 14)} تحليل البنود ونسب الخطأ</button>
+          </div>
+
+          ${state.gradingTab === 'analysis' ? `
+            <div class="br-panel-body" style="display:flex;flex-direction:column;gap:14px">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:12px 14px;background:var(--status-danger-soft);border:1px solid var(--border-subtle);border-radius:var(--radius-md)">
+                <div style="font-size:var(--text-sm)">
+                  <strong>تنبيه تعلّم:</strong> ٣ أسئلة في هذا الاختبار سجلت نسبة إتقان أقل من ٥٠٪ (التكامل اللوغاريتمي، الحجوم الدورانية، إشارة المساحة).
+                </div>
+                <button class="br-btn br-btn-primary br-btn-sm" onclick="createRemedialDraft('${test.id}')">${icon('plus', 14)} إنشاء اختبار علاجي للأسئلة الضعيفة</button>
+              </div>
+
+              <div class="br-table-wrap">
+                <table class="br-table">
+                  <thead><tr><th>السؤال</th><th>نسبة الإجابة الصحيحة</th><th>عدد الأخطاء</th><th>متوسط الزمن</th><th>الخطأ الأكثر شيوعًا</th></tr></thead>
+                  <tbody>
+                    ${analysis.map((row, idx) => {
+                      const qObj = test.questions.find(q => q.id === row.qId);
+                      return `
+                        <tr>
+                          <td class="br-td-primary">
+                            <div class="br-cell-title">س${idx+1}: ${qObj ? renderMathText(qObj.prompt) : ''}</div>
+                          </td>
+                          <td data-label="نسبة الصواب">
+                            <div class="br-bar-wrap">
+                              <div class="br-bar-track"><div class="br-bar-fill" data-tone="${toneOf(row.accuracy)}" style="width:${row.accuracy}%"></div></div>
+                              <strong class="br-num" style="font-size:var(--text-xs);color:var(--status-${toneOf(row.accuracy)})">${row.accuracy}%</strong>
+                            </div>
+                          </td>
+                          <td data-label="الأخطاء" class="br-num">${row.wrongCount} طالب</td>
+                          <td data-label="متوسط الزمن" class="br-num">${row.avgSec} ث</td>
+                          <td data-label="الخطأ الشائع">${renderMathText(row.topWrong)}</td>
+                        </tr>`;
+                    }).join('')}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ` : !activeSub ? `
+            <div class="br-empty">لا توجد تسليمات لهذا الاختبار بعد.</div>
+          ` : `
+            <div class="br-panel-body">
+              <div class="br-builder-grid">
+                <div class="br-panel">
+                  <div class="br-panel-head"><span class="br-panel-title">الطلاب (${subs.length})</span></div>
+                  ${subs.map(s => {
+                    const st = state.students.find(x => x.id === s.studentId);
+                    return `
+                      <button class="br-q-list-item" aria-current="${s.id===activeSub.id?'true':'false'}" onclick="state.gradingSubId='${s.id}';state.scanZoom=1;state.scanRotate=0;render()">
+                        <div style="display:flex;justify-content:space-between;align-items:center">
+                          <strong style="font-size:var(--text-sm)">${escapeHtml(studentName(st))}</strong>
+                          <span class="br-num" style="font-size:var(--text-xs)">${s.mcqScore+s.essayScore}/${s.mcqMax+s.essayMax}</span>
+                        </div>
+                        <span class="br-status" data-tone="${s.status==='graded'?'success':'warning'}">${s.status==='graded'?'معتمد':'بانتظار التصحيح'} · ${s.submittedAt}</span>
+                      </button>`;
+                  }).join('')}
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:14px">
+                  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding-bottom:10px;border-bottom:1px solid var(--border-subtle)">
+                    <div>
+                      <strong style="font-size:var(--text-base)">${escapeHtml(studentName(activeStudent))}</strong>
+                      <div class="br-cell-sub">الاختياري (تلقائي): <strong class="br-num">${activeSub.mcqScore}/${activeSub.mcqMax}</strong> · المقالي: <strong class="br-num">${activeSub.essayScore}/${activeSub.essayMax}</strong></div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px">
+                      <span class="br-cell-sub">درجة السؤال المقالي:</span>
+                      <button class="br-btn br-btn-subtle br-btn-sm" onclick="stepEssayScore('${activeSub.id}', -0.5)">−</button>
+                      <strong class="br-num" style="min-width:44px;text-align:center">${activeSub.essayScore} / ${activeSub.essayMax}</strong>
+                      <button class="br-btn br-btn-subtle br-btn-sm" onclick="stepEssayScore('${activeSub.id}', 0.5)">+</button>
+                      <button class="br-btn br-btn-primary br-btn-sm" onclick="approveGrade('${activeSub.id}')">${icon('check', 14)} اعتماد الدرجة</button>
+                    </div>
+                  </div>
+
+                  <div class="br-math-preview">
+                    <div class="br-cell-sub" style="margin-bottom:4px">السؤال المقالي:</div>
+                    ${renderMathText(essayQ.prompt)}
+                  </div>
+
+                  <!-- PAPER SCAN ZOOM / ROTATE VIEWER -->
+                  <div class="br-panel">
+                    <div class="br-panel-head">
+                      <span class="br-panel-title">صورة الحل الورقي المرفقة</span>
+                      <div style="display:flex;align-items:center;gap:4px">
+                        <button class="br-btn br-btn-subtle br-btn-icon br-btn-sm" onclick="adjustScan(-0.2,0)" title="تصغير">${icon('zoomOut', 14)}</button>
+                        <span class="br-num" style="font-size:var(--text-xs);min-width:40px;text-align:center">${Math.round(state.scanZoom*100)}%</span>
+                        <button class="br-btn br-btn-subtle br-btn-icon br-btn-sm" onclick="adjustScan(0.2,0)" title="تكبير">${icon('zoomIn', 14)}</button>
+                        <button class="br-btn br-btn-subtle br-btn-icon br-btn-sm" onclick="adjustScan(0,90)" title="تدوير 90°">${icon('rotate', 14)}</button>
+                        <button class="br-btn br-btn-ghost br-btn-sm" onclick="state.scanZoom=1;state.scanRotate=0;render()">إعادة ضبط</button>
+                      </div>
+                    </div>
+                    <div class="br-panel-body">
+                      <div class="br-scan-stage">${renderPaperScanSvg()}</div>
+                    </div>
+                  </div>
+
+                  <div class="br-grid-equal">
+                    <div class="br-panel">
+                      <div class="br-panel-head"><span class="br-panel-title">إجابة الطالب النصية</span></div>
+                      <div class="br-panel-body" style="font-size:var(--text-sm)">${renderMathText(activeSub.typedAnswer)}</div>
+                    </div>
+                    <div class="br-panel">
+                      <div class="br-panel-head"><span class="br-panel-title">نموذج الإجابة</span></div>
+                      <div class="br-panel-body" style="font-size:var(--text-sm)">${renderMathText(essayQ.modelAnswer)}</div>
+                    </div>
+                  </div>
+
+                  <div class="br-field">
+                    <label class="br-label">ملاحظة المعلمة للطالب (تظهر في مراجعة ما بعد الاختبار)</label>
+                    <textarea class="br-textarea" style="min-height:60px" oninput="updateSubNote('${activeSub.id}',this.value)">${escapeHtml(activeSub.teacherNote)}</textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `}
+        </div>`;
+    }
+
+    function renderBankView() {
+      if (state.uiState === 'loading') return renderSkeletonPage();
+      return `
+        <div class="br-page-head">
+          <h1 class="br-page-title">${T[state.lang].routes.bank}</h1>
+          <button class="br-btn br-btn-primary" onclick="openNewBankQuestionModal()">${icon('plus', 15)}<span>سؤال جديد للبنك</span></button>
+        </div>
+        <div class="br-panel">
+          <div class="br-table-wrap">
+            <table class="br-table">
+              <thead><tr><th>السؤال</th><th>الوحدة</th><th>النوع</th><th>الصعوبة</th><th>الدرجة</th><th></th></tr></thead>
+              <tbody>
+                ${state.questionBank.map(q => {
+                  const u = UNITS.find(x => x.id === q.unitId);
+                  return `
+                    <tr>
+                      <td class="br-td-primary">
+                        <div>${renderMathText(q.prompt)}</div>
+                        <details style="margin-top:4px;font-size:var(--text-xs);color:var(--text-muted)">
+                          <summary style="cursor:pointer">عرض نموذج الإجابة</summary>
+                          <div style="margin-top:4px;color:var(--text-secondary)">${renderMathText(q.modelAnswer)}</div>
+                        </details>
+                      </td>
+                      <td data-label="الوحدة" class="br-cell-sub">${u ? u.nameAr : '—'}</td>
+                      <td data-label="النوع">${q.type==='mcq'?'اختياري':'مقالي'}</td>
+                      <td data-label="الصعوبة"><span class="br-status" data-tone="${q.diff==='hard'?'danger':q.diff==='medium'?'warning':'success'}">${q.diff==='hard'?'صعب':q.diff==='medium'?'متوسط':'سهل'}</span></td>
+                      <td data-label="الدرجة" class="br-num">${q.points}</td>
+                      <td data-label="إجراء"><div class="br-actions-cell"><button class="br-btn br-btn-subtle br-btn-sm" onclick="insertBankQuestionToActiveTest('${q.id}')">أضف للمسودة</button></div></td>
+                    </tr>`;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>`;
+    }
+
+    function renderMaterialsView() {
+      if (state.uiState === 'loading') return renderSkeletonPage();
+      return `
+        <div class="br-page-head">
+          <h1 class="br-page-title">${T[state.lang].routes.materials}</h1>
+          <button class="br-btn br-btn-primary" onclick="openUploadMaterialModal()">${icon('upload', 15)}<span>رفع مادة</span></button>
+        </div>
+        <div class="br-panel">
+          <div class="br-table-wrap">
+            <table class="br-table">
+              <thead><tr><th>العنوان</th><th>الصف</th><th>النوع</th><th>الحجم / المدة</th><th>آخر تحديث</th></tr></thead>
+              <tbody>
+                ${state.materials.map(m => `
+                  <tr>
+                    <td class="br-td-primary"><div class="br-cell-title">${escapeHtml(m.title)}</div></td>
+                    <td data-label="الصف">${cohortName(m.cohortId)}</td>
+                    <td data-label="النوع">${m.type}</td>
+                    <td data-label="الحجم" class="br-num">${m.size}</td>
+                    <td data-label="التحديث" class="br-cell-sub">${m.updated}</td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>`;
+    }
+
+    function renderStudentsView() {
+      if (state.uiState === 'loading') return renderSkeletonPage();
+      const q = state.searchQuery.trim().toLowerCase();
+      const rows = state.students.filter(s =>
+        (state.classFilter === 'all' || s.cohortId === state.classFilter) &&
+        (!q || s.nameAr.toLowerCase().includes(q) || s.nameEn.toLowerCase().includes(q))
+      );
+      return `
+        <div class="br-page-head">
+          <h1 class="br-page-title">${T[state.lang].routes.students} <span class="br-count">(${rows.length})</span></h1>
+          <div class="br-page-actions">
+            <input class="br-input" style="width:220px" placeholder="تصفية بالاسم..." value="${escapeHtml(state.searchQuery)}" oninput="state.searchQuery=this.value;render()" />
+            <select class="br-select" style="width:auto" onchange="state.classFilter=this.value;render()">
+              <option value="all" ${state.classFilter==='all'?'selected':''}>كل الصفوف</option>
+              ${COHORTS.map(c => `<option value="${c.id}" ${state.classFilter===c.id?'selected':''}>${cohortName(c.id)}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        <div class="br-panel">
+          <div class="br-table-wrap">
+            <table class="br-table">
+              <thead><tr><th>الطالب</th><th>الصف</th><th>الإتقان العام</th><th>آخر اختبار</th><th>آخر نشاط</th><th></th></tr></thead>
+              <tbody>
+                ${rows.map(s => `
+                  <tr>
+                    <td class="br-td-primary"><div class="br-cell-title">${escapeHtml(studentName(s))}</div></td>
+                    <td data-label="الصف">${cohortName(s.cohortId)}</td>
+                    <td data-label="الإتقان">
+                      <div class="br-bar-wrap">
+                        <div class="br-bar-track"><div class="br-bar-fill" data-tone="${toneOf(s.mastery)}" style="width:${s.mastery}%"></div></div>
+                        <span class="br-num" style="font-size:var(--text-xs)">${s.mastery}%</span>
+                      </div>
+                    </td>
+                    <td data-label="آخر اختبار" class="br-num">${s.lastScore}%</td>
+                    <td data-label="آخر نشاط" class="br-cell-sub">${s.lastActiveAr}</td>
+                    <td data-label="إجراء"><div class="br-actions-cell"><button class="br-btn br-btn-subtle br-btn-sm" onclick="openStudentDrawer('${s.id}')">ملف المتابعة</button></div></td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>`;
+    }
+
+    /* =========================================================================
+       10. VIEW RENDERERS — STUDENT WORKSPACE (Dashboard, Active Exam, Review)
+       ========================================================================= */
+    function renderStudentDashboard() {
+      if (state.uiState === 'loading') return renderSkeletonPage();
+      const pubTests = state.tests.filter(t => t.status === 'published');
+      return `
+        <div class="br-page-head">
+          <h1 class="br-page-title">${T[state.lang].routes.s_dashboard}</h1>
+          <span class="br-status" data-tone="success">٣ ثانوي — أ · التفاضل والتكامل</span>
+        </div>
+
+        <section class="br-kpi-grid">
+          <div class="br-kpi"><span class="br-kpi-label">اختبارات متاحة الآن</span><div class="br-kpi-row"><span class="br-kpi-value">${pubTests.length}</span><span class="br-kpi-meta warning">ينتهي قريبًا</span></div></div>
+          <div class="br-kpi"><span class="br-kpi-label">متوسط درجاتك</span><div class="br-kpi-row"><span class="br-kpi-value">68%</span><span class="br-kpi-meta success">+6% هذا الشهر</span></div></div>
+          <div class="br-kpi"><span class="br-kpi-label">الوحدات المكتملة</span><div class="br-kpi-row"><span class="br-kpi-value">2 / 4</span><span class="br-kpi-meta">التكامل المحدد</span></div></div>
+          <div class="br-kpi"><span class="br-kpi-label">ملاحظات المعلمة</span><div class="br-kpi-row"><span class="br-kpi-value">1</span><span class="br-kpi-meta">في مراجعة التكامل</span></div></div>
+        </section>
+
+        <section class="br-panel">
+          <div class="br-panel-head"><h2 class="br-panel-title">الاختبارات القادمة والمصحّحة</h2></div>
+          <div class="br-table-wrap">
+            <table class="br-table">
+              <thead><tr><th>الاختبار</th><th>عدد الأسئلة</th><th>المدة</th><th>الحالة</th><th></th></tr></thead>
+              <tbody>
+                <tr>
+                  <td class="br-td-primary"><div class="br-cell-title">اختبار الوحدة الثانية: التكامل المحدد</div><div class="br-cell-sub">متاح حتى ٢٥ نوفمبر · محاولة واحدة</div></td>
+                  <td data-label="الأسئلة" class="br-num">4</td>
+                  <td data-label="المدة" class="br-num">25 دقيقة</td>
+                  <td data-label="الحالة"><span class="br-status" data-tone="warning">متاح للبدء</span></td>
+                  <td data-label="إجراء"><div class="br-actions-cell"><button class="br-btn br-btn-primary br-btn-sm" onclick="startStudentExam('t_pub_1')">ابدأ الاختبار</button></div></td>
+                </tr>
+                <tr>
+                  <td class="br-td-primary"><div class="br-cell-title">اختبار قواعد الاشتقاق والنهايات</div><div class="br-cell-sub">تم التصحيح والاعتماد · 11 / 13</div></td>
+                  <td data-label="الأسئلة" class="br-num">4</td>
+                  <td data-label="المدة" class="br-num">20 دقيقة</td>
+                  <td data-label="الحالة"><span class="br-status" data-tone="success">مصحّح (85%)</span></td>
+                  <td data-label="إجراء"><div class="br-actions-cell"><button class="br-btn br-btn-subtle br-btn-sm" onclick="navigate('s_review')">مراجعة الإجابات</button></div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>`;
+    }
+
+    function renderStudentActiveExam() {
+      const test = state.tests.find(t => t.id === state.studentExamId) || state.tests[1];
+      const q = test.questions[state.examIdx] || test.questions[0];
+      const mins = String(Math.floor(state.examSecondsLeft / 60)).padStart(2, '0');
+      const secs = String(state.examSecondsLeft % 60).padStart(2, '0');
+
+      return `
+        <div class="br-builder-sticky">
+          <div>
+            <strong>${escapeHtml(test.title)}</strong>
+            <div class="br-cell-sub">سؤال ${state.examIdx + 1} من ${test.questions.length} · ${q.points} درجات</div>
+          </div>
+          <div class="br-page-actions">
+            <span class="br-btn br-btn-subtle br-btn-sm br-num" id="exam-clock">${icon('clock', 14)} ${mins}:${secs}</span>
+            <button class="br-btn br-btn-secondary br-btn-sm" onclick="exitStudentExam()">خروج</button>
+            <button class="br-btn br-btn-primary br-btn-sm" onclick="openSubmitExamModal()">تسليم الاختبار</button>
+          </div>
+        </div>
+
+        <div class="br-exam-grid">
+          <div class="br-panel">
+            <div class="br-panel-head">
+              <span class="br-panel-title">سؤال ${state.examIdx + 1}</span>
+              <button class="br-btn br-btn-ghost br-btn-sm" onclick="toggleExamFlag('${q.id}')">
+                ${icon('flag', 14)} <span>${state.examFlags[q.id] ? 'تم التعليم للمراجعة' : 'علّم للمراجعة'}</span>
+              </button>
+            </div>
+            <div class="br-panel-body" style="display:flex;flex-direction:column;gap:16px">
+              <div style="font-size:var(--text-lg);line-height:1.75">${renderMathText(q.prompt)}</div>
+
+              ${q.type === 'mcq' ? `
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  ${q.options.map((opt, oi) => `
+                    <button class="br-option-card ${state.examAnswers[q.id]===oi?'selected':''}" onclick="state.examAnswers['${q.id}']=${oi};render()">
+                      <strong class="br-num" style="width:24px;height:24px;border-radius:4px;background:var(--bg-elevated);display:grid;place-items:center;font-size:var(--text-xs)">${['أ','ب','ج','د'][oi]}</strong>
+                      <span>${renderMathText(opt)}</span>
+                    </button>`).join('')}
+                </div>
+              ` : `
+                <div class="br-field">
+                  <label class="br-label">اكتب خطوات الحل أو ارفع صورة ورقة الحل</label>
+                  <textarea class="br-textarea" placeholder="اكتب إجابتك هنا..." oninput="state.examAnswers['${q.id}']=this.value">${escapeHtml(state.examAnswers[q.id] || '')}</textarea>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px dashed var(--border-strong);border-radius:var(--radius-md);background:var(--bg-inset)">
+                  <span class="br-cell-sub">${state.examUploadedPhoto ? 'تم إرفاق: math_solution_page1.jpg (1.2 MB)' : 'يمكنك تصوير خطوات الحل بالكاميرا وإرفاقها للمعلمة'}</span>
+                  <button class="br-btn br-btn-subtle br-btn-sm" onclick="state.examUploadedPhoto=!state.examUploadedPhoto;state.examAnswers['${q.id}']=state.examAnswers['${q.id}']||'مرفق صورة حل';showToast(state.examUploadedPhoto?'تم إرفاق صورة الحل':'تمت إزالة الصورة');render()">${icon('upload', 14)} ${state.examUploadedPhoto?'إزالة الصورة':'إرفاق صورة الحل'}</button>
+                </div>
+              `}
+
+              <div style="display:flex;justify-content:space-between;padding-top:12px;border-top:1px solid var(--border-subtle)">
+                <button class="br-btn br-btn-secondary" ${state.examIdx===0?'disabled':''} onclick="state.examIdx--;render()">السابق</button>
+                <button class="br-btn br-btn-primary" onclick="${state.examIdx < test.questions.length - 1 ? 'state.examIdx++;render()' : 'openSubmitExamModal()'}">${state.examIdx < test.questions.length - 1 ? 'التالي' : 'مراجعة وتسليم'}</button>
+              </div>
+            </div>
+          </div>
+
+          <aside class="br-panel">
+            <div class="br-panel-head"><span class="br-panel-title">خريطة الأسئلة</span></div>
+            <div class="br-panel-body" style="display:flex;flex-direction:column;gap:12px">
+              <div class="br-q-nav-grid">
+                ${test.questions.map((item, i) => `
+                  <button class="br-q-dot ${i===state.examIdx?'current':''} ${state.examAnswers[item.id]!==undefined && state.examAnswers[item.id]!==''?'answered':''} ${state.examFlags[item.id]?'flagged':''}" onclick="state.examIdx=${i};render()">${i+1}</button>
+                `).join('')}
+              </div>
+              <div class="br-cell-sub" style="display:flex;flex-direction:column;gap:4px">
+                <span class="br-status" data-tone="success">تمت الإجابة: ${Object.keys(state.examAnswers).filter(k=>state.examAnswers[k]!==''&&state.examAnswers[k]!==undefined).length} / ${test.questions.length}</span>
+                <span class="br-status" data-tone="warning">معلّم للمراجعة: ${Object.values(state.examFlags).filter(Boolean).length}</span>
+              </div>
+            </div>
+          </aside>
+        </div>`;
+    }
+
+    function renderStudentPostExamReview() {
+      const test = state.tests.find(t => t.id === 't_pub_1');
+      const sub = state.submissions[0];
+      return `
+        <div class="br-page-head">
+          <div>
+            <h1 class="br-page-title">مراجعة الاختبار المصحّح</h1>
+            <div class="br-cell-sub">${escapeHtml(test.title)} · الدرجة النهائية: <strong class="br-num">${sub.mcqScore + sub.essayScore} / ${sub.mcqMax + sub.essayMax}</strong></div>
+          </div>
+          <button class="br-btn br-btn-secondary" onclick="navigate('s_dashboard')">العودة للوحة الطالب</button>
+        </div>
+
+        <div class="br-panel" style="border-inline-start:3px solid var(--brand-maroon)">
+          <div class="br-panel-body">
+            <div style="font-size:var(--text-xs);font-weight:600;color:var(--text-muted);margin-bottom:4px">ملاحظة أ. منى عبد الرحمن:</div>
+            <div style="font-size:var(--text-sm)">${renderMathText(sub.teacherNote || 'أداء جيد، راجع خطوات المساحات تحت محور السينات.')}</div>
+          </div>
+        </div>
+
+        ${test.questions.map((q, idx) => {
+          const isCorrect = idx !== 1 && idx !== 3;
+          return `
+            <article class="br-panel">
+              <div class="br-panel-head">
+                <span class="br-panel-title">سؤال ${idx+1} · ${q.type==='mcq'?'اختيار من متعدد':'مقالي + ورقة حل'}</span>
+                <span class="br-status" data-tone="${idx===3?'warning':isCorrect?'success':'danger'}">${idx===3?`${sub.essayScore}/${sub.essayMax} درجة جزئية`:isCorrect?`${q.points}/${q.points} صحيح`:`0/${q.points} خطأ`}</span>
+              </div>
+              <div class="br-panel-body" style="display:flex;flex-direction:column;gap:10px">
+                <div>${renderMathText(q.prompt)}</div>
+                ${q.type==='mcq' ? `
+                  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px">
+                    ${q.options.map((opt, oi) => `
+                      <div class="br-option-card ${oi===q.answerIdx?'correct':(!isCorrect && oi===1?'wrong':'')}" style="cursor:default">
+                        <span>${renderMathText(opt)}</span>
+                      </div>`).join('')}
+                  </div>
+                ` : `<div class="br-scan-stage" style="height:230px">${renderPaperScanSvg()}</div>`}
+                <div class="br-math-preview" style="font-size:var(--text-sm)"><strong>الشرح النموذجي:</strong> ${renderMathText(q.modelAnswer)}</div>
+              </div>
+            </article>`;
+        }).join('')}`;
+    }
+
+    /* =========================================================================
+       11. OVERLAYS — Command Palette, Bank Picker, Student Drawer, Notifications
+       ========================================================================= */
+    const backdrop = document.getElementById('overlay-backdrop');
+    function openOverlay(html, isDrawer = false) {
+      backdrop.className = `br-backdrop open ${isDrawer ? 'drawer-mode' : ''}`;
+      backdrop.innerHTML = html;
+      const firstInput = backdrop.querySelector('input, textarea, button');
+      if (firstInput) firstInput.focus();
+    }
+    function closeOverlay() {
+      backdrop.className = 'br-backdrop';
+      backdrop.innerHTML = '';
+    }
+    backdrop.addEventListener('click', e => { if (e.target === backdrop) closeOverlay(); });
+
+    function openCommandPalette() {
+      openOverlay(`
+        <div class="br-modal" style="max-width:580px">
+          <div style="display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--border-subtle)">
+            ${icon('search', 16)}
+            <input class="br-input" style="border:0;background:transparent;height:30px;padding:0" id="cmd-input" placeholder="ابحث عن طالب، اختبار، أو انتقل لصفحة..." oninput="renderCmdResults(this.value)" />
+            <button class="br-btn br-btn-ghost br-btn-icon br-btn-sm" onclick="closeOverlay()">${icon('x', 15)}</button>
+          </div>
+          <div class="br-modal-body" id="cmd-results" style="padding:8px;max-height:360px"></div>
+          <div class="br-modal-foot" style="font-size:var(--text-xs);color:var(--text-muted)">
+            <span>↑↓ للتنقل · ↵ للفتح · Esc للإغلاق</span>
+            <span>BRIDGIO Command</span>
+          </div>
+        </div>`);
+      renderCmdResults('');
+    }
+
+    function renderCmdResults(query) {
+      const q = query.trim().toLowerCase();
+      const items = [
+        ...state.tests.map(t => ({ group: 'الاختبارات', label: t.title, sub: cohortName(t.cohortId), run: () => { openBuilder(t.id); closeOverlay(); } })),
+        ...state.students.slice(0, 12).map(s => ({ group: 'الطلاب', label: studentName(s), sub: `${cohortName(s.cohortId)} · إتقان ${s.mastery}%`, run: () => { closeOverlay(); openStudentDrawer(s.id); } })),
+        { group: 'التنقل السريع', label: 'تحليل البنود ونسب الخطأ', sub: 'التصحيح والتحليل', run: () => { state.gradingTab='analysis'; navigate('grading'); closeOverlay(); } },
+        { group: 'التنقل السريع', label: 'معاينة الاختبار كطالب', sub: 'الوضع الخالي من التشتيت', run: () => { closeOverlay(); startStudentExam('t_pub_1'); } }
+      ].filter(x => !q || x.label.toLowerCase().includes(q) || x.sub.toLowerCase().includes(q));
+
+      window.__cmdItems = items;
+      document.getElementById('cmd-results').innerHTML = items.length ? items.slice(0, 10).map((it, i) => `
+        <button class="br-nav-item" style="height:40px;justify-content:space-between" onclick="window.__cmdItems[${i}].run()">
+          <span style="font-weight:500">${escapeHtml(it.label)}</span>
+          <span class="br-cell-sub">${escapeHtml(it.group)} · ${escapeHtml(it.sub)}</span>
+        </button>`).join('') : `<div class="br-empty" style="padding:24px">لا توجد نتائج مطابقة.</div>`;
+    }
+
+    /* QUESTION BANK -> EXAM BUILDER SLIDE-OVER PICKER */
+    function openBankPickerDrawer() {
+      const test = state.tests.find(t => t.id === state.builderTestId);
+      const existingIds = new Set(test.questions.map(q => q.bankId));
+      openOverlay(`
+        <div class="br-drawer">
+          <div class="br-panel-head">
+            <h2 class="br-panel-title">إضافة أسئلة من بنك الأسئلة</h2>
+            <button class="br-btn br-btn-ghost br-btn-icon br-btn-sm" onclick="closeOverlay()">${icon('x', 15)}</button>
+          </div>
+          <div class="br-drawer-body">
+            ${state.questionBank.map(q => {
+              const added = existingIds.has(q.id);
+              const u = UNITS.find(x => x.id === q.unitId);
+              return `
+                <div class="br-panel" style="padding:12px;display:flex;flex-direction:column;gap:8px">
+                  <div style="display:flex;justify-content:space-between;font-size:var(--text-xs);color:var(--text-muted)">
+                    <span>${u?u.nameAr:''} · ${q.type==='mcq'?'اختياري':'مقالي'} · ${q.points} د</span>
+                    <span class="br-status" data-tone="${q.diff==='hard'?'danger':q.diff==='medium'?'warning':'success'}">${q.diff==='hard'?'صعب':q.diff==='medium'?'متوسط':'سهل'}</span>
+                  </div>
+                  <div style="font-size:var(--text-sm)">${renderMathText(q.prompt)}</div>
+                  <div style="display:flex;justify-content:flex-end">
+                    <button class="br-btn ${added?'br-btn-subtle':'br-btn-primary'} br-btn-sm" ${added?'disabled':''} onclick="insertBankQuestionToActiveTest('${q.id}', true)">
+                      ${added ? 'مضاف بالفعل' : '+ إدراج في الاختبار'}
+                    </button>
+                  </div>
+                </div>`;
+            }).join('')}
+          </div>
+          <div class="br-drawer-foot">
+            <span class="br-cell-sub">الإجمالي في الاختبار: ${test.questions.length} أسئلة</span>
+            <button class="br-btn br-btn-secondary br-btn-sm" onclick="closeOverlay()">إغلاق</button>
+          </div>
+        </div>`, true);
+    }
+
+    function openStudentDrawer(studentId) {
+      const s = state.students.find(x => x.id === studentId);
+      if (!s) return;
+      openOverlay(`
+        <div class="br-drawer">
+          <div class="br-panel-head">
+            <div>
+              <h2 class="br-panel-title">${escapeHtml(studentName(s))}</h2>
+              <div class="br-cell-sub">${cohortName(s.cohortId)} · آخر نشاط ${s.lastActiveAr}</div>
+            </div>
+            <button class="br-btn br-btn-ghost br-btn-icon br-btn-sm" onclick="closeOverlay()">${icon('x', 15)}</button>
+          </div>
+          <div class="br-drawer-body">
+            <div class="br-grid-equal">
+              <div class="br-kpi"><span class="br-kpi-label">الإتقان العام</span><span class="br-kpi-value">${s.mastery}%</span></div>
+              <div class="br-kpi"><span class="br-kpi-label">آخر درجة</span><span class="br-kpi-value">${s.lastScore}%</span></div>
+            </div>
+            <div class="br-panel">
+              <div class="br-panel-head"><span class="br-panel-title">تطور آخر ٣ اختبارات</span></div>
+              <div class="br-panel-body" style="display:flex;align-items:flex-end;gap:14px;height:110px">
+                ${s.scores.map((sc, i) => `
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">
+                    <span class="br-num" style="font-size:var(--text-xs);font-weight:600">${sc}%</span>
+                    <div style="width:100%;height:${Math.round(sc*0.58)}px;background:var(--brand-maroon);border-radius:4px 4px 0 0"></div>
+                    <span class="br-cell-sub">اختبار ${i+1}</span>
+                  </div>`).join('')}
+              </div>
+            </div>
+            <div class="br-field">
+              <label class="br-label">إرسال رسالة متابعة للطالب / ولي الأمر</label>
+              <textarea class="br-textarea" id="student-note-input" placeholder="مثال: يرجى مراجعة تمارين التكامل المحدد قبل حصة الثلاثاء..."></textarea>
+            </div>
+            ${s.notes.length ? `<div class="br-panel"><div class="br-panel-head"><span class="br-panel-title">الملاحظات السابقة</span></div><div class="br-panel-body">${s.notes.map(n=>`<div style="font-size:var(--text-sm);padding-bottom:6px">${escapeHtml(n)}</div>`).join('')}</div></div>` : ''}
+          </div>
+          <div class="br-drawer-foot">
+            <button class="br-btn br-btn-secondary br-btn-sm" onclick="closeOverlay()">إغلاق</button>
+            <button class="br-btn br-btn-primary br-btn-sm" onclick="sendStudentNote('${s.id}')">إرسال المتابعة</button>
+          </div>
+        </div>`, true);
+    }
+
+    function openNotificationsDrawer() {
+      state.notifications.forEach(n => n.unread = false);
+      renderChrome();
+      openOverlay(`
+        <div class="br-drawer">
+          <div class="br-panel-head">
+            <h2 class="br-panel-title">الإشعارات</h2>
+            <button class="br-btn br-btn-ghost br-btn-icon br-btn-sm" onclick="closeOverlay()">${icon('x', 15)}</button>
+          </div>
+          <div class="br-drawer-body">
+            ${state.notifications.map((n, i) => `
+              <button class="br-panel" style="padding:12px;text-align:start;cursor:pointer;border-color:var(--border-subtle)" onclick="closeOverlay();state.notifications[${i}].action()">
+                <div style="font-size:var(--text-sm);margin-bottom:4px">${escapeHtml(n.text)}</div>
+                <div class="br-cell-sub">${n.time}</div>
+              </button>`).join('')}
+          </div>
+        </div>`, true);
+    }
+
+    function openSubmitExamModal() {
+      const test = state.tests.find(t => t.id === state.studentExamId);
+      const answered = Object.keys(state.examAnswers).filter(k => state.examAnswers[k] !== '' && state.examAnswers[k] !== undefined).length;
+      openOverlay(`
+        <div class="br-modal" style="max-width:440px">
+          <div class="br-panel-head"><h2 class="br-panel-title">تأكيد تسليم الاختبار</h2></div>
+          <div class="br-modal-body">
+            <div style="font-size:var(--text-sm)">أجبت على <strong class="br-num">${answered}</strong> من أصل <strong class="br-num">${test.questions.length}</strong> أسئلة. بعد التسليم سيتم عرض نتيجة التصحيح والمراجعة.</div>
+          </div>
+          <div class="br-modal-foot">
+            <button class="br-btn br-btn-secondary br-btn-sm" onclick="closeOverlay()">مراجعة الإجابات</button>
+            <button class="br-btn br-btn-primary br-btn-sm" onclick="closeOverlay();showToast('تم تسليم الاختبار بنجاح');navigate('s_review')">تأكيد التسليم</button>
+          </div>
+        </div>`);
+    }
+
+    function openNewBankQuestionModal() {
+      openOverlay(`
+        <div class="br-modal">
+          <div class="br-panel-head"><h2 class="br-panel-title">إضافة سؤال لبنك الأسئلة</h2><button class="br-btn br-btn-ghost br-btn-icon br-btn-sm" onclick="closeOverlay()">${icon('x',15)}</button></div>
+          <div class="br-modal-body">
+            <div class="br-field"><label class="br-label">نص السؤال (يدعم $KaTeX$)</label><textarea class="br-textarea" id="nb-prompt" placeholder="أوجد مشتقة $f(x) = \\ln(3x^2)$"></textarea></div>
+            <div class="br-grid-equal">
+              <div class="br-field"><label class="br-label">الوحدة</label><select class="br-select" id="nb-unit">${UNITS.map(u=>`<option value="${u.id}">${u.nameAr}</option>`).join('')}</select></div>
+              <div class="br-field"><label class="br-label">الدرجة</label><input type="number" class="br-input br-num" id="nb-pts" value="2" min="1" max="20" /></div>
+            </div>
+            <div class="br-field"><label class="br-label">نموذج الإجابة</label><input class="br-input" id="nb-model" placeholder="$f'(x) = \\frac{2}{x}$" /></div>
+          </div>
+          <div class="br-modal-foot">
+            <button class="br-btn br-btn-secondary br-btn-sm" onclick="closeOverlay()">إلغاء</button>
+            <button class="br-btn br-btn-primary br-btn-sm" onclick="saveNewBankQuestion()">حفظ في البنك</button>
+          </div>
+        </div>`);
+    }
+
+    function openUploadMaterialModal() {
+      openOverlay(`
+        <div class="br-modal" style="max-width:460px">
+          <div class="br-panel-head"><h2 class="br-panel-title">رفع مادة تعليمية</h2><button class="br-btn br-btn-ghost br-btn-icon br-btn-sm" onclick="closeOverlay()">${icon('x',15)}</button></div>
+          <div class="br-modal-body">
+            <div class="br-field"><label class="br-label">عنوان المادة</label><input class="br-input" id="mat-title" placeholder="مراجعة ليلة الامتحان — الوحدة الثالثة" /></div>
+            <div class="br-field"><label class="br-label">الصف</label><select class="br-select" id="mat-cohort">${COHORTS.map(c=>`<option value="${c.id}">${cohortName(c.id)}</option>`).join('')}</select></div>
+          </div>
+          <div class="br-modal-foot">
+            <button class="br-btn br-btn-secondary br-btn-sm" onclick="closeOverlay()">إلغاء</button>
+            <button class="br-btn br-btn-primary br-btn-sm" onclick="saveMaterial()">رفع وإتاحة للطلاب</button>
+          </div>
+        </div>`);
+    }
+
+    /* =========================================================================
+       12. ACTIONS & STATE MUTATIONS
+       ========================================================================= */
+    let autosaveTimer = null;
+    function markAutoSave() {
+      state.builderSaveState = 'saving';
+      const ind = document.getElementById('save-indicator');
+      if (ind) ind.textContent = 'جارٍ الحفظ...';
+      clearTimeout(autosaveTimer);
+      autosaveTimer = setTimeout(() => {
+        state.builderSaveState = 'saved';
+        const ind2 = document.getElementById('save-indicator');
+        if (ind2) ind2.textContent = 'تم الحفظ تلقائيًا';
+      }, 450);
+    }
+
+    function createNewDraft() {
+      const id = 't_' + Date.now();
+      state.tests.unshift({
+        id, title: 'اختبار جديد — مسودة', cohortId: state.classFilter==='all'?'c_a':state.classFilter,
+        status: 'draft', updatedAr: 'الآن',
+        settings: { duration: 25, attempts: 1, shuffleQ: true, shuffleOpt: true, release: 'manual', startWindow: '2026-11-23T09:00', endWindow: '2026-11-26T22:00' },
+        questions: [{ id: 'q_' + Date.now(), type: 'mcq', points: 2, prompt: 'أوجد قيمة $\\int_{0}^{1} 2x\\,dx$', options: ['$1$', '$2$', '$0$', '$4$'], answerIdx: 0, modelAnswer: '$[x^2]_0^1 = 1$' }]
+      });
+      openBuilder(id);
+      showToast('تم إنشاء مسودة اختبار جديدة');
+    }
+
+    function createRemedialDraft(sourceTestId) {
+      const src = state.tests.find(t => t.id === sourceTestId);
+      const weakIds = (state.itemAnalysis[sourceTestId] || []).filter(x => x.accuracy < 60).map(x => x.qId);
+      const weakQs = src.questions.filter(q => weakIds.includes(q.id)).map(q => ({ ...q, id: 'rem_' + q.id + '_' + Date.now() }));
+      const id = 't_rem_' + Date.now();
+      state.tests.unshift({
+        id, title: `اختبار علاجي — ${src.title}`, cohortId: src.cohortId, status: 'draft', updatedAr: 'الآن',
+        settings: { ...src.settings }, questions: weakQs.length ? weakQs : [src.questions[0]]
+      });
+      openBuilder(id);
+      showToast(`تم توليد اختبار علاجي من ${weakQs.length} أسئلة منخفضة الإتقان`);
+    }
+
+    function openBuilder(testId) {
+      state.role = 'teacher';
+      state.builderTestId = testId;
+      state.builderTab = 'questions';
+      state.builderSelectedQ = 0;
+      navigate('builder');
+    }
+
+    function publishTest(testId) {
+      const t = state.tests.find(x => x.id === testId);
+      if (t) { t.status = 'published'; t.updatedAr = 'الآن'; showToast(`تم نشر «${t.title}»`); render(); }
+    }
+
+    function updateTestField(testId, key, val) {
+      const t = state.tests.find(x => x.id === testId);
+      if (t) { t[key] = val; markAutoSave(); }
+    }
+
+    function updateTestSetting(testId, key, val) {
+      const t = state.tests.find(x => x.id === testId);
+      if (t) { t.settings[key] = val; markAutoSave(); }
+    }
+
+    function addBlankQuestion(testId) {
+      const t = state.tests.find(x => x.id === testId);
+      t.questions.push({ id: 'q_' + Date.now(), type: 'mcq', points: 2, prompt: 'اكتب نص السؤال مع معادلة مثل $x^2 + 1$', options: ['$1$', '$2$', '$3$', '$4$'], answerIdx: 0, modelAnswer: '' });
+      state.builderSelectedQ = t.questions.length - 1;
+      markAutoSave(); render();
+    }
+
+    function updateQuestionField(field, val, liveOnly = false) {
+      const t = state.tests.find(x => x.id === state.builderTestId);
+      const q = t.questions[state.builderSelectedQ];
+      q[field] = val;
+      markAutoSave();
+      if (liveOnly) {
+        if (field === 'prompt') {
+          const prev = document.getElementById('q-live-preview');
+          if (prev) prev.innerHTML = renderMathText(val);
+        }
+      } else {
+        render();
+      }
+    }
+
+    function updateQuestionOption(optIdx, val) {
+      const t = state.tests.find(x => x.id === state.builderTestId);
+      t.questions[state.builderSelectedQ].options[optIdx] = val;
+      markAutoSave();
+    }
+
+    function insertMathSnippet(snippet) {
+      const ta = document.getElementById('q-prompt-input');
+      if (!ta) return;
+      const start = ta.selectionStart, end = ta.selectionEnd;
+      const next = ta.value.slice(0, start) + ' ' + snippet + ' ' + ta.value.slice(end);
+      ta.value = next;
+      updateQuestionField('prompt', next, true);
+      ta.focus();
+    }
+
+    function deleteCurrentQuestion() {
+      const t = state.tests.find(x => x.id === state.builderTestId);
+      if (t.questions.length <= 1) return showToast('يجب أن يحتوي الاختبار على سؤال واحد على الأقل');
+      t.questions.splice(state.builderSelectedQ, 1);
+      state.builderSelectedQ = Math.max(0, state.builderSelectedQ - 1);
+      markAutoSave(); render();
+    }
+
+    function insertBankQuestionToActiveTest(bankId, keepDrawer = false) {
+      const bq = state.questionBank.find(x => x.id === bankId);
+      const t = state.tests.find(x => x.id === state.builderTestId) || state.tests[0];
+      t.questions.push({ ...JSON.parse(JSON.stringify(bq)), id: 'q_' + Date.now(), bankId: bq.id });
+      state.builderSelectedQ = t.questions.length - 1;
+      markAutoSave();
+      showToast('تم إدراج السؤال في الاختبار');
+      render();
+      if (keepDrawer) openBankPickerDrawer();
+    }
+
+    function adjustScan(dZoom, dRot) {
+      state.scanZoom = Math.min(2.2, Math.max(0.7, +(state.scanZoom + dZoom).toFixed(2)));
+      state.scanRotate = (state.scanRotate + dRot) % 360;
+      render();
+    }
+
+    function stepEssayScore(subId, delta) {
+      const sub = state.submissions.find(x => x.id === subId);
+      sub.essayScore = Math.min(sub.essayMax, Math.max(0, +(sub.essayScore + delta).toFixed(1)));
+      render();
+    }
+
+    function updateSubNote(subId, val) {
+      const sub = state.submissions.find(x => x.id === subId);
+      if (sub) sub.teacherNote = val;
+    }
+
+    function approveGrade(subId) {
+      const sub = state.submissions.find(x => x.id === subId);
+      if (sub) { sub.status = 'graded'; showToast('تم اعتماد الدرجة وإرسال إشعار للطالب'); render(); }
+    }
+
+    function sendStudentNote(studentId) {
+      const input = document.getElementById('student-note-input');
+      const val = input.value.trim();
+      if (!val) return;
+      state.students.find(s => s.id === studentId).notes.unshift(val);
+      showToast('تم إرسال رسالة المتابعة');
+      closeOverlay();
+    }
+
+    function saveNewBankQuestion() {
+      const prompt = document.getElementById('nb-prompt').value.trim();
+      if (!prompt) return;
+      state.questionBank.unshift({
+        id: 'qb_' + Date.now(), unitId: document.getElementById('nb-unit').value,
+        type: 'essay', diff: 'medium', points: Number(document.getElementById('nb-pts').value) || 2,
+        prompt, options: [], answerIdx: -1, modelAnswer: document.getElementById('nb-model').value.trim()
+      });
+      closeOverlay(); showToast('تمت إضافة السؤال لبنك الأسئلة'); render();
+    }
+
+    function saveMaterial() {
+      const title = document.getElementById('mat-title').value.trim();
+      if (!title) return;
+      state.materials.unshift({ id: 'm_' + Date.now(), title, cohortId: document.getElementById('mat-cohort').value, type: 'PDF', size: '1.8 MB', updated: 'الآن' });
+      closeOverlay(); showToast('تم رفع المادة التعليمية'); render();
+    }
+
+    function startStudentExam(testId) {
+      state.role = 'student';
+      state.studentExamId = testId;
+      state.examIdx = 0;
+      state.examSecondsLeft = (state.tests.find(t => t.id === testId)?.settings.duration || 25) * 60;
+      navigate('s_exam');
+      state.examTimerId = setInterval(() => {
+        state.examSecondsLeft = Math.max(0, state.examSecondsLeft - 1);
+        const clk = document.getElementById('exam-clock');
+        if (clk) {
+          const m = String(Math.floor(state.examSecondsLeft / 60)).padStart(2, '0');
+          const s = String(state.examSecondsLeft % 60).padStart(2, '0');
+          clk.innerHTML = `${icon('clock', 14)} ${m}:${s}`;
+        }
+      }, 1000);
+    }
+
+    function exitStudentExam() {
+      if (state.examTimerId) { clearInterval(state.examTimerId); state.examTimerId = null; }
+      navigate('s_dashboard');
+    }
+
+    function toggleExamFlag(qId) {
+      state.examFlags[qId] = !state.examFlags[qId];
+      render();
+    }
+
+    /* =========================================================================
+       13. SHELL CHROME & MASTER RENDER
+       ========================================================================= */
+    function renderChrome() {
+      const dict = T[state.lang];
+      const shell = document.getElementById('app-shell');
+      shell.dataset.collapsed = String(state.collapsed);
+      shell.dataset.focusMode = String(state.route === 's_exam');
+
+      document.documentElement.lang = state.lang;
+      document.documentElement.dir = state.lang === 'ar' ? 'rtl' : 'ltr';
+      document.documentElement.dataset.theme = state.theme;
+
+      document.getElementById('skip-link').textContent = dict.skip;
+      document.getElementById('search-placeholder').textContent = dict.searchPlaceholder;
+      document.getElementById('search-icon-slot').innerHTML = icon('search', 15);
+      document.getElementById('btn-collapse').innerHTML = icon('panelLeft', 16);
+      document.getElementById('btn-mobile-menu').innerHTML = icon('menu', 18);
+      document.getElementById('btn-theme').innerHTML = icon(state.theme === 'dark' ? 'sun' : 'moon', 16);
+      document.getElementById('btn-lang').textContent = state.lang === 'ar' ? 'EN' : 'عربي';
+
+      const unreadCount = state.notifications.filter(n => n.unread).length;
+      document.getElementById('btn-notifications').innerHTML = icon('bell', 16) + (unreadCount ? '<span class="br-dot-badge"></span>' : '');
+
+      document.querySelectorAll('#role-switcher .br-seg-btn').forEach(b => {
+        b.setAttribute('aria-pressed', String(b.dataset.role === state.role));
+        b.textContent = b.dataset.role === 'teacher' ? dict.teacherRole : dict.studentRole;
+      });
+      document.querySelectorAll('#state-switcher .br-seg-btn').forEach(b => {
+        b.setAttribute('aria-pressed', String(b.dataset.uistate === state.uiState));
+      });
+
+      const pendingCount = state.submissions.filter(s => s.status === 'pending').length;
+      const navEl = document.getElementById('sidebar-nav');
+      if (state.role === 'teacher') {
+        const g1 = [
+          { id: 'dashboard', ic: 'home' },
+          { id: 'classes', ic: 'classes', badge: COHORTS.length },
+          { id: 'tests', ic: 'tests', badge: state.tests.length },
+          { id: 'builder', ic: 'sliders' },
+          { id: 'grading', ic: 'grading', badge: pendingCount || null }
+        ];
+        const g2 = [
+          { id: 'bank', ic: 'bank', badge: state.questionBank.length },
+          { id: 'materials', ic: 'materials' },
+          { id: 'students', ic: 'students', badge: state.students.length }
+        ];
+        navEl.innerHTML = `
+          <div><div class="br-nav-group-label">${dict.navGroups.teaching}</div><ul class="br-nav-list">${g1.map(navItemHtml).join('')}</ul></div>
+          <div><div class="br-nav-group-label">${dict.navGroups.content}</div><ul class="br-nav-list">${g2.map(navItemHtml).join('')}</ul></div>`;
+      } else {
+        const gs = [
+          { id: 's_dashboard', ic: 'home' },
+          { id: 's_exam', ic: 'tests' },
+          { id: 's_review', ic: 'grading' }
+        ];
+        navEl.innerHTML = `<div><div class="br-nav-group-label">${dict.navGroups.student}</div><ul class="br-nav-list">${gs.map(navItemHtml).join('')}</ul></div>`;
+      }
+
+      document.getElementById('sidebar-footer').innerHTML = `
+        <div class="br-avatar">${state.role==='teacher'?'م ع':'ع خ'}</div>
+        <div class="br-user-meta">
+          <div class="br-user-name">${state.role==='teacher'?dict.teacherName:dict.studentName}</div>
+          <div class="br-user-role">${state.role==='teacher'?dict.teacherSub:dict.studentSub}</div>
+        </div>`;
+
+      document.getElementById('breadcrumb').innerHTML = `
+        <span>BRIDGIO</span><span>/</span><strong>${dict.routes[state.route] || ''}</strong>`;
+    }
+
+    function navItemHtml(item) {
+      const label = T[state.lang].routes[item.id];
+      return `<li><button class="br-nav-item" aria-current="${state.route===item.id?'page':'false'}" title="${label}" onclick="${item.id==='s_exam'?"startStudentExam('t_pub_1')":`navigate('${item.id}')`}">
+        ${icon(item.ic, 16)}
+        <span class="br-sidebar-text">${label}</span>
+        ${item.badge ? `<span class="br-nav-badge">${item.badge}</span>` : ''}
+      </button></li>`;
+    }
+
+    function render() {
+      renderChrome();
+      const map = {
+        dashboard: renderTeacherDashboard,
+        classes: renderClassesView,
+        tests: renderTestsView,
+        builder: renderExamBuilder,
+        grading: renderGradingView,
+        bank: renderBankView,
+        materials: renderMaterialsView,
+        students: renderStudentsView,
+        s_dashboard: renderStudentDashboard,
+        s_exam: renderStudentActiveExam,
+        s_review: renderStudentPostExamReview
+      };
+      document.getElementById('main-container').innerHTML = (map[state.route] || renderTeacherDashboard)();
+    }
+
+    /* =========================================================================
+       14. GLOBAL EVENT BINDINGS
+       ========================================================================= */
+    document.getElementById('btn-collapse').addEventListener('click', () => { state.collapsed = !state.collapsed; renderChrome(); });
+    document.getElementById('btn-mobile-menu').addEventListener('click', () => { document.getElementById('sidebar').classList.toggle('mobile-open'); });
+    document.getElementById('btn-theme').addEventListener('click', () => { state.theme = state.theme === 'dark' ? 'light' : 'dark'; renderChrome(); });
+    document.getElementById('btn-lang').addEventListener('click', () => { state.lang = state.lang === 'ar' ? 'en' : 'ar'; render(); });
+    document.getElementById('btn-open-search').addEventListener('click', openCommandPalette);
+    document.getElementById('btn-notifications').addEventListener('click', openNotificationsDrawer);
+
+    document.querySelectorAll('#role-switcher .br-seg-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.role = btn.dataset.role;
+        navigate(state.role === 'teacher' ? 'dashboard' : 's_dashboard');
+      });
+    });
+
+    document.querySelectorAll('#state-switcher .br-seg-btn').forEach(btn => {
+      btn.addEventListener('click', () => { state.uiState = btn.dataset.uistate; render(); });
+    });
+
+    document.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        openCommandPalette();
+      } else if (e.key === 'Escape') {
+        closeOverlay();
+        document.getElementById('sidebar').classList.remove('mobile-open');
+      }
+    });
+
+    window.addEventListener('load', render);
+    render();
+  </script>
+</body>
+</html>

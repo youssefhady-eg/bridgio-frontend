@@ -42,6 +42,7 @@ import { Route as TeacherStudentsIndexRouteImport } from './routes/teacher.stude
 import { Route as TeacherStudentsStudentIdRouteImport } from './routes/teacher.students.$studentId'
 import { Route as TeacherTestsIndexRouteImport } from './routes/teacher.tests.index'
 import { Route as TeacherTestsTestIdRouteImport } from './routes/teacher.tests.$testId'
+import { Route as TeacherTestsNewRouteImport } from './routes/teacher.tests.new'
 import { Route as StudentTestsTestIdResultsRouteImport } from './routes/student.tests.$testId.results'
 
 const IndexRoute = IndexRouteImport.update({
@@ -210,6 +211,11 @@ const TeacherTestsTestIdRoute = TeacherTestsTestIdRouteImport.update({
   path: '/$testId',
   getParentRoute: () => TeacherTestsRoute,
 } as any)
+const TeacherTestsNewRoute = TeacherTestsNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => TeacherTestsRoute,
+} as any)
 const StudentTestsTestIdResultsRoute =
   StudentTestsTestIdResultsRouteImport.update({
     id: '/$testId/results',
@@ -247,6 +253,7 @@ export interface FileRoutesByFullPath {
   '/teacher/classes/$classId': typeof TeacherClassesClassIdRoute
   '/teacher/students/$studentId': typeof TeacherStudentsStudentIdRoute
   '/teacher/tests/$testId': typeof TeacherTestsTestIdRoute
+  '/teacher/tests/new': typeof TeacherTestsNewRoute
   '/student/tests/': typeof StudentTestsIndexRoute
   '/teacher/classes/': typeof TeacherClassesIndexRoute
   '/teacher/students/': typeof TeacherStudentsIndexRoute
@@ -279,6 +286,7 @@ export interface FileRoutesByTo {
   '/teacher/classes/$classId': typeof TeacherClassesClassIdRoute
   '/teacher/students/$studentId': typeof TeacherStudentsStudentIdRoute
   '/teacher/tests/$testId': typeof TeacherTestsTestIdRoute
+  '/teacher/tests/new': typeof TeacherTestsNewRoute
   '/student/tests': typeof StudentTestsIndexRoute
   '/teacher/classes': typeof TeacherClassesIndexRoute
   '/teacher/students': typeof TeacherStudentsIndexRoute
@@ -316,6 +324,7 @@ export interface FileRoutesById {
   '/teacher/classes/$classId': typeof TeacherClassesClassIdRoute
   '/teacher/students/$studentId': typeof TeacherStudentsStudentIdRoute
   '/teacher/tests/$testId': typeof TeacherTestsTestIdRoute
+  '/teacher/tests/new': typeof TeacherTestsNewRoute
   '/student/tests/': typeof StudentTestsIndexRoute
   '/teacher/classes/': typeof TeacherClassesIndexRoute
   '/teacher/students/': typeof TeacherStudentsIndexRoute
@@ -354,6 +363,7 @@ export interface FileRouteTypes {
     | '/teacher/classes/$classId'
     | '/teacher/students/$studentId'
     | '/teacher/tests/$testId'
+    | '/teacher/tests/new'
     | '/student/tests/'
     | '/teacher/classes/'
     | '/teacher/students/'
@@ -386,6 +396,7 @@ export interface FileRouteTypes {
     | '/teacher/classes/$classId'
     | '/teacher/students/$studentId'
     | '/teacher/tests/$testId'
+    | '/teacher/tests/new'
     | '/student/tests'
     | '/teacher/classes'
     | '/teacher/students'
@@ -422,6 +433,7 @@ export interface FileRouteTypes {
     | '/teacher/classes/$classId'
     | '/teacher/students/$studentId'
     | '/teacher/tests/$testId'
+    | '/teacher/tests/new'
     | '/student/tests/'
     | '/teacher/classes/'
     | '/teacher/students/'
@@ -691,6 +703,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TeacherTestsTestIdRouteImport
       parentRoute: typeof TeacherTestsRoute
     }
+    '/teacher/tests/new': {
+      id: '/teacher/tests/new'
+      path: '/new'
+      fullPath: '/teacher/tests/new'
+      preLoaderRoute: typeof TeacherTestsNewRouteImport
+      parentRoute: typeof TeacherTestsRoute
+    }
     '/student/tests/$testId/results': {
       id: '/student/tests/$testId/results'
       path: '/$testId/results'
@@ -745,11 +764,13 @@ const TeacherStudentsRouteWithChildren = TeacherStudentsRoute._addFileChildren(
 
 interface TeacherTestsRouteChildren {
   TeacherTestsTestIdRoute: typeof TeacherTestsTestIdRoute
+  TeacherTestsNewRoute: typeof TeacherTestsNewRoute
   TeacherTestsIndexRoute: typeof TeacherTestsIndexRoute
 }
 
 const TeacherTestsRouteChildren: TeacherTestsRouteChildren = {
   TeacherTestsTestIdRoute: TeacherTestsTestIdRoute,
+  TeacherTestsNewRoute: TeacherTestsNewRoute,
   TeacherTestsIndexRoute: TeacherTestsIndexRoute,
 }
 

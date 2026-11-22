@@ -196,17 +196,43 @@ export interface QuestionBankGroup {
   questions: Question[]
 }
 
+/**
+ * Part 2 (2026-11-22) — the bank now also carries the unit names, so the table
+ * can label each question's unit without a second lookup per row. Units come
+ * from `classrooms.get` for the teacher's classes, which the library screen
+ * already reads through the same teacher-scoped method.
+ */
+export interface TeacherQuestionBankData {
+  groups: QuestionBankGroup[]
+  unitsById: Record<string, string>
+}
+
 export const teacherQuestionBankQueryOptions = (teacherId: UserId) =>
   queryOptions({
     queryKey: queryKeys.questions.forTeacher(teacherId),
-    queryFn: async (): Promise<QuestionBankGroup[]> => {
-      const tests = await api.tests.listForTeacher({ teacherId })
-      return Promise.all(
+    queryFn: async (): Promise<TeacherQuestionBankData> => {
+      const [tests, classrooms] = await Promise.all([
+        api.tests.listForTeacher({ teacherId }),
+        api.classrooms.listForTeacher({ teacherId }),
+      ])
+      const groups = await Promise.all(
         tests.map(async (test) => ({
           test,
           questions: await api.questions.listForTest({ testId: test.id }),
         })),
       )
+      const details = await Promise.all(
+        classrooms.map((classroom) =>
+          api.classrooms.get({ classroomId: classroom.id }),
+        ),
+      )
+      const unitsById: Record<string, string> = {}
+      for (const detail of details) {
+        for (const entry of detail.units) {
+          unitsById[entry.unit.id] = entry.unit.title
+        }
+      }
+      return { groups, unitsById }
     },
     staleTime: 0,
   })

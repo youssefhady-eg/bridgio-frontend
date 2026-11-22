@@ -1,69 +1,52 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import {
-  sessionQueryOptions,
-  teacherClassroomsQueryOptions,
-  teacherTestsQueryOptions,
-} from '~/api/queries'
-import type { ClassroomSummary, TestSummary } from '~/api/types'
-import { EmptyNote } from '~/components/dashboard/EmptyNote'
-import { StatusChip, type StatusTone } from '~/components/dashboard/StatusChip'
-import { formatCount } from '~/components/dashboard/format'
-import type { IconName } from '~/components/dashboard/icons'
-import { PageHero } from '~/components/shared/PageHero'
+import { sessionQueryOptions, teacherClassroomsQueryOptions } from '~/api/queries'
+import { EmptyBox, LoadingNote, PageHead, Panel, PanelHead, Status } from './ui'
+import { useGuestPreview } from '~/shell/useGuestPreview'
 import { usePreviewRole } from '~/shell/usePreviewRole'
 import { useLang, useStrings } from '~/shell/useStrings'
+import { formatCount, formatPercent } from '~/components/dashboard/format'
+import { masteryTone } from './tones'
 
 /**
- * Teacher "My Classes" — the full class list, as a table.
+ * Part 2 (2026-11-22) — teacher classes, rebuilt as class cards.
  *
- * It reads the teacher's classes through `classrooms.listForTeacher` (PROPOSED)
- * and the teacher's tests through `tests.listForTeacher` (PROPOSED), then
- * groups the tests by class for the Tests column. The status column is derived
- * from those same tests and never invented:
- *   - no tests for the class      → "No tests" (neutral)
- *   - at least one draft test     → "Drafts" (warning)
- *   - every test published        → "Published" (success)
- * The name and the action both link to the class detail screen; the detail
- * screen itself is unchanged. No sorting is offered.
+ * The card is the demo's composition: name and average mastery in the head, one
+ * subject/units line, an inset pair (students, students needing follow-up) and
+ * two real destinations — the student list and the test list.
  *
- * Table cells wrap entity values in `<bdi>` so an Arabic name next to a Latin
- * subject or a number keeps its own direction in both AR and EN.
+ * `averageMasteryPercent`, `atRiskCount` and `unitsDone` are backend aggregates
+ * (PROPOSED Part 2). An empty class has a null average and shows the
+ * no-students note rather than 0%.
  */
 export function ClassList() {
+  const sessionQuery = useQuery(sessionQueryOptions())
+  const guest = useGuestPreview()
   const strings = useStrings()
   const copy = strings.classes
   const lang = useLang()
+  const role = usePreviewRole()
 
-  const sessionQuery = useQuery(sessionQueryOptions())
-  const teacherId =
-    sessionQuery.data?.user.role === 'teacher'
-      ? sessionQuery.data.user.id
-      : null
+  const sessionUser = sessionQuery.data?.user ?? guest.user
+  const teacherId = sessionUser?.role === 'teacher' ? sessionUser.id : null
 
   const classesQuery = useQuery({
     ...teacherClassroomsQueryOptions(teacherId ?? ''),
     enabled: teacherId !== null,
   })
-  const testsQuery = useQuery({
-    ...teacherTestsQueryOptions(teacherId ?? ''),
-    enabled: teacherId !== null,
-  })
 
-  if (sessionQuery.isPending) {
+  if (sessionQuery.isPending || (teacherId !== null && classesQuery.isPending)) {
     return (
-      <Frame>
-        <p className="loading-note" role="status">
-          {copy.loading}
-        </p>
+      <Frame title={copy.title}>
+        <LoadingNote>{copy.loading}</LoadingNote>
       </Frame>
     )
   }
 
-  if (sessionQuery.isError) {
+  if (classesQuery.isError) {
     return (
-      <Frame>
-        <EmptyNote
+      <Frame title={copy.title}>
+        <EmptyBox
           tone="error"
           title={copy.loadErrorTitle}
           body={copy.loadErrorBody}
@@ -72,172 +55,116 @@ export function ClassList() {
     )
   }
 
-  if (teacherId === null) {
-    return (
-      <Frame>
-        <EmptyNote
-          icon="alert"
-          title={strings.dashboard.noSessionTitle}
-          body={strings.dashboard.noSessionBody}
-        />
-      </Frame>
-    )
-  }
-
-  if (classesQuery.isPending || testsQuery.isPending) {
-    return (
-      <Frame>
-        <p className="loading-note" role="status">
-          {copy.loading}
-        </p>
-      </Frame>
-    )
-  }
-
-  if (classesQuery.isError || testsQuery.isError || !classesQuery.data) {
-    return (
-      <Frame>
-        <EmptyNote
-          tone="error"
-          title={copy.loadErrorTitle}
-          body={copy.loadErrorBody}
-        />
-      </Frame>
-    )
-  }
-
-  const classes = classesQuery.data
-  const tests = testsQuery.data ?? []
+  const classes = classesQuery.data ?? []
 
   return (
-    <Frame>
-      {classes.length === 0 ? (
-        <EmptyNote
-          icon="classes"
-          title={copy.emptyTitle}
-          body={copy.emptyBody}
-        />
-      ) : (
-        <section
-          className="dashboard__section"
-          aria-labelledby="classes-heading"
+    <Frame
+      title={copy.title}
+      actions={
+        <Link
+          to="/teacher/tests/new"
+          search={{ as: role, lang }}
+          className="tv-btn tv-btn-primary"
+          preload={false}
         >
-          <div className="section-head">
-            <h2 id="classes-heading">{strings.nav['teacher-classes']}</h2>
-            <span className="count-chip">
-              {formatCount(classes.length, lang)}
-            </span>
-          </div>
-          <div className="class-table-wrap">
-            <table className="class-table">
-              <caption className="visually-hidden">{copy.tableCaption}</caption>
-              <thead>
-                <tr>
-                  <th scope="col">{copy.name}</th>
-                  <th scope="col">{copy.subject}</th>
-                  <th scope="col">{copy.grade}</th>
-                  <th scope="col">{copy.students}</th>
-                  <th scope="col">{copy.tests}</th>
-                  <th scope="col">{copy.status}</th>
-                  <th scope="col">{copy.open}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {classes.map((classroom) => (
-                  <ClassRow
-                    key={classroom.id}
-                    classroom={classroom}
-                    tests={tests.filter(
-                      (test) => test.classroomId === classroom.id,
-                    )}
-                  />
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
+          {copy.newTest}
+        </Link>
+      }
+    >
+      {classes.length === 0 ? (
+        <Panel>
+          <EmptyBox title={copy.emptyTitle} body={copy.emptyBody} />
+        </Panel>
+      ) : (
+        <div className="tv-grid-3">
+          {classes.map((classroom) => (
+            <Panel key={classroom.id}>
+              <PanelHead title={classroom.name}>
+                <Status
+                  tone={
+                    classroom.averageMasteryPercent === null
+                      ? 'neutral'
+                      : masteryTone(classroom.averageMasteryPercent)
+                  }
+                >
+                  {classroom.averageMasteryPercent === null
+                    ? copy.masteryUnavailable
+                    : copy.averageBadge(
+                        formatPercent(classroom.averageMasteryPercent, lang),
+                      )}
+                </Status>
+              </PanelHead>
+              <div className="tv-panel-body tv-stack-sm">
+                <div className="tv-cell-sub">
+                  {copy.subjectUnits(
+                    classroom.subjectName,
+                    formatCount(classroom.unitsDone, lang),
+                    formatCount(classroom.unitCount, lang),
+                  )}
+                </div>
+
+                <div className="tv-grid-equal">
+                  <div className="tv-kpi">
+                    <span className="tv-kpi-label">{copy.students}</span>
+                    <strong className="tv-num">
+                      {formatCount(classroom.studentCount, lang)}
+                    </strong>
+                  </div>
+                  <div className="tv-kpi">
+                    <span className="tv-kpi-label">{copy.atRisk}</span>
+                    <strong
+                      className="tv-num"
+                      style={{
+                        color:
+                          classroom.atRiskCount > 0
+                            ? 'var(--status-danger)'
+                            : 'var(--status-success)',
+                      }}
+                    >
+                      {formatCount(classroom.atRiskCount, lang)}
+                    </strong>
+                  </div>
+                </div>
+
+                <div className="tv-page-actions">
+                  <Link
+                    to="/teacher/students"
+                    search={{ as: role, lang }}
+                    className="tv-btn tv-btn-subtle tv-btn-sm"
+                    preload={false}
+                  >
+                    {copy.studentsList}
+                  </Link>
+                  <Link
+                    to="/teacher/tests"
+                    search={{ as: role, lang }}
+                    className="tv-btn tv-btn-secondary tv-btn-sm"
+                    preload={false}
+                  >
+                    {copy.testsButton}
+                  </Link>
+                </div>
+              </div>
+            </Panel>
+          ))}
+        </div>
       )}
     </Frame>
   )
 }
 
-function ClassRow({
-  classroom,
-  tests,
+function Frame({
+  title,
+  actions,
+  children,
 }: {
-  classroom: ClassroomSummary
-  tests: readonly TestSummary[]
+  title: string
+  actions?: React.ReactNode
+  children: React.ReactNode
 }) {
-  const copy = useStrings().classes
-  const lang = useLang()
-  const role = usePreviewRole()
-  const status = classStatus(tests, copy)
-
   return (
-    <tr>
-      <th scope="row" className="class-table__name">
-        <Link
-          to="/teacher/classes/$classId"
-          params={{ classId: classroom.id }}
-          search={{ as: role, lang }}
-          className="screen-link"
-          preload={false}
-        >
-          <bdi>{classroom.name}</bdi>
-        </Link>
-      </th>
-      <td>
-        <bdi>{classroom.subjectName}</bdi>
-      </td>
-      <td>
-        <bdi>{classroom.gradeLevel}</bdi>
-      </td>
-      <td className="class-table__number">
-        <bdi>{formatCount(classroom.studentCount, lang)}</bdi>
-      </td>
-      <td className="class-table__number">
-        <bdi>{formatCount(tests.length, lang)}</bdi>
-      </td>
-      <td>
-        <StatusChip tone={status.tone} icon={status.icon} label={status.label} />
-      </td>
-      <td className="class-table__actions">
-        <Link
-          to="/teacher/classes/$classId"
-          params={{ classId: classroom.id }}
-          search={{ as: role, lang }}
-          className="button button--secondary button--small"
-          preload={false}
-        >
-          {copy.open}
-        </Link>
-      </td>
-    </tr>
-  )
-}
-
-/**
- * The class status is computed only from the class's own tests. It is a
- * presentation of backend state, not a new backend field.
- */
-function classStatus(
-  tests: readonly TestSummary[],
-  copy: ReturnType<typeof useStrings>['classes'],
-): { label: string; tone: StatusTone; icon: IconName } {
-  if (tests.length === 0) {
-    return { label: copy.statusNoTests, tone: 'neutral', icon: 'tests' }
-  }
-  if (tests.some((test) => test.status === 'draft')) {
-    return { label: copy.statusDraft, tone: 'warning', icon: 'drafts' }
-  }
-  return { label: copy.statusPublished, tone: 'success', icon: 'check' }
-}
-
-function Frame({ children }: { children: React.ReactNode }) {
-  const copy = useStrings().classes
-  return (
-    <div className="dashboard">
-      <PageHero badge={copy.badge} title={copy.title} lead={copy.lead} />
+    <div className="tv-page">
+      <PageHead title={title}>{actions}</PageHead>
       {children}
     </div>
   )

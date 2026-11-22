@@ -48,6 +48,8 @@ export interface TestSummary {
   questionCount: number
   updatedAt: IsoDateTime
   publishedAt: IsoDateTime | null
+  /** PROPOSED — Part 2. Class-configured duration; null when unset. */
+  durationMinutes: number | null
 }
 
 export interface Test extends TestSummary {
@@ -97,6 +99,19 @@ export interface Question {
   origin: QuestionOrigin
   createdAt: IsoDateTime
   updatedAt: IsoDateTime
+  /** PROPOSED — Part 2. Authoring shape: multiple choice or essay. */
+  type: 'mcq' | 'essay'
+  /**
+   * PROPOSED — Part 2. Difficulty label. It has its own easy/medium/hard mapping
+   * and is deliberately NOT the mastery tone rule (>=75/55/<55).
+   */
+  difficulty: 'easy' | 'medium' | 'hard'
+  /** PROPOSED — Part 2. Points this question contributes. */
+  points: number
+  /** PROPOSED — Part 2. Model answer shown to the teacher; null when unset. */
+  modelAnswer: string | null
+  /** PROPOSED — Part 2. Curriculum unit this question belongs to; null when unset. */
+  unitId: UnitId | null
 }
 
 /**
@@ -121,10 +136,19 @@ export interface StudentQuestion {
 
 export interface CreateQuestionInput {
   prompt: string
-  /** Two to six options, in display order. */
+  /** Two to six options, in display order. Empty is allowed for an essay. */
   options: string[]
   /** Index into `options`, or null when the teacher leaves it unset. */
   correctOptionIndex: number | null
+  /**
+   * PROPOSED — Part 2. Authoring metadata. All optional so existing callers keep
+   * working; the mock fills the adapter defaults when omitted.
+   */
+  type?: 'mcq' | 'essay'
+  difficulty?: 'easy' | 'medium' | 'hard'
+  points?: number
+  modelAnswer?: string | null
+  unitId?: UnitId | null
 }
 
 export interface UpdateQuestionInput {

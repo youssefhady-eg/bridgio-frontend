@@ -1,5 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { sessionQueryOptions, teacherDashboardQueryOptions } from '~/api/queries'
+import {
+  sessionQueryOptions,
+  teacherDashboardQueryOptions,
+  teacherTestsQueryOptions,
+} from '~/api/queries'
 import { TeacherDashboard } from '~/components/dashboard/TeacherDashboard'
 import { stringsFor } from '~/shell/useStrings'
 
@@ -42,9 +46,17 @@ export const Route = createFileRoute('/teacher/dashboard')({
         sessionQueryOptions(),
       )
       if (session?.user.role === 'teacher') {
-        await context.queryClient.ensureQueryData(
-          teacherDashboardQueryOptions(session.user.id),
-        )
+        await Promise.all([
+          context.queryClient.ensureQueryData(
+            teacherDashboardQueryOptions(session.user.id),
+          ),
+          // The dashboard lists every draft, and the aggregate only carries the
+          // five most recent tests, so the full teacher test list is prefetched
+          // alongside it.
+          context.queryClient.ensureQueryData(
+            teacherTestsQueryOptions(session.user.id),
+          ),
+        ])
       }
       return { gender: session?.user.gender ?? null }
     } catch {
