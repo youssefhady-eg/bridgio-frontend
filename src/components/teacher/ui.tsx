@@ -221,7 +221,7 @@ export function Drawer({
         aria-labelledby="tv-drawer-title"
       >
         <div className="tv-panel-head">
-          <div>
+          <div className="tv-drawer-heading">
             <h2 className="tv-panel-title" id="tv-drawer-title">
               {title}
             </h2>
@@ -239,6 +239,82 @@ export function Drawer({
         </div>
         <div className="tv-drawer-body">{children}</div>
         {footer ? <div className="tv-drawer-foot">{footer}</div> : null}
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Centred modal. Same overlay contract as `Drawer`: Escape closes it, the
+ * backdrop click closes it, focus moves in on open and returns to the trigger
+ * on close. The markup mirrors the demo's `.br-modal` (max-width 560px by
+ * default) and lives in `tv-modal*` in src/styles/teacher-views.css.
+ */
+export function Modal({
+  title,
+  closeLabel,
+  onClose,
+  footer,
+  children,
+  maxWidth = 560,
+}: {
+  title: string
+  closeLabel: string
+  onClose: () => void
+  footer?: ReactNode
+  children: ReactNode
+  maxWidth?: number
+}) {
+  const closeRef = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    const opener =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null
+    closeRef.current?.focus()
+    return () => opener?.focus()
+  }, [])
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [onClose])
+
+  return (
+    <div
+      className="tv-backdrop tv-backdrop-center"
+      role="presentation"
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose()
+      }}
+    >
+      <div
+        className="tv-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="tv-modal-title"
+        style={{ maxWidth: `${maxWidth}px` }}
+      >
+        <div className="tv-panel-head">
+          <h2 className="tv-panel-title" id="tv-modal-title">
+            {title}
+          </h2>
+          <button
+            ref={closeRef}
+            type="button"
+            className="tv-btn tv-btn-ghost tv-btn-icon tv-btn-sm"
+            onClick={onClose}
+            aria-label={closeLabel}
+          >
+            ✕
+          </button>
+        </div>
+        <div className="tv-modal-body">{children}</div>
+        {footer ? <div className="tv-modal-foot">{footer}</div> : null}
       </div>
     </div>
   )

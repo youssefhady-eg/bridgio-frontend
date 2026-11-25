@@ -205,6 +205,11 @@ export interface QuestionBankGroup {
 export interface TeacherQuestionBankData {
   groups: QuestionBankGroup[]
   unitsById: Record<string, string>
+  /**
+   * Units per class, so the new-question modal can offer the target draft's own
+   * units rather than every unit the teacher teaches.
+   */
+  unitsByClass: Record<ClassroomId, CurriculumUnit[]>
 }
 
 export const teacherQuestionBankQueryOptions = (teacherId: UserId) =>
@@ -227,12 +232,14 @@ export const teacherQuestionBankQueryOptions = (teacherId: UserId) =>
         ),
       )
       const unitsById: Record<string, string> = {}
+      const unitsByClass: Record<ClassroomId, CurriculumUnit[]> = {}
       for (const detail of details) {
+        unitsByClass[detail.id] = detail.units.map((entry) => entry.unit)
         for (const entry of detail.units) {
           unitsById[entry.unit.id] = entry.unit.title
         }
       }
-      return { groups, unitsById }
+      return { groups, unitsById, unitsByClass }
     },
     staleTime: 0,
   })

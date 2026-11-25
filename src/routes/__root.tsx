@@ -90,11 +90,18 @@ export const Route = createRootRouteWithContext<{
           name: 'theme-color',
           content: '#f6f3ee',
         },
+        // Social / install metadata (§2.9). Absolute paths as written: the
+        // preview origin is the deployment origin.
+        { property: 'og:image', content: '/og-image.png' },
+        { property: 'og:title', content: 'BRIDGIO' },
+        { property: 'og:description', content: 'From classroom to career.' },
+        { name: 'twitter:card', content: 'summary_large_image' },
       ],
       links: [
-        // Interim internal placeholder favicon (Sora "B" on a red card). The
+        // The artwork's own B on a red tile (docs/favicon.svg → public/). The
         // adopted wordmark and the full lockup are never used as a favicon.
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+        { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
         { rel: 'stylesheet', href: fontsCss },
         { rel: 'stylesheet', href: tokensCss },
         { rel: 'stylesheet', href: appCss },

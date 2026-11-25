@@ -63,16 +63,18 @@
 
   /* ---- Ported demo type: stacks, text scale, radii (Part 2) -------------- *
    * The rebuilt teacher views read these. The demo's Arabic stacks name
-   * IBM Plex Sans Arabic, which is not bundled here (no CDN links, no new font
-   * files), so the stacks resolve onto the repo's bundled script-split faces:
-   * `Bridgio Body` (Inter Latin via local() + Nunito fallback, Baloo Arabic)
-   * and `Bridgio Display` (Sora Latin, Alexandria Arabic). Thmanyah names stay
+   * IBM Plex Sans Arabic, which is not bundled here (no CDN links), so the
+   * stacks resolve onto the repo's bundled script-split faces: Inter (Latin,
+   * BUNDLED 2026-11-24 — `public/fonts/Inter-*.ttf`) with Nunito as the Latin
+   * fallback and Baloo Arabic for Arabic; `Bridgio Display` is Sora Latin +
+   * Alexandria Arabic. Inter leads the Latin resolution in BOTH stacks, so a
+   * Latin string still renders as Inter on an Arabic page. Thmanyah names stay
    * first while the asset is pending. RTL (Arabic) is the default like the
    * demo; `:root[dir='ltr']` switches body/display to the Latin stacks.
    */
   --font-en-sans: 'Inter', 'Bridgio Body', system-ui, -apple-system, sans-serif;
   --font-en-display: 'Sora', 'Bridgio Display', 'Inter', sans-serif;
-  --font-ar-sans: 'Thmanyah Sans', 'Bridgio Body', system-ui, sans-serif;
+  --font-ar-sans: 'Thmanyah Sans', 'Inter', 'Bridgio Body', system-ui, sans-serif;
   --font-ar-display: 'Thmanyah Serif Display', 'Bridgio Display', 'Bridgio Body',
     serif;
   --font-body: var(--font-ar-sans);

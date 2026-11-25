@@ -105,16 +105,22 @@ export function TeacherDashboard() {
   const rows = filterActive
     ? data.studentProgress.filter((row) => row.classroomId === classId)
     : data.studentProgress
-  const atRisk = [...rows]
+  // At-risk = the same threshold the KPI aggregate uses (below 55% mastery),
+  // lowest first, capped at five. Filtering supplied percents is presentation;
+  // no score is computed here.
+  const atRisk = rows
+    .filter((row) => row.progressPercent < 55)
     .sort((left, right) => left.progressPercent - right.progressPercent)
     .slice(0, 5)
 
+  // One source for a class's average: `ClassroomSummary.averageMasteryPercent`
+  // (the same field the Classes cards read). Filtering/sorting supplied percents
+  // is presentation; no average is computed here.
   const studentCount = filterActive
     ? (selectedClass?.studentCount ?? 0)
     : data.totals.students
   const masteryPercent = filterActive
-    ? (data.averageMasteryByClass.find((item) => item.classroomId === classId)
-        ?.averageMasteryPercent ?? null)
+    ? (selectedClass?.averageMasteryPercent ?? null)
     : data.averageMasteryPercent
   const atRiskCount = filterActive
     ? (selectedClass?.atRiskCount ?? 0)

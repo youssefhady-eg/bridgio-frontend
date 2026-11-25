@@ -203,10 +203,26 @@ export function AppSidebar({
           className="app-sidebar__wordmark"
           preload={false}
         >
-          <span className="app-sidebar__mark" aria-hidden="true">
-            B
-          </span>
-          <span className="app-sidebar__text">BRIDGIO</span>
+          {/* Adopted wordmark — fills are baked into the files and never
+              recoloured or mirrored. Exactly one is visible per theme: the
+              maroon file on the light sidebar, the cream file on the wine
+              dark sidebar (see app.css). */}
+          <img
+            className="app-sidebar__wordmark-img app-sidebar__wordmark-img--maroon"
+            src="/brand/wordmark-maroon.svg"
+            alt={strings.header.wordmarkAlt}
+            width={136}
+            height={49}
+            decoding="async"
+          />
+          <img
+            className="app-sidebar__wordmark-img app-sidebar__wordmark-img--cream"
+            src="/brand/wordmark-cream.svg"
+            alt={strings.header.wordmarkAlt}
+            width={136}
+            height={49}
+            decoding="async"
+          />
         </Link>
 
         <button

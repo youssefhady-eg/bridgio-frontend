@@ -366,6 +366,10 @@
   border-block-end: 1px solid var(--border-subtle);
   vertical-align: middle;
   text-align: start;
+  /* Density (brief §2.7): one line per cell, so a two-line primary cell can no
+     longer grow the row past --row-h (42px). Primary text truncates below. */
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .tv-table tbody tr:last-child td {
@@ -384,6 +388,31 @@
 .tv-cell-sub {
   font-size: var(--text-xs);
   color: var(--text-muted);
+}
+
+/* Density (brief §2.7): a primary cell holds its title and its sub-line on ONE
+   line so the row stays 42px. The title truncates with an ellipsis; the sub
+   keeps its short text beside it. The demo stacks these two lines, which grew
+   its rows to 52px — this brief item deliberately deviates (delivery note). */
+.tv-td-primary {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tv-td-primary .tv-cell-title,
+.tv-td-primary .tv-cell-sub,
+.tv-td-primary details {
+  display: inline;
+}
+
+.tv-td-primary details > summary {
+  display: inline;
+  margin-inline-start: 8px;
+}
+
+.tv-td-primary details[open] {
+  display: block;
+  white-space: normal;
 }
 
 .tv-actions-cell {
@@ -456,6 +485,26 @@
   color: var(--text-secondary);
 }
 
+/* New-question modal (brief §2.3) — options editor. */
+.tv-fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tv-option-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tv-option-row .tv-input {
+  flex: 1;
+}
+
 /* Overlay: drawer --------------------------------------------------------- */
 .tv-backdrop {
   position: fixed;
@@ -487,6 +536,55 @@
 }
 
 .tv-drawer-foot {
+  padding: 12px 16px;
+  border-block-start: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: var(--bg-inset);
+}
+
+/* Brief §2.10 — the drawer subtitle (class · last active) must be fully visible
+   in both languages. The heading block shrinks and the subtitle breaks long
+   unbroken runs instead of clipping at the drawer edge. */
+.tv-drawer-heading {
+  min-width: 0;
+}
+
+.tv-drawer-heading .tv-cell-sub {
+  overflow-wrap: anywhere;
+}
+
+/* Overlay: centred modal (demo `.br-modal`) ------------------------------- */
+.tv-backdrop-center {
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+}
+
+.tv-modal {
+  width: 100%;
+  max-height: 86dvh;
+  overflow: hidden;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-overlay);
+  display: flex;
+  flex-direction: column;
+}
+
+.tv-modal-body {
+  padding: 16px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tv-modal-foot {
   padding: 12px 16px;
   border-block-start: 1px solid var(--border-subtle);
   display: flex;
@@ -595,6 +693,14 @@
     align-items: center;
     justify-content: space-between;
     gap: 10px;
+    white-space: normal;
+    overflow: visible;
+  }
+
+  .tv-td-primary .tv-cell-title,
+  .tv-td-primary .tv-cell-sub,
+  .tv-td-primary details {
+    display: block;
   }
 
   .tv-table td::before {

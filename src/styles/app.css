@@ -191,35 +191,30 @@ summary:focus-visible,
   align-items: center;
   gap: var(--space-2);
   min-inline-size: 0;
-  color: var(--text-primary);
-  font-family: 'Bridgio Display', 'Bridgio Label', sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: 0.04em;
   text-decoration: none;
-  white-space: nowrap;
 }
 
-.app-sidebar__mark {
-  display: grid;
-  place-items: center;
-  flex: none;
-  inline-size: 22px;
-  block-size: 22px;
-  border-radius: 5px;
-  background: var(--brand-maroon);
-  color: var(--brand-on-primary);
-  font-family: 'Bridgio Display', sans-serif;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0;
+/* Brand artwork slot — exactly one wordmark visible per theme. The artwork's
+   fills are baked into the files: the maroon file on the light sidebar, the
+   cream file on the wine dark sidebar. Never recoloured, never mirrored, never
+   stretched (the height stays auto so the 720×260 viewBox keeps its aspect). */
+.app-sidebar__wordmark-img {
+  display: none;
+  width: 136px;
+  height: auto;
+  max-width: 100%;
 }
 
-.app-sidebar__text {
-  min-inline-size: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.app-sidebar__wordmark-img--maroon {
+  display: block;
+}
+
+:root[data-theme='dark'] .app-sidebar__wordmark-img--maroon {
+  display: none;
+}
+
+:root[data-theme='dark'] .app-sidebar__wordmark-img--cream {
+  display: block;
 }
 
 .app-sidebar__toggle,

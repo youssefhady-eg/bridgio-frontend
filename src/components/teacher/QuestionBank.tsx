@@ -6,7 +6,7 @@ import {
   sessionQueryOptions,
   teacherQuestionBankQueryOptions,
 } from '~/api/queries'
-import type { Question, UserId } from '~/api/types'
+import type { CurriculumUnit, Question, UserId } from '~/api/types'
 import { correctIndexFor } from '~/components/builder/builder'
 import { formatCount } from '~/components/dashboard/format'
 import { useGuestPreview } from '~/shell/useGuestPreview'
@@ -18,7 +18,14 @@ import {
   questionBankTotals,
 } from './question-bank'
 import { difficultyTone } from './tones'
-import { EmptyBox, LoadingNote, PageHead, Panel, Status } from './ui'
+import {
+  EmptyBox,
+  LoadingNote,
+  Modal,
+  PageHead,
+  Panel,
+  Status,
+} from './ui'
 
 /**
  * Part 2 (2026-11-22) — teacher question bank, rebuilt as a dense table.
@@ -26,15 +33,16 @@ import { EmptyBox, LoadingNote, PageHead, Panel, Status } from './ui'
  * The bank is the composed `teacherQuestionBankQueryOptions` (tests + full
  * questions + unit names) through the adapter; filtering is presentation only.
  *
- * "Add to draft" is the one write here and it targets the newest draft test.
- * `questions.create` already accepts the authoring metadata, so the copy keeps
- * the prompt, options, type, difficulty, points, model answer and unit. When the
- * teacher has no draft the button is disabled with the reason beside it — no
- * invented destination.
+ * "Add to draft" copies an existing question into the newest draft test, and
+ * the "+ new question" modal creates one there directly. Both target the newest
+ * draft: `questions.create` requires a test id and there is no bank-level create
+ * endpoint. When the teacher has no draft the buttons are disabled with the
+ * reason beside them — no invented destination, no fake success.
  *
- * The demo's "new bank question" modal is deliberately absent: the contract has
- * no bank-level create, and `questions.create` requires a test id. Reported in
- * the delivery note rather than faked.
+ * The demo's "new bank question" modal is a `.br-modal` (max-width 560px). Its
+ * fields are exactly `CreateQuestionInput`: prompt, options (2–6, or none for an
+ * essay), correct option index or none, type, difficulty, points, model answer
+ * and unit. The unit choices are the target draft's own units.
  */
 export function QuestionBank() {
   const sessionQuery = useQuery(sessionQueryOptions())
@@ -44,6 +52,7 @@ export function QuestionBank() {
   const [classId, setClassId] = useState('all')
   const [query, setQuery] = useState('')
   const [addedQuestionId, setAddedQuestionId] = useState<string | null>(null)
+  const [showNewQuestion, setShowNewQuestion] = useState(false)
 
   const sessionUser = sessionQuery.data?.user ?? guest.user
   const teacherId = sessionUser?.role === 'teacher' ? sessionUser.id : null
@@ -126,12 +135,29 @@ export function QuestionBank() {
     query,
   })
   const draft = newestDraft(groups)
+  const draftUnits =
+    draft === null
+      ? []
+      : (bankQuery.data.unitsByClass[draft.test.classroomId] ?? [])
   const rows = filtered.flatMap((group) =>
     group.questions.map((question) => ({ question, testId: group.test.id })),
   )
 
   return (
-    <Frame title={copy.title}>
+    <Frame
+      title={copy.title}
+      actions={
+        <button
+          type="button"
+          className="tv-btn tv-btn-primary"
+          disabled={draft === null}
+          title={draft === null ? copy.noDraftHint : undefined}
+          onClick={() => setShowNewQuestion(true)}
+        >
+          {copy.newQuestion}
+        </button>
+      }
+    >
       <Panel>
         <div className="tv-panel-head">
           <div className="tv-page-actions">
@@ -220,7 +246,7 @@ export function QuestionBank() {
                   return (
                     <tr key={question.id}>
                       <td className="tv-td-primary">
-                        <div>{question.prompt}</div>
+                        <div className="tv-cell-title">{question.prompt}</div>
                         {question.modelAnswer ? (
                           <details className="tv-cell-sub">
                             <summary style={{ cursor: 'pointer' }}>
@@ -299,20 +325,304 @@ export function QuestionBank() {
           </div>
         )}
       </Panel>
+
+      {showNewQuestion && draft ? (
+        <NewQuestionModal
+          teacherId={teacherId}
+          draft={draft}
+          units={draftUnits}
+          onCreated={(question) => {
+            setAddedQuestionId(question.id)
+            setShowNewQuestion(false)
+          }}
+          onClose={() => setShowNewQuestion(false)}
+        />
+      ) : null}
     </Frame>
+  )
+}
+
+/**
+ * The "+ new question" modal. It writes with `questions.create` into the newest
+ * draft, carrying the full `CreateQuestionInput`. The submit button is disabled
+ * until the prompt and (for an MCQ) 2–6 unique options are present, so the
+ * adapter's validation is never reachable from the happy path.
+ */
+function NewQuestionModal({
+  teacherId,
+  draft,
+  units,
+  onCreated,
+  onClose,
+}: {
+  teacherId: UserId
+  draft: NonNullable<ReturnType<typeof newestDraft>>
+  units: readonly CurriculumUnit[]
+  onCreated: (question: Question) => void
+  onClose: () => void
+}) {
+  const copy = useStrings().questionBank
+  const queryClient = useQueryClient()
+  const [type, setType] = useState<'mcq' | 'essay'>('mcq')
+  const [prompt, setPrompt] = useState('')
+  const [options, setOptions] = useState<string[]>(['', ''])
+  const [correctIndex, setCorrectIndex] = useState<number | null>(null)
+  const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>(
+    'medium',
+  )
+  const [points, setPoints] = useState('2')
+  const [modelAnswer, setModelAnswer] = useState('')
+  const [unitId, setUnitId] = useState('')
+
+  const trimmedOptions = options.map((option) => option.trim())
+  const optionsValid =
+    type === 'essay' ||
+    (trimmedOptions.length >= 2 &&
+      trimmedOptions.length <= 6 &&
+      trimmedOptions.every((option) => option !== '') &&
+      new Set(trimmedOptions.map((option) => option.toLowerCase())).size ===
+        trimmedOptions.length)
+  const pointsValue = Number(points)
+  const pointsValid = Number.isInteger(pointsValue) && pointsValue >= 1
+  const canSubmit = prompt.trim() !== '' && optionsValid && pointsValid
+
+  const createMutation = useMutation({
+    mutationFn: () =>
+      api.questions.create({
+        teacherId,
+        testId: draft.test.id,
+        prompt: prompt.trim(),
+        options: type === 'essay' ? [] : trimmedOptions,
+        correctOptionIndex: type === 'essay' ? null : correctIndex,
+        type,
+        difficulty,
+        points: pointsValue,
+        modelAnswer: modelAnswer.trim() === '' ? null : modelAnswer.trim(),
+        unitId: unitId === '' ? null : unitId,
+      }),
+    onSuccess: (created) => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.questions.forTeacher(teacherId),
+      })
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.tests.questions(draft.test.id),
+      })
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.tests.detail(draft.test.id),
+      })
+      onCreated(created)
+    },
+  })
+
+  return (
+    <Modal
+      title={copy.newQuestionModalTitle}
+      closeLabel={copy.close}
+      onClose={onClose}
+      footer={
+        <>
+          <button
+            type="button"
+            className="tv-btn tv-btn-secondary tv-btn-sm"
+            onClick={onClose}
+          >
+            {copy.cancel}
+          </button>
+          <button
+            type="submit"
+            form="tv-new-question"
+            className="tv-btn tv-btn-primary tv-btn-sm"
+            disabled={!canSubmit || createMutation.isPending}
+          >
+            {createMutation.isPending ? copy.saving : copy.save}
+          </button>
+        </>
+      }
+    >
+      <form
+        id="tv-new-question"
+        className="tv-stack-sm"
+        onSubmit={(event) => {
+          event.preventDefault()
+          if (canSubmit) createMutation.mutate()
+        }}
+      >
+        <label className="tv-field">
+          <span className="tv-label">{copy.promptLabel}</span>
+          <textarea
+            className="tv-textarea"
+            rows={3}
+            required
+            value={prompt}
+            placeholder={copy.promptPlaceholder}
+            onChange={(event) => setPrompt(event.target.value)}
+          />
+        </label>
+
+        <div className="tv-grid-equal">
+          <label className="tv-field">
+            <span className="tv-label">{copy.colType}</span>
+            <select
+              className="tv-select"
+              value={type}
+              onChange={(event) =>
+                setType(event.target.value === 'essay' ? 'essay' : 'mcq')
+              }
+            >
+              <option value="mcq">{copy.typeMcq}</option>
+              <option value="essay">{copy.typeEssay}</option>
+            </select>
+          </label>
+          <label className="tv-field">
+            <span className="tv-label">{copy.colDifficulty}</span>
+            <select
+              className="tv-select"
+              value={difficulty}
+              onChange={(event) =>
+                setDifficulty(
+                  event.target.value === 'easy'
+                    ? 'easy'
+                    : event.target.value === 'hard'
+                      ? 'hard'
+                      : 'medium',
+                )
+              }
+            >
+              <option value="easy">{copy.difficultyEasy}</option>
+              <option value="medium">{copy.difficultyMedium}</option>
+              <option value="hard">{copy.difficultyHard}</option>
+            </select>
+          </label>
+        </div>
+
+        <div className="tv-grid-equal">
+          <label className="tv-field">
+            <span className="tv-label">{copy.colUnit}</span>
+            <select
+              className="tv-select"
+              value={unitId}
+              onChange={(event) => setUnitId(event.target.value)}
+            >
+              <option value="">{copy.noUnitOption}</option>
+              {units.map((unit) => (
+                <option key={unit.id} value={unit.id}>
+                  {unit.title}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="tv-field">
+            <span className="tv-label">{copy.colPoints}</span>
+            <input
+              className="tv-input tv-num"
+              type="number"
+              min={1}
+              max={20}
+              value={points}
+              onChange={(event) => setPoints(event.target.value)}
+            />
+          </label>
+        </div>
+
+        {type === 'mcq' ? (
+          <fieldset className="tv-fieldset">
+            <legend className="tv-label">{copy.optionsLabel}</legend>
+            <label className="tv-field-inline">
+              <input
+                type="radio"
+                name="tv-new-question-correct"
+                checked={correctIndex === null}
+                onChange={() => setCorrectIndex(null)}
+              />
+              {copy.correctNone}
+            </label>
+            {options.map((option, index) => (
+              <div className="tv-option-row" key={index}>
+                <input
+                  type="radio"
+                  name="tv-new-question-correct"
+                  checked={correctIndex === index}
+                  onChange={() => setCorrectIndex(index)}
+                  aria-label={copy.correctOptionFor(index + 1)}
+                />
+                <input
+                  className="tv-input"
+                  type="text"
+                  value={option}
+                  placeholder={copy.optionPlaceholder}
+                  onChange={(event) =>
+                    setOptions(
+                      options.map((item, itemIndex) =>
+                        itemIndex === index ? event.target.value : item,
+                      ),
+                    )
+                  }
+                />
+                {options.length > 2 ? (
+                  <button
+                    type="button"
+                    className="tv-btn tv-btn-ghost tv-btn-icon tv-btn-sm"
+                    aria-label={copy.removeOption}
+                    onClick={() => {
+                      setOptions(options.filter((_, itemIndex) => itemIndex !== index))
+                      setCorrectIndex((current) => {
+                        if (current === null) return null
+                        if (current === index) return null
+                        return current > index ? current - 1 : current
+                      })
+                    }}
+                  >
+                    ✕
+                  </button>
+                ) : null}
+              </div>
+            ))}
+            <button
+              type="button"
+              className="tv-btn tv-btn-subtle tv-btn-sm"
+              disabled={options.length >= 6}
+              onClick={() => setOptions([...options, ''])}
+            >
+              {copy.addOption}
+            </button>
+          </fieldset>
+        ) : null}
+
+        <label className="tv-field">
+          <span className="tv-label">{copy.modelAnswerLabel}</span>
+          <input
+            className="tv-input"
+            type="text"
+            value={modelAnswer}
+            placeholder={copy.modelAnswerPlaceholder}
+            onChange={(event) => setModelAnswer(event.target.value)}
+          />
+        </label>
+
+        {createMutation.isError ? (
+          <EmptyBox
+            tone="error"
+            title={copy.createErrorTitle}
+            body={copy.createErrorBody}
+          />
+        ) : null}
+      </form>
+    </Modal>
   )
 }
 
 function Frame({
   title,
+  actions,
   children,
 }: {
   title: string
+  actions?: React.ReactNode
   children: React.ReactNode
 }) {
   return (
     <div className="tv-page">
-      <PageHead title={title} />
+      <PageHead title={title}>{actions}</PageHead>
       {children}
     </div>
   )

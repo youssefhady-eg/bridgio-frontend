@@ -23,6 +23,7 @@ import {
   Drawer,
   EmptyBox,
   LoadingNote,
+  Modal,
   PageHead,
   Panel,
   Status,
@@ -67,6 +68,8 @@ function MaterialLibraryBody({ teacherId }: { teacherId: UserId }) {
   const copy = useStrings().materialLibrary
   const [classId, setClassId] = useState('all')
   const [detail, setDetail] = useState<Material | null>(null)
+  const [showUpload, setShowUpload] = useState(false)
+  const [createdTitle, setCreatedTitle] = useState<string | null>(null)
   const libraryQuery = useQuery(materialLibraryQueryOptions(teacherId))
   const data = libraryQuery.data
 
@@ -99,34 +102,44 @@ function MaterialLibraryBody({ teacherId }: { teacherId: UserId }) {
     <Frame
       title={copy.title}
       actions={
-        data.classrooms.length > 0 ? (
-          <select
-            className="tv-select"
-            aria-label={copy.filterClass}
-            value={classId}
-            onChange={(event) => setClassId(event.target.value)}
+        <>
+          {data.classrooms.length > 0 ? (
+            <select
+              className="tv-select"
+              aria-label={copy.filterClass}
+              value={classId}
+              onChange={(event) => setClassId(event.target.value)}
+            >
+              <option value="all">{copy.allClasses}</option>
+              {data.classrooms.map((classroom) => (
+                <option key={classroom.id} value={classroom.id}>
+                  {classroom.name}
+                </option>
+              ))}
+            </select>
+          ) : null}
+          <button
+            type="button"
+            className="tv-btn tv-btn-primary"
+            disabled={data.classrooms.length === 0}
+            onClick={() => setShowUpload(true)}
           >
-            <option value="all">{copy.allClasses}</option>
-            {data.classrooms.map((classroom) => (
-              <option key={classroom.id} value={classroom.id}>
-                {classroom.name}
-              </option>
-            ))}
-          </select>
-        ) : null
+            {copy.upload}
+          </button>
+        </>
       }
     >
       {data.classrooms.length === 0 ? (
         <Panel>
           <EmptyBox title={copy.noClassesTitle} body={copy.noClassesBody} />
         </Panel>
-      ) : (
-        <AddMaterialForm
-          teacherId={teacherId}
-          classrooms={data.classrooms}
-          unitsByClass={data.unitsByClass}
-        />
-      )}
+      ) : null}
+
+      {createdTitle ? (
+        <p className="tv-cell-sub" role="status">
+          {copy.createSuccessBody(createdTitle)}
+        </p>
+      ) : null}
 
       <Panel labelledBy="materials-heading">
         <div className="tv-panel-head">
@@ -191,6 +204,19 @@ function MaterialLibraryBody({ teacherId }: { teacherId: UserId }) {
           )}
           units={data.unitsByClass[detail.classroomId] ?? []}
           onClose={() => setDetail(null)}
+        />
+      ) : null}
+
+      {showUpload ? (
+        <UploadMaterialModal
+          teacherId={teacherId}
+          classrooms={data.classrooms}
+          unitsByClass={data.unitsByClass}
+          onCreated={(material) => {
+            setCreatedTitle(material.title)
+            setShowUpload(false)
+          }}
+          onClose={() => setShowUpload(false)}
         />
       ) : null}
     </Frame>
@@ -391,24 +417,34 @@ function MaterialDetailDrawer({
   )
 }
 
-function AddMaterialForm({
+/**
+ * The "+ upload material" modal (brief §2.4) — the demo's `.br-modal`
+ * (max-width 460px). It writes metadata with `materials.create`, which is
+ * metadata-only by contract: text and link materials are accepted, and the note
+ * states plainly that PDF/image file upload is not available yet. No upload is
+ * faked and no success is shown before the adapter confirms it.
+ */
+function UploadMaterialModal({
   teacherId,
   classrooms,
   unitsByClass,
+  onCreated,
+  onClose,
 }: {
   teacherId: UserId
   classrooms: ClassroomSummary[]
   unitsByClass: MaterialLibraryData['unitsByClass']
+  onCreated: (material: Material) => void
+  onClose: () => void
 }) {
   const copy = useStrings().materialLibrary
   const queryClient = useQueryClient()
-  const [classId, setClassId] = useState('')
+  const [classId, setClassId] = useState(classrooms[0]?.id ?? '')
   const [unitId, setUnitId] = useState('')
   const [kind, setKind] = useState<'text' | 'link'>('text')
   const [title, setTitle] = useState('')
   const [textContent, setTextContent] = useState('')
   const [sourceUrl, setSourceUrl] = useState('')
-  const [createdTitle, setCreatedTitle] = useState<string | null>(null)
 
   const units = classId === '' ? [] : (unitsByClass[classId] ?? [])
   const canSubmit =
@@ -428,170 +464,153 @@ function AddMaterialForm({
         sourceUrl: kind === 'link' ? sourceUrl.trim() : null,
       }),
     onSuccess: (material) => {
-      setCreatedTitle(material.title)
-      setTitle('')
-      setTextContent('')
-      setSourceUrl('')
-      setUnitId('')
       void queryClient.invalidateQueries({ queryKey: queryKeys.materials.all() })
       void queryClient.invalidateQueries({ queryKey: queryKeys.classrooms.all() })
+      onCreated(material)
     },
   })
 
   return (
-    <Panel labelledBy="material-add-heading">
-      <div className="tv-panel-head">
-        <h2 className="tv-panel-title" id="material-add-heading">
-          {copy.addHeading}
-        </h2>
-      </div>
-      <div className="tv-panel-body tv-stack-sm">
+    <Modal
+      title={copy.uploadModalTitle}
+      closeLabel={copy.close}
+      maxWidth={460}
+      onClose={onClose}
+      footer={
+        <>
+          <button
+            type="button"
+            className="tv-btn tv-btn-secondary tv-btn-sm"
+            onClick={onClose}
+          >
+            {copy.cancel}
+          </button>
+          <button
+            type="submit"
+            form="tv-upload-material"
+            className="tv-btn tv-btn-primary tv-btn-sm"
+            disabled={!canSubmit || createMutation.isPending}
+          >
+            {createMutation.isPending ? copy.submitting : copy.submit}
+          </button>
+        </>
+      }
+    >
+      <form
+        id="tv-upload-material"
+        className="tv-stack-sm"
+        onSubmit={(event) => {
+          event.preventDefault()
+          if (canSubmit) createMutation.mutate()
+        }}
+      >
         <p className="tv-cell-sub">
           {copy.uploadGapTitle} {copy.uploadGapBody}
         </p>
 
-        <form
-          className="tv-stack-sm"
-          onSubmit={(event) => {
-            event.preventDefault()
-            setCreatedTitle(null)
-            createMutation.mutate()
-          }}
-        >
-          <div className="tv-grid-3">
-            <label className="tv-field">
-              <span className="tv-label">{copy.classLabel}</span>
-              <select
-                className="tv-select"
-                value={classId}
-                required
-                onChange={(event) => {
-                  setClassId(event.target.value)
-                  setUnitId('')
-                  setCreatedTitle(null)
-                }}
-              >
-                <option value="" disabled>
-                  {copy.classPlaceholder}
+        <label className="tv-field">
+          <span className="tv-label">{copy.titleLabel}</span>
+          <input
+            className="tv-input"
+            type="text"
+            value={title}
+            required
+            placeholder={copy.titlePlaceholder}
+            onChange={(event) => setTitle(event.target.value)}
+          />
+        </label>
+
+        <div className="tv-grid-equal">
+          <label className="tv-field">
+            <span className="tv-label">{copy.classLabel}</span>
+            <select
+              className="tv-select"
+              value={classId}
+              required
+              onChange={(event) => {
+                setClassId(event.target.value)
+                setUnitId('')
+              }}
+            >
+              <option value="" disabled>
+                {copy.classPlaceholder}
+              </option>
+              {classrooms.map((classroom) => (
+                <option key={classroom.id} value={classroom.id}>
+                  {classroom.name}
                 </option>
-                {classrooms.map((classroom) => (
-                  <option key={classroom.id} value={classroom.id}>
-                    {classroom.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="tv-field">
-              <span className="tv-label">{copy.unitLabel}</span>
-              <select
-                className="tv-select"
-                value={unitId}
-                disabled={classId === '' || units.length === 0}
-                onChange={(event) => {
-                  setUnitId(event.target.value)
-                  setCreatedTitle(null)
-                }}
-              >
-                <option value="">{copy.noUnit}</option>
-                {units.map((unit) => (
-                  <option key={unit.id} value={unit.id}>
-                    {unit.title}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="tv-field">
-              <span className="tv-label">{copy.kindLabel}</span>
-              <select
-                className="tv-select"
-                value={kind}
-                onChange={(event) => {
-                  setKind(event.target.value === 'link' ? 'link' : 'text')
-                  setCreatedTitle(null)
-                }}
-              >
-                <option value="text">{copy.kindText}</option>
-                <option value="link">{copy.kindLink}</option>
-              </select>
-            </label>
-          </div>
+              ))}
+            </select>
+          </label>
 
           <label className="tv-field">
-            <span className="tv-label">{copy.titleLabel}</span>
+            <span className="tv-label">{copy.unitLabel}</span>
+            <select
+              className="tv-select"
+              value={unitId}
+              disabled={classId === '' || units.length === 0}
+              onChange={(event) => setUnitId(event.target.value)}
+            >
+              <option value="">{copy.noUnit}</option>
+              {units.map((unit) => (
+                <option key={unit.id} value={unit.id}>
+                  {unit.title}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        <label className="tv-field">
+          <span className="tv-label">{copy.kindLabel}</span>
+          <select
+            className="tv-select"
+            value={kind}
+            onChange={(event) =>
+              setKind(event.target.value === 'link' ? 'link' : 'text')
+            }
+          >
+            <option value="text">{copy.kindText}</option>
+            <option value="link">{copy.kindLink}</option>
+          </select>
+        </label>
+
+        {kind === 'text' ? (
+          <label className="tv-field">
+            <span className="tv-label">{copy.textLabel}</span>
+            <textarea
+              className="tv-textarea"
+              rows={5}
+              value={textContent}
+              required
+              placeholder={copy.textPlaceholder}
+              onChange={(event) => setTextContent(event.target.value)}
+            />
+          </label>
+        ) : (
+          <label className="tv-field">
+            <span className="tv-label">{copy.urlLabel}</span>
             <input
               className="tv-input"
               type="text"
-              value={title}
+              inputMode="url"
+              value={sourceUrl}
               required
-              placeholder={copy.titlePlaceholder}
-              onChange={(event) => {
-                setTitle(event.target.value)
-                setCreatedTitle(null)
-              }}
+              placeholder={copy.urlPlaceholder}
+              onChange={(event) => setSourceUrl(event.target.value)}
             />
           </label>
+        )}
 
-          {kind === 'text' ? (
-            <label className="tv-field">
-              <span className="tv-label">{copy.textLabel}</span>
-              <textarea
-                className="tv-textarea"
-                rows={5}
-                value={textContent}
-                required
-                placeholder={copy.textPlaceholder}
-                onChange={(event) => {
-                  setTextContent(event.target.value)
-                  setCreatedTitle(null)
-                }}
-              />
-            </label>
-          ) : (
-            <label className="tv-field">
-              <span className="tv-label">{copy.urlLabel}</span>
-              <input
-                className="tv-input"
-                type="text"
-                inputMode="url"
-                value={sourceUrl}
-                required
-                placeholder={copy.urlPlaceholder}
-                onChange={(event) => {
-                  setSourceUrl(event.target.value)
-                  setCreatedTitle(null)
-                }}
-              />
-            </label>
-          )}
-
-          {createMutation.isError ? (
-            <EmptyBox
-              tone="error"
-              title={copy.createErrorTitle}
-              body={copy.createErrorBody}
-            />
-          ) : null}
-
-          {createdTitle ? (
-            <p className="tv-cell-sub" role="status">
-              {copy.createSuccessBody(createdTitle)}
-            </p>
-          ) : null}
-
-          <div className="tv-page-actions">
-            <button
-              type="submit"
-              className="tv-btn tv-btn-primary"
-              disabled={!canSubmit || createMutation.isPending}
-            >
-              {createMutation.isPending ? copy.submitting : copy.submit}
-            </button>
-          </div>
-        </form>
-      </div>
-    </Panel>
+        {createMutation.isError ? (
+          <EmptyBox
+            tone="error"
+            title={copy.createErrorTitle}
+            body={copy.createErrorBody}
+          />
+        ) : null}
+      </form>
+    </Modal>
   )
 }
 
