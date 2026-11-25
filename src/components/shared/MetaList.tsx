@@ -9,16 +9,28 @@ import type { ReactNode } from 'react'
 export function MetaList({
   items,
   ariaLabel,
+  className,
 }: {
   items: readonly { label: string; value: ReactNode }[]
   ariaLabel?: string
+  /**
+   * Extra class on the `<dl>`. Callers pass a modifier (for example
+   * `summary-list--settings`) when their rows need a different layout; the
+   * shared `.summary-list` used by tests, classes and students is untouched.
+   */
+  className?: string
 }) {
   return (
-    <dl className="summary-list" aria-label={ariaLabel}>
+    <dl
+      className={className ? `summary-list ${className}` : 'summary-list'}
+      aria-label={ariaLabel}
+    >
       {items.map((item, index) => (
         <div key={`${item.label}:${index}`}>
           <dt>{item.label}</dt>
-          <dd>{item.value}</dd>
+          <dd>
+            <bdi>{item.value}</bdi>
+          </dd>
         </div>
       ))}
     </dl>

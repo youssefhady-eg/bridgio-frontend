@@ -1,82 +1,60 @@
 import { useQuery } from '@tanstack/react-query'
-import { Link } from '@tanstack/react-router'
-import {
-  sessionQueryOptions,
-  teacherDashboardQueryOptions,
-} from '~/api/queries'
+import { useState } from 'react'
+import { sessionQueryOptions, teacherDashboardQueryOptions } from '~/api/queries'
 import type { StudentProgressSnapshot } from '~/api/types'
-import { EmptyNote } from '~/components/dashboard/EmptyNote'
-import { ProgressBar } from '~/components/dashboard/ProgressBar'
-import { formatCount, formatDate, formatPercent } from '~/components/dashboard/format'
-import { MetaPair } from '~/components/shared/MetaPair'
-import { PageHero } from '~/components/shared/PageHero'
-import { usePreviewRole } from '~/shell/usePreviewRole'
+import { useGuestPreview } from '~/shell/useGuestPreview'
 import { useLang, useStrings } from '~/shell/useStrings'
+import { formatCount, formatDate, formatPercent } from '~/components/dashboard/format'
+import { normaliseSearchText } from './question-bank'
+import { dedupeByStudent } from './students'
+import { StudentDrawer } from './StudentDrawer'
+import { EmptyBox, LoadingNote, MasteryBar, PageHead, Panel } from './ui'
 
 /**
- * Teacher "Students" — every student of the teacher's classes.
+ * Part 2 (2026-11-22) — teacher students, rebuilt as a filtered table with a
+ * student drawer.
  *
- * The list is the `studentProgress` rows of the teacher dashboard aggregate
- * (`teachers.getDashboard`, PROPOSED). A student in two classes appears twice
- * there, so the screen keeps the row that needs attention most (lowest
- * progress) and shows that student's class. Nothing is computed beyond that
- * presentation choice: `progressPercent` and `lastActiveAt` are backend values.
+ * Rows are the dashboard aggregate's `studentProgress` (PROPOSED), one row per
+ * enrolment. A student in two classes appears twice there and once here: the
+ * screen keeps the enrolment that needs attention most (lowest progress) and
+ * shows that class, so the table is one row per student.
+ *
+ * The drawer is `StudentDrawer`; there is no student detail page in this table's
+ * path. Mastery and last score are backend values.
  */
 export function StudentList() {
-  const strings = useStrings()
-  const copy = strings.students
-  const lang = useLang()
-  const role = usePreviewRole()
-
   const sessionQuery = useQuery(sessionQueryOptions())
-  const teacherId =
-    sessionQuery.data?.user.role === 'teacher'
-      ? sessionQuery.data.user.id
-      : null
+  const guest = useGuestPreview()
+  const copy = useStrings().students
+  const lang = useLang()
+  const [search, setSearch] = useState('')
+  const [classId, setClassId] = useState('all')
+  const [drawerStudent, setDrawerStudent] =
+    useState<StudentProgressSnapshot | null>(null)
+
+  const sessionUser = sessionQuery.data?.user ?? guest.user
+  const teacherId = sessionUser?.role === 'teacher' ? sessionUser.id : null
 
   const dashboardQuery = useQuery({
     ...teacherDashboardQueryOptions(teacherId ?? ''),
     enabled: teacherId !== null,
   })
 
-  if (sessionQuery.isPending || (teacherId !== null && dashboardQuery.isPending)) {
+  if (
+    sessionQuery.isPending ||
+    (teacherId !== null && dashboardQuery.isPending)
+  ) {
     return (
-      <Frame>
-        <p className="loading-note" role="status">
-          {copy.loading}
-        </p>
-      </Frame>
-    )
-  }
-
-  if (sessionQuery.isError) {
-    return (
-      <Frame>
-        <EmptyNote
-          tone="error"
-          title={copy.loadErrorTitle}
-          body={copy.loadErrorBody}
-        />
-      </Frame>
-    )
-  }
-
-  if (teacherId === null) {
-    return (
-      <Frame>
-        <EmptyNote
-          icon="alert"
-          title={strings.dashboard.noSessionTitle}
-          body={strings.dashboard.noSessionBody}
-        />
+      <Frame title={copy.title}>
+        <LoadingNote>{copy.loading}</LoadingNote>
       </Frame>
     )
   }
 
   if (dashboardQuery.isError || !dashboardQuery.data) {
     return (
-      <Frame>
-        <EmptyNote
+      <Frame title={copy.title}>
+        <EmptyBox
           tone="error"
           title={copy.loadErrorTitle}
           body={copy.loadErrorBody}
@@ -85,100 +63,138 @@ export function StudentList() {
     )
   }
 
-  const students = collapseByStudent(dashboardQuery.data.studentProgress)
+  const data = dashboardQuery.data
+  const query = normaliseSearchText(search)
+  const rows = dedupeByStudent(
+    data.studentProgress.filter(
+      (row) =>
+        (classId === 'all' || row.classroomId === classId) &&
+        (query === '' ||
+          normaliseSearchText(row.student.displayName).includes(query)),
+    ),
+  )
 
   return (
-    <Frame>
-      {students.length === 0 ? (
-        <EmptyNote
-          icon="students"
-          title={copy.emptyTitle}
-          body={copy.emptyBody}
-        />
-      ) : (
-        <section
-          className="dashboard__section"
-          aria-labelledby="students-heading"
-        >
-          <div className="section-head">
-            <h2 id="students-heading">{strings.nav['teacher-students']}</h2>
-            <span className="count-chip">
-              {formatCount(students.length, lang)}
-            </span>
-          </div>
-          <div className="panel">
-            <ul className="progress-list">
-              {students.map((entry) => (
-                <li className="progress-row" key={entry.student.id}>
-                  <div className="progress-row__who">
-                    <h3>
-                      <Link
-                        to="/teacher/students/$studentId"
-                        params={{ studentId: entry.student.id }}
-                        search={{ as: role, lang }}
-                        className="screen-link"
-                        preload={false}
-                      >
-                        {entry.student.displayName}
-                      </Link>
-                    </h3>
-                    <p className="row-meta">
-                      {copy.classLabel}: {entry.classroomName}
-                    </p>
-                  </div>
-                  <div className="progress-row__detail">
-                    <div className="progress-row__labels">
-                      <span>{copy.progressLabel}</span>
-                      <strong>{formatPercent(entry.progressPercent, lang)}</strong>
-                    </div>
-                    <ProgressBar
-                      percent={entry.progressPercent}
-                      label={strings.dashboard.progress.barLabel(
-                        entry.student.displayName,
-                      )}
-                      valueText={formatPercent(entry.progressPercent, lang)}
-                    />
-                    <p className="row-meta">
-                      <MetaPair label={copy.lastActive}>
-                        {formatDate(entry.lastActiveAt, copy.noActivity, lang)}
-                      </MetaPair>
-                    </p>
-                  </div>
-                </li>
+    <Frame
+      title={`${copy.title} ${copy.countLabel(formatCount(rows.length, lang))}`}
+      actions={
+        <>
+          <input
+            className="tv-input"
+            type="search"
+            aria-label={copy.searchLabel}
+            placeholder={copy.searchPlaceholder}
+            style={{ width: '220px' }}
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
+          {data.classes.length > 0 ? (
+            <select
+              className="tv-select"
+              aria-label={copy.filterClass}
+              value={classId}
+              onChange={(event) => setClassId(event.target.value)}
+            >
+              <option value="all">{copy.allClasses}</option>
+              {data.classes.map((classroom) => (
+                <option key={classroom.id} value={classroom.id}>
+                  {classroom.name}
+                </option>
               ))}
-            </ul>
+            </select>
+          ) : null}
+        </>
+      }
+    >
+      <Panel>
+        {data.studentProgress.length === 0 ? (
+          <EmptyBox title={copy.emptyTitle} body={copy.emptyBody} />
+        ) : rows.length === 0 ? (
+          <EmptyBox title={copy.noMatchTitle} body={copy.noMatchBody} />
+        ) : (
+          <div className="tv-table-wrap">
+            <table className="tv-table">
+              <caption className="visually-hidden">{copy.title}</caption>
+              <thead>
+                <tr>
+                  <th scope="col">{copy.colStudent}</th>
+                  <th scope="col">{copy.colClass}</th>
+                  <th scope="col">{copy.colMastery}</th>
+                  <th scope="col">{copy.colLastScore}</th>
+                  <th scope="col">{copy.colLastActive}</th>
+                  <th scope="col">{copy.colAction}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row) => (
+                  <tr key={row.student.id}>
+                    <td className="tv-td-primary">
+                      <div className="tv-cell-title">
+                        {row.student.displayName}
+                      </div>
+                    </td>
+                    <td data-label={copy.colClass}>{row.classroomName}</td>
+                    <td data-label={copy.colMastery}>
+                      <MasteryBar
+                        percent={row.progressPercent}
+                        label={copy.progressLabel}
+                      />
+                    </td>
+                    <td data-label={copy.colLastScore} className="tv-num">
+                      {row.lastScorePercent === null
+                        ? copy.scoreUnavailable
+                        : formatPercent(row.lastScorePercent, lang)}
+                    </td>
+                    <td data-label={copy.colLastActive} className="tv-cell-sub">
+                      {formatDate(row.lastActiveAt, copy.noActivity, lang)}
+                    </td>
+                    <td data-label={copy.colAction}>
+                      <div className="tv-actions-cell">
+                        <button
+                          type="button"
+                          className="tv-btn tv-btn-subtle tv-btn-sm"
+                          onClick={() => setDrawerStudent(row)}
+                        >
+                          {copy.openFile}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        </section>
-      )}
+        )}
+      </Panel>
+
+      {drawerStudent ? (
+        <StudentDrawer
+          studentId={drawerStudent.student.id}
+          studentName={drawerStudent.student.displayName}
+          classroomName={drawerStudent.classroomName}
+          masteryPercent={drawerStudent.progressPercent}
+          lastScorePercent={drawerStudent.lastScorePercent}
+          lastActiveAt={drawerStudent.lastActiveAt}
+          onClose={() => setDrawerStudent(null)}
+        />
+      ) : null}
     </Frame>
   )
 }
 
-/**
- * One row per student. A student enrolled in two classes has two backend rows;
- * the one with the lowest progress is kept so the list points at the class that
- * needs attention first.
- */
-function collapseByStudent(
-  rows: readonly StudentProgressSnapshot[],
-): StudentProgressSnapshot[] {
-  const byStudent = new Map<string, StudentProgressSnapshot>()
-  for (const row of rows) {
-    const current = byStudent.get(row.student.id)
-    if (!current || row.progressPercent < current.progressPercent) {
-      byStudent.set(row.student.id, row)
-    }
-  }
-  return [...byStudent.values()].sort(
-    (left, right) => left.progressPercent - right.progressPercent,
-  )
-}
-
-function Frame({ children }: { children: React.ReactNode }) {
-  const copy = useStrings().students
+/** Page scaffold: the demo's page head above one column of panels. */
+function Frame({
+  title,
+  actions,
+  children,
+}: {
+  title: string
+  actions?: React.ReactNode
+  children: React.ReactNode
+}) {
   return (
-    <div className="dashboard">
-      <PageHero badge={copy.badge} title={copy.title} lead={copy.lead} />
+    <div className="tv-page">
+      <PageHead title={title}>{actions}</PageHead>
       {children}
     </div>
   )

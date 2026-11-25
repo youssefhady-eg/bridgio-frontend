@@ -53,6 +53,7 @@ describe('dashboard format helpers', () => {
       questionCount: 2,
       updatedAt,
       publishedAt: status === 'published' ? updatedAt : null,
+      durationMinutes: null,
     })
 
     const { attention, activity } = splitDashboardTests([

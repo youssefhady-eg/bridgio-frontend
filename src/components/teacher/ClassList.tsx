@@ -1,52 +1,52 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import {
-  sessionQueryOptions,
-  teacherClassroomsQueryOptions,
-} from '~/api/queries'
-import { EmptyNote } from '~/components/dashboard/EmptyNote'
-import { formatCount } from '~/components/dashboard/format'
-import { MetaSep } from '~/components/shared/MetaSep'
-import { PageHero } from '~/components/shared/PageHero'
+import { sessionQueryOptions, teacherClassroomsQueryOptions } from '~/api/queries'
+import { EmptyBox, LoadingNote, PageHead, Panel, PanelHead, Status } from './ui'
+import { useGuestPreview } from '~/shell/useGuestPreview'
 import { usePreviewRole } from '~/shell/usePreviewRole'
 import { useLang, useStrings } from '~/shell/useStrings'
+import { formatCount, formatPercent } from '~/components/dashboard/format'
+import { masteryTone } from './tones'
 
 /**
- * Teacher "My Classes" — the full class list. It reads the teacher's classes
- * through `classrooms.listForTeacher` (PROPOSED) and links each card to the
- * class detail screen. No value is invented: counts come from the adapter.
+ * Part 2 (2026-11-22) — teacher classes, rebuilt as class cards.
+ *
+ * The card is the demo's composition: name and average mastery in the head, one
+ * subject/units line, an inset pair (students, students needing follow-up) and
+ * two real destinations — the student list and the test list.
+ *
+ * `averageMasteryPercent`, `atRiskCount` and `unitsDone` are backend aggregates
+ * (PROPOSED Part 2). An empty class has a null average and shows the
+ * no-students note rather than 0%.
  */
 export function ClassList() {
+  const sessionQuery = useQuery(sessionQueryOptions())
+  const guest = useGuestPreview()
   const strings = useStrings()
   const copy = strings.classes
   const lang = useLang()
   const role = usePreviewRole()
 
-  const sessionQuery = useQuery(sessionQueryOptions())
-  const teacherId =
-    sessionQuery.data?.user.role === 'teacher'
-      ? sessionQuery.data.user.id
-      : null
+  const sessionUser = sessionQuery.data?.user ?? guest.user
+  const teacherId = sessionUser?.role === 'teacher' ? sessionUser.id : null
 
   const classesQuery = useQuery({
     ...teacherClassroomsQueryOptions(teacherId ?? ''),
     enabled: teacherId !== null,
   })
 
-  if (sessionQuery.isPending) {
+  if (sessionQuery.isPending || (teacherId !== null && classesQuery.isPending)) {
     return (
-      <Frame>
-        <p className="loading-note" role="status">
-          {copy.loading}
-        </p>
+      <Frame title={copy.title}>
+        <LoadingNote>{copy.loading}</LoadingNote>
       </Frame>
     )
   }
 
-  if (sessionQuery.isError) {
+  if (classesQuery.isError) {
     return (
-      <Frame>
-        <EmptyNote
+      <Frame title={copy.title}>
+        <EmptyBox
           tone="error"
           title={copy.loadErrorTitle}
           body={copy.loadErrorBody}
@@ -55,112 +55,116 @@ export function ClassList() {
     )
   }
 
-  if (teacherId === null) {
-    return (
-      <Frame>
-        <EmptyNote
-          icon="alert"
-          title={strings.dashboard.noSessionTitle}
-          body={strings.dashboard.noSessionBody}
-        />
-      </Frame>
-    )
-  }
-
-  if (classesQuery.isPending) {
-    return (
-      <Frame>
-        <p className="loading-note" role="status">
-          {copy.loading}
-        </p>
-      </Frame>
-    )
-  }
-
-  if (classesQuery.isError || !classesQuery.data) {
-    return (
-      <Frame>
-        <EmptyNote
-          tone="error"
-          title={copy.loadErrorTitle}
-          body={copy.loadErrorBody}
-        />
-      </Frame>
-    )
-  }
-
-  const classes = classesQuery.data
+  const classes = classesQuery.data ?? []
 
   return (
-    <Frame>
-      {classes.length === 0 ? (
-        <EmptyNote
-          icon="classes"
-          title={copy.emptyTitle}
-          body={copy.emptyBody}
-        />
-      ) : (
-        <section
-          className="dashboard__section"
-          aria-labelledby="classes-heading"
+    <Frame
+      title={copy.title}
+      actions={
+        <Link
+          to="/teacher/tests/new"
+          search={{ as: role, lang }}
+          className="tv-btn tv-btn-primary"
+          preload={false}
         >
-          <div className="section-head">
-            <h2 id="classes-heading">{strings.nav['teacher-classes']}</h2>
-            <span className="count-chip">
-              {formatCount(classes.length, lang)}
-            </span>
-          </div>
-          <ul className="class-grid">
-            {classes.map((classroom) => (
-              <li className="class-card" key={classroom.id}>
-                <h3>{classroom.name}</h3>
-                <p className="row-meta">
-                  {classroom.subjectName}
-                  <MetaSep />
-                  {classroom.gradeLevel}
-                </p>
-                <dl className="class-card__stats">
-                  <div>
-                    <dt>{copy.students}</dt>
-                    <dd>{formatCount(classroom.studentCount, lang)}</dd>
+          {copy.newTest}
+        </Link>
+      }
+    >
+      {classes.length === 0 ? (
+        <Panel>
+          <EmptyBox title={copy.emptyTitle} body={copy.emptyBody} />
+        </Panel>
+      ) : (
+        <div className="tv-grid-3">
+          {classes.map((classroom) => (
+            <Panel key={classroom.id}>
+              <PanelHead title={classroom.name}>
+                <Status
+                  tone={
+                    classroom.averageMasteryPercent === null
+                      ? 'neutral'
+                      : masteryTone(classroom.averageMasteryPercent)
+                  }
+                >
+                  {classroom.averageMasteryPercent === null
+                    ? copy.masteryUnavailable
+                    : copy.averageBadge(
+                        formatPercent(classroom.averageMasteryPercent, lang),
+                      )}
+                </Status>
+              </PanelHead>
+              <div className="tv-panel-body tv-stack-sm">
+                <div className="tv-cell-sub">
+                  {copy.subjectUnits(
+                    classroom.subjectName,
+                    formatCount(classroom.unitsDone, lang),
+                    formatCount(classroom.unitCount, lang),
+                  )}
+                </div>
+
+                <div className="tv-grid-equal">
+                  <div className="tv-kpi">
+                    <span className="tv-kpi-label">{copy.students}</span>
+                    <strong className="tv-num">
+                      {formatCount(classroom.studentCount, lang)}
+                    </strong>
                   </div>
-                  <div>
-                    <dt>{copy.units}</dt>
-                    <dd>{formatCount(classroom.unitCount, lang)}</dd>
+                  <div className="tv-kpi">
+                    <span className="tv-kpi-label">{copy.atRisk}</span>
+                    <strong
+                      className="tv-num"
+                      style={{
+                        color:
+                          classroom.atRiskCount > 0
+                            ? 'var(--status-danger)'
+                            : 'var(--status-success)',
+                      }}
+                    >
+                      {formatCount(classroom.atRiskCount, lang)}
+                    </strong>
                   </div>
-                  <div>
-                    <dt>{copy.lessons}</dt>
-                    <dd>{formatCount(classroom.lessonCount, lang)}</dd>
-                  </div>
-                </dl>
-                {classroom.certificateNote ? (
-                  <p className="class-card__note">{classroom.certificateNote}</p>
-                ) : null}
-                <p className="finish-actions">
+                </div>
+
+                <div className="tv-page-actions">
                   <Link
-                    to="/teacher/classes/$classId"
-                    params={{ classId: classroom.id }}
+                    to="/teacher/students"
                     search={{ as: role, lang }}
-                    className="button button--secondary button--small"
+                    className="tv-btn tv-btn-subtle tv-btn-sm"
                     preload={false}
                   >
-                    {copy.open}
+                    {copy.studentsList}
                   </Link>
-                </p>
-              </li>
-            ))}
-          </ul>
-        </section>
+                  <Link
+                    to="/teacher/tests"
+                    search={{ as: role, lang }}
+                    className="tv-btn tv-btn-secondary tv-btn-sm"
+                    preload={false}
+                  >
+                    {copy.testsButton}
+                  </Link>
+                </div>
+              </div>
+            </Panel>
+          ))}
+        </div>
       )}
     </Frame>
   )
 }
 
-function Frame({ children }: { children: React.ReactNode }) {
-  const copy = useStrings().classes
+function Frame({
+  title,
+  actions,
+  children,
+}: {
+  title: string
+  actions?: React.ReactNode
+  children: React.ReactNode
+}) {
   return (
-    <div className="dashboard">
-      <PageHero badge={copy.badge} title={copy.title} lead={copy.lead} />
+    <div className="tv-page">
+      <PageHead title={title}>{actions}</PageHead>
       {children}
     </div>
   )

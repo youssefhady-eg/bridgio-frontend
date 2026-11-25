@@ -1,4 +1,7 @@
+import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
+import { sessionQueryOptions } from '~/api/queries'
+import { dashboardLinkLabel } from '~/content/roles'
 import type { HelpLinkId } from '~/content/strings'
 import { PageHero } from '~/components/shared/PageHero'
 import { linkRoutes, linkSearchRole } from '~/shell/help-links'
@@ -11,7 +14,8 @@ import { useLang, useStrings } from '~/shell/useStrings'
  * Teacher, parent and assistant run in formal (MSA) Arabic; the student
  * walkthrough is Egyptian casual. Because the page shows one role, the two
  * registers never mix inside a page. The role comes from the same source as the
- * sidebar nav. No data is fetched.
+ * sidebar nav. The session is read only to name the teacher dashboard in the
+ * teacher walkthrough (gendered when signed in, neutral otherwise).
  */
 export function GuideView() {
   const strings = useStrings()
@@ -19,6 +23,14 @@ export function GuideView() {
   const lang = useLang()
   const role = usePreviewRole()
   const walkthrough = copy[role]
+
+  const sessionQuery = useQuery(sessionQueryOptions())
+  const sessionUser = sessionQuery.data?.user ?? null
+
+  // Female / neutral teacher name when signed in, neutral dashboard name with
+  // no session.
+  const dashboard = dashboardLinkLabel(sessionUser, strings.dashboard)
+  const withDashboard = (text: string) => text.replace('{dashboard}', dashboard)
 
   return (
     <div className="dashboard">
@@ -43,8 +55,8 @@ export function GuideView() {
                   {index + 1}
                 </span>
                 <div className="guide__body">
-                  <h3>{step.title}</h3>
-                  <p>{step.body}</p>
+                  <h3>{withDashboard(step.title)}</h3>
+                  <p>{withDashboard(step.body)}</p>
                   <Link
                     to={to}
                     search={{ as: linkSearchRole(to, role), lang }}
@@ -53,7 +65,9 @@ export function GuideView() {
                   >
                     <span>{copy.open}</span>
                     <span className="guide__link-target">
-                      {strings.help.links[link]}
+                      {link === 'teacherDashboard'
+                        ? dashboard
+                        : strings.help.links[link]}
                     </span>
                   </Link>
                 </div>

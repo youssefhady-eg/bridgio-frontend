@@ -149,31 +149,59 @@
 }
 
 .auth-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2) var(--space-4);
-  align-items: center;
-  margin-block-start: var(--space-6);
+  display: grid;
+  gap: var(--space-3);
+  margin-block-start: var(--space-8);
+  width: 100%;
 }
 
 .auth-links__heading {
-  flex-basis: 100%;
   margin: 0;
   font-size: var(--font-label-size);
 }
 
+/* One deliberate row: the first link starts on the form's inline-start edge,
+   the last ends on its inline-end edge, in both directions. */
+.auth-links__row {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
 .auth-links__link {
+  position: relative;
+  isolation: isolate;
   display: inline-flex;
   align-items: center;
   min-height: var(--touch-target);
-  padding-inline: var(--space-2);
-  border-radius: var(--radius-input);
+  padding-inline: 0;
+  border-radius: 0;
   color: var(--bridgio-maroon);
   font-weight: 600;
   text-decoration: none;
 }
 
-.auth-links__link:hover {
+/* Plain text at rest. The wash is a text-line highlight on hover/keyboard
+   focus only — not a filled 44 px pill. The link keeps the 44 px hit area
+   without painting it. */
+.auth-links__link::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset-block: 50% auto;
+  inset-inline: calc(var(--space-1) * -1);
+  height: 1.7em;
+  border-radius: 4px;
+  background: transparent;
+  transform: translateY(-50%);
+  transition: background-color var(--motion-duration-fast)
+    var(--motion-ease-standard);
+}
+
+.auth-links__link:hover::before,
+.auth-links__link:focus-visible::before {
   background: var(--hover-bg);
 }
 
@@ -196,14 +224,17 @@
   width: calc(var(--touch-target) + 8px);
   height: calc(var(--touch-target) + 8px);
   padding: 0;
-  background: var(--bridgio-maroon);
+  /* Cream/paper circle that stays cream in both themes: the mascot artwork
+     carries a dark outline, so it must never sit on the dark surface. The
+     maroon outline is the only colour the control adds. */
+  background: var(--bridgio-paper-fixed);
   border: var(--outline-sticker) solid var(--bridgio-maroon);
   border-radius: var(--radius-pill);
-  color: var(--bridgio-cream);
+  color: var(--text-primary);
 }
 
 .mohsen-fab:hover {
-  background: var(--bridgio-maroon-outline);
+  background: var(--bridgio-paper-fixed);
   border-color: var(--bridgio-maroon-outline);
 }
 
@@ -221,6 +252,13 @@
   display: flex;
   flex-direction: column;
   width: min(32rem, calc(100vw - 2rem));
+  /* Belt-and-braces cap: the rendered width must be 32 rem (544 px at the 17 px
+     desktop root) and the mobile `width` above is the only rule that used to
+     hold it. `max-inline-size` makes the cap survive any later width rule or
+     content-driven growth. Border-box keeps the 2 px sticker inside the 32 rem,
+     not on top of it. */
+  max-inline-size: min(32rem, calc(100vw - 2rem));
+  box-sizing: border-box;
   max-height: min(40rem, calc(100dvh - 2rem));
   overflow: hidden;
   background: var(--bridgio-paper);
@@ -241,8 +279,45 @@
 .mohsen-ask__head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: var(--space-3);
+}
+
+/* Mascot avatar beside the popup title, on the same paper as the popup. */
+.mohsen-ask__avatar {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  background: var(--bridgio-paper-fixed);
+  border: var(--outline-hairline) solid var(--bridgio-maroon);
+  border-radius: var(--radius-pill);
+}
+
+.mohsen-ask__avatar-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* State mascot: one supplied pose per popup state, on the same fixed cream
+   plate as the floating circle so the dark outline reads in both themes. */
+.mohsen-ask__stage {
+  display: flex;
+  justify-content: center;
+  margin-block-end: var(--space-3);
+}
+
+.mohsen-ask__stage-art {
+  width: 72px;
+  height: 72px;
+  background: var(--bridgio-paper-fixed);
+  border: var(--outline-sticker) solid var(--bridgio-maroon);
+  border-radius: var(--radius-pill);
+  object-fit: contain;
 }
 
 .mohsen-ask__title {
@@ -256,6 +331,7 @@
   justify-content: center;
   width: var(--touch-target);
   height: var(--touch-target);
+  margin-inline-start: auto;
   background: transparent;
   border: 0;
   border-radius: var(--radius-pill);

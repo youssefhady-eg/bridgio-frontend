@@ -39,18 +39,17 @@ export interface AttemptSummary {
   questionCount: number
   startedAt: IsoDateTime
   submittedAt: IsoDateTime | null
+  /**
+   * PROPOSED — Part 2. Backend-supplied score for this attempt, or null while
+   * the backend has not produced one. The frontend never computes or derives
+   * it from `answers`; it is display-only.
+   */
+  scorePercent: number | null
 }
 
 export interface Attempt extends AttemptSummary {
   studentId: UserId
   answers: AttemptAnswer[]
-  /**
-   * Backend-supplied score for this attempt, or null while the backend has not
-   * produced one. The frontend never computes or derives it from `answers`; it
-   * is display-only data, in the same spirit as the parent view's
-   * `ParentResult.scorePercent`.
-   */
-  scorePercent: number | null
 }
 
 /**

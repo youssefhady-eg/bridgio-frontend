@@ -98,3 +98,20 @@ export function questionBankTotals(
     ),
   }
 }
+
+/**
+ * Part 2 — the draft that "add to draft" targets: the most recently updated
+ * draft test among the groups the adapter returned. Returns null when the
+ * teacher has no draft, so the caller can disable the action instead of
+ * inventing a destination.
+ */
+export function newestDraft(
+  groups: readonly QuestionBankGroup[],
+): QuestionBankGroup | null {
+  const drafts = groups.filter((group) => group.test.status === 'draft')
+  if (drafts.length === 0) return null
+  const sorted = [...drafts].sort((left, right) =>
+    right.test.updatedAt.localeCompare(left.test.updatedAt),
+  )
+  return sorted[0] ?? null
+}

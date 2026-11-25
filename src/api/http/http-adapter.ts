@@ -40,6 +40,8 @@ import type {
   StudentProgress,
   StudentQuestion,
   SubmitAttemptInput,
+  SupportRequestInput,
+  SupportResult,
   TeacherDashboard,
   TeacherProfile,
   Test,
@@ -441,6 +443,20 @@ export function createHttpApi(options: HttpApiOptions): BridgioApi {
         client.request<DraftQuestionsResult>({
           method: 'POST',
           path: endpoints.mohsen.draftQuestions,
+          body: input,
+        }),
+    },
+
+    /**
+     * PROPOSED (Batch 5 follow-up) — not connected. The support backend is
+     * absent; a real endpoint must return the `unavailable` result, never a
+     * fake `accepted`, until it exists.
+     */
+    support: {
+      submitRequest: (input: SupportRequestInput) =>
+        client.request<SupportResult>({
+          method: 'POST',
+          path: endpoints.support.submitRequest,
           body: input,
         }),
     },

@@ -54,6 +54,10 @@ export const endpoints = {
     // PROPOSED (Batch 5) — global in-app search, mock only.
     query: '/search',
   },
+  support: {
+    // PROPOSED (Batch 5 follow-up) — support requests, not connected.
+    submitRequest: '/support/requests',
+  },
   classrooms: {
     forTeacher: (teacherId: string) =>
       `/teachers/${encode(teacherId)}/classrooms`,

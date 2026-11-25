@@ -17,6 +17,7 @@ import {
 import { MetaList } from '~/components/shared/MetaList'
 import { MetaPair } from '~/components/shared/MetaPair'
 import { PageHero } from '~/components/shared/PageHero'
+import { useGuestPreview } from '~/shell/useGuestPreview'
 import { usePreviewRole } from '~/shell/usePreviewRole'
 import { useLang, useStrings } from '~/shell/useStrings'
 
@@ -37,10 +38,9 @@ export function HomeView() {
   const role = usePreviewRole()
 
   const sessionQuery = useQuery(sessionQueryOptions())
-  const studentId =
-    sessionQuery.data?.user.role === 'student'
-      ? sessionQuery.data.user.id
-      : null
+  const guest = useGuestPreview()
+  const viewer = sessionQuery.data?.user ?? guest.user
+  const studentId = viewer?.role === 'student' ? viewer.id : null
 
   const profileQuery = useQuery({
     ...studentProfileQueryOptions(studentId ?? ''),

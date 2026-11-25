@@ -20,6 +20,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as SignUpRouteImport } from './routes/sign-up'
+import { Route as SupportRouteImport } from './routes/support'
 import { Route as ParentMessagesRouteImport } from './routes/parent.messages'
 import { Route as ParentProgressRouteImport } from './routes/parent.progress'
 import { Route as ParentResultsRouteImport } from './routes/parent.results'
@@ -41,6 +42,7 @@ import { Route as TeacherStudentsIndexRouteImport } from './routes/teacher.stude
 import { Route as TeacherStudentsStudentIdRouteImport } from './routes/teacher.students.$studentId'
 import { Route as TeacherTestsIndexRouteImport } from './routes/teacher.tests.index'
 import { Route as TeacherTestsTestIdRouteImport } from './routes/teacher.tests.$testId'
+import { Route as TeacherTestsNewRouteImport } from './routes/teacher.tests.new'
 import { Route as StudentTestsTestIdResultsRouteImport } from './routes/student.tests.$testId.results'
 
 const IndexRoute = IndexRouteImport.update({
@@ -96,6 +98,11 @@ const SignInRoute = SignInRouteImport.update({
 const SignUpRoute = SignUpRouteImport.update({
   id: '/sign-up',
   path: '/sign-up',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SupportRoute = SupportRouteImport.update({
+  id: '/support',
+  path: '/support',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ParentMessagesRoute = ParentMessagesRouteImport.update({
@@ -204,6 +211,11 @@ const TeacherTestsTestIdRoute = TeacherTestsTestIdRouteImport.update({
   path: '/$testId',
   getParentRoute: () => TeacherTestsRoute,
 } as any)
+const TeacherTestsNewRoute = TeacherTestsNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => TeacherTestsRoute,
+} as any)
 const StudentTestsTestIdResultsRoute =
   StudentTestsTestIdResultsRouteImport.update({
     id: '/$testId/results',
@@ -223,6 +235,7 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/support': typeof SupportRoute
   '/parent/messages': typeof ParentMessagesRoute
   '/parent/progress': typeof ParentProgressRoute
   '/parent/results': typeof ParentResultsRoute
@@ -240,6 +253,7 @@ export interface FileRoutesByFullPath {
   '/teacher/classes/$classId': typeof TeacherClassesClassIdRoute
   '/teacher/students/$studentId': typeof TeacherStudentsStudentIdRoute
   '/teacher/tests/$testId': typeof TeacherTestsTestIdRoute
+  '/teacher/tests/new': typeof TeacherTestsNewRoute
   '/student/tests/': typeof StudentTestsIndexRoute
   '/teacher/classes/': typeof TeacherClassesIndexRoute
   '/teacher/students/': typeof TeacherStudentsIndexRoute
@@ -258,6 +272,7 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/support': typeof SupportRoute
   '/parent/messages': typeof ParentMessagesRoute
   '/parent/progress': typeof ParentProgressRoute
   '/parent/results': typeof ParentResultsRoute
@@ -271,6 +286,7 @@ export interface FileRoutesByTo {
   '/teacher/classes/$classId': typeof TeacherClassesClassIdRoute
   '/teacher/students/$studentId': typeof TeacherStudentsStudentIdRoute
   '/teacher/tests/$testId': typeof TeacherTestsTestIdRoute
+  '/teacher/tests/new': typeof TeacherTestsNewRoute
   '/student/tests': typeof StudentTestsIndexRoute
   '/teacher/classes': typeof TeacherClassesIndexRoute
   '/teacher/students': typeof TeacherStudentsIndexRoute
@@ -290,6 +306,7 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/support': typeof SupportRoute
   '/parent/messages': typeof ParentMessagesRoute
   '/parent/progress': typeof ParentProgressRoute
   '/parent/results': typeof ParentResultsRoute
@@ -307,6 +324,7 @@ export interface FileRoutesById {
   '/teacher/classes/$classId': typeof TeacherClassesClassIdRoute
   '/teacher/students/$studentId': typeof TeacherStudentsStudentIdRoute
   '/teacher/tests/$testId': typeof TeacherTestsTestIdRoute
+  '/teacher/tests/new': typeof TeacherTestsNewRoute
   '/student/tests/': typeof StudentTestsIndexRoute
   '/teacher/classes/': typeof TeacherClassesIndexRoute
   '/teacher/students/': typeof TeacherStudentsIndexRoute
@@ -327,6 +345,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/sign-in'
     | '/sign-up'
+    | '/support'
     | '/parent/messages'
     | '/parent/progress'
     | '/parent/results'
@@ -344,6 +363,7 @@ export interface FileRouteTypes {
     | '/teacher/classes/$classId'
     | '/teacher/students/$studentId'
     | '/teacher/tests/$testId'
+    | '/teacher/tests/new'
     | '/student/tests/'
     | '/teacher/classes/'
     | '/teacher/students/'
@@ -362,6 +382,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/sign-in'
     | '/sign-up'
+    | '/support'
     | '/parent/messages'
     | '/parent/progress'
     | '/parent/results'
@@ -375,6 +396,7 @@ export interface FileRouteTypes {
     | '/teacher/classes/$classId'
     | '/teacher/students/$studentId'
     | '/teacher/tests/$testId'
+    | '/teacher/tests/new'
     | '/student/tests'
     | '/teacher/classes'
     | '/teacher/students'
@@ -393,6 +415,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/sign-in'
     | '/sign-up'
+    | '/support'
     | '/parent/messages'
     | '/parent/progress'
     | '/parent/results'
@@ -410,6 +433,7 @@ export interface FileRouteTypes {
     | '/teacher/classes/$classId'
     | '/teacher/students/$studentId'
     | '/teacher/tests/$testId'
+    | '/teacher/tests/new'
     | '/student/tests/'
     | '/teacher/classes/'
     | '/teacher/students/'
@@ -429,6 +453,7 @@ export interface RootRouteChildren {
   SearchRoute: typeof SearchRoute
   SignInRoute: typeof SignInRoute
   SignUpRoute: typeof SignUpRoute
+  SupportRoute: typeof SupportRoute
   ParentMessagesRoute: typeof ParentMessagesRoute
   ParentProgressRoute: typeof ParentProgressRoute
   ParentResultsRoute: typeof ParentResultsRoute
@@ -522,6 +547,13 @@ declare module '@tanstack/react-router' {
       path: '/sign-up'
       fullPath: '/sign-up'
       preLoaderRoute: typeof SignUpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/support': {
+      id: '/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof SupportRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/parent/messages': {
@@ -671,6 +703,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TeacherTestsTestIdRouteImport
       parentRoute: typeof TeacherTestsRoute
     }
+    '/teacher/tests/new': {
+      id: '/teacher/tests/new'
+      path: '/new'
+      fullPath: '/teacher/tests/new'
+      preLoaderRoute: typeof TeacherTestsNewRouteImport
+      parentRoute: typeof TeacherTestsRoute
+    }
     '/student/tests/$testId/results': {
       id: '/student/tests/$testId/results'
       path: '/$testId/results'
@@ -725,11 +764,13 @@ const TeacherStudentsRouteWithChildren = TeacherStudentsRoute._addFileChildren(
 
 interface TeacherTestsRouteChildren {
   TeacherTestsTestIdRoute: typeof TeacherTestsTestIdRoute
+  TeacherTestsNewRoute: typeof TeacherTestsNewRoute
   TeacherTestsIndexRoute: typeof TeacherTestsIndexRoute
 }
 
 const TeacherTestsRouteChildren: TeacherTestsRouteChildren = {
   TeacherTestsTestIdRoute: TeacherTestsTestIdRoute,
+  TeacherTestsNewRoute: TeacherTestsNewRoute,
   TeacherTestsIndexRoute: TeacherTestsIndexRoute,
 }
 
@@ -749,6 +790,7 @@ const rootRouteChildren: RootRouteChildren = {
   SearchRoute: SearchRoute,
   SignInRoute: SignInRoute,
   SignUpRoute: SignUpRoute,
+  SupportRoute: SupportRoute,
   ParentMessagesRoute: ParentMessagesRoute,
   ParentProgressRoute: ParentProgressRoute,
   ParentResultsRoute: ParentResultsRoute,

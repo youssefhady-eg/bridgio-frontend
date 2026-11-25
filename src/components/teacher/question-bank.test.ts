@@ -25,6 +25,11 @@ function question(
     origin: 'teacher',
     createdAt: '2026-11-01T00:00:00.000Z',
     updatedAt: '2026-11-01T00:00:00.000Z',
+    type: 'mcq',
+    difficulty: 'medium',
+    points: 1,
+    modelAnswer: null,
+    unitId: null,
   }
 }
 
@@ -38,6 +43,7 @@ function test(id: string, classroomId: string, classroomName: string): TestSumma
     questionCount: 0,
     updatedAt: '2026-11-01T00:00:00.000Z',
     publishedAt: null,
+    durationMinutes: null,
   }
 }
 

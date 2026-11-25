@@ -1,5 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { sessionQueryOptions, teacherDashboardQueryOptions } from '~/api/queries'
+import {
+  sessionQueryOptions,
+  teacherDashboardQueryOptions,
+  teacherTestsQueryOptions,
+} from '~/api/queries'
 import { TeacherDashboard } from '~/components/dashboard/TeacherDashboard'
 import { stringsFor } from '~/shell/useStrings'
 
@@ -17,21 +21,47 @@ import { stringsFor } from '~/shell/useStrings'
  * swapping in the framework's default English error screen.
  */
 export const Route = createFileRoute('/teacher/dashboard')({
-  head: ({ match }) => ({
-    meta: [{ title: stringsFor(match.search.lang).dashboard.headTitle }],
-  }),
+  head: ({ match }) => {
+    const copy = stringsFor(match.search.lang).dashboard
+    // The loader returns the session gender so the document title follows the
+    // same rule as the heading. The head context types the loader data loosely,
+    // so it is narrowed here.
+    const loaderData = match.loaderData as
+      | { gender?: 'male' | 'female' | null }
+      | undefined
+    return {
+      meta: [
+        {
+          title:
+            loaderData?.gender === 'female'
+              ? copy.headTitleFemale
+              : copy.headTitle,
+        },
+      ],
+    }
+  },
   loader: async ({ context }) => {
     try {
       const session = await context.queryClient.ensureQueryData(
         sessionQueryOptions(),
       )
       if (session?.user.role === 'teacher') {
-        await context.queryClient.ensureQueryData(
-          teacherDashboardQueryOptions(session.user.id),
-        )
+        await Promise.all([
+          context.queryClient.ensureQueryData(
+            teacherDashboardQueryOptions(session.user.id),
+          ),
+          // The dashboard lists every draft, and the aggregate only carries the
+          // five most recent tests, so the full teacher test list is prefetched
+          // alongside it.
+          context.queryClient.ensureQueryData(
+            teacherTestsQueryOptions(session.user.id),
+          ),
+        ])
       }
+      return { gender: session?.user.gender ?? null }
     } catch {
       // Query status carries the failure to the screen's error state.
+      return { gender: null }
     }
   },
   component: TeacherDashboard,

@@ -2,9 +2,11 @@ import { useQuery } from '@tanstack/react-query'
 import { capabilitiesQueryOptions, sessionQueryOptions } from '~/api/queries'
 import type { NavCapability } from '~/api/types'
 import { AppIcon, type AppIconName } from '~/components/AppIcon'
+import { dashboardLabel, roleLabel } from '~/content/roles'
 import { EmptyNote } from '~/components/dashboard/EmptyNote'
 import { MetaList } from '~/components/shared/MetaList'
 import { PageHero } from '~/components/shared/PageHero'
+import { useGuestPreview } from '~/shell/useGuestPreview'
 import { useStrings } from '~/shell/useStrings'
 
 /**
@@ -27,11 +29,12 @@ export function AssistantView() {
   const copy = strings.assistant
 
   const sessionQuery = useQuery(sessionQueryOptions())
-  const session = sessionQuery.data ?? null
+  const guest = useGuestPreview()
+  const viewer = sessionQuery.data?.user ?? guest.user
 
   const capabilitiesQuery = useQuery({
-    ...capabilitiesQueryOptions(session?.user.id ?? ''),
-    enabled: session !== null,
+    ...capabilitiesQueryOptions(viewer?.id ?? ''),
+    enabled: viewer !== null,
   })
 
   if (sessionQuery.isPending) {
@@ -56,7 +59,7 @@ export function AssistantView() {
     )
   }
 
-  if (!session || session.user.role !== 'assistant') {
+  if (!viewer || viewer.role !== 'assistant') {
     return (
       <Frame>
         <EmptyNote
@@ -96,7 +99,7 @@ export function AssistantView() {
     <Frame
       greeting={
         <p className="dashboard__greeting">
-          {copy.greeting(session.user.displayName)}
+          {copy.greeting(viewer.displayName)}
         </p>
       }
     >
@@ -126,7 +129,11 @@ export function AssistantView() {
                   <AppIcon name={capabilityIcon[capability]} size={22} />
                 </span>
                 <span className="capability-item__text">
-                  <strong>{copy.capability[capability]}</strong>
+                  <strong>
+                    {capability === 'dashboard'
+                      ? dashboardLabel(viewer, strings.dashboard)
+                      : copy.capability[capability]}
+                  </strong>
                 </span>
               </li>
             ))}
@@ -152,10 +159,14 @@ export function AssistantView() {
             <h2 id="assistant-session-heading">{copy.sessionHeading}</h2>
             <MetaList
               items={[
-                { label: copy.sessionName, value: session.user.displayName },
+                { label: copy.sessionName, value: viewer.displayName },
                 {
                   label: copy.sessionRole,
-                  value: strings.profile.roles[session.user.role],
+                  value: roleLabel(
+                    viewer,
+                    strings.profile.roles,
+                    strings.profile.rolesFemale,
+                  ),
                 },
               ]}
             />
@@ -175,7 +186,7 @@ function Frame({
 }) {
   const copy = useStrings().assistant
   return (
-    <div className="dashboard">
+    <div className="dashboard assistant-page">
       <PageHero
         badge={copy.badge}
         title={copy.title}

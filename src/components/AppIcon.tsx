@@ -12,6 +12,7 @@ import {
   House,
   Library,
   ListChecks,
+  LifeBuoy,
   Menu,
   MessageSquare,
   MessagesSquare,
@@ -61,6 +62,7 @@ export type AppIconName =
   | 'spark'
   | 'help'
   | 'guide'
+  | 'support'
   | 'sun'
   | 'moon'
   | 'collapse'
@@ -92,6 +94,7 @@ const icons: Record<AppIconName, LucideIcon> = {
   spark: Sparkles,
   help: FileQuestion,
   guide: Compass,
+  support: LifeBuoy,
   sun: Sun,
   moon: Moon,
   collapse: ChevronLeft,

@@ -196,17 +196,50 @@ export interface QuestionBankGroup {
   questions: Question[]
 }
 
+/**
+ * Part 2 (2026-11-22) — the bank now also carries the unit names, so the table
+ * can label each question's unit without a second lookup per row. Units come
+ * from `classrooms.get` for the teacher's classes, which the library screen
+ * already reads through the same teacher-scoped method.
+ */
+export interface TeacherQuestionBankData {
+  groups: QuestionBankGroup[]
+  unitsById: Record<string, string>
+  /**
+   * Units per class, so the new-question modal can offer the target draft's own
+   * units rather than every unit the teacher teaches.
+   */
+  unitsByClass: Record<ClassroomId, CurriculumUnit[]>
+}
+
 export const teacherQuestionBankQueryOptions = (teacherId: UserId) =>
   queryOptions({
     queryKey: queryKeys.questions.forTeacher(teacherId),
-    queryFn: async (): Promise<QuestionBankGroup[]> => {
-      const tests = await api.tests.listForTeacher({ teacherId })
-      return Promise.all(
+    queryFn: async (): Promise<TeacherQuestionBankData> => {
+      const [tests, classrooms] = await Promise.all([
+        api.tests.listForTeacher({ teacherId }),
+        api.classrooms.listForTeacher({ teacherId }),
+      ])
+      const groups = await Promise.all(
         tests.map(async (test) => ({
           test,
           questions: await api.questions.listForTest({ testId: test.id }),
         })),
       )
+      const details = await Promise.all(
+        classrooms.map((classroom) =>
+          api.classrooms.get({ classroomId: classroom.id }),
+        ),
+      )
+      const unitsById: Record<string, string> = {}
+      const unitsByClass: Record<ClassroomId, CurriculumUnit[]> = {}
+      for (const detail of details) {
+        unitsByClass[detail.id] = detail.units.map((entry) => entry.unit)
+        for (const entry of detail.units) {
+          unitsById[entry.unit.id] = entry.unit.title
+        }
+      }
+      return { groups, unitsById, unitsByClass }
     },
     staleTime: 0,
   })

@@ -1,502 +1,504 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import type { ReactNode } from 'react'
-import { sessionQueryOptions, teacherDashboardQueryOptions } from '~/api/queries'
-import type { TestSummary } from '~/api/types'
-import { MetaPair } from '~/components/shared/MetaPair'
-import { MetaSep } from '~/components/shared/MetaSep'
+import { useState } from 'react'
+import {
+  sessionQueryOptions,
+  teacherDashboardQueryOptions,
+  teacherTestsQueryOptions,
+} from '~/api/queries'
+import type { StudentProgressSnapshot } from '~/api/types'
+import { dashboardLabel } from '~/content/roles'
+import { useGuestPreview } from '~/shell/useGuestPreview'
 import { usePreviewRole } from '~/shell/usePreviewRole'
 import { useLang, useStrings } from '~/shell/useStrings'
-import { EmptyNote } from './EmptyNote'
-import { ProgressBar } from './ProgressBar'
-import { StatusChip } from './StatusChip'
+import { formatCount, formatDate, formatPercent } from './format'
+import { PublishTestButton } from '~/components/teacher/PublishTestButton'
+import { StudentDrawer } from '~/components/teacher/StudentDrawer'
+import { masteryTone } from '~/components/teacher/tones'
 import {
-  formatCount,
-  formatDate,
-  formatPercent,
-  isDashboardEmpty,
-  splitDashboardTests,
-} from './format'
-import { Icon } from './icons'
+  EmptyBox,
+  Kpi,
+  LoadingNote,
+  MasteryBar,
+  PageHead,
+  Panel,
+  PanelHead,
+  Status,
+} from '~/components/teacher/ui'
 
 /**
- * Stage 2 — teacher dashboard.
+ * Part 2 (2026-11-22) — teacher dashboard, rebuilt on the demo composition.
  *
- * "Classes, recent tests, student progress at a glance", led by time saved.
- * Every value on this screen comes from one adapter call
- * (`teachers.getDashboard`) through TanStack Query; no data is hard-coded here.
- * Teacher identity comes from the Mentingo-owned session, not from a BRIDGIO
- * user model, and the preview role (`?as`) remains UI state only.
+ * Every value comes from the adapter: `teachers.getDashboard` for the KPIs, the
+ * at-risk rows, unit mastery and submissions, and `tests.listForTeacher` for the
+ * full draft list (the dashboard aggregate only carries the five most recent
+ * tests, which is not enough to list every draft).
  *
- * The denser desktop composition reorders and groups the same adapter values:
- * quick actions, tests needing attention, recent activity, student progress and
- * classes. It never computes a score or invents a record.
+ * NOTHING here computes a score, a mastery percentage or a class average: those
+ * are backend aggregates (`averageMasteryPercent`, `atRiskCount`, `unitsDone`,
+ * `unitMastery`, `scorePercent`). A null aggregate renders as unavailable.
+ *
+ * Held (Phase 4): grading. The third KPI is the submissions count (its label
+ * lives in the strings file), the submissions table has no action column, and
+ * there is no "open grading" or "item analysis" entry point.
  */
-
 export function TeacherDashboard() {
   const sessionQuery = useQuery(sessionQueryOptions())
-  const strings = useStrings().dashboard
+  const guest = useGuestPreview()
+  const strings = useStrings()
+  const copy = strings.dashboard
   const lang = useLang()
-  const teacherId =
-    sessionQuery.data?.user.role === 'teacher'
-      ? sessionQuery.data.user.id
-      : null
+  const role = usePreviewRole()
+  const [classId, setClassId] = useState('all')
+  const [drawerStudent, setDrawerStudent] =
+    useState<StudentProgressSnapshot | null>(null)
+
+  // A real session always wins; with no session, the guest preview borrows the
+  // matching demo identity for reads. This is UI state, never a login.
+  const sessionUser = sessionQuery.data?.user ?? guest.user
+  const teacherId = sessionUser?.role === 'teacher' ? sessionUser.id : null
+  const heading = sessionUser
+    ? dashboardLabel(sessionUser, copy)
+    : copy.title
 
   const dashboardQuery = useQuery({
     ...teacherDashboardQueryOptions(teacherId ?? ''),
     enabled: teacherId !== null,
   })
+  const testsQuery = useQuery({
+    ...teacherTestsQueryOptions(teacherId ?? ''),
+    enabled: teacherId !== null,
+  })
 
-  if (sessionQuery.isPending) {
+  if (sessionQuery.isPending || (teacherId !== null && dashboardQuery.isPending)) {
     return (
-      <DashboardFrame>
-        <p className="loading-note" role="status">
-          {strings.loading}
-        </p>
-      </DashboardFrame>
+      <Frame title={heading}>
+        <LoadingNote>{copy.loading}</LoadingNote>
+      </Frame>
     )
   }
 
-  if (sessionQuery.isError) {
+  if (sessionQuery.isError || dashboardQuery.isError || !dashboardQuery.data) {
     return (
-      <DashboardFrame>
-        <EmptyNote
+      <Frame title={heading}>
+        <EmptyBox
           tone="error"
-          title={strings.loadErrorTitle}
-          body={strings.loadErrorBody}
+          title={copy.loadErrorTitle}
+          body={copy.loadErrorBody}
         />
-      </DashboardFrame>
+      </Frame>
     )
   }
 
   if (teacherId === null) {
     return (
-      <DashboardFrame>
-        <EmptyNote
-          icon="alert"
-          title={strings.noSessionTitle}
-          body={strings.noSessionBody}
-        />
-      </DashboardFrame>
+      <Frame title={heading}>
+        <EmptyBox title={copy.noSessionTitle} body={copy.noSessionBody} />
+      </Frame>
     )
   }
 
-  if (dashboardQuery.isPending) {
-    return (
-      <DashboardFrame>
-        <p className="loading-note" role="status">
-          {strings.loading}
-        </p>
-      </DashboardFrame>
-    )
-  }
+  const data = dashboardQuery.data
+  const filterActive = classId !== 'all'
+  const selectedClass = data.classes.find((item) => item.id === classId)
 
-  if (dashboardQuery.isError || !dashboardQuery.data) {
-    return (
-      <DashboardFrame>
-        <EmptyNote
-          tone="error"
-          title={strings.loadErrorTitle}
-          body={strings.loadErrorBody}
-        />
-      </DashboardFrame>
-    )
-  }
+  const rows = filterActive
+    ? data.studentProgress.filter((row) => row.classroomId === classId)
+    : data.studentProgress
+  // At-risk = the same threshold the KPI aggregate uses (below 55% mastery),
+  // lowest first, capped at five. Filtering supplied percents is presentation;
+  // no score is computed here.
+  const atRisk = rows
+    .filter((row) => row.progressPercent < 55)
+    .sort((left, right) => left.progressPercent - right.progressPercent)
+    .slice(0, 5)
 
-  const dashboard = dashboardQuery.data
+  // One source for a class's average: `ClassroomSummary.averageMasteryPercent`
+  // (the same field the Classes cards read). Filtering/sorting supplied percents
+  // is presentation; no average is computed here.
+  const studentCount = filterActive
+    ? (selectedClass?.studentCount ?? 0)
+    : data.totals.students
+  const masteryPercent = filterActive
+    ? (selectedClass?.averageMasteryPercent ?? null)
+    : data.averageMasteryPercent
+  const atRiskCount = filterActive
+    ? (selectedClass?.atRiskCount ?? 0)
+    : data.atRiskCount
 
-  // Presentation-only ordering of adapter values. The adapter already sorts,
-  // but the screen states its own intent: published tests newest-first in
-  // activity, non-published tests in attention (drafts first), and the students
-  // who need attention first. The split keeps one test out of both lists.
-  const { activity, attention } = splitDashboardTests(dashboard.recentTests)
-  const students = [...dashboard.studentProgress].sort(
-    (left, right) => left.progressPercent - right.progressPercent,
+  const drafts = (testsQuery.data ?? []).filter(
+    (test) =>
+      test.status === 'draft' && (!filterActive || test.classroomId === classId),
   )
 
   return (
-    <DashboardFrame greeting={strings.greeting(dashboard.teacher.displayName)}>
-      <QuickActions />
-
-      {isDashboardEmpty(dashboard) ? (
-        <EmptyNote title={strings.emptyAllTitle} body={strings.emptyAllBody} />
-      ) : (
+    <Frame
+      title={heading}
+      actions={
         <>
-          <section
-            className="dashboard__totals"
-            aria-label={strings.totals.label}
+          <select
+            className="tv-select"
+            aria-label={copy.filterLabel}
+            value={classId}
+            onChange={(event) => setClassId(event.target.value)}
           >
-            <Total
-              icon="classes"
-              value={dashboard.totals.classes}
-              label={strings.totals.classes}
-            />
-            <Total
-              icon="students"
-              value={dashboard.totals.students}
-              label={strings.totals.students}
-            />
-            <Total
-              icon="tests"
-              value={dashboard.totals.publishedTests}
-              label={strings.totals.publishedTests}
-            />
-            <Total
-              icon="drafts"
-              value={dashboard.totals.draftTests}
-              label={strings.totals.draftTests}
-            />
-          </section>
-
-          <div className="dashboard__grid">
-            <div className="dashboard__col dashboard__col--main">
-              <section
-                className="dashboard__section"
-                aria-labelledby="dashboard-attention-heading"
-              >
-                <SectionHead
-                  id="dashboard-attention-heading"
-                  title={strings.attention.heading}
-                  count={attention.length}
-                />
-                <p className="section-lead">{strings.attention.lead}</p>
-                {attention.length === 0 ? (
-                  <EmptyNote
-                    icon="check"
-                    tone="success"
-                    title={strings.attention.emptyTitle}
-                    body={strings.attention.emptyBody}
-                  />
-                ) : (
-                  <div className="panel">
-                    <ul className="test-list">
-                      {attention.map((test) => (
-                        <TestRow test={test} key={test.id} />
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </section>
-
-              <section
-                className="dashboard__section"
-                aria-labelledby="dashboard-activity-heading"
-              >
-                <SectionHead
-                  id="dashboard-activity-heading"
-                  title={strings.activity.heading}
-                  count={activity.length}
-                />
-                <p className="section-lead">{strings.activity.lead}</p>
-                {activity.length === 0 ? (
-                  <EmptyNote
-                    icon="tests"
-                    title={strings.activity.emptyTitle}
-                    body={strings.activity.emptyBody}
-                  />
-                ) : (
-                  <div className="panel">
-                    <ul className="test-list">
-                      {activity.map((test) => (
-                        <TestRow test={test} key={test.id} />
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </section>
-            </div>
-
-            <div className="dashboard__col dashboard__col--side">
-              <section
-                className="dashboard__section"
-                aria-labelledby="dashboard-progress-heading"
-              >
-                <SectionHead
-                  id="dashboard-progress-heading"
-                  title={strings.progress.heading}
-                  count={students.length}
-                />
-                <p className="section-lead">{strings.progress.lead}</p>
-                {students.length === 0 ? (
-                  <EmptyNote
-                    icon="chart"
-                    title={strings.progress.emptyTitle}
-                    body={strings.progress.emptyBody}
-                  />
-                ) : (
-                  <div className="panel">
-                    <ul className="progress-list">
-                      {students.map((row) => (
-                        <li
-                          className="progress-row"
-                          key={`${row.classroomId}:${row.student.id}`}
-                        >
-                          <div className="progress-row__who">
-                            <h3>{row.student.displayName}</h3>
-                            <p className="row-meta">{row.classroomName}</p>
-                          </div>
-                          <div className="progress-row__detail">
-                            <div className="progress-row__labels">
-                              <span>{strings.progress.percentLabel}</span>
-                              <strong>
-                                {formatPercent(row.progressPercent, lang)}
-                              </strong>
-                            </div>
-                            <ProgressBar
-                              percent={row.progressPercent}
-                              label={strings.progress.barLabel(
-                                row.student.displayName,
-                              )}
-                              valueText={formatPercent(
-                                row.progressPercent,
-                                lang,
-                              )}
-                            />
-                            <p className="row-meta">
-                              <MetaPair
-                                label={strings.progress.unitsCompleted}
-                              >
-                                {formatCount(row.completedUnits, lang)} /{' '}
-                                {formatCount(row.totalUnits, lang)}
-                              </MetaPair>
-                            </p>
-                            <p className="row-meta">
-                              <MetaPair label={strings.progress.lastActive}>
-                                {formatDate(
-                                  row.lastActiveAt,
-                                  strings.progress.noActivity,
-                                  lang,
-                                )}
-                              </MetaPair>
-                            </p>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </section>
-
-              <section
-                className="dashboard__section"
-                aria-labelledby="dashboard-classes-heading"
-              >
-                <SectionHead
-                  id="dashboard-classes-heading"
-                  title={strings.classes.heading}
-                  count={dashboard.classes.length}
-                />
-                {dashboard.classes.length === 0 ? (
-                  <EmptyNote
-                    icon="classes"
-                    title={strings.classes.emptyTitle}
-                    body={strings.classes.emptyBody}
-                  />
-                ) : (
-                  <ul className="class-grid">
-                    {dashboard.classes.map((classroom) => (
-                      <li className="class-card" key={classroom.id}>
-                        <h3>{classroom.name}</h3>
-                        <p className="row-meta">
-                          {classroom.subjectName}
-                          <MetaSep />
-                          {classroom.gradeLevel}
-                        </p>
-                        <dl className="class-card__stats">
-                          <div>
-                            <dt>{strings.classes.students}</dt>
-                            <dd>{formatCount(classroom.studentCount, lang)}</dd>
-                          </div>
-                          <div>
-                            <dt>{strings.classes.units}</dt>
-                            <dd>{formatCount(classroom.unitCount, lang)}</dd>
-                          </div>
-                          <div>
-                            <dt>{strings.classes.lessons}</dt>
-                            <dd>{formatCount(classroom.lessonCount, lang)}</dd>
-                          </div>
-                        </dl>
-                        {classroom.certificateNote ? (
-                          <p className="class-card__note">
-                            {classroom.certificateNote}
-                          </p>
-                        ) : null}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </section>
-            </div>
-          </div>
-        </>
-      )}
-    </DashboardFrame>
-  )
-}
-
-/**
- * Quick actions point only at real screens. The only built teacher test screen
- * is the builder (`/teacher/tests`), so both actions resolve there today; a
- * separate tests list does not exist yet and is not invented here.
- */
-function QuickActions() {
-  const strings = useStrings().dashboard
-  const lang = useLang()
-  const role = usePreviewRole()
-
-  return (
-    <section
-      className="dashboard__quick"
-      aria-labelledby="dashboard-quick-heading"
-    >
-      <div className="section-head">
-        <h2 id="dashboard-quick-heading">{strings.quickActions.heading}</h2>
-      </div>
-      <div className="quick-actions">
-        <Link
-          to="/teacher/tests"
-          search={{ as: role, lang }}
-          className="quick-action"
-          preload={false}
-        >
-          <span className="quick-action__icon" aria-hidden="true">
-            <Icon name="pencil" size={22} />
-          </span>
-          <span className="quick-action__text">
-            <span className="quick-action__title">
-              {strings.quickActions.createTest}
-            </span>
-            <span className="quick-action__body">
-              {strings.quickActions.createTestBody}
-            </span>
-          </span>
-        </Link>
-        <Link
-          to="/teacher/tests"
-          search={{ as: role, lang }}
-          className="quick-action"
-          preload={false}
-        >
-          <span className="quick-action__icon" aria-hidden="true">
-            <Icon name="tests" size={22} />
-          </span>
-          <span className="quick-action__text">
-            <span className="quick-action__title">
-              {strings.quickActions.viewTests}
-            </span>
-            <span className="quick-action__body">
-              {strings.quickActions.viewTestsBody}
-            </span>
-          </span>
-        </Link>
-      </div>
-    </section>
-  )
-}
-
-function DashboardFrame({
-  greeting,
-  children,
-}: {
-  greeting?: string
-  children: ReactNode
-}) {
-  const strings = useStrings().dashboard
-  return (
-    <div className="dashboard">
-      <header className="dashboard__hero">
-        <h1>{strings.title}</h1>
-        <p className="dashboard__lead">{strings.lead}</p>
-        {greeting ? <p className="dashboard__greeting">{greeting}</p> : null}
-      </header>
-      {children}
-    </div>
-  )
-}
-
-function SectionHead({
-  id,
-  title,
-  count,
-}: {
-  id: string
-  title: string
-  count?: number
-}) {
-  const lang = useLang()
-  return (
-    <div className="section-head">
-      <h2 id={id}>{title}</h2>
-      {count === undefined ? null : (
-        <span className="count-chip">{formatCount(count, lang)}</span>
-      )}
-    </div>
-  )
-}
-
-function TestRow({ test }: { test: TestSummary }) {
-  const strings = useStrings().dashboard
-  const lang = useLang()
-  const role = usePreviewRole()
-  const published = test.status === 'published'
-  return (
-    <li className="test-row">
-      <div className="test-row__main">
-        <h3>
+            <option value="all">
+              {copy.allClassesCount(formatCount(data.totals.students, lang))}
+            </option>
+            {data.classes.map((classroom) => (
+              <option key={classroom.id} value={classroom.id}>
+                {classroom.name}
+              </option>
+            ))}
+          </select>
           <Link
-            to="/teacher/tests/$testId"
-            params={{ testId: test.id }}
+            to="/teacher/tests/new"
             search={{ as: role, lang }}
-            className="screen-link"
+            className="tv-btn tv-btn-primary"
             preload={false}
           >
-            {test.title}
+            {copy.newTest}
           </Link>
-        </h3>
-        <p className="row-meta">{test.classroomName}</p>
-      </div>
-      <div className="test-row__aside">
-        <StatusChip
-          tone={published ? 'success' : 'warning'}
-          icon={published ? 'check' : 'pencil'}
-          label={
-            published
-              ? strings.tests.statusPublished
-              : strings.tests.statusDraft
+        </>
+      }
+    >
+      <section className="tv-kpi-grid" aria-label={copy.totals.label}>
+        <Kpi
+          label={copy.kpi.students}
+          value={formatCount(studentCount, lang)}
+          meta={
+            filterActive
+              ? (selectedClass?.subjectName ?? copy.atRisk.classLabel)
+              : copy.kpi.studentsMeta(formatCount(data.classes.length, lang))
           }
         />
-        <p className="row-meta">
-          {strings.tests.questionsCount(test.questionCount)}
-        </p>
-        <p className="row-meta">
-          <MetaPair label={strings.tests.updated}>
-            {formatDate(test.updatedAt, strings.tests.unknownDate, lang)}
-          </MetaPair>
-        </p>
+        <Kpi
+          label={copy.kpi.mastery}
+          value={
+            masteryPercent === null
+              ? copy.unavailable
+              : formatPercent(masteryPercent, lang)
+          }
+          meta={
+            masteryPercent === null
+              ? undefined
+              : masteryPercent >= 70
+                ? copy.kpi.masteryOnTarget
+                : copy.kpi.masteryNeedsSupport
+          }
+          metaTone={
+            masteryPercent === null
+              ? undefined
+              : masteryPercent >= 70
+                ? 'success'
+                : 'warning'
+          }
+        />
+        <Kpi
+          label={copy.kpi.submissions}
+          value={formatCount(data.submittedAttemptsCount, lang)}
+          meta={
+            data.scoredSubmissionsCount === 0
+              ? copy.kpi.submissionsNone
+              : copy.kpi.submissionsScored(
+                  formatCount(data.scoredSubmissionsCount, lang),
+                )
+          }
+        />
+        <Kpi
+          label={copy.kpi.atRisk}
+          value={formatCount(atRiskCount, lang)}
+          meta={copy.kpi.atRiskMeta}
+          metaTone="danger"
+        />
+      </section>
+
+      <div className="tv-grid-2">
+        <Panel labelledBy="dashboard-at-risk">
+          <PanelHead
+            id="dashboard-at-risk"
+            title={copy.atRisk.heading}
+            count={formatCount(atRisk.length, lang)}
+          >
+            <Link
+              to="/teacher/students"
+              search={{ as: role, lang }}
+              className="tv-btn tv-btn-ghost tv-btn-sm"
+              preload={false}
+            >
+              {copy.atRisk.viewAll(formatCount(rows.length, lang))}
+            </Link>
+          </PanelHead>
+          {atRisk.length === 0 ? (
+            <EmptyBox
+              title={copy.atRisk.emptyTitle}
+              body={copy.atRisk.emptyBody}
+            />
+          ) : (
+            <div className="tv-table-wrap">
+              <table className="tv-table tv-table--at-risk">
+                <caption className="visually-hidden">
+                  {copy.atRisk.heading}
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">{copy.atRisk.student}</th>
+                    <th scope="col">{copy.atRisk.classLabel}</th>
+                    <th scope="col">{copy.atRisk.mastery}</th>
+                    <th scope="col">{copy.atRisk.lastScore}</th>
+                    <th scope="col">{copy.atRisk.action}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {atRisk.map((row) => (
+                    <tr key={`${row.student.id}:${row.classroomId}`}>
+                      <td className="tv-td-primary">
+                        <div className="tv-cell-title">
+                          {row.student.displayName}
+                        </div>
+                        {' · '}
+                        <div className="tv-cell-sub">
+                          {copy.atRisk.lastActive(
+                            formatDate(
+                              row.lastActiveAt,
+                              copy.progress.noActivity,
+                              lang,
+                            ),
+                          )}
+                        </div>
+                      </td>
+                      <td data-label={copy.atRisk.classLabel}>
+                        {row.classroomName}
+                      </td>
+                      <td data-label={copy.atRisk.mastery}>
+                        <MasteryBar
+                          percent={row.progressPercent}
+                          label={copy.progress.barLabel(row.student.displayName)}
+                        />
+                      </td>
+                      <td data-label={copy.atRisk.lastScore} className="tv-num">
+                        {row.lastScorePercent === null
+                          ? copy.unavailable
+                          : formatPercent(row.lastScorePercent, lang)}
+                      </td>
+                      <td data-label={copy.atRisk.action}>
+                        <div className="tv-actions-cell">
+                          <button
+                            type="button"
+                            className="tv-btn tv-btn-subtle tv-btn-sm"
+                            onClick={() => setDrawerStudent(row)}
+                          >
+                            {copy.atRisk.followUp}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Panel>
+
+        <div className="tv-stack">
+          <Panel labelledBy="dashboard-units">
+            <PanelHead id="dashboard-units" title={copy.units.heading} />
+            <div className="tv-panel-body">
+              {data.unitMastery.length === 0 ? (
+                <EmptyBox
+                  title={copy.units.emptyTitle}
+                  body={copy.units.emptyBody}
+                />
+              ) : (
+                <div className="tv-stack-sm">
+                  {data.unitMastery.map((unit) => (
+                    <div key={unit.unitId} className="tv-stack-sm">
+                      <div className="tv-kpi-row">
+                        <span>{unit.unitName}</span>
+                        <strong
+                          className="tv-num"
+                          style={{
+                            color: `var(--status-${masteryTone(unit.masteryPercent)})`,
+                          }}
+                        >
+                          {formatPercent(unit.masteryPercent, lang)}
+                        </strong>
+                      </div>
+                      <div
+                        className="tv-bar-track"
+                        role="progressbar"
+                        aria-label={copy.units.barLabel(unit.unitName)}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-valuenow={unit.masteryPercent}
+                      >
+                        <div
+                          className="tv-bar-fill"
+                          data-tone={masteryTone(unit.masteryPercent)}
+                          style={{ width: `${unit.masteryPercent}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </Panel>
+
+          <Panel labelledBy="dashboard-drafts">
+            <PanelHead
+              id="dashboard-drafts"
+              title={copy.drafts.heading}
+              count={formatCount(drafts.length, lang)}
+            />
+            <div className="tv-table-wrap">
+              <table className="tv-table">
+                <caption className="visually-hidden">
+                  {copy.drafts.heading}
+                </caption>
+                <tbody>
+                  {drafts.length === 0 ? (
+                    <tr>
+                      <td className="tv-empty-cell" colSpan={2}>
+                        {copy.drafts.empty}
+                      </td>
+                    </tr>
+                  ) : (
+                    drafts.map((test) => (
+                      <tr key={test.id}>
+                        <td className="tv-td-primary">
+                          <div className="tv-cell-title">{test.title}</div>
+                          {' · '}
+                          <div className="tv-cell-sub">
+                            {copy.drafts.meta(
+                              test.classroomName,
+                              copy.drafts.questionsCount(test.questionCount),
+                            )}
+                          </div>
+                        </td>
+                        <td data-label={copy.atRisk.action}>
+                          <div className="tv-actions-cell">
+                            <Link
+                              to="/teacher/tests/$testId"
+                              params={{ testId: test.id }}
+                              search={{ as: role, lang }}
+                              className="tv-btn tv-btn-subtle tv-btn-sm"
+                              preload={false}
+                            >
+                              {copy.drafts.edit}
+                            </Link>
+                            <PublishTestButton
+                              teacherId={teacherId}
+                              test={test}
+                              labels={{
+                                publish: copy.drafts.publish,
+                                publishing: copy.drafts.publishing,
+                                error: copy.drafts.publishError,
+                              }}
+                            />
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </Panel>
+        </div>
       </div>
-    </li>
+
+      <Panel labelledBy="dashboard-submissions">
+        <PanelHead
+          id="dashboard-submissions"
+          title={copy.submissions.heading}
+          count={formatCount(data.recentSubmissions.length, lang)}
+        />
+        {data.recentSubmissions.length === 0 ? (
+          <EmptyBox
+            title={copy.submissions.emptyTitle}
+            body={copy.submissions.emptyBody}
+          />
+        ) : (
+          <div className="tv-table-wrap">
+            <table className="tv-table">
+              <caption className="visually-hidden">
+                {copy.submissions.heading}
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">{copy.submissions.student}</th>
+                  <th scope="col">{copy.submissions.test}</th>
+                  <th scope="col">{copy.submissions.submittedAt}</th>
+                  <th scope="col">{copy.submissions.score}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.recentSubmissions.map((submission) => (
+                  <tr key={submission.id}>
+                    <td className="tv-td-primary">
+                      <div className="tv-cell-title">
+                        {submission.studentName}
+                      </div>
+                    </td>
+                    <td data-label={copy.submissions.test}>
+                      {submission.testTitle}
+                    </td>
+                    <td
+                      data-label={copy.submissions.submittedAt}
+                      className="tv-cell-sub"
+                    >
+                      {formatDate(
+                        submission.submittedAt,
+                        copy.tests.unknownDate,
+                        lang,
+                      )}
+                    </td>
+                    <td data-label={copy.submissions.score} className="tv-num">
+                      {submission.scorePercent === null ? (
+                        <Status tone="neutral">
+                          {copy.submissions.scoreUnavailable}
+                        </Status>
+                      ) : (
+                        formatPercent(submission.scorePercent, lang)
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Panel>
+
+      {drawerStudent ? (
+        <StudentDrawer
+          studentId={drawerStudent.student.id}
+          studentName={drawerStudent.student.displayName}
+          classroomName={drawerStudent.classroomName}
+          masteryPercent={drawerStudent.progressPercent}
+          lastScorePercent={drawerStudent.lastScorePercent}
+          lastActiveAt={drawerStudent.lastActiveAt}
+          onClose={() => setDrawerStudent(null)}
+        />
+      ) : null}
+    </Frame>
   )
 }
 
-function Total({
-  icon,
-  value,
-  label,
+function Frame({
+  title,
+  actions,
+  children,
 }: {
-  icon: 'classes' | 'students' | 'tests' | 'drafts'
-  value: number
-  label: string
+  title: string
+  actions?: React.ReactNode
+  children: React.ReactNode
 }) {
-  const lang = useLang()
   return (
-    <article className="total-card">
-      <span className="total-card__icon" aria-hidden="true">
-        <Icon name={icon} size={22} />
-      </span>
-      <div>
-        <p className="total-card__value">{formatCount(value, lang)}</p>
-        <p className="total-card__label">{label}</p>
-      </div>
-    </article>
+    <div className="tv-page">
+      <PageHead title={title}>{actions}</PageHead>
+      {children}
+    </div>
   )
 }

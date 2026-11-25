@@ -45,6 +45,8 @@ import type {
   StudentQuestion,
   StudentUnitProgress,
   SubmitAttemptInput,
+  SupportRequestInput,
+  SupportResult,
   TeacherDashboard,
   TeacherProfile,
   Test,
@@ -89,6 +91,13 @@ export interface MockApiOptions {
   session?: 'teacher' | 'student' | 'assistant' | 'parent' | 'none'
   latencyMs?: number
   now?: () => Date
+  /**
+   * Read-only guest preview. When no mock session is active, reads resolve as
+   * this demo role; every write still goes through `currentUser()` and fails
+   * UNAUTHENTICATED. Omit it to read the `?as` query parameter on the client;
+   * pass `null` to disable the fallback (tests, SSR).
+   */
+  previewRole?: UserRole | null
 }
 
 const NOT_GROUNDED_ANSWER =
@@ -223,6 +232,22 @@ function clone<T>(value: T): T {
   return structuredClone(value)
 }
 
+/**
+ * The guest preview is client-only URL state. Reading it on demand (rather than
+ * at adapter construction) means a client-side `?as=` navigation is seen by the
+ * next adapter call; during SSR there is no window and no preview.
+ */
+function previewRoleFromLocation(): UserRole | null {
+  if (typeof window === 'undefined') return null
+  const value = new URLSearchParams(window.location.search).get('as')
+  return value === 'teacher' ||
+    value === 'student' ||
+    value === 'assistant' ||
+    value === 'parent'
+    ? value
+    : null
+}
+
 function fail(code: ApiErrorCode, message: string, status: number | null = null): never {
   throw new ApiError(code, message, { status })
 }
@@ -232,6 +257,25 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
     scenario: options.scenario ?? 'seeded',
     session: options.session ?? 'teacher',
   })
+
+  /*
+   * A deployment may bake a seeded session (`VITE_MOCK_SESSION=teacher`) for a
+   * signed-in demo. An explicit `?as=` for a different role is the stronger
+   * intent: the visitor asked for that role's preview, so the baked session
+   * must not win and make the page say "no session for this role". Clearing it
+   * here keeps the preview read-only (every write still needs a session) and
+   * makes the same URL behave the same way after a reload. This runs on the
+   * client only; SSR has no `window`, and the route loader skips its session
+   * prefetch for mock previews so a stale teacher is never dehydrated.
+   */
+  const explicitPreview = previewRoleFromLocation()
+  if (explicitPreview) {
+    const seeded = db.users.find((user) => user.id === db.sessionUserId)
+    if (seeded && seeded.role !== explicitPreview) {
+      db.sessionUserId = null
+    }
+  }
+
   const latencyMs = options.latencyMs ?? 0
   const clock = options.now ?? (() => new Date())
   let sequence = 0
@@ -269,6 +313,32 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
     return requireUser(db.sessionUserId)
   }
 
+  /**
+   * Read-only viewer resolution. A real session always wins. With no session,
+   * an explicit preview role (from `?as=` on the client, or the option in a
+   * test) borrows the matching demo user. This is the ONLY fallback; every
+   * write below keeps using `currentUser()`, so a guest preview can never
+   * persist a change or invent an account.
+   */
+  function viewerUser(): User {
+    if (db.sessionUserId) return requireUser(db.sessionUserId)
+    const role =
+      options.previewRole !== undefined
+        ? options.previewRole
+        : previewRoleFromLocation()
+    const preview = role
+      ? db.users.find((candidate) => candidate.role === role)
+      : undefined
+    if (!preview) {
+      fail(
+        'UNAUTHENTICATED',
+        'No mock session or preview role is active.',
+        401,
+      )
+    }
+    return preview
+  }
+
   function requireActor(role: UserRole): User {
     const user = currentUser()
     if (user.role !== role) {
@@ -279,6 +349,22 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
 
   function requireSelf(role: UserRole, id: UserId): User {
     const user = requireActor(role)
+    if (user.id !== id) {
+      fail('FORBIDDEN', 'A user may only access their own record.', 403)
+    }
+    return user
+  }
+
+  function requireViewerActor(role: UserRole): User {
+    const user = viewerUser()
+    if (user.role !== role) {
+      fail('FORBIDDEN', `This view requires the ${role} role.`, 403)
+    }
+    return user
+  }
+
+  function requireViewerSelf(role: UserRole, id: UserId): User {
+    const user = requireViewerActor(role)
     if (user.id !== id) {
       fail('FORBIDDEN', 'A user may only access their own record.', 403)
     }
@@ -438,6 +524,10 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
       lessonCount: units.reduce((total, unit) => total + unit.lessonCount, 0),
       certificateNote: classroom.certificateNote,
       createdAt: classroom.createdAt,
+      // Part 2 additions — backend aggregates, never computed in the UI.
+      averageMasteryPercent: classAverageMastery(classroom.id),
+      atRiskCount: classAtRiskCount(classroom.id),
+      unitsDone: classUnitsDone(classroom.id),
     }
   }
 
@@ -476,6 +566,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
       questionCount: questionsForTest(test.id).length,
       updatedAt: test.updatedAt,
       publishedAt: test.publishedAt,
+      durationMinutes: test.durationMinutes,
     }
   }
 
@@ -505,6 +596,8 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
       questionCount: questionsForTest(test.id).length,
       startedAt: attempt.startedAt,
       submittedAt: attempt.submittedAt,
+      // Backend-supplied only (Part 2). Never computed from `answers`.
+      scorePercent: db.resultScores[attempt.id] ?? null,
     }
   }
 
@@ -561,7 +654,83 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
       completedUnits,
       totalUnits: unitIds.length,
       lastActiveAt: enrollment.lastActiveAt,
+      lastScorePercent: lastScorePercentFor(enrollment.studentId, classroom.id),
     }
+  }
+
+  /** Per-enrollment mastery inside one class (0 when the class has no units). */
+  function enrollmentMastery(
+    enrollment: MockEnrollment,
+    classroom: MockClassroom,
+  ): number {
+    if (classroom.unitIds.length === 0) return 0
+    const total = classroom.unitIds.reduce(
+      (sum, unitId) =>
+        sum + (enrollment.progressByUnit[unitId]?.progressPercent ?? 0),
+      0,
+    )
+    return Math.round(total / classroom.unitIds.length)
+  }
+
+  function enrollmentsOf(classroomId: string): MockEnrollment[] {
+    return db.enrollments.filter((item) => item.classroomId === classroomId)
+  }
+
+  /** PROPOSED — Part 2. Backend mean mastery for a class; null when empty. */
+  function classAverageMastery(classroomId: string): number | null {
+    const classroom = requireClassroom(classroomId)
+    const list = enrollmentsOf(classroomId)
+    if (list.length === 0) return null
+    const total = list.reduce(
+      (sum, enrollment) => sum + enrollmentMastery(enrollment, classroom),
+      0,
+    )
+    return Math.round(total / list.length)
+  }
+
+  /** PROPOSED — Part 2. Students below 55% mastery in a class. */
+  function classAtRiskCount(classroomId: string): number {
+    const classroom = requireClassroom(classroomId)
+    return enrollmentsOf(classroomId).filter(
+      (enrollment) => enrollmentMastery(enrollment, classroom) < 55,
+    ).length
+  }
+
+  /** PROPOSED — Part 2. Units every enrolled student has completed. */
+  function classUnitsDone(classroomId: string): number {
+    const classroom = requireClassroom(classroomId)
+    const list = enrollmentsOf(classroomId)
+    if (list.length === 0) return 0
+    return classroom.unitIds.filter((unitId) =>
+      list.every(
+        (enrollment) =>
+          (enrollment.progressByUnit[unitId]?.progressPercent ?? 0) >= 100,
+      ),
+    ).length
+  }
+
+  /**
+   * PROPOSED — Part 2. Score of a student's most recent submitted attempt in a
+   * class. Backend-supplied; null when there is no submission or no score yet.
+   */
+  function lastScorePercentFor(
+    studentId: string,
+    classroomId: string,
+  ): number | null {
+    const latest = db.attempts
+      .filter(
+        (attempt) =>
+          attempt.studentId === studentId &&
+          attempt.status === 'submitted' &&
+          requireTest(attempt.testId).classroomId === classroomId,
+      )
+      .sort((left, right) =>
+        (right.submittedAt ?? right.startedAt).localeCompare(
+          left.submittedAt ?? left.startedAt,
+        ),
+      )[0]
+    if (!latest) return null
+    return db.resultScores[latest.id] ?? null
   }
 
   // ---------------------------------------------------------------------------
@@ -842,7 +1011,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
   // ---------------------------------------------------------------------------
 
   function requireParent(): User {
-    const user = currentUser()
+    const user = viewerUser()
     if (user.role !== 'parent') {
       fail('FORBIDDEN', 'This action requires the parent role.', 403)
     }
@@ -1192,7 +1361,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
     teachers: {
       getProfile: (input) =>
         respond<TeacherProfile>(() => {
-          const teacher = requireSelf('teacher', input.teacherId)
+          const teacher = requireViewerSelf('teacher', input.teacherId)
           const classes = db.classrooms.filter(
             (classroom) => classroom.teacherId === teacher.id,
           )
@@ -1207,7 +1376,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
 
       getDashboard: (input) =>
         respond<TeacherDashboard>(() => {
-          const teacher = requireSelf('teacher', input.teacherId)
+          const teacher = requireViewerSelf('teacher', input.teacherId)
           const classes = db.classrooms.filter(
             (classroom) => classroom.teacherId === teacher.id,
           )
@@ -1216,6 +1385,26 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
           const enrollments = db.enrollments.filter((enrollment) =>
             classIds.has(enrollment.classroomId),
           )
+          const studentProgress = enrollments
+            .map((enrollment) =>
+              studentSnapshot(
+                enrollment,
+                requireClassroom(enrollment.classroomId),
+              ),
+            )
+            .sort((left, right) => left.progressPercent - right.progressPercent)
+          const submitted = db.attempts
+            .filter(
+              (attempt) =>
+                attempt.status === 'submitted' &&
+                tests.some((test) => test.id === attempt.testId),
+            )
+            .sort((left, right) =>
+              (right.submittedAt ?? right.startedAt).localeCompare(
+                left.submittedAt ?? left.startedAt,
+              ),
+            )
+          const unitIds = [...new Set(classes.flatMap((item) => item.unitIds))]
           return {
             teacher,
             classes: classes.map(classSummary),
@@ -1223,14 +1412,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
               .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))
               .slice(0, 5)
               .map(testSummary),
-            studentProgress: enrollments
-              .map((enrollment) =>
-                studentSnapshot(
-                  enrollment,
-                  requireClassroom(enrollment.classroomId),
-                ),
-              )
-              .sort((left, right) => left.progressPercent - right.progressPercent),
+            studentProgress,
             totals: {
               classes: classes.length,
               students: new Set(enrollments.map((item) => item.studentId)).size,
@@ -1238,6 +1420,57 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
                 .length,
               draftTests: tests.filter((test) => test.status === 'draft').length,
             },
+            // Part 2 additions — all backend aggregates, never computed here.
+            averageMasteryPercent:
+              studentProgress.length === 0
+                ? null
+                : Math.round(
+                    studentProgress.reduce(
+                      (sum, row) => sum + row.progressPercent,
+                      0,
+                    ) / studentProgress.length,
+                  ),
+            atRiskCount: studentProgress.filter(
+              (row) => row.progressPercent < 55,
+            ).length,
+            averageMasteryByClass: classes.map((classroom) => ({
+              classroomId: classroom.id,
+              averageMasteryPercent: classAverageMastery(classroom.id),
+            })),
+            submittedAttemptsCount: submitted.length,
+            scoredSubmissionsCount: submitted.filter(
+              (attempt) => db.resultScores[attempt.id] != null,
+            ).length,
+            recentSubmissions: submitted.slice(0, 5).map((attempt) => ({
+              id: attempt.id,
+              studentId: attempt.studentId,
+              studentName: requireUser(attempt.studentId).displayName,
+              testId: attempt.testId,
+              testTitle: requireTest(attempt.testId).title,
+              submittedAt: attempt.submittedAt ?? attempt.startedAt,
+              scorePercent: db.resultScores[attempt.id] ?? null,
+            })),
+            unitMastery: unitIds.map((unitId) => {
+              const relevant = enrollments.filter((enrollment) =>
+                requireClassroom(enrollment.classroomId).unitIds.includes(unitId),
+              )
+              const masteryPercent =
+                relevant.length === 0
+                  ? 0
+                  : Math.round(
+                      relevant.reduce(
+                        (sum, enrollment) =>
+                          sum +
+                          (enrollment.progressByUnit[unitId]?.progressPercent ?? 0),
+                        0,
+                      ) / relevant.length,
+                    )
+              return {
+                unitId,
+                unitName: requireUnit(unitId).title,
+                masteryPercent,
+              }
+            }),
           }
         }),
     },
@@ -1245,7 +1478,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
     students: {
       getProfile: (input) =>
         respond<StudentProfile>(() => {
-          const user = currentUser()
+          const user = viewerUser()
           if (user.role === 'student' && user.id !== input.studentId) {
             fail('FORBIDDEN', 'A student may only read their own profile.', 403)
           }
@@ -1269,7 +1502,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
 
       getProgress: (input) =>
         respond<StudentProgress>(() => {
-          const user = currentUser()
+          const user = viewerUser()
           const student = requireUser(input.studentId)
           if (student.role !== 'student') {
             fail('VALIDATION', 'The requested user is not a student.', 422)
@@ -1316,7 +1549,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
     rbac: {
       getCapabilities: (input) =>
         respond<UserCapabilities>(() => {
-          const user = currentUser()
+          const user = viewerUser()
           if (user.id !== input.userId) {
             fail('FORBIDDEN', 'A user may only read their own capabilities.', 403)
           }
@@ -1344,7 +1577,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
     messages: {
       listThreads: () =>
         respond<MessageThread[]>(() => {
-          const user = currentUser()
+          const user = viewerUser()
           return threadsForUser(user).sort((left, right) =>
             right.lastMessageAt.localeCompare(left.lastMessageAt),
           )
@@ -1352,7 +1585,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
 
       listMessages: (input) =>
         respond<Message[]>(() => {
-          const user = currentUser()
+          const user = viewerUser()
           const thread = threadsForUser(user).find(
             (item) => item.id === input.threadId,
           )
@@ -1407,7 +1640,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
     notifications: {
       listForUser: (input: ListNotificationsInput) =>
         respond<Notification[]>(() => {
-          const user = currentUser()
+          const user = viewerUser()
           if (user.id !== input.userId) {
             fail('FORBIDDEN', 'A user may only read their own notifications.', 403)
           }
@@ -1417,13 +1650,13 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
 
     search: {
       search: (input: SearchInput) =>
-        respond<SearchResults>(() => searchResults(currentUser(), input)),
+        respond<SearchResults>(() => searchResults(viewerUser(), input)),
     },
 
     classrooms: {
       listForTeacher: (input) =>
         respond<ClassroomSummary[]>(() => {
-          const teacher = requireSelf('teacher', input.teacherId)
+          const teacher = requireViewerSelf('teacher', input.teacherId)
           return db.classrooms
             .filter((classroom) => classroom.teacherId === teacher.id)
             .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
@@ -1432,14 +1665,14 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
 
       get: (input) =>
         respond<ClassroomDetail>(() => {
-          const user = currentUser()
+          const user = viewerUser()
           const classroom = requireVisibleClassroom(input.classroomId, user)
           return classDetail(classroom)
         }),
 
       listStudents: (input) =>
         respond<ClassroomStudent[]>(() => {
-          const teacher = currentUser()
+          const teacher = viewerUser()
           if (teacher.role !== 'teacher') {
             fail('FORBIDDEN', 'Only a teacher can read the class roster.', 403)
           }
@@ -1461,6 +1694,10 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
                     ? 0
                     : Math.round(totalPercent / classroom.unitIds.length),
                 lastActiveAt: item.lastActiveAt,
+                lastScorePercent: lastScorePercentFor(
+                  item.studentId,
+                  classroom.id,
+                ),
               }
             })
             .sort((left, right) =>
@@ -1495,7 +1732,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
     materials: {
       listForTeacher: (input) =>
         respond<Material[]>(() => {
-          const teacher = requireSelf('teacher', input.teacherId)
+          const teacher = requireViewerSelf('teacher', input.teacherId)
           return db.materials
             .filter(
               (material) =>
@@ -1509,7 +1746,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
       get: (input) =>
         respond<Material>(() => {
           const material = requireMaterial(input.materialId)
-          const user = requireSelf('teacher', material.teacherId)
+          const user = requireViewerSelf('teacher', material.teacherId)
           if (material.teacherId !== user.id) {
             fail('FORBIDDEN', 'This material is not available.', 403)
           }
@@ -1579,7 +1816,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
     tests: {
       listForTeacher: (input) =>
         respond<TestSummary[]>(() => {
-          const teacher = requireSelf('teacher', input.teacherId)
+          const teacher = requireViewerSelf('teacher', input.teacherId)
           return db.tests
             .filter((test) => test.teacherId === teacher.id)
             .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))
@@ -1588,7 +1825,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
 
       listForClass: (input) =>
         respond<TestSummary[]>(() => {
-          const user = currentUser()
+          const user = viewerUser()
           const classroom = requireVisibleClassroom(input.classroomId, user)
           return db.tests
             .filter(
@@ -1601,7 +1838,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
 
       get: (input) =>
         respond<Test>(() => {
-          const user = currentUser()
+          const user = viewerUser()
           return testDetail(requireVisibleTest(input.testId, user))
         }),
 
@@ -1630,6 +1867,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
             createdAt: timestamp,
             updatedAt: timestamp,
             publishedAt: null,
+            durationMinutes: null,
           }
           db.tests.unshift(test)
           return testDetail(test)
@@ -1681,14 +1919,14 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
         respond<Question[]>(() => {
           // Full questions carry `correctOptionId`, so this is teacher-only.
           // Student sessions read questions through `listForStudentTest`.
-          const teacher = requireActor('teacher')
+          const teacher = requireViewerActor('teacher')
           requireVisibleTest(input.testId, teacher)
           return questionsForTest(input.testId)
         }),
 
       listForStudentTest: (input) =>
         respond<StudentQuestion[]>(() => {
-          const user = currentUser()
+          const user = viewerUser()
           requireVisibleTest(input.testId, user)
           return questionsForTest(input.testId).map(toStudentQuestion)
         }),
@@ -1697,7 +1935,10 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
         respond<Question>(() => {
           const test = requireOwnedDraftTest(input.testId, input.teacherId)
           const prompt = validateTitle(input.prompt, 'Question prompt')
-          const texts = validateOptions(input.options, input.correctOptionIndex)
+          const isEssay = input.type === 'essay'
+          const texts = isEssay
+            ? []
+            : validateOptions(input.options, input.correctOptionIndex)
           const id = nextId('q')
           const options = buildOptions(id, texts)
           const timestamp = nowIso()
@@ -1707,11 +1948,19 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
             order: questionsForTest(test.id).length + 1,
             prompt,
             options,
-            correctOptionId: correctOptionIdFor(options, input.correctOptionIndex),
+            correctOptionId: isEssay
+              ? null
+              : correctOptionIdFor(options, input.correctOptionIndex),
             grounding: [],
             origin: 'teacher',
             createdAt: timestamp,
             updatedAt: timestamp,
+            // Part 2 additions — authoring metadata.
+            type: isEssay ? 'essay' : 'mcq',
+            difficulty: input.difficulty ?? 'medium',
+            points: input.points ?? 1,
+            modelAnswer: input.modelAnswer?.trim() || null,
+            unitId: input.unitId ?? test.source.unitId ?? null,
           }
           db.questions.push(question)
           test.updatedAt = timestamp
@@ -1813,7 +2062,37 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
     attempts: {
       listForStudent: (input) =>
         respond<AttemptSummary[]>(() => {
-          requireSelf('student', input.studentId)
+          // Part 2: a student reads their own attempts; a teacher may read the
+          // attempts of a student enrolled in one of their classes (the student
+          // drawer needs it). No new method is introduced.
+          const viewer = viewerUser()
+          if (viewer.role === 'student') {
+            if (viewer.id !== input.studentId) {
+              fail('FORBIDDEN', 'A user may only access their own record.', 403)
+            }
+          } else if (viewer.role === 'teacher') {
+            const enrolledClassIds = db.enrollments
+              .filter((item) => item.studentId === input.studentId)
+              .map((item) => item.classroomId)
+            const owns = db.classrooms.some(
+              (classroom) =>
+                classroom.teacherId === viewer.id &&
+                enrolledClassIds.includes(classroom.id),
+            )
+            if (!owns) {
+              fail(
+                'FORBIDDEN',
+                'A teacher may only read attempts of a student in their class.',
+                403,
+              )
+            }
+          } else {
+            fail(
+              'FORBIDDEN',
+              'This view requires the student or teacher role.',
+              403,
+            )
+          }
           return db.attempts
             .filter((attempt) => attempt.studentId === input.studentId)
             .sort((left, right) => right.startedAt.localeCompare(left.startedAt))
@@ -1828,7 +2107,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
        */
       listForTest: (input) =>
         respond<TestAttemptSummary[]>(() => {
-          const teacher = requireActor('teacher')
+          const teacher = requireViewerActor('teacher')
           const test = requireVisibleTest(input.testId, teacher)
           return db.attempts
             .filter((attempt) => attempt.testId === test.id)
@@ -1881,7 +2160,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
 
       get: (input) =>
         respond<Attempt>(() => {
-          const student = currentUser()
+          const student = viewerUser()
           if (student.role !== 'student') {
             fail('FORBIDDEN', 'Only the student can open their attempt.', 403)
           }
@@ -1948,7 +2227,7 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
     mohsen: {
       ask: (input: AskMohsenInput) =>
         respond<MohsenAnswer>(() => {
-          const user = currentUser()
+          const user = viewerUser()
           if (input.askedBy !== user.id) {
             fail('FORBIDDEN', 'Mohsen answers only for the signed-in user.', 403)
           }
@@ -2037,6 +2316,12 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
               origin: 'mohsen',
               createdAt: timestamp,
               updatedAt: timestamp,
+              // Part 2 additions — Mohsen drafts are MCQs with defaults.
+              type: 'mcq',
+              difficulty: 'medium',
+              points: 1,
+              modelAnswer: item.options[item.correctIndex] ?? null,
+              unitId: test.source.unitId ?? null,
             }
             db.questions.push(question)
             return question
@@ -2055,6 +2340,31 @@ export function createMockApi(options: MockApiOptions = {}): BridgioApi {
           ]
 
           return { status: 'drafted', questions: created, grounding }
+        }),
+    },
+
+    /**
+     * PROPOSED — NEW in the Batch 5 follow-up. The support backend does not
+     * exist, so every valid request returns the defined `unavailable` result.
+     * The mock never pretends a request was delivered and never invents a
+     * contact address. Input is still validated so the form's error states are
+     * exercised honestly.
+     */
+    support: {
+      submitRequest: (input: SupportRequestInput) =>
+        respond<SupportResult>(() => {
+          if (
+            input.name.trim().length === 0 ||
+            input.email.trim().length === 0 ||
+            input.subject.trim().length === 0 ||
+            input.message.trim().length === 0
+          ) {
+            fail('VALIDATION', 'All support request fields are required.', 422)
+          }
+          return {
+            status: 'unavailable',
+            reason: 'support_backend_missing',
+          }
         }),
     },
 

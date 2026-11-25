@@ -21,14 +21,6 @@
   --outline-card: 1.5px;
   --card-border: rgba(44, 7, 6, 0.85);
   --radius-panel: var(--radius-card);
-  --content-max: 72rem;
-  /* Header minimum for the inner bar (phone/tablet sizing). */
-  --header-min: 72px;
-  /* Full desktop header height, border included (box-sizing: border-box).
-     Figma + Redesign shell lock: a 76 px bar with a 2 px bottom rule and a
-     136 px clean wordmark vertically centred. The sticky sidebar offset uses
-     this so its foot meets the fold with the collapse toggle visible. */
-  --header-h: 76px;
 }
 
 body {
@@ -39,211 +31,14 @@ body {
   background: color-mix(in srgb, var(--bridgio-red) 22%, transparent);
 }
 
-/* ---- Utility header: slimmer, quieter ------------------------------------ */
-
-.app-header {
-  border-bottom: var(--outline-hairline) solid var(--card-border);
-}
-
-.app-header__inner {
-  max-width: none;
-  min-height: var(--header-min);
-  padding: var(--space-2) var(--space-4);
-  gap: var(--space-2);
-}
-
-.app-utility__button,
-.app-header__menu {
-  transition: background-color 0.15s ease, border-color 0.15s ease;
-}
-
-@media (min-width: 768px) {
-  .app-header {
-    background: var(--bridgio-paper);
-  }
-
-  .app-header__inner {
-    padding-inline: var(--space-6);
-  }
-
-  .app-utility__button {
-    background: var(--bridgio-paper);
-    border-color: var(--border-strong);
-  }
-
-  .app-utility__button:hover:not(:disabled) {
-    border-color: var(--bridgio-maroon);
-    background: var(--hover-bg);
-  }
-}
-
-@media (min-width: 1024px) {
-  /* The sidebar pins under the header at --header-h, so the header has to stay
-     pinned too. Without this the header scrolls away and leaves a band above
-     the sidebar. z-index 40 matches the below-1024 px rule and stays under the
-     drawer (60), backdrop (50) and chat popup (80). */
-  .app-header {
-    position: sticky;
-    top: 0;
-    z-index: 40;
-    /* Border-box: exactly --header-h tall including the 2 px rule, so the
-       sidebar's --header-h sticky offset meets it with no band. */
-    min-height: var(--header-h);
-    border-bottom-width: var(--outline-sticker);
-  }
-
-  /* 74 px content box + 2 px rule = the 76 px bar. The 136 px wordmark is
-     49.1 px tall, so the flex row centres it with no vertical padding and the
-     bar keeps --header-h in both themes. */
-  .app-header__inner {
-    min-height: calc(var(--header-h) - var(--outline-sticker));
-    padding-block: 0;
-    padding-inline: 32px;
-  }
-}
-
-/* ---- Sidebar ------------------------------------------------------------- */
-
-.app-sidebar {
-  background: var(--bridgio-paper);
-  border-inline-end: var(--outline-hairline) solid var(--card-border);
-}
-
-.app-sidebar__nav {
-  padding: var(--space-4) var(--space-3);
-}
-
-.app-sidebar__list {
-  gap: 2px;
-}
-
-.app-sidebar__link {
-  position: relative;
-  border-radius: 12px;
-  padding-inline: var(--space-3) var(--space-4);
-  color: var(--text-secondary);
-  transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.app-sidebar__link:hover {
-  background: var(--tint-cream-deep);
-  color: var(--text-primary);
-}
-
-.app-sidebar__link:hover .app-sidebar__icon {
-  color: var(--text-primary);
-}
-
-.app-sidebar__icon {
-  width: 32px;
-  height: 32px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-}
-
-/* Active tile: cream fill + maroon label. The locked token pair inverts in
-   dark (maroon fill + cream label), so this one rule covers both themes. No
-   icon-chip fill — the tile itself carries the state. */
-.app-sidebar__link.is-active {
-  background: var(--bridgio-cream);
-  color: var(--bridgio-maroon);
-}
-
-.app-sidebar__note {
-  margin: var(--space-4) var(--space-1) 0;
-  padding: var(--space-3);
-  border-radius: 12px;
-  background: var(--bridgio-cream);
-  line-height: 1.5;
-}
-
-@media (min-width: 1024px) {
-  /* Redesign shell lock: 272 px expanded / 88 px collapsed. Written in px on
-     purpose — the desktop root font-size is 17 px, so 5.5rem would render
-     93.5 px, not 88 px. */
-  .app-body {
-    grid-template-columns: 272px minmax(0, 1fr);
-    /* Owner decision 2026-11-13: the sidebar and the content column animate
-       together. Only the first track changes (272px ↔ 88px); the content track
-       keeps its width and moves with the grid, so there is no separate content
-       animation and no jump. `grid-template-columns` is interpolable because
-       both states have the same track count and the same flexible second
-       track. Reduced motion is handled by the global 0.01ms rule in app.css. */
-    transition: grid-template-columns 250ms ease;
-  }
-
-  /* Collapsed rail — must stay after the 272 px rule above to win at equal
-     specificity (this was the live collapse bug). */
-  .app-body--collapsed {
-    grid-template-columns: 88px minmax(0, 1fr);
-  }
-
-  /* The sidebar starts below the header, so a sticky top:0 + height:100dvh
-     pushed the foot (and its collapse toggle) below the fold. Pin it under the
-     header instead, so the toggle is visible without scrolling. */
-  .app-sidebar {
-    top: var(--header-h);
-    height: calc(100dvh - var(--header-h));
-  }
-
-  /* The designed 24 px gap between the header and the first nav item. */
-  .app-sidebar__nav {
-    padding-block-start: 24px;
-  }
-
-  /* 48 px rows (32 px icon chip + 8 px block padding), 8 px gap, 16 px radius,
-     14 px inline padding — the Redesign numbers. */
-  .app-sidebar__list {
-    gap: 8px;
-  }
-
-  .app-sidebar__link {
-    min-height: 48px;
-    padding-block: 8px;
-    padding-inline: 14px;
-    border-radius: 16px;
-  }
-
-  .app-sidebar__foot {
-    padding: var(--space-3);
-  }
-
-  .app-sidebar__toggle {
-    min-height: 48px;
-    gap: 8px;
-    border-color: transparent;
-    border-radius: 16px;
-    color: var(--text-muted);
-  }
-
-  .app-sidebar__toggle:hover {
-    color: var(--text-primary);
-    background: var(--tint-cream-deep);
-  }
-}
-
-@media (max-width: 1023.98px) {
-  .app-sidebar {
-    border-inline-end: var(--outline-sticker) solid var(--bridgio-maroon);
-  }
-}
-
-/* ---- Main column --------------------------------------------------------- */
-
-.app-main {
-  max-width: var(--content-max);
-  padding: var(--space-8) var(--space-4) var(--space-16);
-}
-
-@media (min-width: 768px) {
-  .app-main {
-    padding: var(--space-8) var(--space-8) var(--space-16);
-  }
-}
-
 h1 {
   letter-spacing: -0.01em;
+}
+
+/* Connected Arabic glyphs must never carry negative letter-spacing. */
+:root[dir='rtl'] h1,
+:root[dir='rtl'] .total-card__value {
+  letter-spacing: 0;
 }
 
 /* Eyebrow badge above each page title. */
@@ -293,12 +88,22 @@ h1 {
 .player-test,
 .choice-card,
 .player-option {
-  transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 
+/* Calm surface feedback on hover — no bounce/lift shift. */
 .class-card:hover,
 .player-test:hover {
-  transform: translateY(-2px);
+  border-color: var(--bridgio-maroon);
+}
+
+.total-card__value,
+.class-card__stats dd,
+.count-chip,
+.progress-row__labels strong,
+.attempt-score,
+.parent-score {
+  font-variant-numeric: tabular-nums;
 }
 
 /* Section headings with a count chip. */
@@ -411,13 +216,14 @@ h1 {
 }
 
 .button--primary {
-  background: var(--bridgio-maroon);
-  border-color: var(--bridgio-maroon);
-  color: var(--bridgio-cream);
+  background: var(--cta-bg);
+  border-color: var(--cta-bg);
+  color: var(--cta-text);
 }
 
 .button--primary:hover:not(:disabled) {
-  background: var(--bridgio-maroon-outline);
+  background: var(--cta-bg-hover);
+  border-color: var(--cta-bg-hover);
 }
 
 .button--secondary {
@@ -525,19 +331,7 @@ body {
   overflow-x: clip;
 }
 
-@media (max-width: 1023.98px) {
-  .app-header {
-    position: sticky;
-    top: 0;
-    z-index: 40;
-  }
-}
-
 @media (max-width: 767.98px) {
-  .app-header__inner {
-    min-height: 60px;
-  }
-
   .dashboard__totals {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -550,22 +344,26 @@ body {
   }
 }
 
-/* ---- Dark theme refinements ---------------------------------------------- */
+/* ---- Dark theme refinements (Warm Near-Black Charcoal) ------------------- */
 
-/*
- * Same class names and locked roles as light. Only the derived card rim and
- * the two controls whose default assumes a light surface need dark rules.
- */
 :root[data-theme='dark'] {
-  /* A maroon rim disappears on the maroon base, so the card edge flips to a
-     translucent cream hairline (fill and radius are unchanged). */
-  --card-border: rgba(249, 236, 217, 0.3);
+  /* Crisp charcoal hairline instead of a high-contrast 30% wireframe rim. */
+  --outline-card: 1px;
+  --card-border: rgba(249, 236, 217, 0.14);
+  /* Third luminance step (#2c2625) above #1a1516 surfaces for chips, stat
+     strips, builder steppers, progress tracks, and active/hover rows. */
+  --tint-cream-deep: color-mix(in srgb, var(--bridgio-maroon) 8%, var(--bridgio-paper));
+  --tint-red: color-mix(in srgb, var(--bridgio-red) 16%, var(--bridgio-paper));
+  --tint-info: color-mix(in srgb, var(--bridgio-info) 14%, var(--bridgio-paper));
+  --tint-success: color-mix(in srgb, var(--bridgio-success) 15%, var(--bridgio-paper));
+  --tint-error: color-mix(in srgb, var(--bridgio-error) 14%, var(--bridgio-paper));
 }
 
-/* The active sidebar pill is cream in dark, so its icon chip must darken, not
-   lighten (the light rule lays cream over cream). */
-:root[data-theme='dark'] .app-sidebar__link.is-active .app-sidebar__icon {
-  background: rgba(44, 7, 6, 0.12);
+/* Neutral charcoal backdrops for drawers/popups in dark mode. */
+:root[data-theme='dark'] .sidebar-backdrop,
+:root[data-theme='dark'] .chat-popup,
+:root[data-theme='dark'] .mohsen-ask {
+  background: rgb(0 0 0 / 62%);
 }
 
 /* Warning is a bright amber fill; its chip keeps dark maroon text and rim in

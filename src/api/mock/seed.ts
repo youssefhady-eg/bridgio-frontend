@@ -49,6 +49,78 @@ export const seedIds = {
   threadTeacherAssistant: 'thread_teacher_assistant',
 } as const
 
+/**
+ * Demo identities, at module scope so the guest preview can borrow one without
+ * creating a session. They are copies of the seed rows: `createSeedDatabase`
+ * clones them into its own mutable list, so a preview read can never mutate the
+ * adapter's stored users.
+ */
+const DEMO_USERS: readonly User[] = [
+  {
+    id: seedIds.teacher,
+    role: 'teacher',
+    displayName: 'أ. منى عبد الرحمن',
+    email: 'mona.teacher@bridgio.test',
+    avatarUrl: null,
+    gender: 'female',
+  },
+  {
+    id: seedIds.assistant,
+    role: 'assistant',
+    displayName: 'هالة محمود — مساعدة المعلم',
+    email: 'hala.assistant@bridgio.test',
+    avatarUrl: null,
+    gender: null,
+  },
+  {
+    id: seedIds.parent,
+    role: 'parent',
+    displayName: 'أ. عادل حسن — ولي أمر',
+    email: 'adel.parent@bridgio.test',
+    avatarUrl: null,
+    gender: null,
+  },
+  {
+    id: seedIds.studentSara,
+    role: 'student',
+    displayName: 'سارة محمد',
+    email: 'sara.student@bridgio.test',
+    avatarUrl: null,
+    gender: null,
+  },
+  {
+    id: seedIds.studentOmar,
+    role: 'student',
+    displayName: 'عمر خالد',
+    email: 'omar.student@bridgio.test',
+    avatarUrl: null,
+    gender: null,
+  },
+  {
+    id: seedIds.studentYoussef,
+    role: 'student',
+    displayName: 'يوسف علي',
+    email: 'youssef.student@bridgio.test',
+    avatarUrl: null,
+    gender: null,
+  },
+] as const
+
+/**
+ * The demo identity used by the read-only guest preview for a role. Sara is the
+ * student whose seeded enrollments, progress and attempts fill the student
+ * screens; the other roles have one demo user each.
+ */
+export function demoUserForRole(role: User['role']): User {
+  const preferred =
+    role === 'student'
+      ? DEMO_USERS.find((user) => user.id === seedIds.studentSara)
+      : DEMO_USERS.find((user) => user.role === role)
+  const user = preferred ?? DEMO_USERS.find((candidate) => candidate.role === role)
+  if (!user) throw new Error(`No demo user for role: ${role}`)
+  return { ...user }
+}
+
 /** Internal storage model. Adapter methods map these to the public contract types. */
 export interface MockClassroom {
   id: ClassroomId
@@ -85,6 +157,8 @@ export interface MockTest {
   createdAt: string
   updatedAt: string
   publishedAt: string | null
+  /** Part 2 addition — teacher-set duration; null means no fixed duration. */
+  durationMinutes: number | null
 }
 
 export interface MockDatabase {
@@ -273,6 +347,12 @@ function question(input: {
   grounding: Question['grounding']
   origin: Question['origin']
   at?: string
+  /* Part 2 additions — authoring metadata. */
+  type?: Question['type']
+  difficulty?: Question['difficulty']
+  points?: number
+  modelAnswer?: string | null
+  unitId?: UnitId | null
 }): Question {
   return {
     id: input.id,
@@ -287,6 +367,13 @@ function question(input: {
     origin: input.origin,
     createdAt: input.at ?? createdAt,
     updatedAt: input.at ?? updatedAt,
+    // Part 2 additions. The model answer defaults to the correct option text
+    // for a seeded MCQ; callers can override it.
+    type: input.type ?? 'mcq',
+    difficulty: input.difficulty ?? 'medium',
+    points: input.points ?? 1,
+    modelAnswer: input.modelAnswer ?? input.options[input.correctIndex] ?? null,
+    unitId: input.unitId ?? null,
   }
 }
 
@@ -294,50 +381,7 @@ export function createSeedDatabase(options: {
   scenario: 'seeded' | 'empty'
   session: 'teacher' | 'student' | 'assistant' | 'parent' | 'none'
 }): MockDatabase {
-  const users: User[] = [
-    {
-      id: seedIds.teacher,
-      role: 'teacher',
-      displayName: 'أ. منى عبد الرحمن',
-      email: 'mona.teacher@bridgio.test',
-      avatarUrl: null,
-    },
-    {
-      id: seedIds.assistant,
-      role: 'assistant',
-      displayName: 'هالة محمود — مساعدة المعلم',
-      email: 'hala.assistant@bridgio.test',
-      avatarUrl: null,
-    },
-    {
-      id: seedIds.parent,
-      role: 'parent',
-      displayName: 'أ. عادل حسن — ولي أمر',
-      email: 'adel.parent@bridgio.test',
-      avatarUrl: null,
-    },
-    {
-      id: seedIds.studentSara,
-      role: 'student',
-      displayName: 'سارة محمد',
-      email: 'sara.student@bridgio.test',
-      avatarUrl: null,
-    },
-    {
-      id: seedIds.studentOmar,
-      role: 'student',
-      displayName: 'عمر خالد',
-      email: 'omar.student@bridgio.test',
-      avatarUrl: null,
-    },
-    {
-      id: seedIds.studentYoussef,
-      role: 'student',
-      displayName: 'يوسف علي',
-      email: 'youssef.student@bridgio.test',
-      avatarUrl: null,
-    },
-  ]
+  const users: User[] = DEMO_USERS.map((user) => ({ ...user }))
 
   /**
    * RBAC grants. The assistant is deliberately granted some teacher
@@ -498,6 +542,7 @@ export function createSeedDatabase(options: {
       createdAt,
       updatedAt,
       publishedAt,
+      durationMinutes: 15,
     },
     {
       id: seedIds.testIntegration,
@@ -515,6 +560,7 @@ export function createSeedDatabase(options: {
       createdAt: '2026-11-02T16:20:00.000Z',
       updatedAt: '2026-11-02T16:30:00.000Z',
       publishedAt: '2026-11-02T16:30:00.000Z',
+      durationMinutes: 20,
     },
     {
       id: seedIds.testIntegrationDraft,
@@ -532,6 +578,7 @@ export function createSeedDatabase(options: {
       createdAt: updatedAt,
       updatedAt,
       publishedAt: null,
+      durationMinutes: null,
     },
     {
       id: seedIds.testPhysics,
@@ -549,6 +596,7 @@ export function createSeedDatabase(options: {
       createdAt,
       updatedAt,
       publishedAt,
+      durationMinutes: 20,
     },
   ]
 
@@ -617,12 +665,8 @@ export function createSeedDatabase(options: {
       id: 'q_integration_1',
       testId: seedIds.testIntegrationDraft,
       order: 1,
-      prompt: 'ما العلاقة بين التكامل والاشتقاق؟',
-      options: [
-        'التكامل هو العملية العكسية للاشتقاق',
-        'التكامل هو ضرب المشتقة في الدالة',
-        'لا توجد علاقة بينهما',
-      ],
+      prompt: 'ما ناتج تكامل الدالة الثابتة k بالنسبة إلى x؟',
+      options: ['kx + C', 'k + C', 'k/x + C'],
       correctIndex: 0,
       grounding: integrationGrounding,
       origin: 'mohsen',
@@ -713,6 +757,33 @@ export function createSeedDatabase(options: {
       origin: 'mohsen',
     }),
   ]
+
+  // Part 2 additions — authoring metadata for the seeded question bank (demo
+  // values only). Difficulty is its own easy/medium/hard mapping, never the
+  // mastery tone rule. The unit is resolved from the owning test's source.
+  const questionMeta: Record<
+    string,
+    { difficulty: Question['difficulty']; points: number }
+  > = {
+    q_deriv_1: { difficulty: 'easy', points: 1 },
+    q_deriv_2: { difficulty: 'medium', points: 1 },
+    q_deriv_3: { difficulty: 'hard', points: 2 },
+    q_integration_1: { difficulty: 'medium', points: 1 },
+    q_integ_1: { difficulty: 'medium', points: 1 },
+    q_integ_2: { difficulty: 'hard', points: 2 },
+    q_integ_3: { difficulty: 'easy', points: 1 },
+    q_physics_1: { difficulty: 'easy', points: 1 },
+    q_physics_2: { difficulty: 'medium', points: 2 },
+  }
+  for (const item of questions) {
+    const meta = questionMeta[item.id]
+    if (meta) {
+      item.difficulty = meta.difficulty
+      item.points = meta.points
+    }
+    const owningTest = tests.find((test) => test.id === item.testId)
+    item.unitId = item.unitId ?? owningTest?.source.unitId ?? null
+  }
 
   // Per-unit progress is one basis: `progressPercent` is exactly
   // `lessonsCompleted / lessonCount`, so a unit only reads as complete when all

@@ -36,6 +36,16 @@ body {
   padding: 0;
 }
 
+/* No link underlines anywhere by default (owner 2026-11-25). Anchors that are
+   styled as buttons or rows (`.tv-btn`, table preview/edit links, nav, sidebar,
+   footer) therefore inherit no decoration in their default or hover state.
+   Existing per-component `text-decoration: none` rules stay as they are; a
+   component that genuinely needs an underline adds it deliberately, never by
+   default. */
+a {
+  text-decoration: none;
+}
+
 html {
   font-size: var(--font-body-size);
   -webkit-text-size-adjust: 100%;
@@ -132,311 +142,289 @@ summary:focus-visible,
   outline-offset: var(--focus-ring-offset);
 }
 
-/* ---- Utility header — brand + utility controls ----------------------------- */
+/* ---- Shell grid — sidebar + topbar + main ------------------------------- */
 /*
- * The refinement header is a slim utility bar: it no longer carries the primary
- * navigation (the sidebar does). It holds the menu button (phone/tablet), the
- * brand, and the utility controls (language switch, messages trigger, account
- * placeholder). Three brand size states remain, one DOM, media queries only:
- *  - < 768 px           : dark band (maroon) — adopted wordmark (cream fill)
- *  - 768 px – 1023.98 px: light small header — adopted wordmark (maroon fill)
- *  - ≥ 1024 px          : large header — adopted wordmark (maroon fill, 136 px)
- * The 200 px colour lockup is no longer rendered in the header (owner decision
- * 2026-11-13); the asset stays in the repo for large/cover use. The wordmark is
- * never mirrored, never stretched, never recoloured.
+ * 2026-11-21 port: one grid owns the whole viewport. The sidebar spans both
+ * rows (full height), the 52 px topbar sits in row 1 beside it, and only the
+ * main column scrolls. Geometry comes from the ported tokens:
+ * 236 / 58 / 52 / 42 / 1320 and 130 ms cubic-bezier(0.2, 0, 0, 1).
  */
 
-.app-header {
-  background: var(--band-bg);
-  color: var(--band-text);
-  border-bottom: var(--outline-sticker) solid var(--bridgio-maroon);
+.app-shell {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+  grid-template-rows: var(--topbar-h) minmax(0, 1fr);
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--bg-canvas);
+  /* Rail collapse/expand animates on the demo's --ease (130ms
+     cubic-bezier(0.2, 0, 0, 1)) in both directions: grid-template-columns
+     interpolates between the 236px and 58px track lists, so the rail passes
+     through intermediate widths instead of snapping. The reduced-motion block
+     below forces transition-duration to 0.01ms, keeping the OS's instant
+     behaviour. */
+  transition: grid-template-columns var(--ease);
 }
 
-.app-header__inner {
+.app-shell[data-collapsed='true'] {
+  grid-template-columns: var(--sidebar-w-collapsed) minmax(0, 1fr);
+}
+
+/* ---- Sidebar ------------------------------------------------------------ */
+
+.app-sidebar {
+  grid-row: 1 / -1;
+  grid-column: 1;
+  position: relative;
+  inset: auto;
+  top: auto;
   display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  max-width: 90rem;
-  margin: 0 auto;
-  padding: var(--space-2) var(--space-4);
+  flex-direction: column;
+  min-height: 0;
+  inline-size: auto;
+  min-inline-size: 0;
+  height: auto;
+  overflow: hidden;
+  background: var(--bg-surface);
+  border-inline-end: 1px solid var(--border-subtle);
+  transform: none;
+  visibility: visible;
+  box-shadow: none;
+  z-index: 20;
 }
 
-.app-header__menu {
+.app-sidebar__brand {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-2);
+  height: var(--topbar-h);
+  padding-inline: 14px;
+  border-block-end: 1px solid var(--border-subtle);
+}
+
+.app-sidebar__wordmark {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  flex: none;
-  width: var(--touch-target);
-  height: var(--touch-target);
-  padding: 0;
-  border: 1.5px solid var(--band-border);
-  border-radius: var(--radius-input);
-  background: transparent;
-  color: var(--band-text);
-  cursor: pointer;
+  gap: var(--space-2);
+  min-inline-size: 0;
+  text-decoration: none;
 }
 
-.app-header__menu:hover {
-  background: var(--band-hover);
-}
-
-.app-header__menu:focus-visible {
-  outline-color: var(--focus-ring-color-on-dark);
-}
-
-.app-header__brand {
-  display: flex;
-  align-items: center;
-  border-radius: var(--radius-pill);
-}
-
-/* Phone dark band: the brand link needs the on-dark ring, like the menu. */
-.app-header__brand:focus-visible {
-  outline-color: var(--focus-ring-color-on-dark);
-}
-
-/* Brand artwork slot — exactly one wordmark visible per breakpoint/theme. */
-.app-header__wordmark {
+/* Brand artwork slot — exactly one wordmark visible per theme. The artwork's
+   fills are baked into the files: the maroon file on the light sidebar, the
+   cream file on the wine dark sidebar. Never recoloured, never mirrored, never
+   stretched (the height stays auto so the 720×260 viewBox keeps its aspect). */
+.app-sidebar__wordmark-img {
   display: none;
+  width: 136px;
   height: auto;
   max-width: 100%;
 }
 
-/* Dark band: cream wordmark (fill #F9EEDC baked in the file — never recoloured). */
-.app-header__wordmark--cream {
+.app-sidebar__wordmark-img--maroon {
   display: block;
-  width: 136px; /* ≥ 120 px required for the adopted wordmark */
 }
 
-/* Utility controls, pushed to the inline-end edge of the slim bar. */
-.app-header__utilities {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin-inline-start: auto;
-}
-
-.app-utility__button {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-height: var(--touch-target);
-  padding: var(--space-2) var(--space-3);
-  border: 1.5px solid var(--band-border);
-  border-radius: var(--radius-pill);
-  background: transparent;
-  color: var(--band-text);
-  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
-  font-size: var(--font-label-size);
-  font-weight: 600;
-  line-height: 1.4;
-  text-decoration: none;
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.app-utility__button:hover {
-  background: var(--band-hover);
-}
-
-.app-utility__button:focus-visible {
-  outline-color: var(--focus-ring-color-on-dark);
-}
-
-.app-utility__button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* Phone: icon-only utilities + no account placeholder, so the slim bar fits. */
-@media (max-width: 767.98px) {
-  .app-utility__label {
-    display: none;
-  }
-
-  .app-utility__button--account {
-    display: none;
-  }
-}
-
-/* ---- Light small header (tablet / small desktop) --------------------------- */
-
-@media (min-width: 768px) {
-  .app-header {
-    background: var(--bridgio-cream);
-    color: var(--text-primary);
-  }
-
-  .app-header__wordmark--cream {
-    display: none;
-  }
-
-  /* Light surface: wordmark with the baked maroon fill (#2C0706). */
-  .app-header__wordmark--maroon {
-    display: block;
-    width: 148px; /* ≥ 120 px required for the adopted wordmark */
-  }
-
-  .app-header__menu {
-    border-color: var(--border-strong);
-    color: var(--text-primary);
-  }
-
-  .app-header__menu:hover {
-    background: var(--hover-bg);
-  }
-
-  .app-header__menu:focus-visible {
-    outline-color: var(--focus-ring-color);
-  }
-
-  .app-header__brand:focus-visible {
-    outline-color: var(--focus-ring-color);
-  }
-
-  .app-utility__button {
-    border-color: var(--border-strong);
-    color: var(--text-primary);
-  }
-
-  .app-utility__button:hover {
-    background: var(--hover-bg);
-  }
-
-  .app-utility__button:focus-visible {
-    outline-color: var(--focus-ring-color);
-  }
-}
-
-/* ---- Large header (desktop): 136 px clean wordmark -------------------------- */
-
-@media (min-width: 1024px) {
-  .app-header {
-    background: var(--bridgio-paper);
-  }
-
-  /* 136 px clean wordmark, not the 200 px lockup (owner decision 2026-11-13). */
-  .app-header__wordmark--maroon {
-    display: block;
-    width: 136px;
-  }
-
-  .app-header__menu {
-    display: none;
-  }
-}
-
-/* ---- Dark theme: cream artwork on the maroon base ------------------------- */
-
-/*
- * The colour lockup and the maroon wordmark are drawn for light surfaces
- * (their fills are baked into the files and are never recoloured). On the
- * maroon base the adopted cream wordmark is the only legible option at every
- * width above the phone band. Light theme artwork is untouched.
- */
-:root[data-theme='dark'] .app-header__wordmark--maroon {
+:root[data-theme='dark'] .app-sidebar__wordmark-img--maroon {
   display: none;
 }
 
-:root[data-theme='dark'] .app-header__wordmark--cream {
+:root[data-theme='dark'] .app-sidebar__wordmark-img--cream {
   display: block;
-  width: 136px; /* ≥ 120 px required for the adopted wordmark */
 }
 
-/* ---- App body: sidebar + content -------------------------------------------- */
-
-.app-body {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-}
-
-.app-content {
-  min-width: 0;
-}
-
-.app-sidebar {
-  display: flex;
-  flex-direction: column;
-  background: var(--bridgio-paper);
-  border-inline-end: var(--outline-sticker) solid var(--bridgio-maroon);
-}
-
-.app-sidebar__head {
-  display: flex;
-  justify-content: flex-end;
-  padding: var(--space-3) var(--space-3) 0;
-}
-
+.app-sidebar__toggle,
 .app-sidebar__close {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--touch-target);
-  height: var(--touch-target);
+  flex: none;
+  inline-size: 28px;
+  block-size: 28px;
   padding: 0;
-  border: 1.5px solid var(--border-strong);
-  border-radius: var(--radius-input);
+  margin-inline-start: auto;
+  border: 0;
+  border-radius: 6px;
   background: transparent;
-  color: var(--text-primary);
+  color: var(--text-muted);
   cursor: pointer;
+  transition: background-color var(--ease), color var(--ease);
 }
 
+.app-sidebar__toggle:hover,
 .app-sidebar__close:hover {
-  background: var(--hover-bg);
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.app-sidebar__close {
+  display: none;
+}
+
+html[dir='rtl'] .app-sidebar__toggle svg {
+  transform: scaleX(-1);
+}
+
+.app-shell[data-collapsed='true'] .app-sidebar__wordmark {
+  display: none;
+}
+
+.app-shell[data-collapsed='true'] .app-sidebar__brand {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+.app-shell[data-collapsed='true'] .app-sidebar__toggle {
+  margin-inline-start: 0;
 }
 
 .app-sidebar__nav {
-  padding: var(--space-4);
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+  padding: 10px 8px;
+  overflow-y: auto;
+}
+
+.app-sidebar__group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.app-sidebar__group-label {
+  margin: 0;
+  padding: 0 10px 4px;
+  color: var(--text-muted);
+  font-family: 'Bridgio Label', 'Bridgio Body', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+html[lang='en'] .app-sidebar__group-label {
+  letter-spacing: 0.08em;
 }
 
 .app-sidebar__list {
-  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   margin: 0;
   padding: 0;
-  display: grid;
-  gap: var(--space-1);
+  list-style: none;
 }
 
-.app-sidebar__link {
+.app-sidebar__link,
+.utility-links__link {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  min-height: var(--touch-target);
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-input);
-  color: var(--text-primary);
-  font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
-  font-size: var(--font-label-size);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.app-sidebar__link:hover {
-  background: var(--hover-bg);
-}
-
-.app-sidebar__link.is-active {
-  background: var(--bridgio-cream);
-  color: var(--bridgio-maroon);
-}
-
-.app-sidebar__icon {
-  display: inline-flex;
-  flex: none;
+  gap: 10px;
+  block-size: var(--row-h);
+  min-block-size: var(--row-h);
+  padding-inline: 10px;
+  border-radius: 6px;
   color: var(--text-secondary);
+  font-family: 'Bridgio Label', 'Bridgio Body', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  text-decoration: none;
+  transition: background-color var(--ease), color var(--ease);
 }
 
-.app-sidebar__link.is-active .app-sidebar__icon {
-  color: var(--bridgio-maroon);
+.app-sidebar__link:hover,
+.utility-links__link:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.app-sidebar__link.is-active,
+.utility-links__link.is-active {
+  background: var(--brand-maroon-soft);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.app-sidebar__link.is-active::before,
+.utility-links__link.is-active::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block: 6px;
+  inline-size: 2.5px;
+  border-radius: 2px;
+  background: var(--brand-maroon);
+}
+
+.app-sidebar__icon,
+.utility-links__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  inline-size: 20px;
+  block-size: 20px;
+  color: var(--text-muted);
+}
+
+.app-sidebar__link:hover .app-sidebar__icon,
+.utility-links__link:hover .utility-links__icon,
+.app-sidebar__link.is-active .app-sidebar__icon,
+.utility-links__link.is-active .utility-links__icon {
+  color: var(--brand-maroon);
+}
+
+.app-sidebar__label {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .app-sidebar__note {
-  margin: var(--space-3) 0 0;
+  margin: 0;
+  padding: 10px;
+  border-radius: 6px;
+  background: var(--bg-inset);
   color: var(--text-muted);
   font-size: var(--font-caption-size);
+  line-height: 1.5;
 }
 
-/* Drawer backdrop — phone/tablet only, always hidden on desktop. */
+.app-shell[data-collapsed='true'] .app-sidebar__group-label,
+.app-shell[data-collapsed='true'] .app-sidebar__label,
+.app-shell[data-collapsed='true'] .app-sidebar__note {
+  display: none;
+}
+
+.app-shell[data-collapsed='true'] .app-sidebar__nav {
+  gap: 8px;
+  padding-inline: 8px;
+}
+
+.app-shell[data-collapsed='true'] .app-sidebar__link,
+.app-shell[data-collapsed='true'] .utility-links__link {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+.utility-links {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 4px 0 0;
+  padding: 10px 0 0;
+  border-block-start: 1px solid var(--border-subtle);
+  list-style: none;
+}
+
+/* Drawer backdrop — phone only, always hidden on desktop. */
 .sidebar-backdrop {
   position: fixed;
   inset: 0;
@@ -444,7 +432,7 @@ summary:focus-visible,
   display: none;
   padding: 0;
   border: 0;
-  background: rgb(44 7 6 / 45%);
+  background: rgb(26 10 14 / 48%);
   cursor: pointer;
 }
 
@@ -452,52 +440,224 @@ summary:focus-visible,
   display: block;
 }
 
-/* Desktop: the sidebar is a fixed column beside the content. */
-@media (min-width: 1024px) {
-  .app-body {
-    grid-template-columns: 272px minmax(0, 1fr);
-  }
+/* ---- Topbar ------------------------------------------------------------- */
 
-  .app-sidebar {
-    position: sticky;
-    top: 0;
-    align-self: start;
-    height: 100dvh;
-    overflow-y: auto;
-  }
+.app-header {
+  grid-row: 1;
+  grid-column: 2;
+  position: relative;
+  top: auto;
+  z-index: 30;
+  min-width: 0;
+  min-height: var(--topbar-h);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border-block-end: 1px solid var(--border-subtle);
+}
 
-  .app-sidebar__head {
-    display: none;
-  }
+.app-header__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 420px) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-3);
+  block-size: var(--topbar-h);
+  min-block-size: var(--topbar-h);
+  max-inline-size: none;
+  padding: 0 18px;
+}
 
-  .sidebar-backdrop {
-    display: none;
+.app-header__start {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.app-header__menu {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  inline-size: 34px;
+  block-size: 34px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.app-header__menu:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.app-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.app-breadcrumb__root {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app-breadcrumb__sep {
+  color: var(--border-strong);
+}
+
+.app-breadcrumb__current {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.app-header__end {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  min-width: 0;
+}
+
+.app-utility__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  inline-size: 34px;
+  block-size: 34px;
+  min-block-size: 34px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: 'Bridgio Label', 'Bridgio Body', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--ease), color var(--ease),
+    border-color var(--ease);
+}
+
+.app-utility__button:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.app-utility__button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.app-utility__label {
+  display: none;
+}
+
+.app-utility__button--lang {
+  justify-content: center;
+}
+
+.app-utility__glyph {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+
+/* ---- Main column -------------------------------------------------------- */
+
+.app-main {
+  grid-row: 2;
+  grid-column: 2;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: clamp(14px, 1.6vw, 22px);
+  overflow-y: auto;
+  outline: none;
+}
+
+.app-main__inner {
+  max-inline-size: var(--content-max);
+  margin-inline: auto;
+}
+
+/* Tablet: the sidebar is already 236 px, so the topbar search may take a
+   narrower middle track without crowding the breadcrumb or the utilities. */
+@media (min-width: 769px) and (max-width: 1023px) {
+  .app-header__inner {
+    grid-template-columns: minmax(0, 1fr) minmax(160px, 300px) auto;
+    padding-inline: 14px;
   }
 }
 
-/* Phone/tablet: the sidebar is an off-canvas drawer from the inline-start. */
-@media (max-width: 1023.98px) {
+/* ---- Mobile shell: 256 px drawer, 52 px topbar --------------------------- */
+
+@media (max-width: 768px) {
+  .app-shell,
+  .app-shell[data-collapsed='true'] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .app-header {
+    grid-column: 1;
+  }
+
+  .app-header__inner {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: var(--space-2);
+    padding-inline: 12px;
+  }
+
+  .app-header__menu {
+    display: inline-flex;
+  }
+
+  .app-main {
+    grid-column: 1;
+    padding: 12px;
+  }
+
+  .app-breadcrumb__root,
+  .app-breadcrumb__sep {
+    display: none;
+  }
+
   .app-sidebar {
     position: fixed;
     inset-block: 0;
     inset-inline-start: 0;
+    /* Above the 52 px topbar (z-index 30) so the drawer's own brand row and its
+       close button stay visible; the backdrop (z-index 50) stays below it. */
     z-index: 60;
-    width: min(20rem, 85vw);
-    --drawer-hidden: -100%;
+    inline-size: 256px;
+    block-size: 100dvh;
+    --drawer-hidden: -110%;
     transform: translateX(var(--drawer-hidden));
-    /* A closed drawer is off-screen; keep it out of the tab order too, so focus
-       is never lost to links nobody can see. */
     visibility: hidden;
+    box-shadow: var(--shadow-overlay);
     transition:
-      transform 0.2s ease,
-      visibility 0s linear 0.2s;
+      transform 180ms ease,
+      visibility 0s linear 180ms;
   }
 
-  /* In RTL the inline-start edge is the right edge, so the drawer hides to the
-     right. Keep this as a variable: setting `transform` here would out-specify
-     `.is-open` and leave the open drawer off-screen. */
   html[dir='rtl'] .app-sidebar {
-    --drawer-hidden: 100%;
+    --drawer-hidden: 110%;
   }
 
   .app-sidebar.is-open {
@@ -505,14 +665,37 @@ summary:focus-visible,
     visibility: visible;
     transition-delay: 0s;
   }
-}
 
-/* ---- Main content ---------------------------------------------------------- */
+  /* The drawer is always the expanded layout, even if the desktop rail was
+     folded before the viewport narrowed. */
+  .app-sidebar.is-collapsed .app-sidebar__wordmark {
+    display: inline-flex;
+  }
 
-.app-main {
-  max-width: 76rem;
-  margin: 0 auto;
-  padding: var(--space-8) var(--space-4) var(--space-16);
+  .app-sidebar.is-collapsed .app-sidebar__brand {
+    justify-content: flex-start;
+    padding-inline: 14px;
+  }
+
+  .app-sidebar.is-collapsed .app-sidebar__group-label,
+  .app-sidebar.is-collapsed .app-sidebar__label,
+  .app-sidebar.is-collapsed .app-sidebar__note {
+    display: block;
+  }
+
+  .app-sidebar.is-collapsed .app-sidebar__link,
+  .app-sidebar.is-collapsed .utility-links__link {
+    justify-content: flex-start;
+    padding-inline: 10px;
+  }
+
+  .app-sidebar__toggle {
+    display: none;
+  }
+
+  .app-sidebar__close {
+    display: inline-flex;
+  }
 }
 
 .app-shell__badge {
@@ -592,14 +775,6 @@ summary:focus-visible,
 .screen-meta {
   color: var(--text-muted);
   font-size: var(--font-caption-size);
-}
-
-/* ---- Phon outline note: wide screens get breathing room ----------------------- */
-
-@media (min-width: 768px) {
-  .app-main {
-    padding-inline: var(--space-8);
-  }
 }
 
 /* ---- Stage 2 teacher dashboard ---------------------------------------------- */
@@ -1487,13 +1662,14 @@ input.input[type='search'] {
 }
 
 .button--primary {
-  background: var(--bridgio-maroon);
-  border-color: var(--bridgio-maroon);
-  color: var(--bridgio-cream);
+  background: var(--cta-bg);
+  border-color: var(--cta-bg);
+  color: var(--cta-text);
 }
 
 .button--primary:hover:not(:disabled) {
-  background: var(--bridgio-maroon-outline);
+  background: var(--cta-bg-hover);
+  border-color: var(--cta-bg-hover);
 }
 
 .button--secondary {
@@ -2652,17 +2828,6 @@ h3 + .summary-list {
  * ========================================================================= */
 
 @media (min-width: 1024px) {
-  /* Sidebar: larger targets and clearer separation from the page. */
-  .app-sidebar__nav {
-    padding: var(--space-6) var(--space-4);
-  }
-
-  .app-sidebar__link {
-    min-height: 48px;
-    padding: var(--space-3) var(--space-4);
-    font-size: var(--font-body-size);
-  }
-
   /* Class cards: stats spread across the card, not bunched at one edge. */
   .class-card__stats {
     display: grid;
@@ -2740,83 +2905,6 @@ h3 + .summary-list {
 
   .dashboard__col--side .class-card__stats div {
     padding: 0;
-  }
-}
-
-/* ==== Foldable sidebar (desktop) ============================================ */
-
-.app-sidebar__foot {
-  display: none;
-}
-
-@media (min-width: 1024px) {
-  .app-sidebar__foot {
-    display: block;
-    margin-block-start: auto;
-    padding: var(--space-4);
-    border-block-start: var(--outline-hairline) solid var(--border);
-  }
-
-  .app-sidebar__toggle {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    width: 100%;
-    min-height: var(--touch-target);
-    padding: var(--space-2) var(--space-3);
-    border: 1.5px solid var(--border-strong);
-    border-radius: var(--radius-input);
-    background: transparent;
-    color: var(--text-secondary);
-    font-family: 'thmanyahsans', 'Bridgio Label', sans-serif;
-    font-size: var(--font-label-size);
-    font-weight: 600;
-    cursor: pointer;
-  }
-
-  .app-sidebar__toggle:hover {
-    background: var(--hover-bg);
-  }
-
-  /* The chevron points toward the sidebar's own edge, so mirror it in RTL. */
-  html[dir='rtl'] .app-sidebar__toggle svg {
-    transform: scaleX(-1);
-  }
-
-  /* Folded: an icon rail. Labels stay in the DOM (visually hidden) so every
-     control keeps its accessible name. */
-  .app-body--collapsed {
-    grid-template-columns: 88px minmax(0, 1fr);
-  }
-
-  .app-sidebar.is-collapsed .app-sidebar__label {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    padding: 0;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
-
-  .app-sidebar.is-collapsed .app-sidebar__nav {
-    padding-inline: var(--space-3);
-  }
-
-  .app-sidebar.is-collapsed .app-sidebar__link,
-  .app-sidebar.is-collapsed .app-sidebar__toggle {
-    justify-content: center;
-    padding-inline: 0;
-  }
-
-  .app-sidebar.is-collapsed .app-sidebar__foot {
-    padding-inline: var(--space-3);
-  }
-
-  .app-sidebar.is-collapsed .app-sidebar__note {
-    display: none;
   }
 }
 

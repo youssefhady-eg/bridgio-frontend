@@ -2,24 +2,22 @@ import { createFileRoute } from '@tanstack/react-router'
 import {
   sessionQueryOptions,
   teacherClassroomsQueryOptions,
+  teacherTestsQueryOptions,
 } from '~/api/queries'
-import { TestBuilder } from '~/components/builder/TestBuilder'
+import { TestsList } from '~/components/teacher/TestsList'
 import { stringsFor } from '~/shell/useStrings'
 
 /**
- * Stage 3 — teacher test builder at `/teacher/tests`.
+ * Part 2 (2026-11-22) — teacher test list at `/teacher/tests`.
  *
- * The loader prefetches the Mentingo-owned session and the teacher's classes
- * through the adapter/query layer so step 1 renders with real class data on
- * SSR. Materials/units are fetched only after a class is chosen.
- *
- * A failed prefetch is swallowed on purpose so the builder renders its own
- * Arabic empty/error/success notes from the query status (token sheet §5)
- * instead of the framework's default English error screen.
+ * The loader prefetches the session, the teacher's tests and the teacher's
+ * classes (for the class filter) through the adapter/query layer so the table
+ * renders from cache on SSR. A failed prefetch is swallowed on purpose so the
+ * screen draws its own error/empty notes from the query status.
  */
 export const Route = createFileRoute('/teacher/tests/')({
   head: ({ match }) => ({
-    meta: [{ title: stringsFor(match.search.lang).builder.headTitle }],
+    meta: [{ title: stringsFor(match.search.lang).testsList.headTitle }],
   }),
   loader: async ({ context }) => {
     try {
@@ -27,13 +25,18 @@ export const Route = createFileRoute('/teacher/tests/')({
         sessionQueryOptions(),
       )
       if (session?.user.role === 'teacher') {
-        await context.queryClient.ensureQueryData(
-          teacherClassroomsQueryOptions(session.user.id),
-        )
+        await Promise.all([
+          context.queryClient.ensureQueryData(
+            teacherTestsQueryOptions(session.user.id),
+          ),
+          context.queryClient.ensureQueryData(
+            teacherClassroomsQueryOptions(session.user.id),
+          ),
+        ])
       }
     } catch {
       // Query status carries the failure to the screen's error state.
     }
   },
-  component: TestBuilder,
+  component: TestsList,
 })

@@ -4,7 +4,7 @@ import {
   Modal,
   ModalOverlay,
 } from 'react-aria-components'
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { api } from '~/api'
 import type { GroundingScope, MohsenAnswer, UserId } from '~/api/types'
 import { GroundingList } from '~/components/builder/GroundingList'
@@ -50,6 +50,24 @@ export function MohsenAskDialog({
     unitId: null,
   }
 
+  // First Escape closes the popup even while focus is in the question field.
+  // The capture listener runs before react-aria's own dismissal handling, so
+  // the key is never swallowed by the input.
+  useEffect(() => {
+    if (!open) return
+
+    function onKeyDown(event: globalThis.KeyboardEvent) {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        event.stopPropagation()
+        onClose()
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown, true)
+    return () => document.removeEventListener('keydown', onKeyDown, true)
+  }, [open, onClose])
+
   const askMutation = useMutation({
     mutationFn: (input: { key: string; question: string }) =>
       api.mohsen.ask({ question: input.question, askedBy: userId, scope }),
@@ -82,6 +100,24 @@ export function MohsenAskDialog({
     askMutation.mutate({ key, question })
   }
 
+  // The popup's state picks the mascot pose; waving stays the default (and the
+  // header avatar), so a pose is used only where the state clearly calls for
+  // one: thinking while an answer is in flight, sleeping when idle, happy on
+  // an answer, confused when nothing was grounded.
+  const lastEntry = entries[entries.length - 1] ?? null
+  const mascotPose = askMutation.isPending
+    ? 'thinking'
+    : lastEntry === null
+      ? 'sleeping'
+      : lastEntry.failed
+        ? 'confused'
+        : lastEntry.answer === null
+          ? 'thinking'
+          : answerView(lastEntry.answer, strings.notGroundedFallback).status ===
+              'answered'
+            ? 'happy'
+            : 'confused'
+
   return (
     <ModalOverlay
       className="mohsen-ask"
@@ -94,6 +130,16 @@ export function MohsenAskDialog({
       <Modal className="mohsen-ask__panel">
         <Dialog className="mohsen-ask__dialog" aria-label={strings.title}>
           <header className="mohsen-ask__head">
+            <span className="mohsen-ask__avatar" aria-hidden="true">
+              <img
+                className="mohsen-ask__avatar-img"
+                src="/brand/mohsen-waving.png"
+                alt=""
+                width={40}
+                height={40}
+                decoding="async"
+              />
+            </span>
             <h2 className="mohsen-ask__title">{strings.title}</h2>
             <button
               type="button"
@@ -120,6 +166,7 @@ export function MohsenAskDialog({
                 placeholder={strings.placeholder}
                 onChange={(event) => setDraft(event.target.value)}
                 autoComplete="off"
+                autoFocus
               />
               <button
                 type="submit"
@@ -132,6 +179,16 @@ export function MohsenAskDialog({
           </form>
 
           <div className="mohsen-ask__thread">
+            <div className="mohsen-ask__stage" aria-hidden="true">
+              <img
+                className="mohsen-ask__stage-art"
+                src={`/brand/mohsen-${mascotPose}.png`}
+                alt=""
+                width={72}
+                height={72}
+                decoding="async"
+              />
+            </div>
             {entries.length === 0 ? (
               <EmptyNote
                 icon="spark"

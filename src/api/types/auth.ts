@@ -12,7 +12,16 @@ export interface User {
   displayName: string
   email: string
   avatarUrl: string | null
+  /**
+   * PROPOSED — NEW in the Batch 5 follow-up. Optional identity attribute used
+   * only to pick a gendered role label (for example "المعلمة" instead of
+   * "المعلم"). It is not an auth or permission input. `null` means the backend
+   * did not supply it, and the UI keeps the neutral role label.
+   */
+  gender: UserGender | null
 }
+
+export type UserGender = 'male' | 'female'
 
 /**
  * The authenticated session, as projected to the UI.

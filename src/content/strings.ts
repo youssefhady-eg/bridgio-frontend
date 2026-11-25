@@ -125,10 +125,18 @@ export const ar = {
     assistantOpenLabel: 'افتح المحادثات',
     searchLabel: 'بحث',
     searchOpenLabel: 'افتح البحث',
+    searchCloseLabel: 'إغلاق البحث',
     accountLabel: 'الحساب',
+    accountMenuLabel: 'قائمة الحساب',
+    signInLabel: 'تسجيل الدخول',
+    signOutLabel: 'تسجيل الخروج',
+    signingOutLabel: 'جارٍ الخروج...',
+    accountError: 'تعذّر إتمام العملية. أعد المحاولة.',
     themeLabel: 'المظهر',
     themeToDark: 'المظهر الداكن',
     themeToLight: 'المظهر الفاتح',
+    breadcrumbLabel: 'مسار التنقّل',
+    homeLabel: 'الرئيسية',
   },
   /** Primary navigation sidebar (all roles). */
   sidebar: {
@@ -142,12 +150,38 @@ export const ar = {
     utilitiesLabel: 'روابط مساعدة',
     helpLabel: 'المساعدة',
     guideLabel: 'الدليل',
+    supportLabel: 'الدعم',
     profileLabel: 'الملف الشخصي',
     notificationsLabel: 'الإشعارات',
+    /**
+     * Teacher information architecture (2026-11-21 shell port). The brief names
+     * five groups; the Arabic wording below is DRAFT like the rest of this file
+     * and has not been reviewed by an Arabic editor.
+     */
+    groups: {
+      command: 'القيادة',
+      detect: 'الرصد',
+      diagnose: 'التشخيص',
+      decide: 'القرار',
+      verify: 'التحقق',
+    },
+  },
+  /**
+   * Read-only guest preview. The banner is UI copy only: the preview borrows a
+   * seeded demo identity for reads and never creates a session or an account.
+   */
+  guestPreview: {
+    badge: 'معاينة الزائر',
+    body: 'بيانات تجريبية. سجّل الدخول لعرض بياناتك.',
+    signIn: 'تسجيل الدخول',
+    roleLine: (role: string) => `زائر — ${role}`,
+    exit: 'الخروج من معاينة الزائر',
   },
   /** Nav item labels — teacher copy is MSA formal, student copy is Egyptian casual, parent copy is MSA formal. */
   nav: {
-    'teacher-dashboard': 'لوحة المعلم',
+    // Neutral in the sidebar for both languages, so the rail never guesses a
+    // gender; the dashboard H1 and the document title stay gendered.
+    'teacher-dashboard': 'لوحة التحكم',
     'teacher-classes': 'صفوفي',
     'teacher-tests': 'الاختبارات',
     'teacher-question-bank': 'بنك الأسئلة',
@@ -178,7 +212,19 @@ export const ar = {
   >,
   dashboard: {
     headTitle: `لوحة المعلم — ${B}`,
+    // Female document title; mirrors `titleFemale`.
+    headTitleFemale: `لوحة المعلمة — ${B}`,
     title: 'لوحة المعلم',
+    /**
+     * Female form of the heading, used only when the session user carries
+     * `gender: 'female'` (see `dashboardLabel`). A null gender keeps `title`.
+     */
+    titleFemale: 'لوحة المعلمة',
+    /**
+     * Neutral fallback used where no session supplies a gender — the Help link
+     * and the Guide step. The signed-in label comes from `dashboardLinkLabel`.
+     */
+    titleNeutral: 'لوحة التحكم',
     quickActions: {
       heading: 'إجراءات سريعة',
       createTest: 'أنشئ اختبارًا',
@@ -247,6 +293,66 @@ export const ar = {
     emptyAllTitle: 'لا يوجد شيء هنا بعد',
     emptyAllBody:
       'لا صفوف ولا اختبارات بعد. ستظهر هنا بمجرد إضافتها.',
+    // Part 2 rebuild (2026-11-22) — dashboard copy ported from the demo. The
+    // third KPI is "التسليمات": grading is held (Phase 4), so no label here
+    // names correction, marking or a grading space.
+    filterLabel: 'تصفية الصف',
+    allClasses: 'جميع الصفوف',
+    allClassesCount: (count: string) => `جميع الصفوف (${count} طالب)`,
+    newTest: '+ اختبار جديد',
+    unavailable: 'غير متاح',
+    kpi: {
+      students: 'إجمالي الطلاب',
+      studentsMeta: (count: string) => `${count} صفوف نشطة`,
+      mastery: 'متوسط الإتقان',
+      masteryOnTarget: 'ضمن المستهدف',
+      masteryNeedsSupport: 'يحتاج دعمًا',
+      submissions: 'التسليمات',
+      submissionsScored: (count: string) => `${count} بدرجة متاحة`,
+      submissionsNone: 'لا درجات بعد',
+      atRisk: 'طلاب يحتاجون متابعة',
+      atRiskMeta: 'أقل من 55% إتقان',
+    },
+    atRisk: {
+      heading: 'طلاب يحتاجون متابعة',
+      viewAll: (count: string) => `عرض الكل (${count})`,
+      student: 'الطالب',
+      classLabel: 'الصف',
+      mastery: 'الإتقان',
+      lastScore: 'آخر درجة',
+      action: 'إجراء',
+      followUp: 'متابعة',
+      lastActive: (date: string) => `آخر نشاط: ${date}`,
+      emptyTitle: 'لا طلاب يحتاجون متابعة',
+      emptyBody: 'كل طلابك فوق حدّ المتابعة (55% إتقان).',
+    },
+    units: {
+      heading: 'إتقان الوحدات',
+      emptyTitle: 'لا وحدات لعرضها',
+      emptyBody: 'تظهر الوحدات هنا بعد ربطها بصفوفك.',
+      barLabel: (name: string) => `إتقان وحدة ${name}`,
+    },
+    drafts: {
+      heading: 'مسودات غير منشورة',
+      empty: 'لا توجد مسودات معلّقة.',
+      meta: (className: string, questions: string) =>
+        `${className} · ${questions}`,
+      edit: 'تعديل',
+      publish: 'نشر',
+      publishing: 'جارٍ النشر...',
+      publishError: 'تعذّر نشر الاختبار. أعد المحاولة.',
+      questionsCount: (count: number) => countPhrase(count, questionsMsa),
+    },
+    submissions: {
+      heading: 'أحدث التسليمات',
+      student: 'الطالب',
+      test: 'الاختبار',
+      submittedAt: 'التسليم',
+      score: 'الدرجة',
+      emptyTitle: 'لا تسليمات بعد',
+      emptyBody: 'تظهر تسليمات الطلاب هنا بعد أول اختبار منشور.',
+      scoreUnavailable: 'لم تُحتسب بعد',
+    },
   },
   builder: {
     headTitle: `منشئ الاختبارات — ${B}`,
@@ -650,6 +756,7 @@ export const ar = {
     lead: 'ابحث في اختباراتك وموادك وأسئلتك من مكان واحد.',
     inputLabel: 'كلمة البحث',
     placeholder: 'اكتب كلمة للبحث...',
+    shortcut: 'Ctrl K',
     submit: 'ابحث',
     promptTitle: 'ابدأ البحث',
     promptBody: 'اكتب كلمة لتظهر النتائج من اختباراتك وموادك وأسئلتك.',
@@ -661,6 +768,7 @@ export const ar = {
     resultsLabel: 'النتائج',
     roleTitle: 'البحث غير متاح لهذا الحساب.',
     roleBody: 'يشمل البحث اختبارات المعلم ومواده وأسئلته في هذا الإصدار.',
+    viewAll: 'اعرض كل النتائج',
     open: 'افتح',
     kinds: {
       test: 'اختبار',
@@ -682,7 +790,25 @@ export const ar = {
     students: 'الطلاب',
     units: 'الوحدات',
     lessons: 'الدروس',
+    name: 'الصف',
+    subject: 'المادة',
+    grade: 'الصف الدراسي',
+    tests: 'الاختبارات',
+    status: 'الحالة',
+    tableCaption: 'قائمة صفوفك مع المادة والصف والطلاب والاختبارات والحالة.',
+    statusNoTests: 'لا اختبارات',
+    statusDraft: 'مسودات',
+    statusPublished: 'منشور',
     open: 'افتح الصف',
+    // Part 2 rebuild (2026-11-22) — class cards.
+    newTest: 'اختبار لصف',
+    averageBadge: (percent: string) => `متوسط ${percent}`,
+    subjectUnits: (subject: string, done: string, total: string) =>
+      `${subject} · ${done} / ${total} وحدات`,
+    atRisk: 'يحتاجون متابعة',
+    studentsList: 'قائمة الطلاب',
+    testsButton: 'الاختبارات',
+    masteryUnavailable: 'لا طلاب بعد',
     detail: {
       back: 'كل الصفوف',
       loading: 'جارٍ تحميل الصف...',
@@ -720,6 +846,36 @@ export const ar = {
     emptyTitle: 'لا يوجد طلاب بعد',
     emptyBody: 'عند انضمام الطلاب إلى صفوفك يظهرون هنا.',
     open: 'افتح الطالب',
+    // Part 2 rebuild (2026-11-22) — students table and its drawer.
+    searchLabel: 'تصفية بالاسم',
+    searchPlaceholder: 'تصفية بالاسم...',
+    filterClass: 'تصفية الصف',
+    allClasses: 'كل الصفوف',
+    clearFilters: 'امسح عوامل التصفية',
+    countLabel: (count: string) => `(${count})`,
+    colStudent: 'الطالب',
+    colClass: 'الصف',
+    colMastery: 'الإتقان العام',
+    colLastScore: 'آخر اختبار',
+    colLastActive: 'آخر نشاط',
+    colAction: 'إجراء',
+    openFile: 'ملف المتابعة',
+    scoreUnavailable: '—',
+    noMatchTitle: 'لا طلاب مطابقون',
+    noMatchBody: 'جرّب اسمًا آخر أو اختر صفًا مختلفًا.',
+    drawer: {
+      average: 'الإتقان العام',
+      lastScore: 'آخر درجة',
+      trendHeading: 'تطور آخر ٣ اختبارات',
+      trendEmpty: 'لا محاولات مسلّمة بعد.',
+      trendTestLabel: (index: string) => `اختبار ${index}`,
+      trendBarLabel: (index: string, score: string) =>
+        `اختبار ${index}: ${score}`,
+      close: 'إغلاق',
+      unavailable: 'لم تُحتسب بعد',
+      loading: 'جارٍ تحميل محاولات الطالب...',
+      loadError: 'تعذّر تحميل محاولات الطالب.',
+    },
     classLabel: 'الصف',
     progressLabel: 'التقدّم',
     lastActive: 'آخر نشاط',
@@ -832,6 +988,53 @@ export const ar = {
     noMatchBody: 'جرّب كلمة بحث أخرى أو اختر صفًا مختلفًا.',
     readOnlyNote:
       'الأسئلة هنا للعرض فقط. لتعديل سؤال، افتح اختباره في منشئ الاختبار.',
+    // Part 2 rebuild (2026-11-22) — bank table. Authoring metadata comes from
+    // the adapter; the screen never derives difficulty or points itself.
+    colQuestion: 'السؤال',
+    colUnit: 'الوحدة',
+    colType: 'النوع',
+    colDifficulty: 'الصعوبة',
+    colPoints: 'الدرجة',
+    colAction: 'إجراء',
+    typeMcq: 'اختياري',
+    typeEssay: 'مقالي',
+    difficultyEasy: 'سهل',
+    difficultyMedium: 'متوسط',
+    difficultyHard: 'صعب',
+    modelAnswer: 'عرض نموذج الإجابة',
+    addToDraft: 'أضف للمسودة',
+    inDraft: 'في المسودة',
+    inDraftHint: 'هذا السؤال موجود في أحدث مسودة بالفعل.',
+    addedNote: (title: string) => `أُضيف السؤال إلى ${title}.`,
+    addErrorTitle: 'تعذّر إضافة السؤال.',
+    addErrorBody: 'من جهتنا، لا من جهتك. أعد المحاولة بعد قليل.',
+    noDraft: 'لا مسودة مفتوحة',
+    noDraftHint: 'أنشئ مسودة اختبار لتضيف إليها أسئلة من البنك.',
+    targetDraft: (title: string) => `تُضاف الأسئلة إلى أحدث مسودة: ${title}`,
+    noUnit: '—',
+    // Part 2 follow-up (2026-11-25) — new-question modal (§2.3). It creates
+    // into the newest draft's test through `questions.create`. The type,
+    // difficulty, points and unit labels reuse the table column headers.
+    newQuestion: '+ سؤال جديد',
+    newQuestionModalTitle: 'إضافة سؤال لبنك الأسئلة',
+    promptLabel: 'نص السؤال',
+    promptPlaceholder: 'اكتب نص السؤال...',
+    optionsLabel: 'الخيارات',
+    optionPlaceholder: 'نص الخيار',
+    addOption: 'أضف خيارًا',
+    removeOption: 'احذف الخيار',
+    correctOptionLabel: 'الإجابة الصحيحة',
+    correctOptionFor: (index: number) => `الإجابة الصحيحة للخيار ${index}`,
+    correctNone: 'بلا إجابة محددة',
+    noUnitOption: 'بلا وحدة',
+    modelAnswerLabel: 'نموذج الإجابة (اختياري)',
+    modelAnswerPlaceholder: 'اكتب نموذج الإجابة...',
+    save: 'حفظ السؤال',
+    saving: 'جارٍ الحفظ...',
+    cancel: 'إلغاء',
+    close: 'إغلاق',
+    createErrorTitle: 'تعذّر إضافة السؤال.',
+    createErrorBody: 'راجع الحقول المطلوبة وحاول مرة أخرى.',
   },
   /** Teacher material library — list/get/create/delete; metadata only. */
   materialLibrary: {
@@ -848,6 +1051,9 @@ export const ar = {
     uploadGapTitle: 'رفع الملفات غير متاح بعد',
     uploadGapBody:
       'يمكنك إضافة مادة نصية أو رابط. رفع ملفات PDF والصور غير متاح بعد.',
+    upload: '+ رفع مادة',
+    uploadModalTitle: 'رفع مادة تعليمية',
+    cancel: 'إلغاء',
     addHeading: 'أضف مادة',
     addLead: 'سجّل عنوان المادة ومحتواها النصي أو رابطها.',
     noClassesTitle: 'لا توجد صفوف بعد',
@@ -906,10 +1112,22 @@ export const ar = {
     detailErrorBody: 'من جهتنا، لا من جهتك. أعد المحاولة بعد قليل.',
     detailNoContent: 'لا يوجد محتوى نصي محفوظ لهذه المادة.',
     openLink: 'افتح الرابط',
+    close: 'إغلاق',
     emptyTitle: 'لا توجد مواد بعد',
     emptyBody: 'أضف أول مادة نصية أو رابط من النموذج أعلاه.',
     emptyFilterTitle: 'لا توجد مواد لهذا الصف',
     emptyFilterBody: 'جرّب صفًا آخر أو أضف مادة جديدة.',
+    // Part 2 rebuild (2026-11-22) — table copy. The size column is the word
+    // count the adapter supplies; a material without one shows "—", never an
+    // invented size.
+    tableCaption: 'موادك مع الصف والنوع وعدد الكلمات وتاريخ الإضافة.',
+    colTitle: 'العنوان',
+    colClass: 'الصف',
+    colType: 'النوع',
+    colWords: 'عدد الكلمات',
+    colCreated: 'تاريخ الإضافة',
+    colAction: 'إجراء',
+    noWords: '—',
   },
   /** Student test review + retake. Student register: Egyptian casual. */
   results: {
@@ -1059,6 +1277,17 @@ export const ar = {
     passwordLabel: 'كلمة المرور',
     passwordPlaceholder: '••••••••',
     submit: 'دخول',
+    signingIn: 'جارٍ الدخول...',
+    signInHint: 'يُتحقق من البيانات عبر خدمة الحسابات المتصلة.',
+    guestLabel: 'الدخول كزائر',
+    guestHint: 'تصفّح المنصة دون تسجيل الدخول. يمكنك تسجيل الدخول في أي وقت.',
+    guestRolesLabel: 'اختر دور المعاينة',
+    guestRoles: {
+      teacher: 'المعلم',
+      student: 'الطالب',
+      parent: 'وليّ الأمر',
+      assistant: 'مساعد المعلم',
+    } as Record<PreviewRoleId, string>,
     status: 'تسجيل الدخول غير متاح حاليًا.',
     /**
      * Self-service account flows remain PROPOSED and NOT connected. The adapter
@@ -1131,6 +1360,57 @@ export const ar = {
       assistant: 'مساعد المعلم',
       parent: 'وليّ الأمر',
     } as Record<PreviewRoleId, string>,
+    /**
+     * Gendered role labels, used only when the session user carries
+     * `gender: 'female'` (PROPOSED `User.gender`). A null gender keeps the
+     * neutral label above.
+     */
+    rolesFemale: {
+      teacher: 'المعلمة',
+      student: 'الطالبة',
+      assistant: 'مساعدة المعلم',
+      parent: 'وليّة الأمر',
+    } as Record<PreviewRoleId, string>,
+  },
+  /**
+   * Support request — interface only. The support backend does not exist yet,
+   * so the screen never claims a request was delivered and never invents a
+   * contact channel. Replies arrive once the real backend is connected.
+   */
+  support: {
+    headTitle: `الدعم — ${B}`,
+    badge: 'الدعم',
+    title: 'طلب دعم',
+    lead: 'اكتب طلبك هنا. يصل الطلب إلى فريق الدعم بعد ربط الخدمة.',
+    note: 'الردود تصل بعد ربط خدمة الدعم الحقيقية. لا توجد خدمة متصلة في هذا الإصدار، ولن نعرض نجاحًا غير حقيقي.',
+    formLabel: 'نموذج طلب الدعم',
+    /**
+     * Contact options — the section that will hold the channels once the
+     * support backend exists. No channel is connected in this build, and no
+     * email, WhatsApp or phone number is invented.
+     */
+    contactHeading: 'قنوات التواصل',
+    contactLead: 'تُعرض هنا قنوات التواصل مع فريق الدعم.',
+    contactEmptyTitle: 'لا توجد قناة متصلة',
+    contactEmptyBody:
+      'لم تُربط خدمة الدعم بعد، فلا تتوفّر أي قناة تواصل في هذا الإصدار. تصل الردود بعد ربط الخدمة الحقيقية.',
+    nameLabel: 'الاسم',
+    namePlaceholder: 'اسمك',
+    emailLabel: 'البريد الإلكتروني',
+    emailPlaceholder: 'name@example.com',
+    subjectLabel: 'الموضوع',
+    subjectPlaceholder: 'ما الذي تحتاج المساعدة فيه؟',
+    messageLabel: 'التفاصيل',
+    messagePlaceholder: 'اكتب تفاصيل طلبك هنا.',
+    submit: 'إرسال الطلب',
+    submitting: 'جارٍ الإرسال...',
+    unavailableTitle: 'لم يُرسل الطلب.',
+    unavailableBody:
+      'خدمة الدعم غير متصلة في هذا الإصدار. يبقى ما كتبته في النموذج، وتصل الردود بعد ربط الخدمة الحقيقية.',
+    acceptedTitle: 'تم استلام طلبك.',
+    acceptedBody: 'سيصلك الرد على البريد الذي أدخلته.',
+    errorTitle: 'تعذّر إرسال الطلب.',
+    errorBody: 'من جهتنا، لا من جهتك. أعد المحاولة بعد قليل.',
   },
   /**
    * Help Center — a role-scoped reference library. Every article is one task
@@ -1156,7 +1436,7 @@ export const ar = {
     } as Record<HelpCategory, string>,
     links: {
       profile: 'الملف الشخصي والإعدادات',
-      teacherDashboard: 'لوحة المعلم',
+      teacherDashboard: 'لوحة التحكم',
       teacherClasses: 'صفوفي',
       teacherTests: 'الاختبارات',
       teacherQuestionBank: 'بنك الأسئلة',
@@ -1175,11 +1455,11 @@ export const ar = {
       'start-tour': {
         category: 'gettingStarted',
         title: 'تعرّف على التنقّل',
-        body: 'كل شاشاتك تُفتح من القائمة الجانبية، ومساعدتك ودليلك وملفك الشخصي أسفلها.',
+        body: 'كل شاشاتك تُفتح من القائمة الجانبية، ومساعدتك ودليلك أسفلها، وملفك الشخصي من قائمة الحساب في الشريط العلوي.',
         steps: [
           'افتح القائمة الجانبية من زر القائمة على الهاتف، أو استخدمها ثابتة على الحاسوب.',
           'اختر الشاشة التي تريدها من القائمة.',
-          'استخدم روابط المساعدة والدليل والملف الشخصي أسفل القائمة.',
+          'استخدم روابط المساعدة والدليل أسفل القائمة، وافتح ملفك الشخصي من قائمة الحساب في الشريط العلوي.',
         ],
       },
       'start-language': {
@@ -1383,7 +1663,7 @@ export const ar = {
         title: 'راجع بيانات جلستك',
         body: 'يعرض الملف الشخصي بيانات الجلسة الحالية.',
         steps: [
-          'افتح الملف الشخصي من أسفل القائمة الجانبية.',
+          'افتح الملف الشخصي من قائمة الحساب في الشريط العلوي.',
           'راجع الاسم والدور والبريد في قسم الجلسة الحالية.',
           'بيانات الحساب تأتي من الجلسة، ولا تُعدَّل من هذه الشاشة.',
         ],
@@ -1440,8 +1720,8 @@ export const ar = {
       lead: 'مسار أول اختبار: افتح الصف، أنشئ الاختبار، انشره، ثم راجع النتائج.',
       steps: [
         {
-          title: 'ابدأ من لوحة المعلم',
-          body: 'لوحة المعلم تجمع صفوفك وآخر اختباراتك وتقدّم الطلاب.',
+          title: 'ابدأ من {dashboard}',
+          body: '{dashboard} تجمع صفوفك وآخر اختباراتك وتقدّم الطلاب.',
           link: 'teacherDashboard',
         },
         {
@@ -1555,9 +1835,52 @@ export const ar = {
       ] as GuideStep[],
     },
   },
+  /**
+   * Part 2 (2026-11-22) — the tests list now lives at `/teacher/tests` and the
+   * builder moved to `/teacher/tests/new`. Grading is held (Phase 4): the row
+   * actions are edit, publish and preview only.
+   */
+  testsList: {
+    headTitle: `الاختبارات — ${B}`,
+    title: 'اختباراتك',
+    newTest: '+ اختبار جديد',
+    filterLabel: 'تصفية الصف',
+    allClasses: 'كل الصفوف',
+    tableCaption:
+      'اختباراتك مع الصف وعدد الأسئلة والمدة والحالة وآخر تعديل.',
+    colTest: 'الاختبار',
+    colClass: 'الصف',
+    colQuestions: 'الأسئلة',
+    colDuration: 'المدة',
+    colStatus: 'الحالة',
+    colUpdated: 'آخر تعديل',
+    colAction: 'إجراء',
+    minutes: (count: string) => `${count} د`,
+    noDuration: '—',
+    unknownDate: 'تاريخ غير متاح',
+    statusPublished: 'منشور',
+    statusDraft: 'مسودة',
+    edit: 'تعديل',
+    preview: 'التفاصيل',
+    publish: 'نشر',
+    publishing: 'جارٍ النشر...',
+    publishErrorTitle: 'تعذّر نشر الاختبار.',
+    publishErrorBody: 'من جهتنا، لا من جهتك. أعد المحاولة بعد قليل.',
+    emptyTitle: 'لا توجد اختبارات بعد',
+    emptyBody: 'ابدأ اختبارك الأول من منشئ الاختبار.',
+    filteredEmptyTitle: 'لا اختبارات في هذا الصف',
+    filteredEmptyBody: 'جرّب صفًا آخر أو أنشئ اختبارًا جديدًا.',
+    loading: 'جارٍ تحميل الاختبارات...',
+    loadErrorTitle: 'تعذّر تحميل الاختبارات.',
+    loadErrorBody: 'من جهتنا، لا من جهتك. أعد المحاولة بعد قليل.',
+    noSessionTitle: 'لا توجد جلسة معلم.',
+    noSessionBody: 'سجّل الدخول بحساب معلم لعرض اختباراتك.',
+  },
   root: {
     notFound: 'الصفحة غير موجودة.',
-    notFoundBody: 'راجع التنقّل أعلاه، أو عد إلى زر الرجوع في المتصفح.',
+    notFoundBody:
+      'الرابط الذي فتحته غير موجود أو تغيّر. يمكنك العودة إلى صفحتك الرئيسية.',
+    notFoundHome: 'العودة إلى الصفحة الرئيسية',
     errorTitle: 'حدث خطأ غير متوقع.',
     errorBody: 'من جهتنا، لا من جهتك. أعد المحاولة بعد قليل.',
   },
@@ -1612,10 +1935,18 @@ export const en: Strings = {
     assistantOpenLabel: 'Open messages',
     searchLabel: 'Search',
     searchOpenLabel: 'Open search',
+    searchCloseLabel: 'Close search',
     accountLabel: 'Account',
+    accountMenuLabel: 'Account menu',
+    signInLabel: 'Sign in',
+    signOutLabel: 'Sign out',
+    signingOutLabel: 'Signing out...',
+    accountError: 'We could not complete the request. Try again.',
     themeLabel: 'Theme',
     themeToDark: 'Dark theme',
     themeToLight: 'Light theme',
+    breadcrumbLabel: 'Breadcrumb',
+    homeLabel: 'Home',
   },
   sidebar: {
     navLabel: 'Primary navigation',
@@ -1628,27 +1959,47 @@ export const en: Strings = {
     utilitiesLabel: 'Helpful links',
     helpLabel: 'Help',
     guideLabel: 'Guide',
+    supportLabel: 'Support',
     profileLabel: 'Profile',
     notificationsLabel: 'Notifications',
+    groups: {
+      command: 'Command',
+      detect: 'Detect',
+      diagnose: 'Diagnose',
+      decide: 'Decide',
+      verify: 'Verify',
+    },
+  },
+  guestPreview: {
+    badge: 'Guest preview',
+    body: 'Demo data. Sign in to see your own.',
+    signIn: 'Sign in',
+    roleLine: (role: string) => `Guest — ${role}`,
+    exit: 'Exit guest preview',
   },
   nav: {
-    'teacher-dashboard': 'Teacher dashboard',
+    'teacher-dashboard': 'Dashboard',
     'teacher-classes': 'My Classes',
     'teacher-tests': 'Tests',
-    'teacher-question-bank': 'Question bank',
-    'teacher-materials': 'Material library',
+    'teacher-question-bank': 'Questions',
+    'teacher-materials': 'Materials',
     'teacher-students': 'Students',
     'student-tests': 'My Tests',
     'student-lessons': 'Lessons',
     'student-progress': 'My Progress',
-    'parent-progress': "Child's Progress",
+    'parent-progress': 'Progress',
     'parent-tests': 'Tests',
     'parent-results': 'Results',
     'parent-messages': 'Messages',
   },
   dashboard: {
     headTitle: `Teacher dashboard — ${B}`,
+    headTitleFemale: `Teacher dashboard — ${B}`,
     title: 'Teacher dashboard',
+    // English has no grammatical gender here, so this mirrors `title`.
+    titleFemale: 'Teacher dashboard',
+    // Neutral fallback when no session supplies a role label.
+    titleNeutral: 'Dashboard',
     quickActions: {
       heading: 'Quick actions',
       createTest: 'Create a test',
@@ -1716,6 +2067,68 @@ export const en: Strings = {
     emptyAllTitle: 'Nothing here yet',
     emptyAllBody:
       'No classes and no tests yet. They will appear here as soon as they are added.',
+    // Part 2 rebuild (2026-11-22) — dashboard copy ported from the demo. The
+    // third KPI is "Submissions": grading is held (Phase 4), so no label here
+    // names correction, marking or a grading space.
+    filterLabel: 'Filter by class',
+    allClasses: 'All classes',
+    allClassesCount: (count: string) => `All classes (${count} students)`,
+    newTest: '+ New test',
+    unavailable: 'Unavailable',
+    kpi: {
+      students: 'Total students',
+      studentsMeta: (count: string) => `${count} active classes`,
+      mastery: 'Average mastery',
+      masteryOnTarget: 'On target',
+      masteryNeedsSupport: 'Needs support',
+      submissions: 'Submissions',
+      submissionsScored: (count: string) => `${count} with a score`,
+      submissionsNone: 'No scores yet',
+      atRisk: 'Students needing follow-up',
+      atRiskMeta: 'Below 55% mastery',
+    },
+    atRisk: {
+      heading: 'Students needing follow-up',
+      viewAll: (count: string) => `View all (${count})`,
+      student: 'Student',
+      classLabel: 'Class',
+      mastery: 'Mastery',
+      lastScore: 'Last score',
+      action: 'Action',
+      followUp: 'Follow up',
+      lastActive: (date: string) => `Last active: ${date}`,
+      emptyTitle: 'No students need follow-up',
+      emptyBody: 'Every student is above the follow-up line (55% mastery).',
+    },
+    units: {
+      heading: 'Unit mastery',
+      emptyTitle: 'No units to show',
+      emptyBody: 'Units appear here once they are linked to your classes.',
+      barLabel: (name: string) => `${name} unit mastery`,
+    },
+    drafts: {
+      heading: 'Unpublished drafts',
+      empty: 'No drafts pending.',
+      meta: (className: string, questions: string) =>
+        `${className} · ${questions}`,
+      edit: 'Edit',
+      publish: 'Publish',
+      publishing: 'Publishing...',
+      publishError: 'We could not publish the test. Try again.',
+      questionsCount: (count: number) =>
+        englishCount(count, 'question', 'questions'),
+    },
+    submissions: {
+      heading: 'Latest submissions',
+      student: 'Student',
+      test: 'Test',
+      submittedAt: 'Submitted',
+      score: 'Score',
+      emptyTitle: 'No submissions yet',
+      emptyBody:
+        'Student submissions appear here after the first published test.',
+      scoreUnavailable: 'Not scored yet',
+    },
   },
   builder: {
     headTitle: `Test builder — ${B}`,
@@ -2097,6 +2510,7 @@ export const en: Strings = {
     lead: 'Search your tests, materials and questions in one place.',
     inputLabel: 'Search term',
     placeholder: 'Type a word to search...',
+    shortcut: 'Ctrl K',
     submit: 'Search',
     promptTitle: 'Start searching',
     promptBody:
@@ -2110,6 +2524,7 @@ export const en: Strings = {
     roleTitle: 'Search is not available for this account.',
     roleBody:
       'Search covers the teacher’s tests, materials and questions in this build.',
+    viewAll: 'View all results',
     open: 'Open',
     kinds: {
       test: 'Test',
@@ -2131,7 +2546,25 @@ export const en: Strings = {
     students: 'Students',
     units: 'Units',
     lessons: 'Lessons',
+    name: 'Class',
+    subject: 'Subject',
+    grade: 'Grade',
+    tests: 'Tests',
+    status: 'Status',
+    tableCaption: 'Your classes with subject, grade, students, tests and status.',
+    statusNoTests: 'No tests',
+    statusDraft: 'Drafts',
+    statusPublished: 'Published',
     open: 'Open class',
+    // Part 2 rebuild (2026-11-22) — class cards.
+    newTest: 'Test for a class',
+    averageBadge: (percent: string) => `Average ${percent}`,
+    subjectUnits: (subject: string, done: string, total: string) =>
+      `${subject} · ${done} / ${total} units`,
+    atRisk: 'Need follow-up',
+    studentsList: 'Student list',
+    testsButton: 'Tests',
+    masteryUnavailable: 'No students yet',
     detail: {
       back: 'All classes',
       loading: 'Loading the class...',
@@ -2168,6 +2601,36 @@ export const en: Strings = {
     emptyTitle: 'No students yet',
     emptyBody: 'When students join your classes, they appear here.',
     open: 'Open student',
+    // Part 2 rebuild (2026-11-22) — students table and its drawer.
+    searchLabel: 'Filter by name',
+    searchPlaceholder: 'Filter by name...',
+    filterClass: 'Filter by class',
+    allClasses: 'All classes',
+    clearFilters: 'Clear filters',
+    countLabel: (count: string) => `(${count})`,
+    colStudent: 'Student',
+    colClass: 'Class',
+    colMastery: 'Overall mastery',
+    colLastScore: 'Last test',
+    colLastActive: 'Last active',
+    colAction: 'Action',
+    openFile: 'Follow-up file',
+    scoreUnavailable: '—',
+    noMatchTitle: 'No matching students',
+    noMatchBody: 'Try another name or choose a different class.',
+    drawer: {
+      average: 'Overall mastery',
+      lastScore: 'Last score',
+      trendHeading: 'Last three tests',
+      trendEmpty: 'No submitted attempts yet.',
+      trendTestLabel: (index: string) => `Test ${index}`,
+      trendBarLabel: (index: string, score: string) =>
+        `Test ${index}: ${score}`,
+      close: 'Close',
+      unavailable: 'Not scored yet',
+      loading: 'Loading the student attempts...',
+      loadError: 'We could not load the student attempts.',
+    },
     classLabel: 'Class',
     progressLabel: 'Progress',
     lastActive: 'Last active',
@@ -2284,6 +2747,53 @@ export const en: Strings = {
     noMatchBody: 'Try another search word or choose a different class.',
     readOnlyNote:
       'Questions here are read-only. To edit one, open its test in the test builder.',
+    // Part 2 rebuild (2026-11-22) — bank table. Authoring metadata comes from
+    // the adapter; the screen never derives difficulty or points itself.
+    colQuestion: 'Question',
+    colUnit: 'Unit',
+    colType: 'Type',
+    colDifficulty: 'Difficulty',
+    colPoints: 'Points',
+    colAction: 'Action',
+    typeMcq: 'Multiple choice',
+    typeEssay: 'Essay',
+    difficultyEasy: 'Easy',
+    difficultyMedium: 'Medium',
+    difficultyHard: 'Hard',
+    modelAnswer: 'Show the model answer',
+    addToDraft: 'Add to draft',
+    inDraft: 'In draft',
+    inDraftHint: 'This question is already in the newest draft.',
+    addedNote: (title: string) => `The question was added to ${title}.`,
+    addErrorTitle: 'We could not add the question.',
+    addErrorBody: 'It is on our side, not yours. Try again shortly.',
+    noDraft: 'No open draft',
+    noDraftHint: 'Create a test draft to add questions from the bank.',
+    targetDraft: (title: string) => `Questions are added to the newest draft: ${title}`,
+    noUnit: '—',
+    // Part 2 follow-up (2026-11-25) — new-question modal (§2.3). It creates
+    // into the newest draft's test through `questions.create`. The type,
+    // difficulty, points and unit labels reuse the table column headers.
+    newQuestion: '+ New question',
+    newQuestionModalTitle: 'Add a question to the bank',
+    promptLabel: 'Question prompt',
+    promptPlaceholder: 'Type the question...',
+    optionsLabel: 'Options',
+    optionPlaceholder: 'Option text',
+    addOption: 'Add option',
+    removeOption: 'Remove option',
+    correctOptionLabel: 'Correct answer',
+    correctOptionFor: (index: number) => `Correct answer for option ${index}`,
+    correctNone: 'No correct answer set',
+    noUnitOption: 'No unit',
+    modelAnswerLabel: 'Model answer (optional)',
+    modelAnswerPlaceholder: 'Type the model answer...',
+    save: 'Save question',
+    saving: 'Saving...',
+    cancel: 'Cancel',
+    close: 'Close',
+    createErrorTitle: 'We could not add the question.',
+    createErrorBody: 'Check the required fields and try again.',
   },
   materialLibrary: {
     headTitle: `Material library — ${B}`,
@@ -2298,6 +2808,9 @@ export const en: Strings = {
     uploadGapTitle: 'File upload is not available yet',
     uploadGapBody:
       'You can add a text material or a link. Uploading PDF and image files is not available yet.',
+    upload: '+ Upload material',
+    uploadModalTitle: 'Upload a teaching material',
+    cancel: 'Cancel',
     addHeading: 'Add a material',
     addLead: 'Record the material title and its text content or link.',
     noClassesTitle: 'No classes yet',
@@ -2358,10 +2871,23 @@ export const en: Strings = {
     detailErrorBody: 'It is on our side, not yours. Try again shortly.',
     detailNoContent: 'No text content is stored for this material.',
     openLink: 'Open the link',
+    close: 'Close',
     emptyTitle: 'No materials yet',
     emptyBody: 'Add the first text material or link from the form above.',
     emptyFilterTitle: 'No materials in this class',
     emptyFilterBody: 'Try another class or add a new material.',
+    // Part 2 rebuild (2026-11-22) — table copy. The size column is the word
+    // count the adapter supplies; a material without one shows "—", never an
+    // invented size.
+    tableCaption:
+      'Your materials with class, type, word count and date added.',
+    colTitle: 'Title',
+    colClass: 'Class',
+    colType: 'Type',
+    colWords: 'Word count',
+    colCreated: 'Date added',
+    colAction: 'Action',
+    noWords: '—',
   },
   results: {
     headTitle: `Test review — ${B}`,
@@ -2502,6 +3028,18 @@ export const en: Strings = {
     passwordLabel: 'Password',
     passwordPlaceholder: '••••••••',
     submit: 'Sign in',
+    signingIn: 'Signing in...',
+    signInHint: 'Credentials are checked by the connected accounts service.',
+    guestLabel: 'Continue as a guest',
+    guestHint:
+      'Browse the platform without signing in. You can sign in at any time.',
+    guestRolesLabel: 'Choose a preview role',
+    guestRoles: {
+      teacher: 'Teacher',
+      student: 'Student',
+      parent: 'Parent',
+      assistant: 'Assistant',
+    },
     status: 'Sign-in is not available yet.',
     unavailable:
       'The accounts service is not connected in this build, so the step was not performed.',
@@ -2569,6 +3107,47 @@ export const en: Strings = {
       assistant: 'Teacher Assistant',
       parent: 'Parents',
     },
+    rolesFemale: {
+      teacher: 'Teacher',
+      student: 'Student',
+      assistant: 'Teacher Assistant',
+      parent: 'Parents',
+    },
+  },
+  /**
+   * Support request — interface only. See the Arabic block for the intent.
+   */
+  support: {
+    headTitle: `Support — ${B}`,
+    badge: 'Support',
+    title: 'Request support',
+    lead: 'Write your request here. It reaches the support team once the service is connected.',
+    note: 'Replies arrive with the real support backend. No service is connected in this build, and no fake success is shown.',
+    formLabel: 'Support request form',
+    // Contact options — see the Arabic block. No channel is connected yet.
+    contactHeading: 'Contact options',
+    contactLead: 'The ways to reach the support team are listed here.',
+    contactEmptyTitle: 'No channel connected',
+    contactEmptyBody:
+      'The support service is not connected yet, so no contact channel is available in this build. Replies arrive once the real service is connected.',
+    nameLabel: 'Name',
+    namePlaceholder: 'Your name',
+    emailLabel: 'Email',
+    emailPlaceholder: 'name@example.com',
+    subjectLabel: 'Subject',
+    subjectPlaceholder: 'What do you need help with?',
+    messageLabel: 'Details',
+    messagePlaceholder: 'Write the details of your request here.',
+    submit: 'Send request',
+    submitting: 'Sending...',
+    unavailableTitle: 'The request was not sent.',
+    unavailableBody:
+      'The support service is not connected in this build. What you wrote stays in the form, and replies arrive once the real service is connected.',
+    acceptedTitle: 'Your request was received.',
+    acceptedBody:
+      'A reply will arrive at the email address you entered.',
+    errorTitle: 'We could not send the request.',
+    errorBody: 'It is on our side, not yours. Try again shortly.',
   },
   /**
    * Help Center — see the Arabic block for the intent. Register: MSA (formal
@@ -2593,7 +3172,7 @@ export const en: Strings = {
     },
     links: {
       profile: 'Profile and settings',
-      teacherDashboard: 'Teacher dashboard',
+      teacherDashboard: 'Dashboard',
       teacherClasses: 'My Classes',
       teacherTests: 'Tests',
       teacherQuestionBank: 'Question bank',
@@ -2612,11 +3191,11 @@ export const en: Strings = {
       'start-tour': {
         category: 'gettingStarted',
         title: 'Find your way around',
-        body: 'Every screen opens from the sidebar, with help, guide and profile below it.',
+        body: 'Every screen opens from the sidebar, with help and guide below it, and your profile in the account menu in the top bar.',
         steps: [
           'Open the sidebar from the menu button on a phone, or use it fixed on a computer.',
           'Choose the screen you want from the list.',
-          'Use the help, guide and profile links at the bottom of the sidebar.',
+          'Use the help and guide links at the bottom of the sidebar, and open your profile from the account menu in the top bar.',
         ],
       },
       'start-language': {
@@ -2820,7 +3399,7 @@ export const en: Strings = {
         title: 'Review your session details',
         body: 'The profile screen shows the current session details.',
         steps: [
-          'Open the profile from the bottom of the sidebar.',
+          'Open the profile from the account menu in the top bar.',
           'Review the name, role and email in the current session section.',
           'Account details come from the session and cannot be edited on this screen.',
         ],
@@ -2876,8 +3455,8 @@ export const en: Strings = {
       lead: 'The path of a first test: open the class, create the test, publish it, then review the results.',
       steps: [
         {
-          title: 'Start from the teacher dashboard',
-          body: 'The teacher dashboard gathers your classes, recent tests and student progress.',
+          title: 'Start from the {dashboard}',
+          body: 'The {dashboard} gathers your classes, recent tests and student progress.',
           link: 'teacherDashboard',
         },
         {
@@ -2991,9 +3570,52 @@ export const en: Strings = {
       ],
     },
   },
+  /**
+   * Part 2 (2026-11-22) — the tests list now lives at `/teacher/tests` and the
+   * builder moved to `/teacher/tests/new`. Grading is held (Phase 4): the row
+   * actions are edit, publish and preview only.
+   */
+  testsList: {
+    headTitle: `Tests — ${B}`,
+    title: 'Your tests',
+    newTest: '+ New test',
+    filterLabel: 'Filter by class',
+    allClasses: 'All classes',
+    tableCaption:
+      'Your tests with class, question count, duration, status and last edit.',
+    colTest: 'Test',
+    colClass: 'Class',
+    colQuestions: 'Questions',
+    colDuration: 'Duration',
+    colStatus: 'Status',
+    colUpdated: 'Last edit',
+    colAction: 'Action',
+    minutes: (count: string) => `${count} min`,
+    noDuration: '—',
+    unknownDate: 'Date unavailable',
+    statusPublished: 'Published',
+    statusDraft: 'Draft',
+    edit: 'Edit',
+    preview: 'Details',
+    publish: 'Publish',
+    publishing: 'Publishing...',
+    publishErrorTitle: 'We could not publish the test.',
+    publishErrorBody: 'It is on our side, not yours. Try again shortly.',
+    emptyTitle: 'No tests yet',
+    emptyBody: 'Start your first test from the test builder.',
+    filteredEmptyTitle: 'No tests in this class',
+    filteredEmptyBody: 'Try another class or create a new test.',
+    loading: 'Loading tests...',
+    loadErrorTitle: 'We could not load the tests.',
+    loadErrorBody: 'It is on our side, not yours. Try again shortly.',
+    noSessionTitle: 'No teacher session.',
+    noSessionBody: 'Sign in with a teacher account to view your tests.',
+  },
   root: {
     notFound: 'Page not found.',
-    notFoundBody: 'Check the navigation, or use the browser back button.',
+    notFoundBody:
+      'The link you opened does not exist or has moved. You can go back to your home screen.',
+    notFoundHome: 'Back to your home screen',
     errorTitle: 'Something unexpected happened.',
     errorBody: 'It is on our side, not yours. Try again shortly.',
   },

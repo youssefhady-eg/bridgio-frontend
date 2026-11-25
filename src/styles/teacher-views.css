@@ -1,0 +1,733 @@
+/*
+ * BRIDGIO — Part 2 teacher views (2026-11-22).
+ *
+ * Ported from docs/gemini-demo.html §3 "Primitives" and the teacher view
+ * renderers. Every value reads a token from tokens.css; the only literals are
+ * layout numbers with no token twin (bar height, drawer width, icon size).
+ *
+ * Prefix `tv-` keeps these rules out of the older app/polish/finish sheets.
+ * The six rebuilt teacher screens (dashboard, classes, tests, question bank,
+ * materials, students) and their drawer use this sheet only.
+ *
+ * No new colour is introduced. The primary button reads --cta-bg/--cta-text,
+ * which is the demo's cream-on-wine dark override carried by the token layer.
+ */
+
+/* Page column ------------------------------------------------------------- */
+.tv-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  font-family: var(--font-body);
+}
+
+/* Buttons ----------------------------------------------------------------- */
+.tv-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 34px;
+  padding-inline: 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background var(--ease),
+    border-color var(--ease),
+    color var(--ease);
+}
+
+.tv-btn:focus-visible,
+.tv-input:focus-visible,
+.tv-select:focus-visible,
+.tv-textarea:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.tv-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.tv-btn-sm {
+  height: 28px;
+  padding-inline: 9px;
+  font-size: var(--text-xs);
+}
+
+.tv-btn-icon {
+  width: 34px;
+  padding-inline: 0;
+}
+
+.tv-btn-icon.tv-btn-sm {
+  width: 28px;
+}
+
+.tv-btn-primary {
+  background: var(--cta-bg);
+  color: var(--cta-text);
+  box-shadow: var(--shadow-xs);
+}
+
+.tv-btn-primary:hover:not(:disabled) {
+  background: var(--cta-bg-hover);
+}
+
+.tv-btn-secondary {
+  background: var(--bg-surface);
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.tv-btn-secondary:hover:not(:disabled) {
+  background: var(--bg-hover);
+}
+
+.tv-btn-ghost {
+  color: var(--text-secondary);
+}
+
+.tv-btn-ghost:hover:not(:disabled) {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.tv-btn-subtle {
+  background: var(--bg-elevated);
+  border-color: var(--border-subtle);
+  color: var(--text-primary);
+}
+
+.tv-btn-subtle:hover:not(:disabled) {
+  border-color: var(--border-strong);
+  background: var(--bg-hover);
+}
+
+.tv-btn-danger-ghost {
+  color: var(--status-danger);
+}
+
+.tv-btn-danger-ghost:hover:not(:disabled) {
+  background: var(--status-danger-soft);
+}
+
+/* Page head --------------------------------------------------------------- */
+.tv-page-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.tv-page-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.tv-page-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Panels ------------------------------------------------------------------ */
+.tv-panel {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+  overflow: hidden;
+}
+
+.tv-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 11px 16px;
+  border-block-end: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+}
+
+.tv-panel-title {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tv-count {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.tv-panel-body {
+  padding: 14px 16px;
+}
+
+/* KPI --------------------------------------------------------------------- */
+.tv-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.tv-kpi {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 13px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: var(--shadow-xs);
+}
+
+.tv-kpi-label {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.tv-kpi-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tv-kpi-value {
+  font-size: var(--text-kpi);
+  font-weight: 700;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+
+.tv-kpi-meta {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.tv-kpi-meta[data-tone='danger'] {
+  color: var(--status-danger);
+}
+
+.tv-kpi-meta[data-tone='success'] {
+  color: var(--status-success);
+}
+
+.tv-kpi-meta[data-tone='warning'] {
+  color: var(--status-warning);
+}
+
+/* Grids ------------------------------------------------------------------- */
+.tv-grid-2 {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 16px;
+}
+
+.tv-grid-equal {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.tv-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.tv-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tv-stack-sm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Status dot -------------------------------------------------------------- */
+.tv-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.tv-status::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--status-neutral);
+  flex-shrink: 0;
+}
+
+.tv-status[data-tone='success']::before {
+  background: var(--status-success);
+}
+
+.tv-status[data-tone='warning']::before {
+  background: var(--status-warning);
+}
+
+.tv-status[data-tone='danger']::before {
+  background: var(--status-danger);
+}
+
+/* Progress bars ----------------------------------------------------------- */
+.tv-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 110px;
+}
+
+.tv-bar-track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--bg-elevated);
+  overflow: hidden;
+}
+
+/* Only the inline mastery bar shares the row with its value; the stacked unit
+   bars keep their own 6 px height and stretch to the column width. */
+.tv-bar-wrap .tv-bar-track {
+  flex: 1;
+}
+
+.tv-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--status-success);
+}
+
+.tv-bar-fill[data-tone='warning'] {
+  background: var(--status-warning);
+}
+
+.tv-bar-fill[data-tone='danger'] {
+  background: var(--status-danger);
+}
+
+/* Tables ------------------------------------------------------------------ */
+.tv-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.tv-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: start;
+  font-size: var(--text-sm);
+}
+
+.tv-table th {
+  height: 36px;
+  padding-inline: 14px;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--text-muted);
+  border-block-end: 1px solid var(--border-subtle);
+  background: var(--bg-inset);
+  white-space: nowrap;
+  text-align: start;
+}
+
+.tv-table td {
+  height: var(--row-h);
+  padding: 6px 14px;
+  border-block-end: 1px solid var(--border-subtle);
+  vertical-align: middle;
+  text-align: start;
+  /* Density (brief §2.7): one line per cell, so a two-line primary cell can no
+     longer grow the row past --row-h (42px). Primary text truncates below. */
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.tv-table tbody tr:last-child td {
+  border-block-end: none;
+}
+
+.tv-table tbody tr:hover {
+  background: var(--bg-hover);
+}
+
+.tv-cell-title {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.tv-cell-sub {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+/* Density (brief §2.7): a primary cell holds its title and its sub-line on ONE
+   line so the row stays 42px. The title truncates with an ellipsis; the sub
+   keeps its short text beside it. The demo stacks these two lines, which grew
+   its rows to 52px — this brief item deliberately deviates (delivery note). */
+.tv-td-primary {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tv-td-primary .tv-cell-title,
+.tv-td-primary .tv-cell-sub,
+.tv-td-primary details {
+  display: inline;
+}
+
+.tv-td-primary details > summary {
+  display: inline;
+  margin-inline-start: 8px;
+}
+
+.tv-td-primary details[open] {
+  display: block;
+  white-space: normal;
+}
+
+/* At-risk (dashboard §2.1): the class, mastery, last-score and action columns
+   keep their natural widths, and the primary student cell is capped so its
+   single line truncates with the cell's ellipsis. Without the cap the English
+   meta ("Last active: 29 October 2026") makes the table wider than its panel
+   and pushes the Action column and Follow-up button out of view. The cap only
+   applies in the desktop table layout; the ≤768 px card mode below is a block
+   list and keeps its full width. */
+@media (min-width: 769px) {
+  .tv-table--at-risk .tv-td-primary {
+    max-width: 170px;
+  }
+}
+
+.tv-actions-cell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.tv-num {
+  font-variant-numeric: tabular-nums;
+}
+
+.tv-inline-error {
+  font-size: var(--text-xs);
+  color: var(--status-danger);
+}
+
+.tv-empty-cell {
+  text-align: center;
+  color: var(--text-muted);
+  height: auto;
+  padding: 24px 14px;
+}
+
+/* Inputs ------------------------------------------------------------------ */
+.tv-input,
+.tv-select,
+.tv-textarea {
+  height: 34px;
+  padding-inline: 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-strong);
+  background: var(--bg-inset);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  width: 100%;
+}
+
+.tv-select {
+  width: auto;
+}
+
+.tv-textarea {
+  height: auto;
+  padding: 10px;
+  min-height: 84px;
+  resize: vertical;
+  line-height: 1.55;
+}
+
+.tv-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.tv-label {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.tv-field-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+/* New-question modal (brief §2.3) — options editor. */
+.tv-fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tv-option-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tv-option-row .tv-input {
+  flex: 1;
+}
+
+/* Overlay: drawer --------------------------------------------------------- */
+.tv-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 7, 8, 0.58);
+  z-index: 900;
+  display: flex;
+  justify-content: flex-end;
+  padding: 0;
+}
+
+.tv-drawer {
+  width: min(460px, 100vw);
+  height: 100dvh;
+  background: var(--bg-surface);
+  border-inline-start: 1px solid var(--border-strong);
+  box-shadow: var(--shadow-overlay);
+  display: flex;
+  flex-direction: column;
+}
+
+.tv-drawer-body {
+  padding: 16px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tv-drawer-foot {
+  padding: 12px 16px;
+  border-block-start: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: var(--bg-inset);
+}
+
+/* Brief §2.10 — the drawer subtitle (class · last active) must be fully visible
+   in both languages. The heading block shrinks and the subtitle breaks long
+   unbroken runs instead of clipping at the drawer edge. */
+.tv-drawer-heading {
+  min-width: 0;
+}
+
+.tv-drawer-heading .tv-cell-sub {
+  overflow-wrap: anywhere;
+}
+
+/* Overlay: centred modal (demo `.br-modal`) ------------------------------- */
+.tv-backdrop-center {
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+}
+
+.tv-modal {
+  width: 100%;
+  max-height: 86dvh;
+  overflow: hidden;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-overlay);
+  display: flex;
+  flex-direction: column;
+}
+
+.tv-modal-body {
+  padding: 16px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tv-modal-foot {
+  padding: 12px 16px;
+  border-block-start: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: var(--bg-inset);
+}
+
+/* Empty / error note ------------------------------------------------------ */
+.tv-empty {
+  padding: 40px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-secondary);
+}
+
+.tv-empty-title {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.tv-empty-body {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  max-width: 46ch;
+}
+
+/* Loading note ----------------------------------------------------------- */
+.tv-loading {
+  margin: 0;
+  padding: 24px 16px;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+/* Attempt bars (student drawer) ------------------------------------------ */
+.tv-bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 14px;
+  height: 110px;
+}
+
+.tv-bar-col {
+  flex: 1;
+  max-width: 96px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.tv-bar-col__fill {
+  width: 100%;
+  background: var(--brand-maroon);
+  border-radius: 4px 4px 0 0;
+  min-height: 3px;
+}
+
+/* Responsive -------------------------------------------------------------- */
+@media (max-width: 960px) {
+  .tv-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tv-grid-2,
+  .tv-grid-equal,
+  .tv-grid-3 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .tv-table thead {
+    display: none;
+  }
+
+  .tv-table,
+  .tv-table tbody,
+  .tv-table tr,
+  .tv-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .tv-table tr {
+    padding: 10px 12px;
+    border-block-end: 1px solid var(--border-subtle);
+  }
+
+  .tv-table td {
+    height: auto;
+    padding: 4px 0;
+    border: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    white-space: normal;
+    overflow: visible;
+  }
+
+  .tv-td-primary .tv-cell-title,
+  .tv-td-primary .tv-cell-sub,
+  .tv-td-primary details {
+    display: block;
+  }
+
+  .tv-table td::before {
+    content: attr(data-label);
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .tv-table td:not([data-label])::before {
+    content: none;
+  }
+
+  .tv-actions-cell {
+    justify-content: flex-end;
+  }
+}

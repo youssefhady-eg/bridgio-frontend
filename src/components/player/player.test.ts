@@ -31,6 +31,7 @@ function attemptSummary(input: {
     questionCount: 3,
     startedAt: '2026-11-03T10:00:00.000Z',
     submittedAt: input.status === 'submitted' ? '2026-11-03T11:00:00.000Z' : null,
+    scorePercent: null,
   }
 }
 
@@ -60,6 +61,7 @@ function test(input: { id: string; updatedAt: string }): TestSummary {
     questionCount: 2,
     updatedAt: input.updatedAt,
     publishedAt: input.updatedAt,
+    durationMinutes: null,
   }
 }
 
