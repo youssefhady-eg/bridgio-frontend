@@ -273,6 +273,7 @@ function MaterialRow({
     <tr>
       <td className="tv-td-primary">
         <div className="tv-cell-title">{material.title}</div>
+        {' · '}
         <div className="tv-cell-sub">{unit?.title ?? copy.noUnit}</div>
         {material.status !== 'ready' ? (
           <Status tone="warning">{statusLabels[material.status]}</Status>
@@ -505,7 +506,9 @@ function UploadMaterialModal({
         }}
       >
         <p className="tv-cell-sub">
-          {copy.uploadGapTitle} {copy.uploadGapBody}
+          {copy.uploadGapTitle}
+          {' '}
+          {copy.uploadGapBody}
         </p>
 
         <label className="tv-field">

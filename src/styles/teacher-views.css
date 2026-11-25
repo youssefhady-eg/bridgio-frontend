@@ -415,6 +415,19 @@
   white-space: normal;
 }
 
+/* At-risk (dashboard §2.1): the class, mastery, last-score and action columns
+   keep their natural widths, and the primary student cell is capped so its
+   single line truncates with the cell's ellipsis. Without the cap the English
+   meta ("Last active: 29 October 2026") makes the table wider than its panel
+   and pushes the Action column and Follow-up button out of view. The cap only
+   applies in the desktop table layout; the ≤768 px card mode below is a block
+   list and keeps its full width. */
+@media (min-width: 769px) {
+  .tv-table--at-risk .tv-td-primary {
+    max-width: 170px;
+  }
+}
+
 .tv-actions-cell {
   display: flex;
   align-items: center;

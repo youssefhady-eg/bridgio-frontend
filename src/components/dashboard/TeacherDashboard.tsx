@@ -236,7 +236,7 @@ export function TeacherDashboard() {
             />
           ) : (
             <div className="tv-table-wrap">
-              <table className="tv-table">
+              <table className="tv-table tv-table--at-risk">
                 <caption className="visually-hidden">
                   {copy.atRisk.heading}
                 </caption>
@@ -256,6 +256,7 @@ export function TeacherDashboard() {
                         <div className="tv-cell-title">
                           {row.student.displayName}
                         </div>
+                        {' · '}
                         <div className="tv-cell-sub">
                           {copy.atRisk.lastActive(
                             formatDate(
@@ -367,6 +368,7 @@ export function TeacherDashboard() {
                       <tr key={test.id}>
                         <td className="tv-td-primary">
                           <div className="tv-cell-title">{test.title}</div>
+                          {' · '}
                           <div className="tv-cell-sub">
                             {copy.drafts.meta(
                               test.classroomName,

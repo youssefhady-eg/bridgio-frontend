@@ -299,7 +299,7 @@ export const ar = {
     filterLabel: 'تصفية الصف',
     allClasses: 'جميع الصفوف',
     allClassesCount: (count: string) => `جميع الصفوف (${count} طالب)`,
-    newTest: 'اختبار جديد',
+    newTest: '+ اختبار جديد',
     unavailable: 'غير متاح',
     kpi: {
       students: 'إجمالي الطلاب',
@@ -1015,7 +1015,7 @@ export const ar = {
     // Part 2 follow-up (2026-11-25) — new-question modal (§2.3). It creates
     // into the newest draft's test through `questions.create`. The type,
     // difficulty, points and unit labels reuse the table column headers.
-    newQuestion: 'سؤال جديد',
+    newQuestion: '+ سؤال جديد',
     newQuestionModalTitle: 'إضافة سؤال لبنك الأسئلة',
     promptLabel: 'نص السؤال',
     promptPlaceholder: 'اكتب نص السؤال...',
@@ -1051,7 +1051,7 @@ export const ar = {
     uploadGapTitle: 'رفع الملفات غير متاح بعد',
     uploadGapBody:
       'يمكنك إضافة مادة نصية أو رابط. رفع ملفات PDF والصور غير متاح بعد.',
-    upload: 'رفع مادة',
+    upload: '+ رفع مادة',
     uploadModalTitle: 'رفع مادة تعليمية',
     cancel: 'إلغاء',
     addHeading: 'أضف مادة',
@@ -1843,7 +1843,7 @@ export const ar = {
   testsList: {
     headTitle: `الاختبارات — ${B}`,
     title: 'اختباراتك',
-    newTest: 'اختبار جديد',
+    newTest: '+ اختبار جديد',
     filterLabel: 'تصفية الصف',
     allClasses: 'كل الصفوف',
     tableCaption:
@@ -2073,7 +2073,7 @@ export const en: Strings = {
     filterLabel: 'Filter by class',
     allClasses: 'All classes',
     allClassesCount: (count: string) => `All classes (${count} students)`,
-    newTest: 'New test',
+    newTest: '+ New test',
     unavailable: 'Unavailable',
     kpi: {
       students: 'Total students',
@@ -2774,7 +2774,7 @@ export const en: Strings = {
     // Part 2 follow-up (2026-11-25) — new-question modal (§2.3). It creates
     // into the newest draft's test through `questions.create`. The type,
     // difficulty, points and unit labels reuse the table column headers.
-    newQuestion: 'New question',
+    newQuestion: '+ New question',
     newQuestionModalTitle: 'Add a question to the bank',
     promptLabel: 'Question prompt',
     promptPlaceholder: 'Type the question...',
@@ -2808,7 +2808,7 @@ export const en: Strings = {
     uploadGapTitle: 'File upload is not available yet',
     uploadGapBody:
       'You can add a text material or a link. Uploading PDF and image files is not available yet.',
-    upload: 'Upload material',
+    upload: '+ Upload material',
     uploadModalTitle: 'Upload a teaching material',
     cancel: 'Cancel',
     addHeading: 'Add a material',
@@ -3578,7 +3578,7 @@ export const en: Strings = {
   testsList: {
     headTitle: `Tests — ${B}`,
     title: 'Your tests',
-    newTest: 'New test',
+    newTest: '+ New test',
     filterLabel: 'Filter by class',
     allClasses: 'All classes',
     tableCaption:

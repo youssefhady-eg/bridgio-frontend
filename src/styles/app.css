@@ -36,6 +36,16 @@ body {
   padding: 0;
 }
 
+/* No link underlines anywhere by default (owner 2026-11-25). Anchors that are
+   styled as buttons or rows (`.tv-btn`, table preview/edit links, nav, sidebar,
+   footer) therefore inherit no decoration in their default or hover state.
+   Existing per-component `text-decoration: none` rules stay as they are; a
+   component that genuinely needs an underline adds it deliberately, never by
+   default. */
+a {
+  text-decoration: none;
+}
+
 html {
   font-size: var(--font-body-size);
   -webkit-text-size-adjust: 100%;
@@ -147,6 +157,13 @@ summary:focus-visible,
   height: 100dvh;
   overflow: hidden;
   background: var(--bg-canvas);
+  /* Rail collapse/expand animates on the demo's --ease (130ms
+     cubic-bezier(0.2, 0, 0, 1)) in both directions: grid-template-columns
+     interpolates between the 236px and 58px track lists, so the rail passes
+     through intermediate widths instead of snapping. The reduced-motion block
+     below forces transition-duration to 0.01ms, keeping the OS's instant
+     behaviour. */
+  transition: grid-template-columns var(--ease);
 }
 
 .app-shell[data-collapsed='true'] {

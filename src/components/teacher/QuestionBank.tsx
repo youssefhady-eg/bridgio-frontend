@@ -248,14 +248,17 @@ export function QuestionBank() {
                       <td className="tv-td-primary">
                         <div className="tv-cell-title">{question.prompt}</div>
                         {question.modelAnswer ? (
-                          <details className="tv-cell-sub">
-                            <summary style={{ cursor: 'pointer' }}>
-                              {copy.modelAnswer}
-                            </summary>
-                            <div style={{ marginTop: '4px' }}>
-                              {question.modelAnswer}
-                            </div>
-                          </details>
+                          <>
+                            {' · '}
+                            <details className="tv-cell-sub">
+                              <summary style={{ cursor: 'pointer' }}>
+                                {copy.modelAnswer}
+                              </summary>
+                              <div style={{ marginTop: '4px' }}>
+                                {question.modelAnswer}
+                              </div>
+                            </details>
+                          </>
                         ) : null}
                       </td>
                       <td data-label={copy.colUnit} className="tv-cell-sub">
