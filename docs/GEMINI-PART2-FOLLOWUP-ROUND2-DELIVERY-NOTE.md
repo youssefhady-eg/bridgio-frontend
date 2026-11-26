@@ -4,7 +4,8 @@ Branch `gemini/ui-refresh`. Baseline commit `327680a`. Push only — no PR, no
 merge.
 
 Covers the round-2 brief (§2.1–§2.5), the **rail collapse/expand animation**
-add-on, and the **no underlines anywhere** add-on.
+add-on, the **no underlines anywhere** add-on, and the **smaller sidebar
+wordmark** add-on.
 
 ---
 
@@ -232,6 +233,35 @@ Screenshots: `gemini-part2-round2-nounderline-{head,row,sidebar}-{en,ar}.png`,
 `…-nounderline-{head,row,sidebar}-hover-{en,ar}.png`, and full-page
 `…-nounderline-page-{en,ar}.png`.
 
+### §4.3 — Sidebar wordmark a little smaller
+
+**Before.** `.app-sidebar__wordmark-img` was `width: 136px` (rendering ~137×50 in
+the 236 px rail).
+
+**Fix.** `src/styles/app.css`: `width: 136px` → `width: 120px`. Height stays
+`auto`, so the 720×260 viewBox keeps its aspect ratio. Nothing else changed: the
+same two theme-aware files (maroon on light, cream on wine-dark), the same
+collapsed behaviour (hidden when collapsed), the same brand-row layout and
+toggle position. The mobile drawer reuses the same class, so it shrinks there
+too. 120 px is also the documented minimum (`docs/BRIDGIO-LIVE_RULES.md` §2: the
+wordmark is allowed "at 120 px width or wider"; `--bridgio-wordmark-min-width:
+120px`), so this stays inside the lock.
+
+**Live measurement** (headless Chromium, expanded rail = 236 px):
+
+| theme | dir | visible file | render size | aspect h/w | brand row | toggle in row | toggle↔wordmark center Δ |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| light | LTR | wordmark-maroon.svg | 120 × 43.33 | 0.3611 | h 52 | yes | 0 px |
+| dark | LTR | wordmark-cream.svg | 120 × 43.33 | 0.3611 | h 52 | yes | 0 px |
+| light | RTL | wordmark-maroon.svg | 120 × 43.33 | 0.3611 | h 52 | yes | 0 px |
+| dark | RTL | wordmark-cream.svg | 120 × 43.33 | 0.3611 | h 52 | yes | 0 px |
+
+`43.33 / 120 = 0.3611 = 260 / 720`, so the aspect ratio is preserved exactly. The
+collapse toggle stays inside the 52 px brand row, vertically centred with the
+wordmark (Δ 0 px), at its usual inline-end position in both directions.
+
+Screenshots: `gemini-part2-round2-wordmark-sidebar-{en,ar}-{light,dark}.png`.
+
 ---
 
 ## Conflicts with `docs/BRIDGIO-LIVE_RULES.md`
@@ -253,3 +283,4 @@ uncommitted. `.agents/`, `docs/BRIDGIO-gemini-apply-prompt.md` and
   `…-head-newquestion-{en,ar}.png`, `…-head-uploadmaterial-{en,ar}.png`.
 - No underlines: `gemini-part2-round2-nounderline-{head,row,sidebar}-{en,ar}.png`
   and their `-hover-` variants, plus `…-nounderline-page-{en,ar}.png`.
+- Wordmark size: `gemini-part2-round2-wordmark-sidebar-{en,ar}-{light,dark}.png`.

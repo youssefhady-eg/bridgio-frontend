@@ -217,7 +217,7 @@ summary:focus-visible,
    stretched (the height stays auto so the 720×260 viewBox keeps its aspect). */
 .app-sidebar__wordmark-img {
   display: none;
-  width: 136px;
+  width: 120px;
   height: auto;
   max-width: 100%;
 }
